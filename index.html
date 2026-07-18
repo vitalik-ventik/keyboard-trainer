@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrillForPerfection — Клавіатурний тренажер</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Ігрове полотно: кубик, шипи, фони, клавіатура, смуга прогресу -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Екран завантаження -->
+    <div id="loadingScreen" class="overlay">
+        <h1 class="neon-title loading-pulse">ЗАВАНТАЖЕННЯ...</h1>
+        <p class="loading-progress">Аудіо: <span id="loadingProgress">0 / 8</span></p>
+    </div>
+
+    <!-- Головне меню -->
+    <div id="mainMenu" class="overlay hidden">
+        <h1 class="neon-title game-title">DRILL FOR PERFECTION</h1>
+        <p class="subtitle">Клавіатурний тренажер у стилі Geometry Dash</p>
+        <div class="menu-buttons">
+            <button id="btnLevels" class="round-btn side-btn" type="button" aria-label="Вибір рівня">
+                <span class="btn-icon">&#9638;</span>
+                <span class="btn-label">ВИБІР РІВНЯ</span>
+            </button>
+            <button id="btnStart" class="round-btn start-btn" type="button" aria-label="Старт">
+                <span class="btn-icon">&#9658;</span>
+                <span class="btn-label">СТАРТ</span>
+            </button>
+            <button id="btnSettings" class="round-btn side-btn" type="button" aria-label="Налаштування">
+                <span class="btn-icon">&#9881;</span>
+                <span class="btn-label">НАЛАШТУВАННЯ</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Модальне вікно налаштувань -->
+    <div id="settingsModal" class="overlay modal-backdrop hidden">
+        <div class="modal">
+            <h2 class="neon-title">НАЛАШТУВАННЯ</h2>
+            <p class="modal-caption">Складність</p>
+            <div class="difficulty-row">
+                <button id="btnEasy" class="diff-btn" type="button">EASY</button>
+                <button id="btnHard" class="diff-btn" type="button">HARD</button>
+            </div>
+            <p class="diff-hint" id="diffHint">EASY: вибух лише при зіткненні з шипом</p>
+            <button id="btnCloseSettings" class="text-btn" type="button">ЗАКРИТИ</button>
+        </div>
+    </div>
+
+    <!-- Екран вибору рівня -->
+    <div id="levelSelect" class="overlay hidden">
+        <h2 class="neon-title">ВИБІР РІВНЯ</h2>
+        <div id="levelGrid" class="level-grid"></div>
+        <button id="btnLevelsBack" class="text-btn" type="button">НАЗАД</button>
+    </div>
+
+    <!-- Екран поразки -->
+    <div id="gameoverScreen" class="overlay hidden">
+        <h2 class="neon-title danger-title">ВИБУХ!</h2>
+        <p class="result-line">Пройдено: <span id="gameoverPct">0%</span></p>
+        <p class="result-line">Очки: <span id="gameoverScore">0</span></p>
+        <div class="result-buttons">
+            <button id="btnRetry" class="action-btn" type="button">СПРОБУВАТИ ЩЕ</button>
+            <button id="btnGoMenu" class="action-btn secondary" type="button">ДО МЕНЮ</button>
+        </div>
+    </div>
+
+    <!-- Екран перемоги -->
+    <div id="victoryScreen" class="overlay hidden">
+        <h2 class="neon-title victory-title">ПЕРЕМОГА! 100%</h2>
+        <p class="result-line">Очки: <span id="victoryScore">0</span></p>
+        <p class="result-line" id="victoryUnlock"></p>
+        <div class="result-buttons">
+            <button id="btnNext" class="action-btn" type="button">НАСТУПНИЙ РІВЕНЬ</button>
+            <button id="btnRetryWin" class="action-btn secondary" type="button">ЩЕ РАЗ</button>
+            <button id="btnWinMenu" class="action-btn secondary" type="button">ДО МЕНЮ</button>
+        </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
