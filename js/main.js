@@ -46,12 +46,15 @@ const gameoverScoreEl = document.getElementById("gameoverScore");
 const victoryScoreEl = document.getElementById("victoryScore");
 const victoryUnlockEl = document.getElementById("victoryUnlock");
 const diffHintEl = document.getElementById("diffHint");
+const hitWindowHintEl = document.getElementById("hitWindowHint");
 const btnStart = document.getElementById("btnStart");
 const btnLevels = document.getElementById("btnLevels");
 const btnSettings = document.getElementById("btnSettings");
 const btnEasy = document.getElementById("btnEasy");
 const btnHard = document.getElementById("btnHard");
 const btnCloseSettings = document.getElementById("btnCloseSettings");
+const btnNormal = document.getElementById("btnNormal");
+const btnLarge = document.getElementById("btnLarge");
 const btnLevelsBack = document.getElementById("btnLevelsBack");
 const btnRetry = document.getElementById("btnRetry");
 const btnGoMenu = document.getElementById("btnGoMenu");
@@ -119,7 +122,7 @@ function setState(next) {
 // ---------- Демо-заставка меню ----------
 
 function createDemoEngine() {
-    demoEngine = new Engine(save.getLastPlayable(), "EASY", true);
+    demoEngine = new Engine(save.getLastPlayable(), "EASY", true, save.getHitWindow());
 }
 
 // ---------- Запуск рівня ----------
@@ -128,7 +131,7 @@ function startLevel(levelId) {
     currentLevelId = levelId;
     resultRecorded = false;
     wrongKeyError = { letter: null, timestamp: 0 };
-    gameEngine = new Engine(levelId, save.getDifficulty(), false);
+    gameEngine = new Engine(levelId, save.getDifficulty(), false, save.getHitWindow());
     gameEngine.onJump = function () {
         playSound("jump");
     };
@@ -249,6 +252,18 @@ function refreshDifficultyButtons() {
     diffHintEl.textContent = DIFF_HINTS[difficulty];
 }
 
+const HIT_WINDOW_HINTS = {
+    normal: "NORMAL: стандартний розмір зон «ОК» та «Ідеально»",
+    large: "LARGE: подвоєний розмір обох зон — «ОК» та «Ідеально»"
+};
+
+function refreshHitWindowButtons() {
+    const hitWindow = save.getHitWindow();
+    btnNormal.classList.toggle("active-normal", hitWindow === "normal");
+    btnLarge.classList.toggle("active-large", hitWindow === "large");
+    hitWindowHintEl.textContent = HIT_WINDOW_HINTS[hitWindow] || HIT_WINDOW_HINTS.normal;
+}
+
 // ---------- Кнопки ----------
 
 btnStart.addEventListener("click", function () {
@@ -262,6 +277,7 @@ btnLevels.addEventListener("click", function () {
 
 btnSettings.addEventListener("click", function () {
     refreshDifficultyButtons();
+    refreshHitWindowButtons();
     setState("SETTINGS");
 });
 
@@ -277,6 +293,16 @@ btnHard.addEventListener("click", function () {
 
 btnCloseSettings.addEventListener("click", function () {
     setState("MENU");
+});
+
+btnNormal.addEventListener("click", function () {
+    save.setHitWindow("normal");
+    refreshHitWindowButtons();
+});
+
+btnLarge.addEventListener("click", function () {
+    save.setHitWindow("large");
+    refreshHitWindowButtons();
 });
 
 btnLevelsBack.addEventListener("click", function () {

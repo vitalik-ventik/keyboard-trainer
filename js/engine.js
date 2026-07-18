@@ -311,7 +311,7 @@ function defaultSaveData() {
     }
     return {
         version: 1,
-        settings: { difficulty: "EASY" },
+        settings: { difficulty: "EASY", hitWindow: "normal" },
         progress: { unlocked: 1, levels: levels }
     };
 }
@@ -323,6 +323,9 @@ function sanitizeSaveData(raw) {
     }
     if (raw.settings && (raw.settings.difficulty === "EASY" || raw.settings.difficulty === "HARD")) {
         clean.settings.difficulty = raw.settings.difficulty;
+    }
+    if (raw.settings && (raw.settings.hitWindow === "normal" || raw.settings.hitWindow === "large")) {
+        clean.settings.hitWindow = raw.settings.hitWindow;
     }
     if (raw.progress && typeof raw.progress === "object") {
         const unlocked = Number(raw.progress.unlocked);
@@ -421,6 +424,23 @@ export const save = {
         return saveData.settings.difficulty;
     },
 
+    setHitWindow(size) {
+        if (!saveData) {
+            this.load();
+        }
+        if (size === "normal" || size === "large") {
+            saveData.settings.hitWindow = size;
+            this.persist();
+        }
+    },
+
+    getHitWindow() {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.settings.hitWindow || "normal";
+    },
+
     getProgress() {
         if (!saveData) {
             this.load();
@@ -459,18 +479,20 @@ function hitWindowTimes(levelId) {
 // ---------- Клас Engine ----------
 
 export class Engine {
-    constructor(levelId, difficulty, demoMode) {
+    constructor(levelId, difficulty, demoMode, hitWindow) {
         this.level = LEVELS.find(function (l) { return l.id === levelId; }) || LEVELS[0];
         this.difficulty = difficulty === "HARD" ? "HARD" : "EASY";
         this.demoMode = !!demoMode;
+        const hitWindowSetting = hitWindow === "large" ? "large" : "normal";
 
         this.onJump = null;
         this.onExplode = null;
         this.onVictory = null;
 
         const windows = hitWindowTimes(this.level.id);
-        this.okPx = this.level.speed * windows.okTime;
-        this.perfectPx = this.level.speed * windows.perfectTime;
+        const multiplier = hitWindowSetting === "large" ? 2 : 1;
+        this.okPx = this.level.speed * windows.okTime * multiplier;
+        this.perfectPx = this.level.speed * windows.perfectTime * multiplier;
 
         this.reset();
     }
