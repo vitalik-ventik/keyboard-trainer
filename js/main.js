@@ -47,6 +47,7 @@ const victoryScoreEl = document.getElementById("victoryScore");
 const victoryUnlockEl = document.getElementById("victoryUnlock");
 const diffHintEl = document.getElementById("diffHint");
 const hitWindowHintEl = document.getElementById("hitWindowHint");
+const speedHintEl = document.getElementById("speedHint");
 const btnStart = document.getElementById("btnStart");
 const btnLevels = document.getElementById("btnLevels");
 const btnSettings = document.getElementById("btnSettings");
@@ -55,6 +56,9 @@ const btnHard = document.getElementById("btnHard");
 const btnCloseSettings = document.getElementById("btnCloseSettings");
 const btnNormal = document.getElementById("btnNormal");
 const btnLarge = document.getElementById("btnLarge");
+const btnSpeedSlow = document.getElementById("btnSpeedSlow");
+const btnSpeedNormal = document.getElementById("btnSpeedNormal");
+const btnSpeedFast = document.getElementById("btnSpeedFast");
 const btnLevelsBack = document.getElementById("btnLevelsBack");
 const btnRetry = document.getElementById("btnRetry");
 const btnGoMenu = document.getElementById("btnGoMenu");
@@ -122,7 +126,7 @@ function setState(next) {
 // ---------- Демо-заставка меню ----------
 
 function createDemoEngine() {
-    demoEngine = new Engine(save.getLastPlayable(), "EASY", true, save.getHitWindow());
+    demoEngine = new Engine(save.getLastPlayable(), "EASY", true, save.getHitWindow(), save.getSpeed());
 }
 
 // ---------- Запуск рівня ----------
@@ -131,7 +135,7 @@ function startLevel(levelId) {
     currentLevelId = levelId;
     resultRecorded = false;
     wrongKeyError = { letter: null, timestamp: 0 };
-    gameEngine = new Engine(levelId, save.getDifficulty(), false, save.getHitWindow());
+    gameEngine = new Engine(levelId, save.getDifficulty(), false, save.getHitWindow(), save.getSpeed());
     gameEngine.onJump = function () {
         playSound("jump");
     };
@@ -264,6 +268,20 @@ function refreshHitWindowButtons() {
     hitWindowHintEl.textContent = HIT_WINDOW_HINTS[hitWindow] || HIT_WINDOW_HINTS.normal;
 }
 
+const SPEED_HINTS = {
+    slow: "SLOW: швидкість зменшена на 25% — більше часу на реакцію",
+    normal: "NORMAL: стандартна швидкість рівня",
+    fast: "FAST: швидкість збільшена на 25% — для досвідчених гравців"
+};
+
+function refreshSpeedButtons() {
+    const speed = save.getSpeed();
+    btnSpeedSlow.classList.toggle("active-slow", speed === "slow");
+    btnSpeedNormal.classList.toggle("active-normal", speed === "normal");
+    btnSpeedFast.classList.toggle("active-fast", speed === "fast");
+    speedHintEl.textContent = SPEED_HINTS[speed] || SPEED_HINTS.normal;
+}
+
 // ---------- Кнопки ----------
 
 btnStart.addEventListener("click", function () {
@@ -278,6 +296,7 @@ btnLevels.addEventListener("click", function () {
 btnSettings.addEventListener("click", function () {
     refreshDifficultyButtons();
     refreshHitWindowButtons();
+    refreshSpeedButtons();
     setState("SETTINGS");
 });
 
@@ -303,6 +322,21 @@ btnNormal.addEventListener("click", function () {
 btnLarge.addEventListener("click", function () {
     save.setHitWindow("large");
     refreshHitWindowButtons();
+});
+
+btnSpeedSlow.addEventListener("click", function () {
+    save.setSpeed("slow");
+    refreshSpeedButtons();
+});
+
+btnSpeedNormal.addEventListener("click", function () {
+    save.setSpeed("normal");
+    refreshSpeedButtons();
+});
+
+btnSpeedFast.addEventListener("click", function () {
+    save.setSpeed("fast");
+    refreshSpeedButtons();
 });
 
 btnLevelsBack.addEventListener("click", function () {

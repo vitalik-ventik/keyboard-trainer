@@ -311,7 +311,7 @@ function defaultSaveData() {
     }
     return {
         version: 1,
-        settings: { difficulty: "EASY", hitWindow: "normal" },
+        settings: { difficulty: "EASY", hitWindow: "normal", speed: "normal" },
         progress: { unlocked: 1, levels: levels }
     };
 }
@@ -326,6 +326,9 @@ function sanitizeSaveData(raw) {
     }
     if (raw.settings && (raw.settings.hitWindow === "normal" || raw.settings.hitWindow === "large")) {
         clean.settings.hitWindow = raw.settings.hitWindow;
+    }
+    if (raw.settings && (raw.settings.speed === "slow" || raw.settings.speed === "normal" || raw.settings.speed === "fast")) {
+        clean.settings.speed = raw.settings.speed;
     }
     if (raw.progress && typeof raw.progress === "object") {
         const unlocked = Number(raw.progress.unlocked);
@@ -441,6 +444,23 @@ export const save = {
         return saveData.settings.hitWindow || "normal";
     },
 
+    setSpeed(speed) {
+        if (!saveData) {
+            this.load();
+        }
+        if (speed === "slow" || speed === "normal" || speed === "fast") {
+            saveData.settings.speed = speed;
+            this.persist();
+        }
+    },
+
+    getSpeed() {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.settings.speed || "normal";
+    },
+
     getProgress() {
         if (!saveData) {
             this.load();
@@ -479,8 +499,10 @@ function hitWindowTimes(levelId) {
 // ---------- Клас Engine ----------
 
 export class Engine {
-    constructor(levelId, difficulty, demoMode, hitWindow) {
-        this.level = LEVELS.find(function (l) { return l.id === levelId; }) || LEVELS[0];
+    constructor(levelId, difficulty, demoMode, hitWindow, speed) {
+        const SPEED_MULTIPLIERS = { slow: 0.75, normal: 1.0, fast: 1.25 };
+        this.level = { ...(LEVELS.find(function (l) { return l.id === levelId; }) || LEVELS[0]) };
+        this.effectiveSpeed = this.level.speed * (SPEED_MULTIPLIERS[speed] ?? 1.0);
         this.difficulty = difficulty === "HARD" ? "HARD" : "EASY";
         this.demoMode = !!demoMode;
         const hitWindowSetting = hitWindow === "large" ? "large" : "normal";
@@ -491,8 +513,8 @@ export class Engine {
 
         const windows = hitWindowTimes(this.level.id);
         const multiplier = hitWindowSetting === "large" ? 2 : 1;
-        this.okPx = this.level.speed * windows.okTime * multiplier;
-        this.perfectPx = this.level.speed * windows.perfectTime * multiplier;
+        this.okPx = this.effectiveSpeed * windows.okTime * multiplier;
+        this.perfectPx = this.effectiveSpeed * windows.perfectTime * multiplier;
 
         this.reset();
     }
@@ -699,7 +721,7 @@ export class Engine {
             return;
         }
 
-        this.player.x += this.level.speed * dt;
+        this.player.x += this.effectiveSpeed * dt;
 
         if (!this.player.onGround) {
             this.player.vy -= GRAVITY * dt;
@@ -766,7 +788,7 @@ export class Engine {
 
         for (const spike of this.spikes) {
             if (spike.type === "saw" && spike.state === "ahead") {
-                spike.rotationAngle += this.level.speed * 0.02 * dt;
+                spike.rotationAngle += this.effectiveSpeed * 0.02 * dt;
             }
         }
 

@@ -325,6 +325,53 @@ body {
     min-height: 4.2vmin;
 }
 
+.speed-row {
+    display: flex;
+    gap: 3vmin;
+}
+
+.speed-btn {
+    padding: 1.6vmin 4.6vmin;
+    font-size: 2.8vmin;
+    font-weight: 800;
+    letter-spacing: 0.3vmin;
+    color: #8b93ad;
+    background: #10142b;
+    border: 0.3vmin solid #2a3050;
+    border-radius: 1.2vmin;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.speed-btn.active-slow {
+    color: #05060f;
+    background: var(--neon-cyan);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 20px rgba(0, 246, 255, 0.8);
+}
+
+.speed-btn.active-normal {
+    color: #05060f;
+    background: var(--neon-green);
+    border-color: var(--neon-green);
+    box-shadow: 0 0 20px rgba(57, 255, 136, 0.8);
+}
+
+.speed-btn.active-fast {
+    color: #05060f;
+    background: var(--neon-pink);
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 20px rgba(255, 46, 166, 0.8);
+}
+
+.speed-hint {
+    font-size: 1.9vmin;
+    color: #9fb4d8;
+    max-width: 46vmin;
+    text-align: center;
+    min-height: 4.2vmin;
+}
+
 /* ---------- Текстові кнопки ---------- */
 
 .text-btn {
