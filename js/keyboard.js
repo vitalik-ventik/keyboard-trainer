@@ -2,12 +2,10 @@
 // keyboard.js — українська розкладка ЙЦУКЕН
 // Матриця літер, обробка keydown за event.code (незалежно від
 // системної розкладки та регістру), рендер клавіатури на Canvas
+// Розумна індикація: cyan (пул), lime/yellow (ціль), red (помилка)
 // ============================================================
 
-// Матриця клавіш: 33 українські літери у 3 рядах фізичної клавіатури.
-// Службові клавіші (Shift, Enter, CapsLock, Space) НЕ відображаються.
 export const KEYS = [
-    // Ряд 1
     { code: "KeyQ", letter: "Й", row: 0, col: 0 },
     { code: "KeyW", letter: "Ц", row: 0, col: 1 },
     { code: "KeyE", letter: "У", row: 0, col: 2 },
@@ -20,7 +18,6 @@ export const KEYS = [
     { code: "KeyP", letter: "З", row: 0, col: 9 },
     { code: "BracketLeft", letter: "Х", row: 0, col: 10 },
     { code: "BracketRight", letter: "Ї", row: 0, col: 11 },
-    // Ряд 2
     { code: "KeyA", letter: "Ф", row: 1, col: 0 },
     { code: "KeyS", letter: "І", row: 1, col: 1 },
     { code: "KeyD", letter: "В", row: 1, col: 2 },
@@ -33,7 +30,6 @@ export const KEYS = [
     { code: "Semicolon", letter: "Ж", row: 1, col: 9 },
     { code: "Quote", letter: "Є", row: 1, col: 10 },
     { code: "Backslash", letter: "Ґ", row: 1, col: 11 },
-    // Ряд 3
     { code: "KeyZ", letter: "Я", row: 2, col: 0 },
     { code: "KeyX", letter: "Ч", row: 2, col: 1 },
     { code: "KeyC", letter: "С", row: 2, col: 2 },
@@ -45,16 +41,11 @@ export const KEYS = [
     { code: "Period", letter: "Ю", row: 2, col: 8 }
 ];
 
-// Мапа фізичного коду клавіші → українська літера
 export const CODE_TO_LETTER = {};
 for (const key of KEYS) {
     CODE_TO_LETTER[key.code] = key.letter;
 }
 
-// Клавіші, стандартну поведінку яких блокуємо завжди:
-// скрол Пробілом/Стрілками, фокус Tab-ом (FR-023), а також Enter —
-// щоб дефолтний Enter не активував сфокусовану DOM-кнопку «фантомно»
-// (FR-045, FR-046; спадок захисту фічі 002)
 const BLOCKED_CODES = new Set([
     "Space",
     "ArrowUp",
@@ -66,37 +57,18 @@ const BLOCKED_CODES = new Set([
     "NumpadEnter"
 ]);
 
-// Клавіша дії «підтвердження» — гаряча клавіша перезапуску рівня
-// на екранах завершення (FR-044): Пробіл (заміна Enter, фіча 004)
 const CONFIRM_CODES = new Set([
     "Space"
 ]);
 
-/**
- * Вішає глобальний обробник keydown.
- * - event.code → літера ЙЦУКЕН: незалежно від системної розкладки
- *   та регістру (FR-022)
- * - preventDefault для Пробілу/Стрілок/Tab/Enter та ігрових літер
- *   (FR-023, FR-046)
- * - Пробіл: емітить onConfirm без автоповтору (FR-044, FR-047)
- * - комбінації з Ctrl/Alt/Meta не перехоплюються взагалі
- * @param {(letter: string) => void} onLetter
- * @param {() => void} [onConfirm] — необов'язковий колбек дії підтвердження;
- *   за відсутності Пробіл лише блокується
- */
 export function initKeyboardInput(onLetter, onConfirm) {
     window.addEventListener("keydown", function (event) {
-        // Комбінації з модифікаторами (Ctrl+..., Alt+..., Win+...)
-        // не чіпаємо ВЗАГАЛІ — жодного preventDefault (research.md R3
-        // фічі 004: Alt+Space — системне меню вікна Windows)
         if (event.ctrlKey || event.altKey || event.metaKey) {
             return;
         }
         if (BLOCKED_CODES.has(event.code)) {
             event.preventDefault();
         }
-        // Гаряча клавіша підтвердження: Пробіл (preventDefault уже
-        // виконано вище — Space входить у BLOCKED_CODES)
         if (CONFIRM_CODES.has(event.code)) {
             if (event.repeat) {
                 return;
@@ -120,7 +92,6 @@ export function initKeyboardInput(onLetter, onConfirm) {
     });
 }
 
-// Заокруглений прямокутник (утиліта рендера)
 function roundRect(ctx, x, y, w, h, r) {
     ctx.beginPath();
     ctx.moveTo(x + r, y);
@@ -135,21 +106,50 @@ function roundRect(ctx, x, y, w, h, r) {
     ctx.closePath();
 }
 
-// Кількість клавіш у кожному ряду (для центрування)
 const ROW_COUNTS = [12, 12, 9];
+
+// ---------- Константи кольорів для розумної індикації ----------
+
+const COLORS = {
+    DEFAULT_FILL: "rgba(16, 20, 43, 0.9)",
+    DEFAULT_STROKE: "rgba(70, 80, 120, 0.7)",
+    DEFAULT_TEXT: "#5d6580",
+
+    GROUP_FILL: "rgba(8, 32, 50, 0.9)",
+    GROUP_STROKE: "rgba(0, 246, 255, 0.5)",
+    GROUP_TEXT: "rgba(0, 246, 255, 0.8)",
+    GROUP_GLOW: 6,
+    GROUP_GLOW_COLOR: "rgba(0, 246, 255, 0.3)",
+
+    TARGET_FILL: "rgba(20, 38, 10, 0.95)",
+    TARGET_STROKE: "rgb(191, 255, 0)",
+    TARGET_TEXT: "rgb(191, 255, 0)",
+    TARGET_GLOW: 14,
+    TARGET_GLOW_COLOR: "rgba(191, 255, 0, 0.6)",
+
+    ERROR_FILL: "rgba(50, 10, 10, 0.95)",
+    ERROR_STROKE: "rgb(255, 34, 34)",
+    ERROR_TEXT: "rgb(255, 34, 34)",
+    ERROR_GLOW: 14,
+    ERROR_GLOW_COLOR: "rgba(255, 34, 34, 0.8)"
+};
 
 /**
  * Малює візуальну клавіатуру ЙЦУКЕН на Canvas.
- * Підсвітка:
- *  - літери групи рівня — тьмяно-зелені (FR-020)
- *  - літера найближчого шипа — блимає червоним/жовтим
+ * Пріоритет підсвітки (від найвищого):
+ *  1. wrongKeyError.letter — яскраво-червоний (помилка, згасає через 350 мс)
+ *  2. targetLetter — яскравий зелено-жовтий (найближча ціль)
+ *  3. groupLetters — м'який неоново-блакитний (пул рівня)
+ *  4. Усе інше — тьмяно-сірий (недоступно)
+ *
  * @param {CanvasRenderingContext2D} ctx
  * @param {{x:number, y:number, w:number, h:number}} area
  * @param {string[]} groupLetters
  * @param {string|null} targetLetter
- * @param {number} time — секунди (для анімації блимання)
+ * @param {{letter: string|null, timestamp: number}} wrongKeyError
+ * @param {number} time — секунди від старту застосунку
  */
-export function drawKeyboard(ctx, area, groupLetters, targetLetter, time) {
+export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyError, time) {
     const group = new Set(groupLetters || []);
     const gap = Math.max(2, area.w * 0.006);
     const keyW = Math.min(
@@ -160,7 +160,14 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, time) {
     const totalH = keyH * 3 + gap * 2;
     const startY = area.y + (area.h - totalH) / 2;
 
-    // Пульс блимання цільової клавіші: 0..1
+    const now = time * 1000;
+    let errLetter = null;
+    if (wrongKeyError && wrongKeyError.letter && wrongKeyError.timestamp) {
+        if (now - wrongKeyError.timestamp < 350) {
+            errLetter = wrongKeyError.letter;
+        }
+    }
+
     const blink = (Math.sin(time * 12) + 1) / 2;
 
     ctx.save();
@@ -175,30 +182,31 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, time) {
         const x = rowStartX + key.col * (keyW + gap);
         const y = startY + key.row * (keyH + gap);
 
-        let fill = "rgba(16, 20, 43, 0.9)";
-        let stroke = "rgba(70, 80, 120, 0.7)";
-        let textColor = "#5d6580";
+        let fill = COLORS.DEFAULT_FILL;
+        let stroke = COLORS.DEFAULT_STROKE;
+        let textColor = COLORS.DEFAULT_TEXT;
         let glow = 0;
         let glowColor = "rgba(0,0,0,0)";
 
-        if (key.letter === targetLetter) {
-            // Найближчий шип — яскраве блимання червоним/жовтим
-            const r = Math.round(255);
-            const g = Math.round(56 + (225 - 56) * blink);
-            const b = Math.round(96 * (1 - blink) + 77 * blink);
-            const c = "rgb(" + r + "," + g + "," + b + ")";
-            fill = "rgba(60, 18, 30, 0.95)";
-            stroke = c;
-            textColor = c;
-            glow = 18 + 14 * blink;
-            glowColor = c;
+        if (errLetter !== null && key.letter === errLetter) {
+            fill = COLORS.ERROR_FILL;
+            stroke = COLORS.ERROR_STROKE;
+            textColor = COLORS.ERROR_TEXT;
+            glow = COLORS.ERROR_GLOW;
+            glowColor = COLORS.ERROR_GLOW_COLOR;
+        } else if (key.letter === targetLetter) {
+            const glowPulse = COLORS.TARGET_GLOW + 6 * blink;
+            fill = COLORS.TARGET_FILL;
+            stroke = COLORS.TARGET_STROKE;
+            textColor = COLORS.TARGET_TEXT;
+            glow = glowPulse;
+            glowColor = COLORS.TARGET_GLOW_COLOR;
         } else if (group.has(key.letter)) {
-            // Літера групи рівня — тьмяно-зелена
-            fill = "rgba(10, 38, 26, 0.9)";
-            stroke = "rgba(57, 255, 136, 0.45)";
-            textColor = "rgba(57, 255, 136, 0.75)";
-            glow = 6;
-            glowColor = "rgba(57, 255, 136, 0.35)";
+            fill = COLORS.GROUP_FILL;
+            stroke = COLORS.GROUP_STROKE;
+            textColor = COLORS.GROUP_TEXT;
+            glow = COLORS.GROUP_GLOW;
+            glowColor = COLORS.GROUP_GLOW_COLOR;
         }
 
         ctx.shadowBlur = glow;

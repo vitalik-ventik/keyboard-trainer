@@ -2,13 +2,14 @@
 // main.js — точка входу
 // Ігровий цикл (requestAnimationFrame + кламп delta),
 // Менеджер Станів, музика за станом, DOM-оверлеї, введення
+// 15 рівнів, розумна клавіатурна індикація
 // ============================================================
 
 import { loadAssets, unlockAudio, playSound, playMusic } from "./assets.js";
 import { LEVELS, Engine, save } from "./engine.js";
 import { initKeyboardInput, drawKeyboard } from "./keyboard.js";
 
-// ---------- Полотно та адаптивність (R7) ----------
+// ---------- Полотно та адаптивність ----------
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -27,7 +28,7 @@ function resizeCanvas() {
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
-// ---------- DOM-елементи (DOM-контракт) ----------
+// ---------- DOM-елементи ----------
 
 const overlays = {
     LOADING: document.getElementById("loadingScreen"),
@@ -58,11 +59,10 @@ const btnNext = document.getElementById("btnNext");
 const btnRetryWin = document.getElementById("btnRetryWin");
 const btnWinMenu = document.getElementById("btnWinMenu");
 
-// ---------- Менеджер Станів (data-model.md §1) ----------
+// ---------- Менеджер Станів ----------
 
 const STATES = ["LOADING", "MENU", "SETTINGS", "LEVEL_SELECT", "PLAYING", "GAMEOVER", "VICTORY"];
 
-// Дозволені переходи між станами
 const TRANSITIONS = {
     LOADING: ["MENU"],
     MENU: ["SETTINGS", "LEVEL_SELECT", "PLAYING"],
@@ -73,7 +73,6 @@ const TRANSITIONS = {
     VICTORY: ["PLAYING", "MENU"]
 };
 
-// Музика для кожного стану (FR-004)
 const STATE_MUSIC = {
     LOADING: null,
     MENU: "menu",
@@ -85,10 +84,13 @@ const STATE_MUSIC = {
 };
 
 let state = "LOADING";
-let demoEngine = null;   // заставка меню
-let gameEngine = null;   // активний забіг
+let demoEngine = null;
+let gameEngine = null;
 let currentLevelId = 1;
 let resultRecorded = false;
+
+// Стан помилки клавіатури (in-memory, не серіалізується)
+let wrongKeyError = { letter: null, timestamp: 0 };
 
 function setState(next) {
     if (!STATES.includes(next)) {
@@ -101,7 +103,6 @@ function setState(next) {
     }
     state = next;
 
-    // Видимість оверлеїв: SETTINGS показується ПОВЕРХ меню
     for (const key of Object.keys(overlays)) {
         overlays[key].classList.add("hidden");
     }
@@ -112,21 +113,21 @@ function setState(next) {
         overlays[next].classList.remove("hidden");
     }
 
-    // Музика за станом (повторний виклик того самого треку — без рестарту)
     playMusic(STATE_MUSIC[next]);
 }
 
-// ---------- Демо-заставка меню (US2) ----------
+// ---------- Демо-заставка меню ----------
 
 function createDemoEngine() {
     demoEngine = new Engine(save.getLastPlayable(), "EASY", true);
 }
 
-// ---------- Запуск рівня (US1) ----------
+// ---------- Запуск рівня ----------
 
 function startLevel(levelId) {
     currentLevelId = levelId;
     resultRecorded = false;
+    wrongKeyError = { letter: null, timestamp: 0 };
     gameEngine = new Engine(levelId, save.getDifficulty(), false);
     gameEngine.onJump = function () {
         playSound("jump");
@@ -140,7 +141,7 @@ function startLevel(levelId) {
     setState("PLAYING");
 }
 
-// ---------- Завершення забігу: поразка / перемога ----------
+// ---------- Завершення забігу ----------
 
 function handleGameOver() {
     if (!resultRecorded) {
@@ -164,9 +165,9 @@ function handleVictory() {
     victoryScoreEl.textContent = String(runState.score);
 
     const nextId = currentLevelId + 1;
-    const hasNext = nextId <= 6 && save.getLastPlayable() >= nextId;
-    if (currentLevelId === 6) {
-        victoryUnlockEl.textContent = "Ти переміг БОСА! Усі рівні пройдено!";
+    const hasNext = nextId <= 15 && save.getLastPlayable() >= nextId;
+    if (currentLevelId === 15) {
+        victoryUnlockEl.textContent = "Ти переміг! Усі 15 рівнів пройдено! Повний алфавіт освоєно!";
         btnNext.classList.add("hidden");
     } else if (hasNext) {
         victoryUnlockEl.textContent = "Відкрито Рівень " + nextId + "!";
@@ -178,7 +179,7 @@ function handleVictory() {
     setState("VICTORY");
 }
 
-// ---------- Екран вибору рівня (US3) ----------
+// ---------- Екран вибору рівня (15 рівнів) ----------
 
 function buildLevelCards() {
     const progress = save.getProgress();
@@ -192,13 +193,19 @@ function buildLevelCards() {
         if (locked) {
             card.classList.add("locked");
         }
-        if (level.id === 6) {
+        if (level.id === 10 || level.id === 15) {
             card.classList.add("boss-card");
         }
 
         const num = document.createElement("div");
         num.className = "level-num";
-        num.textContent = level.id === 6 ? "6 · БОС" : String(level.id);
+        if (level.id === 10) {
+            num.textContent = level.id + " · КОНСОЛІДАЦІЯ";
+        } else if (level.id === 15) {
+            num.textContent = level.id + " · DEMON";
+        } else {
+            num.textContent = String(level.id);
+        }
         card.appendChild(num);
 
         if (locked) {
@@ -215,7 +222,7 @@ function buildLevelCards() {
 
         const record = document.createElement("div");
         record.className = "level-record";
-        record.textContent = "Кращий результат: " + entry.bestPct + "% | HighScore: " + entry.highScore + " очок";
+        record.textContent = "Кращий: " + entry.bestPct + "% | HS: " + entry.highScore;
         card.appendChild(record);
 
         if (!locked) {
@@ -228,7 +235,7 @@ function buildLevelCards() {
     }
 }
 
-// ---------- Модалка налаштувань (US4) ----------
+// ---------- Модалка налаштувань ----------
 
 const DIFF_HINTS = {
     EASY: "EASY: помилки ігноруються, вибух лише при зіткненні з шипом",
@@ -286,7 +293,7 @@ btnGoMenu.addEventListener("click", function () {
 });
 
 btnNext.addEventListener("click", function () {
-    const nextId = Math.min(6, currentLevelId + 1);
+    const nextId = Math.min(15, currentLevelId + 1);
     if (save.getLastPlayable() >= nextId) {
         startLevel(nextId);
     }
@@ -301,33 +308,31 @@ btnWinMenu.addEventListener("click", function () {
     setState("MENU");
 });
 
-// Звук кліку для всіх кнопок (FR-007)
 document.addEventListener("click", function (event) {
     if (event.target && event.target.closest("button")) {
         playSound("click");
     }
 });
 
-// Розблокування аудіо першим жестом (autoplay-політика, R2)
 function firstGestureUnlock() {
     unlockAudio();
 }
 window.addEventListener("pointerdown", firstGestureUnlock);
 window.addEventListener("keydown", firstGestureUnlock);
 
-// ---------- Введення з клавіатури (US1) ----------
+// ---------- Введення з клавіатури (з wrongKeyError) ----------
 
 initKeyboardInput(
     function (letter) {
         if (state === "PLAYING" && gameEngine) {
-            gameEngine.handleLetter(letter);
+            wrongKeyError.letter = null;
+            const outcome = gameEngine.handleLetter(letter);
+            if (outcome.result === "wrong") {
+                wrongKeyError = { letter: letter, timestamp: performance.now() };
+            }
         }
     },
     function () {
-        // Гаряча клавіша Enter/NumpadEnter — лише на екранах завершення
-        // (FR-034). Програмний клік по кнопці гарантує повну еквівалентність
-        // кліку мишею: звук кліку через document-делегат + startLevel
-        // (FR-030..FR-032, research.md R2 фічі 002).
         if (state === "GAMEOVER") {
             btnRetry.click();
         } else if (state === "VICTORY") {
@@ -336,7 +341,7 @@ initKeyboardInput(
     }
 );
 
-// ---------- Пауза при прихованій вкладці (R4, FR-027) ----------
+// ---------- Пауза при прихованій вкладці ----------
 
 let lastTime = null;
 
@@ -363,7 +368,6 @@ function frame(now) {
     ctx.clearRect(0, 0, W, H);
 
     if (state === "LOADING") {
-        // Фон під екраном завантаження малює CSS
         return;
     }
 
@@ -375,12 +379,15 @@ function frame(now) {
         return;
     }
 
-    // PLAYING / GAMEOVER / VICTORY: рендеримо світ (за оверлеями теж)
     if (gameEngine) {
         gameEngine.update(dt);
         gameEngine.render(ctx, W, H, time);
 
         if (state === "PLAYING") {
+            if (wrongKeyError.letter !== null && (performance.now() - wrongKeyError.timestamp) > 350) {
+                wrongKeyError.letter = null;
+            }
+
             const keyboardArea = {
                 x: W * 0.04,
                 y: H * 0.70,
@@ -392,6 +399,7 @@ function frame(now) {
                 keyboardArea,
                 gameEngine.level.letters,
                 gameEngine.getTargetLetter(),
+                wrongKeyError,
                 time
             );
 
@@ -407,7 +415,7 @@ function frame(now) {
 
 requestAnimationFrame(frame);
 
-// ---------- Старт застосунку: LOADING → MENU (US5) ----------
+// ---------- Старт застосунку ----------
 
 save.load();
 
