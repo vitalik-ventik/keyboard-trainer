@@ -20,6 +20,10 @@
     <div id="mainMenu" class="overlay hidden">
         <h1 class="neon-title game-title">DRILL FOR PERFECTION</h1>
         <p class="subtitle">Клавіатурний тренажер у стилі Geometry Dash</p>
+        <div id="skin-selector-trigger" class="skin-trigger">
+            <canvas id="active-skin-canvas" width="52" height="52" class="active-skin-canvas"></canvas>
+            <span class="skin-trigger-label">СКІН</span>
+        </div>
         <div class="menu-buttons">
             <button id="btnLevels" class="round-btn side-btn" type="button" aria-label="Вибір рівня">
                 <span class="btn-icon">&#9638;</span>
@@ -60,6 +64,15 @@
             </div>
             <p class="speed-hint" id="speedHint">NORMAL: стандартна швидкість</p>
             <button id="btnCloseSettings" class="text-btn" type="button">ЗАКРИТИ</button>
+        </div>
+    </div>
+
+    <!-- Модальне вікно вибору скіна -->
+    <div id="skins-modal" class="overlay modal-backdrop hidden">
+        <div class="modal skins-modal-inner">
+            <h2 class="neon-title">ВИБІР СКІНА</h2>
+            <div class="skins-grid" id="skinsGrid"></div>
+            <button id="btnCloseSkins" class="text-btn" type="button">ЗАКРИТИ</button>
         </div>
     </div>
 

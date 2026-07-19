@@ -6,7 +6,7 @@
 // ============================================================
 
 import { loadAssets, unlockAudio, playSound, playMusic } from "./assets.js";
-import { LEVELS_CONFIG, ALL_LEVELS, Engine, save } from "./engine.js";
+import { LEVELS_CONFIG, ALL_LEVELS, Engine, save, SKIN_RENDERERS } from "./engine.js";
 import { initKeyboardInput, drawKeyboard } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
 
@@ -67,6 +67,11 @@ const btnGoMenu = document.getElementById("btnGoMenu");
 const btnNext = document.getElementById("btnNext");
 const btnRetryWin = document.getElementById("btnRetryWin");
 const btnWinMenu = document.getElementById("btnWinMenu");
+const skinTriggerEl = document.getElementById("skin-selector-trigger");
+const activeSkinCanvas = document.getElementById("active-skin-canvas");
+const skinsModalEl = document.getElementById("skins-modal");
+const skinsGridEl = document.getElementById("skinsGrid");
+const btnCloseSkins = document.getElementById("btnCloseSkins");
 
 // ---------- Менеджер Станів ----------
 
@@ -121,6 +126,10 @@ function setState(next) {
         overlays.SETTINGS.classList.remove("hidden");
     } else if (overlays[next]) {
         overlays[next].classList.remove("hidden");
+    }
+
+    if (next === "MENU") {
+        renderCurrentSkinIcon();
     }
 
     playMusic(STATE_MUSIC[next]);
@@ -184,15 +193,21 @@ function handleGameOver() {
 }
 
 function handleVictory() {
+    var victorySkinResult = null;
     if (!resultRecorded) {
         resultRecorded = true;
         const runState = gameEngine.getState();
-        save.recordResult(currentLevelId, 100, runState.score);
+        victorySkinResult = save.recordResult(currentLevelId, 100, runState.score);
     }
     const runState = gameEngine.getState();
     victoryScoreEl.textContent = String(runState.score);
 
     const currentLevel = ALL_LEVELS.find(function (l) { return l.id === currentLevelId; });
+    var skinUnlockText = "";
+    if (victorySkinResult && victorySkinResult.skinUnlocked) {
+        skinUnlockText = "Розблоковано новий скін: " + victorySkinResult.skinUnlocked.name + "!";
+    }
+
     const currentLeague = currentLevel ? LEVELS_CONFIG.find(function (lg) { return lg.id === currentLevel.leagueId; }) : null;
     let nextLevel = null;
     if (currentLevel && currentLeague) {
@@ -208,13 +223,13 @@ function handleVictory() {
     }
 
     if (currentLevelId === 31) {
-        victoryUnlockEl.textContent = "Ти переміг! Усі 31 рівень пройдено! Повний алфавіт освоєно!";
+        victoryUnlockEl.textContent = skinUnlockText || "Ти переміг! Усі 31 рівень пройдено! Повний алфавіт освоєно!";
         btnNext.classList.add("hidden");
     } else if (nextLevel && save.getLastPlayable() >= nextLevel.id) {
-        victoryUnlockEl.textContent = "Відкрито: " + nextLevel.name + "!";
+        victoryUnlockEl.textContent = skinUnlockText || ("Відкрито: " + nextLevel.name + "!");
         btnNext.classList.remove("hidden");
     } else {
-        victoryUnlockEl.textContent = "";
+        victoryUnlockEl.textContent = skinUnlockText;
         btnNext.classList.add("hidden");
     }
     setState("VICTORY");
@@ -547,6 +562,163 @@ function frame(now) {
 }
 
 requestAnimationFrame(frame);
+
+// ---------- Селектор скінів ----------
+
+var activeSkinCache = null;
+
+function renderCurrentSkinIcon() {
+    var canvas = activeSkinCanvas;
+    if (!canvas) return;
+    var skinCtx = canvas.getContext("2d");
+    var size = canvas.width;
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(size * dpr);
+    canvas.height = Math.round(size * dpr);
+    canvas.style.width = size + "px";
+    canvas.style.height = size + "px";
+    skinCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    skinCtx.clearRect(0, 0, size, size);
+
+    var activeSkinId = save.getActiveSkin();
+    var renderType = null;
+    if (activeSkinId && SKIN_RENDERERS[activeSkinId]) {
+        renderType = activeSkinId;
+    }
+
+    if (!renderType) {
+        skinCtx.fillStyle = "rgba(0, 246, 255, 0.3)";
+        skinCtx.fillRect(6, 6, size - 12, size - 12);
+        skinCtx.strokeStyle = "rgba(0, 246, 255, 0.6)";
+        skinCtx.lineWidth = 2;
+        skinCtx.strokeRect(6, 6, size - 12, size - 12);
+        skinCtx.fillStyle = "#eaf6ff";
+        skinCtx.font = (size * 0.22) + "px 'Segoe UI', Arial";
+        skinCtx.textAlign = "center";
+        skinCtx.textBaseline = "middle";
+        skinCtx.fillText("?", size / 2, size / 2);
+        return;
+    }
+
+    var miniSize = size * 0.8;
+    skinCtx.save();
+    skinCtx.translate(size / 2, size / 2);
+    SKIN_RENDERERS[renderType](skinCtx, miniSize, performance.now());
+    skinCtx.restore();
+    activeSkinCache = activeSkinId;
+}
+
+function buildSkinGrid() {
+    var grid = skinsGridEl;
+    if (!grid) return;
+    grid.innerHTML = "";
+
+    var progress = save.getProgress();
+    var activeSkinId = save.getActiveSkin();
+    var allLevels = ALL_LEVELS;
+
+    for (var i = 0; i < allLevels.length; i++) {
+        var level = allLevels[i];
+        var skin = level.skin;
+        if (!skin) continue;
+
+        var isUnlocked = (level.id === 1) || (progress.unlockedSkins && progress.unlockedSkins.indexOf(skin.id) !== -1);
+        var isActive = (skin.renderType === activeSkinId);
+
+        var card = document.createElement("div");
+        card.className = "skin-card" + (isUnlocked ? "" : " locked") + (isActive ? " active" : "");
+        card.setAttribute("data-skin-type", skin.renderType);
+        card.setAttribute("data-skin-id", skin.id);
+
+        var previewCanvas = document.createElement("canvas");
+        previewCanvas.width = 80;
+        previewCanvas.height = 80;
+        previewCanvas.className = "skin-preview";
+        card.appendChild(previewCanvas);
+
+        var nameSpan = document.createElement("span");
+        nameSpan.className = "skin-card-name";
+        nameSpan.textContent = skin.name;
+        card.appendChild(nameSpan);
+
+        if (!isUnlocked) {
+            var hint = document.createElement("span");
+            hint.className = "unlock-hint";
+            hint.textContent = "Пройди рівень " + (level.leagueId || "?") + "-" +
+                (LEVELS_CONFIG[level.leagueId - 1].levels.indexOf(level) + 1) +
+                ", щоб відкрити";
+            card.appendChild(hint);
+        }
+
+        if (isUnlocked) {
+            card.addEventListener("click", function (e) {
+                var skinType = this.getAttribute("data-skin-type");
+                save.setActiveSkin(skinType);
+                renderCurrentSkinIcon();
+                buildSkinGrid();
+                skinsModalEl.classList.add("hidden");
+            });
+        }
+
+        grid.appendChild(card);
+
+        if (isUnlocked) {
+            (function (cardCanvas, renderType) {
+                requestAnimationFrame(function () {
+                    var pctx = cardCanvas.getContext("2d");
+                    var dpr2 = window.devicePixelRatio || 1;
+                    var psize = 80;
+                    cardCanvas.width = Math.round(psize * dpr2);
+                    cardCanvas.height = Math.round(psize * dpr2);
+                    cardCanvas.style.width = psize + "px";
+                    cardCanvas.style.height = psize + "px";
+                    pctx.setTransform(dpr2, 0, 0, dpr2, 0, 0);
+                    pctx.save();
+                    pctx.translate(psize / 2, psize / 2);
+                    SKIN_RENDERERS[renderType](pctx, psize * 0.75, performance.now());
+                    pctx.restore();
+                });
+            })(previewCanvas, skin.renderType);
+        } else {
+            (function (cardCanvas) {
+                requestAnimationFrame(function () {
+                    var pctx = cardCanvas.getContext("2d");
+                    var dpr2 = window.devicePixelRatio || 1;
+                    var psize = 80;
+                    cardCanvas.width = Math.round(psize * dpr2);
+                    cardCanvas.height = Math.round(psize * dpr2);
+                    cardCanvas.style.width = psize + "px";
+                    cardCanvas.style.height = psize + "px";
+                    pctx.setTransform(dpr2, 0, 0, dpr2, 0, 0);
+                    pctx.fillStyle = "rgba(60, 62, 75, 0.5)";
+                    pctx.fillRect(8, 8, psize - 16, psize - 16);
+                    pctx.strokeStyle = "rgba(80, 82, 90, 0.5)";
+                    pctx.lineWidth = 2;
+                    pctx.strokeRect(8, 8, psize - 16, psize - 16);
+                });
+            })(previewCanvas);
+        }
+    }
+}
+
+if (skinTriggerEl) {
+    skinTriggerEl.addEventListener("click", function () {
+        buildSkinGrid();
+        skinsModalEl.classList.remove("hidden");
+    });
+}
+
+if (btnCloseSkins) {
+    btnCloseSkins.addEventListener("click", function () {
+        skinsModalEl.classList.add("hidden");
+    });
+}
+
+skinsModalEl.addEventListener("click", function (e) {
+    if (e.target === skinsModalEl) {
+        skinsModalEl.classList.add("hidden");
+    }
+});
 
 // ---------- Старт застосунку ----------
 

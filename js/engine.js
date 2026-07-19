@@ -26,61 +26,61 @@ export const LEVELS_CONFIG = [
         id: 1,
         name: "Базова",
         levels: [
-            { id: 1,  leagueId: 1, name: "Перші кроки",             letters: ["А","О","В","Л"], speed: 165, spikeCount: 12, seed: 2001, bgTheme: "cyber_grid",              accentColor: "#00f6ff", rhythmGroups: false },
-            { id: 2,  leagueId: 1, name: "Голосний старт",          letters: ["У","К","Е","П"], speed: 172, spikeCount: 13, seed: 2002, bgTheme: "parallax_city",             accentColor: "#aa44ff", rhythmGroups: false },
-            { id: 3,  leagueId: 1, name: "Ближче до країв",         letters: ["Ф","І","Д","Ж"], speed: 179, spikeCount: 14, seed: 2003, bgTheme: "starfield",                 accentColor: "#00d4aa", rhythmGroups: false },
-            { id: 4,  leagueId: 1, name: "Нижній лівий фланг",     letters: ["Я","Ч","С","М"], speed: 186, spikeCount: 15, seed: 2004, bgTheme: "energy_grid",             accentColor: "#6a5acd", rhythmGroups: false },
-            { id: 5,  leagueId: 1, name: "Ліва вертикаль",          letters: ["Й","Ц","Ф","І","Я","Ч"], speed: 193, spikeCount: 16, seed: 2005, bgTheme: "cyber_columns",         accentColor: "#0066ff", rhythmGroups: false,          accentColor: "#0066ff", rhythmGroups: false },
-            { id: 6,  leagueId: 1, name: "Права вертикаль",         letters: ["Ш","Щ","З","Х","Ї","Ґ"], speed: 200, spikeCount: 17, seed: 2006, bgTheme: "geo_landscape",     accentColor: "#00ff41", rhythmGroups: false },
-            { id: 7,  leagueId: 1, name: "Ядро клавіатури",         letters: ["Е","Н","А","П","И","Т"], speed: 207, spikeCount: 18, seed: 2007, bgTheme: "pulsar_core",            accentColor: "#ff8855", rhythmGroups: false,              accentColor: "#ff8855", rhythmGroups: false },
-            { id: 8,  leagueId: 1, name: "Нижній правий фланг",     letters: ["И","Т","Ь","Б","Ю","Є"], speed: 214, spikeCount: 19, seed: 2008, bgTheme: "demon",            accentColor: "#9944dd", rhythmGroups: false,           accentColor: "#9944dd", rhythmGroups: false,     accentColor: "#9944dd", rhythmGroups: false },
-            { id: 9,  leagueId: 1, name: "Ліва діагональ",          letters: ["Й","У","І","В","Я","С"], speed: 221, spikeCount: 20, seed: 2009, bgTheme: "scanline_sweep",         accentColor: "#ff2ea6", rhythmGroups: false,        accentColor: "#ff2ea6", rhythmGroups: false },
-            { id: 10, leagueId: 1, name: "Права діагональ",         letters: ["Ш","Х","Л","Д","Ь","Б"], speed: 228, spikeCount: 21, seed: 2010, bgTheme: "hyperspace_tunnel",       accentColor: "#8899bb", rhythmGroups: false },
-            { id: 11, leagueId: 1, name: "Шиплячий мікс",           letters: ["Ч","Щ","Ж","Ц","Ю","Ґ"], speed: 235, spikeCount: 22, seed: 2011, bgTheme: "toxic_waste",            accentColor: "#ccccee", rhythmGroups: false,      accentColor: "#ccccee", rhythmGroups: false },
-            { id: 12, leagueId: 1, name: "Вокальний лабіринт",      letters: ["У","Е","А","О","И","І"], speed: 242, spikeCount: 23, seed: 2012, bgTheme: "neon_rain",          accentColor: "#39ff14", rhythmGroups: false },
-            { id: 13, leagueId: 1, name: "Далекі куточки",          letters: ["Й","Ф","Я","Х","Ї","Є"], speed: 249, spikeCount: 24, seed: 2013, bgTheme: "bezier_waves",           accentColor: "#e5ff00", rhythmGroups: false },
-            { id: 14, leagueId: 1, name: "Центральні сусіди",       letters: ["К","Г","Р","Л","М","Т"], speed: 256, spikeCount: 25, seed: 2014, bgTheme: "binary_star",      accentColor: "#ff3800", rhythmGroups: false,       accentColor: "#ff3800", rhythmGroups: false,         accentColor: "#ff3800", rhythmGroups: false },
-            { id: 15, leagueId: 1, name: "Неонові крила",           letters: ["Й","Ц","Ф","Х","Ї","Ґ"], speed: 263, spikeCount: 26, seed: 2015, bgTheme: "aurora_wings",           accentColor: "#00f6ff", rhythmGroups: false,     accentColor: "#00f6ff", rhythmGroups: false },
-            { id: 16, leagueId: 1, name: "Базовий тріумф",          letters: ["В","А","П","Р","О","Л"], speed: 270, spikeCount: 28, seed: 2016, bgTheme: "triumph_flare",          accentColor: "#39ff88", rhythmGroups: false,          accentColor: "#39ff88", rhythmGroups: false,         accentColor: "#39ff88", rhythmGroups: false }
+            { id: 1,  leagueId: 1, name: "Перші кроки",             letters: ["А","О","В","Л"], speed: 165, spikeCount: 12, seed: 2001, bgTheme: "cyber_grid",              accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_1_1", name: "Стандартний Неон", renderType: "neon_base" } },
+            { id: 2,  leagueId: 1, name: "Голосний старт",          letters: ["У","К","Е","П"], speed: 172, spikeCount: 13, seed: 2002, bgTheme: "parallax_city",             accentColor: "#aa44ff", rhythmGroups: false, skin: { id: "skin_1_2", name: "Кібер-Око", renderType: "cyber_eye" } },
+            { id: 3,  leagueId: 1, name: "Ближче до країв",         letters: ["Ф","І","Д","Ж"], speed: 179, spikeCount: 14, seed: 2003, bgTheme: "starfield",                 accentColor: "#00d4aa", rhythmGroups: false, skin: { id: "skin_1_3", name: "Ретро-Геймер", renderType: "retro_gamer" } },
+            { id: 4,  leagueId: 1, name: "Нижній лівий фланг",     letters: ["Я","Ч","С","М"], speed: 186, spikeCount: 15, seed: 2004, bgTheme: "energy_grid",             accentColor: "#6a5acd", rhythmGroups: false, skin: { id: "skin_1_4", name: "Трон", renderType: "throne" } },
+            { id: 5,  leagueId: 1, name: "Ліва вертикаль",          letters: ["Й","Ц","Ф","І","Я","Ч"], speed: 193, spikeCount: 16, seed: 2005, bgTheme: "cyber_columns",         accentColor: "#0066ff", rhythmGroups: false, skin: { id: "skin_1_5", name: "Приціл", renderType: "crosshair" } },
+            { id: 6,  leagueId: 1, name: "Права вертикаль",         letters: ["Ш","Щ","З","Х","Ї","Ґ"], speed: 200, spikeCount: 17, seed: 2006, bgTheme: "geo_landscape",     accentColor: "#00ff41", rhythmGroups: false, skin: { id: "skin_1_6", name: "Матричний Піксель", renderType: "matrix_pixel" } },
+            { id: 7,  leagueId: 1, name: "Ядро клавіатури",         letters: ["Е","Н","А","П","И","Т"], speed: 207, spikeCount: 18, seed: 2007, bgTheme: "pulsar_core",            accentColor: "#ff8855", rhythmGroups: false, skin: { id: "skin_1_7", name: "Слайс", renderType: "slice" } },
+            { id: 8,  leagueId: 1, name: "Нижній правий фланг",     letters: ["И","Т","Ь","Б","Ю","Є"], speed: 214, spikeCount: 19, seed: 2008, bgTheme: "demon",            accentColor: "#9944dd", rhythmGroups: false, skin: { id: "skin_1_8", name: "Сяючий Алмаз", renderType: "shining_diamond" } },
+            { id: 9,  leagueId: 1, name: "Ліва діагональ",          letters: ["Й","У","І","В","Я","С"], speed: 221, spikeCount: 20, seed: 2009, bgTheme: "scanline_sweep",         accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_1_9", name: "Подвійна Рамка", renderType: "double_frame" } },
+            { id: 10, leagueId: 1, name: "Права діагональ",         letters: ["Ш","Х","Л","Д","Ь","Б"], speed: 228, spikeCount: 21, seed: 2010, bgTheme: "hyperspace_tunnel",       accentColor: "#8899bb", rhythmGroups: false, skin: { id: "skin_1_10", name: "Моноліт", renderType: "monolith" } },
+            { id: 11, leagueId: 1, name: "Шиплячий мікс",           letters: ["Ч","Щ","Ж","Ц","Ю","Ґ"], speed: 235, spikeCount: 22, seed: 2011, bgTheme: "toxic_waste",            accentColor: "#ccccee", rhythmGroups: false, skin: { id: "skin_1_11", name: "Радар", renderType: "radar" } },
+            { id: 12, leagueId: 1, name: "Вокальний лабіринт",      letters: ["У","Е","А","О","И","І"], speed: 242, spikeCount: 23, seed: 2012, bgTheme: "neon_rain",          accentColor: "#39ff14", rhythmGroups: false, skin: { id: "skin_1_12", name: "Стріла Швидкості", renderType: "speed_arrow" } },
+            { id: 13, leagueId: 1, name: "Далекі куточки",          letters: ["Й","Ф","Я","Х","Ї","Є"], speed: 249, spikeCount: 24, seed: 2013, bgTheme: "bezier_waves",           accentColor: "#e5ff00", rhythmGroups: false, skin: { id: "skin_1_13", name: "Неоновий Хрест", renderType: "neon_cross" } },
+            { id: 14, leagueId: 1, name: "Центральні сусіди",       letters: ["К","Г","Р","Л","М","Т"], speed: 256, spikeCount: 25, seed: 2014, bgTheme: "binary_star",      accentColor: "#ff3800", rhythmGroups: false, skin: { id: "skin_1_14", name: "Рідкий Градієнт", renderType: "liquid_gradient" } },
+            { id: 15, leagueId: 1, name: "Неонові крила",           letters: ["Й","Ц","Ф","Х","Ї","Ґ"], speed: 263, spikeCount: 26, seed: 2015, bgTheme: "aurora_wings",           accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_1_15", name: "Крилатий", renderType: "winged" } },
+            { id: 16, leagueId: 1, name: "Базовий тріумф",          letters: ["В","А","П","Р","О","Л"], speed: 270, spikeCount: 28, seed: 2016, bgTheme: "triumph_flare",          accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_16", name: "Кубок Світла", renderType: "light_cup" } }
         ]
     },
     {
         id: 2,
         name: "Середня",
         levels: [
-            { id: 17, leagueId: 2, name: "Горизонт середнього ряду", letters: ["Ф","І","В","А","П","Р","О","Л","Д","Ж"], speed: 240, spikeCount: 26, seed: 2101, bgTheme: "midnight_skyline",       accentColor: "#bb55ff", rhythmGroups: false,     accentColor: "#bb55ff", rhythmGroups: false },
-            { id: 18, leagueId: 2, name: "Дах клавіатури",           letters: ["Й","Ц","У","К","Е","Н","Г","Ш","Щ","З","Х","Ї"], speed: 250, spikeCount: 28, seed: 2102, bgTheme: "rooftop_grid",           accentColor: "#ff2ea6", rhythmGroups: false,      accentColor: "#ff2ea6", rhythmGroups: false },
-            { id: 19, leagueId: 2, name: "Нижній ярус",              letters: ["Я","Ч","С","М","И","Т","Ь","Б","Ю","Є","Ґ"], speed: 255, spikeCount: 30, seed: 2103, bgTheme: "deep_abyss",             accentColor: "#00ff41", rhythmGroups: false,              accentColor: "#00ff41", rhythmGroups: false },
-            { id: 20, leagueId: 2, name: "Лівий сектор",             letters: ["Й","Ф","Я","Ц","І","Ч","У","В","С","К","А","М"], speed: 260, spikeCount: 32, seed: 2104, bgTheme: "matrix_flow",       accentColor: "#ff8c00", rhythmGroups: false },
-            { id: 21, leagueId: 2, name: "Екватор",                  letters: ["Е","П","И","Н","Р","Т","Г","О","Ь","Ш","Л","Б"], speed: 268, spikeCount: 34, seed: 2105, bgTheme: "equator_beam",           accentColor: "#7b68ee", rhythmGroups: false,     accentColor: "#7b68ee", rhythmGroups: false },
-            { id: 22, leagueId: 2, name: "Правий загін",             letters: ["Щ","Д","Ю","З","Ж","Є","Х","Ї","Ґ"], speed: 275, spikeCount: 36, seed: 2106, bgTheme: "spore_field",   accentColor: "#ff2ea6", rhythmGroups: false,           accentColor: "#ff2ea6", rhythmGroups: false,            accentColor: "#ff2ea6", rhythmGroups: false },
-            { id: 23, leagueId: 2, name: "Парад голосних",           letters: ["А","О","У","І","И","Е","Я","Ю","Є","Ї"], speed: 282, spikeCount: 38, seed: 2107, bgTheme: "vowel_waves",            accentColor: "#00f6ff", rhythmGroups: false,            accentColor: "#00f6ff", rhythmGroups: false },
-            { id: 24, leagueId: 2, name: "Тверді звуки",            letters: ["Й","К","Н","Г","Ш","З","Ф","В","П","Р","Л","Д"], speed: 295, spikeCount: 40, seed: 2108, bgTheme: "diamond_matrix", accentColor: "#ff2ea6", rhythmGroups: false,          accentColor: "#ff2ea6", rhythmGroups: false,        accentColor: "#ff2ea6", rhythmGroups: false }
+            { id: 17, leagueId: 2, name: "Горизонт середнього ряду", letters: ["Ф","І","В","А","П","Р","О","Л","Д","Ж"], speed: 240, spikeCount: 26, seed: 2101, bgTheme: "midnight_skyline", accentColor: "#bb55ff", rhythmGroups: false, skin: { id: "skin_2_1", name: "Synthwave Sun", renderType: "synthwave_sun" } },
+            { id: 18, leagueId: 2, name: "Дах клавіатури",           letters: ["Й","Ц","У","К","Е","Н","Г","Ш","Щ","З","Х","Ї"], speed: 250, spikeCount: 28, seed: 2102, bgTheme: "rooftop_grid", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_2", name: "Кіберпанк Горизонт", renderType: "cyberpunk_horizon" } },
+            { id: 19, leagueId: 2, name: "Нижній ярус",              letters: ["Я","Ч","С","М","И","Т","Ь","Б","Ю","Є","Ґ"], speed: 255, spikeCount: 30, seed: 2103, bgTheme: "deep_abyss", accentColor: "#00ff41", rhythmGroups: false, skin: { id: "skin_2_3", name: "Глітч-Куб", renderType: "glitch_cube" } },
+            { id: 20, leagueId: 2, name: "Лівий сектор",             letters: ["Й","Ф","Я","Ц","І","Ч","У","В","С","К","А","М"], speed: 260, spikeCount: 32, seed: 2104, bgTheme: "matrix_flow", accentColor: "#ff8c00", rhythmGroups: false, skin: { id: "skin_2_4", name: "Золотий Злиток", renderType: "gold_ingot" } },
+            { id: 21, leagueId: 2, name: "Екватор",                  letters: ["Е","П","И","Н","Р","Т","Г","О","Ь","Ш","Л","Б"], speed: 268, spikeCount: 34, seed: 2105, bgTheme: "equator_beam", accentColor: "#7b68ee", rhythmGroups: false, skin: { id: "skin_2_5", name: "Орбіта", renderType: "orbit" } },
+            { id: 22, leagueId: 2, name: "Правий загін",             letters: ["Щ","Д","Ю","З","Ж","Є","Х","Ї","Ґ"], speed: 275, spikeCount: 36, seed: 2106, bgTheme: "spore_field", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_6", name: "Сталагміт", renderType: "stalagmite" } },
+            { id: 23, leagueId: 2, name: "Парад голосних",           letters: ["А","О","У","І","И","Е","Я","Ю","Є","Ї"], speed: 282, spikeCount: 38, seed: 2107, bgTheme: "vowel_waves", accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_2_7", name: "Еквалайзер", renderType: "equalizer" } },
+            { id: 24, leagueId: 2, name: "Тверді звуки",            letters: ["Й","К","Н","Г","Ш","З","Ф","В","П","Р","Л","Д"], speed: 295, spikeCount: 40, seed: 2108, bgTheme: "diamond_matrix", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_8", name: "Щит", renderType: "shield" } }
         ]
     },
     {
         id: 3,
         name: "Складна",
         levels: [
-            { id: 25, leagueId: 3, name: "Верхній штурм",           letters: ["Й","Ц","У","К","Е","Н","Г","Ш","Щ","З","Х","Ї","Ф","І","В","А"], speed: 310, spikeCount: 38, seed: 2201, bgTheme: "equalizer",             accentColor: "#ff2ea6", rhythmGroups: false },
-            { id: 26, leagueId: 3, name: "Великий спуск",           letters: ["Ф","І","В","А","П","Р","О","Л","Д","Ж","Я","Ч","С","М","И","Т","Ь","Б"], speed: 325, spikeCount: 42, seed: 2202, bgTheme: "waterfall_cascade", accentColor: "#6644ff", rhythmGroups: false,         accentColor: "#6644ff", rhythmGroups: false,           accentColor: "#6644ff", rhythmGroups: false },
-            { id: 27, leagueId: 3, name: "Дворядний бар'єр",        letters: ["Й","Ц","У","К","Е","Н","Я","Ч","С","М","И","Т","Ь","Б","Ю","Є","Ґ"], speed: 340, spikeCount: 46, seed: 2203, bgTheme: "barrier_wall",           accentColor: "#00f6ff", rhythmGroups: false,     accentColor: "#00f6ff", rhythmGroups: false },
-            { id: 28, leagueId: 3, name: "Хаотичний мікс",          letters: ["А","О","П","Р","В","Л","І","Д","Ф","Ж","К","Е","Н","Г","У","Ш","Ц","Щ"], speed: 360, spikeCount: 50, seed: 2204, bgTheme: "glitch_field",           accentColor: "#7fff00", rhythmGroups: false,             accentColor: "#7fff00", rhythmGroups: false }
+            { id: 25, leagueId: 3, name: "Верхній штурм",           letters: ["Й","Ц","У","К","Е","Н","Г","Ш","Щ","З","Х","Ї","Ф","І","В","А"], speed: 310, spikeCount: 38, seed: 2201, bgTheme: "equalizer", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_3_1", name: "Плазма", renderType: "plasma" } },
+            { id: 26, leagueId: 3, name: "Великий спуск",           letters: ["Ф","І","В","А","П","Р","О","Л","Д","Ж","Я","Ч","С","М","И","Т","Ь","Б"], speed: 325, spikeCount: 42, seed: 2202, bgTheme: "waterfall_cascade", accentColor: "#6644ff", rhythmGroups: false, skin: { id: "skin_3_2", name: "Вортекс", renderType: "vortex" } },
+            { id: 27, leagueId: 3, name: "Дворядний бар'єр",        letters: ["Й","Ц","У","К","Е","Н","Я","Ч","С","М","И","Т","Ь","Б","Ю","Є","Ґ"], speed: 340, spikeCount: 46, seed: 2203, bgTheme: "barrier_wall", accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_3_3", name: "Квантовий Бар'єр", renderType: "quantum_barrier" } },
+            { id: 28, leagueId: 3, name: "Хаотичний мікс",          letters: ["А","О","П","Р","В","Л","І","Д","Ф","Ж","К","Е","Н","Г","У","Ш","Ц","Щ"], speed: 360, spikeCount: 50, seed: 2204, bgTheme: "glitch_field", accentColor: "#7fff00", rhythmGroups: false, skin: { id: "skin_3_4", name: "Метеор", renderType: "meteor" } }
         ]
     },
     {
         id: 4,
         name: "Майстер",
         levels: [
-            { id: 29, leagueId: 4, name: "Половина Всесвіту",       letters: ["А","Б","В","Г","Д","Е","Ж","З","И","І","Ї","Й","К","Л","М","Н","О","П","Р","С","Т","У","Ф","Х","Ц","Ч","Ш","Щ"], speed: 390, spikeCount: 50, seed: 2301, bgTheme: "nebula_drift",           accentColor: "#e5ff00", rhythmGroups: false,         accentColor: "#e5ff00", rhythmGroups: false },
-            { id: 30, leagueId: 4, name: "Гранд Мастер",            letters: ["К","Л","М","Н","О","П","Р","С","Т","У","Ф","Х","Ц","Ч","Ш","Щ","Ь","Ю","Я","Є","Ї","І","Ґ"], speed: 418, spikeCount: 55, seed: 2302, bgTheme: "grand_hex",              accentColor: "#ff4400", rhythmGroups: false,          accentColor: "#ff4400", rhythmGroups: false }
+            { id: 29, leagueId: 4, name: "Половина Всесвіту",       letters: ["А","Б","В","Г","Д","Е","Ж","З","И","І","Ї","Й","К","Л","М","Н","О","П","Р","С","Т","У","Ф","Х","Ц","Ч","Ш","Щ"], speed: 390, spikeCount: 50, seed: 2301, bgTheme: "nebula_drift", accentColor: "#e5ff00", rhythmGroups: false, skin: { id: "skin_4_1", name: "Галактика", renderType: "galaxy" } },
+            { id: 30, leagueId: 4, name: "Гранд Мастер",            letters: ["К","Л","М","Н","О","П","Р","С","Т","У","Ф","Х","Ц","Ч","Ш","Щ","Ь","Ю","Я","Є","Ї","І","Ґ"], speed: 418, spikeCount: 55, seed: 2302, bgTheme: "grand_hex", accentColor: "#ff4400", rhythmGroups: false, skin: { id: "skin_4_2", name: "Корона Майстра", renderType: "master_crown" } }
         ]
     },
     {
         id: 5,
         name: "Бос",
         levels: [
-            { id: 31, leagueId: 5, name: "ФІНАЛЬНИЙ ДЕМОН",        letters: ["А","Б","В","Г","Д","Е","Ж","З","И","І","Ї","Й","К","Л","М","Н","О","П","Р","С","Т","У","Ф","Х","Ц","Ч","Ш","Щ","Ь","Ю","Я","Є","Ґ"], speed: 450, spikeCount: 60, seed: 2401, bgTheme: "inferno_core",  accentColor: "#ff1111", rhythmGroups: true,                  accentColor: "#ff1111", rhythmGroups: true }
+            { id: 31, leagueId: 5, name: "ФІНАЛЬНИЙ ДЕМОН",        letters: ["А","Б","В","Г","Д","Е","Ж","З","И","І","Ї","Й","К","Л","М","Н","О","П","Р","С","Т","У","Ф","Х","Ц","Ч","Ш","Щ","Ь","Ю","Я","Є","Ґ"], speed: 450, spikeCount: 60, seed: 2401, bgTheme: "inferno_core", accentColor: "#ff1111", rhythmGroups: true, skin: { id: "skin_5_1", name: "ЛОРД ДЕМОНІВ", renderType: "demon_lord" } }
         ]
     }
 ];
@@ -93,6 +93,633 @@ function getLevelById(levelId) {
     return ALL_LEVELS.find(function (l) { return l.id === levelId; }) ||
            ALL_LEVELS[0];
 }
+
+// ---------- Реєстр функцій рендерингу скінів ----------
+
+export const SKIN_RENDERERS = {
+
+    // === ГРУПА 1: БАЗОВА ЛІГА ===
+
+    neon_base: function (ctx, size, time) {
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = "#00f6ff";
+        var gradient = ctx.createLinearGradient(-size / 2, -size / 2, size / 2, size / 2);
+        gradient.addColorStop(0, "#00f6ff");
+        gradient.addColorStop(1, "#0077ff");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.strokeStyle = "#bffcff";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 0;
+    },
+
+    cyber_eye: function (ctx, size, time) {
+        ctx.fillStyle = "#0a0a20";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 16;
+        ctx.shadowColor = "#00ffcc";
+        ctx.fillStyle = "#00ffcc";
+        ctx.beginPath();
+        ctx.arc(size * 0.18, 0, size * 0.18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#001010";
+        ctx.beginPath();
+        ctx.arc(size * 0.22, 0, size * 0.08, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    },
+
+    retro_gamer: function (ctx, size, time) {
+        ctx.fillStyle = "#0a0a20";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = "#00ff41";
+        ctx.strokeStyle = "#00ff41";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.3, -size * 0.3);
+        ctx.lineTo(-size * 0.3, size * 0.2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(size * 0.3, -size * 0.3);
+        ctx.lineTo(size * 0.3, size * 0.2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.15, size * 0.25);
+        ctx.lineTo(size * 0.15, size * 0.25);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    },
+
+    throne: function (ctx, size, time) {
+        ctx.fillStyle = "#0a0a20";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#9944dd";
+        ctx.strokeStyle = "#bb55ff";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-size / 2, -size / 2);
+        ctx.lineTo(size / 2, size / 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(size / 2, -size / 2);
+        ctx.lineTo(-size / 2, size / 2);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    },
+
+    crosshair: function (ctx, size, time) {
+        ctx.fillStyle = "#0a0a20";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = "#ff2222";
+        ctx.strokeStyle = "#ff2222";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, size * 0.22, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.28, 0);
+        ctx.lineTo(size * 0.28, 0);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, -size * 0.28);
+        ctx.lineTo(0, size * 0.28);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    },
+
+    matrix_pixel: function (ctx, size, time) {
+        ctx.fillStyle = "#003300";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.fillStyle = "#00ff41";
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = "#00ff41";
+        var px1x = -size * 0.25, px1y = -size * 0.20;
+        var px2x = size * 0.08, px2y = size * 0.12;
+        var px3x = -size * 0.08, px3y = size * 0.28;
+        var pxSize = size * 0.14;
+        ctx.fillRect(px1x, px1y, pxSize, pxSize);
+        ctx.fillRect(px2x, px2y, pxSize, pxSize);
+        ctx.fillRect(px3x, px3y, pxSize, pxSize);
+        ctx.shadowBlur = 0;
+    },
+
+    slice: function (ctx, size, time) {
+        ctx.fillStyle = "#3a3a3a";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(-size / 2, size / 2);
+        ctx.lineTo(size / 2, -size / 2);
+        ctx.lineTo(size / 2, size / 2);
+        ctx.closePath();
+        ctx.clip();
+        ctx.fillStyle = "#ff7b00";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.restore();
+        ctx.strokeStyle = "#ffaa44";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-size / 2, size / 2);
+        ctx.lineTo(size / 2, -size / 2);
+        ctx.stroke();
+    },
+
+    shining_diamond: function (ctx, size, time) {
+        ctx.fillStyle = "#1a1a30";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.strokeStyle = "#9944dd";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = "#cc88ff";
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = "#bb77ee";
+        ctx.beginPath();
+        ctx.moveTo(0, -size * 0.38);
+        ctx.lineTo(size * 0.38, 0);
+        ctx.lineTo(0, size * 0.38);
+        ctx.lineTo(-size * 0.38, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+    },
+
+    double_frame: function (ctx, size, time) {
+        ctx.fillStyle = "#4a0020";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        var pulse = 2 + Math.sin(time * 0.005) * 2;
+        ctx.strokeStyle = "#cc1155";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-size / 2 + pulse, -size / 2 + pulse, size - pulse * 2, size - pulse * 2);
+        ctx.strokeStyle = "#ff4488";
+        ctx.lineWidth = 1.5;
+        var pulse2 = pulse + 5;
+        ctx.strokeRect(-size / 2 + pulse2, -size / 2 + pulse2, size - pulse2 * 2, size - pulse2 * 2);
+    },
+
+    monolith: function (ctx, size, time) {
+        ctx.fillStyle = "#555555";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.fillStyle = "#eeffff";
+        var barW = size * 0.2;
+        ctx.fillRect(-barW / 2, -size / 2, barW, size);
+        ctx.strokeStyle = "#aaaaaa";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-size / 2, -size / 2, size, size);
+    },
+
+    radar: function (ctx, size, time) {
+        ctx.fillStyle = "#0a0a20";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.strokeStyle = "rgba(200,200,220,0.5)";
+        ctx.lineWidth = 1;
+        for (var r = size * 0.12; r <= size * 0.55; r += size * 0.13) {
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        ctx.fillStyle = "#00ff88";
+        ctx.beginPath();
+        ctx.arc(0, 0, size * 0.08, 0, Math.PI * 2);
+        ctx.fill();
+    },
+
+    speed_arrow: function (ctx, size, time) {
+        ctx.fillStyle = "#0a0a20";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = "#ffff00";
+        ctx.strokeStyle = "#ffff00";
+        ctx.lineWidth = 2.5;
+        var ay = -size * 0.12;
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.15, ay - size * 0.16);
+        ctx.lineTo(size * 0.08, ay);
+        ctx.lineTo(-size * 0.15, ay + size * 0.16);
+        ctx.stroke();
+        ay = size * 0.15;
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.28, ay - size * 0.16);
+        ctx.lineTo(-size * 0.05, ay);
+        ctx.lineTo(-size * 0.28, ay + size * 0.16);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    },
+
+    neon_cross: function (ctx, size, time) {
+        ctx.fillStyle = "#0a0a20";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = "#e5ff00";
+        ctx.fillStyle = "#e5ff00";
+        var crossW = size * 0.2;
+        ctx.fillRect(-crossW / 2, -size / 2, crossW, size);
+        ctx.fillRect(-size / 2, -crossW / 2, size, crossW);
+        ctx.shadowBlur = 0;
+    },
+
+    liquid_gradient: function (ctx, size, time) {
+        var gradient = ctx.createLinearGradient(-size / 2, -size / 2, size / 2, size / 2);
+        gradient.addColorStop(0, "#cc0000");
+        gradient.addColorStop(0.5, "#990066");
+        gradient.addColorStop(1, "#4400cc");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.strokeStyle = "#ff88cc";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-size / 2, -size / 2, size, size);
+    },
+
+    winged: function (ctx, size, time) {
+        ctx.fillStyle = "#0a0a20";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = "#00f6ff";
+        ctx.fillStyle = "#0066cc";
+        ctx.fillRect(-size * 0.35, -size * 0.4, size * 0.7, size * 0.8);
+        ctx.strokeStyle = "#00f6ff";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        ctx.fillStyle = "#00ccff";
+        ctx.beginPath();
+        ctx.moveTo(-size / 2, -size * 0.1);
+        ctx.lineTo(-size / 2 - 6, -size * 0.3);
+        ctx.lineTo(-size / 2, size * 0.1);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(size / 2, -size * 0.1);
+        ctx.lineTo(size / 2 + 6, -size * 0.3);
+        ctx.lineTo(size / 2, size * 0.1);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    },
+
+    light_cup: function (ctx, size, time) {
+        ctx.fillStyle = "#004d33";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#ffd700";
+        ctx.strokeStyle = "#39ff88";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        ctx.fillStyle = "#ffd700";
+        var outerR = size * 0.28;
+        var innerR = size * 0.12;
+        var points = 5;
+        ctx.beginPath();
+        for (var i = 0; i < points * 2; i++) {
+            var r = i % 2 === 0 ? outerR : innerR;
+            var angle = (Math.PI / 2 * 3) + (i * Math.PI / points);
+            var sx = Math.cos(angle) * r;
+            var sy = Math.sin(angle) * r;
+            if (i === 0) { ctx.moveTo(sx, sy); }
+            else { ctx.lineTo(sx, sy); }
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    },
+
+    // === ГРУПА 2: СЕРЕДНЯ ЛІГА ===
+
+    synthwave_sun: function (ctx, size, time) {
+        var gradient = ctx.createLinearGradient(0, -size / 2, 0, size / 2);
+        gradient.addColorStop(0, "#ff44aa");
+        gradient.addColorStop(0.48, "#ff8844");
+        gradient.addColorStop(0.52, "#000000");
+        gradient.addColorStop(1, "#000000");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.fillStyle = "#110033";
+        var stripH = size * 0.04;
+        for (var i = 0; i < 3; i++) {
+            ctx.fillRect(-size / 2, size * 0.08 + i * size * 0.15, size, stripH);
+        }
+    },
+
+    cyberpunk_horizon: function (ctx, size, time) {
+        var gradient = ctx.createLinearGradient(0, -size / 2, 0, size / 2);
+        gradient.addColorStop(0, "#220066");
+        gradient.addColorStop(0.4, "#9944ff");
+        gradient.addColorStop(0.7, "#ffaa00");
+        gradient.addColorStop(1, "#ffdd44");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.strokeStyle = "#00ddff";
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#00ddff";
+        ctx.beginPath();
+        ctx.moveTo(-size / 2, -size * 0.15);
+        ctx.lineTo(size / 2, -size * 0.15);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    },
+
+    glitch_cube: function (ctx, size, time) {
+        ctx.fillStyle = "#0a0a20";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.strokeStyle = "#ff2222";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(-size / 2 - 3, -size / 2 - 2, size, size);
+        ctx.strokeStyle = "#00aaff";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(-size / 2 + 3, -size / 2 + 2, size, size);
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(-size / 2, -size / 2, size, size);
+    },
+
+    gold_ingot: function (ctx, size, time) {
+        var gradient = ctx.createLinearGradient(-size / 2, -size / 2, size / 2, size / 2);
+        gradient.addColorStop(0, "#ffd700");
+        gradient.addColorStop(0.3, "#ffec80");
+        gradient.addColorStop(0.6, "#cc9900");
+        gradient.addColorStop(1, "#ffd700");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.strokeStyle = "#aa7700";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = "#ffffff";
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.3, -size * 0.4);
+        ctx.lineTo(-size * 0.22, -size * 0.48);
+        ctx.lineTo(-size * 0.14, -size * 0.4);
+        ctx.lineTo(-size * 0.22, -size * 0.32);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    },
+
+    orbit: function (ctx, size, time) {
+        ctx.fillStyle = "#0a0a20";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.fillStyle = "#ff8c00";
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#ff8c00";
+        ctx.beginPath();
+        ctx.arc(0, 0, size * 0.18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.save();
+        ctx.rotate(Math.PI / 4);
+        ctx.strokeStyle = "#ffcc44";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, size * 0.35, size * 0.18, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+    },
+
+    stalagmite: function (ctx, size, time) {
+        ctx.fillStyle = "#2a2040";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.fillStyle = "#5522aa";
+        ctx.beginPath();
+        ctx.moveTo(-size / 2, size / 2);
+        var teeth = 4;
+        for (var i = 0; i <= teeth; i++) {
+            var tx = -size / 2 + (size / teeth) * i;
+            ctx.lineTo(tx - size * 0.06, size * 0.05);
+            ctx.lineTo(tx, -size * 0.1);
+            ctx.lineTo(tx + size * 0.06, size * 0.05);
+        }
+        ctx.lineTo(size / 2, size / 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#8844ff";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    },
+
+    equalizer: function (ctx, size, time) {
+        ctx.fillStyle = "#0a0a20";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        var barW = size * 0.16;
+        var gap = size * 0.06;
+        var totalW = barW * 3 + gap * 2;
+        var startX = -totalW / 2;
+        var heights = [size * 0.5, size * 0.75, size * 0.35];
+        var colors = ["#ff2ea6", "#00f6ff", "#39ff14"];
+        for (var i = 0; i < 3; i++) {
+            ctx.fillStyle = colors[i];
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = colors[i];
+            ctx.fillRect(startX + i * (barW + gap), size / 2 - heights[i], barW, heights[i]);
+        }
+        ctx.shadowBlur = 0;
+    },
+
+    shield: function (ctx, size, time) {
+        ctx.fillStyle = "#3a3a4a";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.strokeStyle = "#666677";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        ctx.fillStyle = "#888899";
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = "#aaaacc";
+        var dotR = size * 0.07;
+        var margin = size * 0.16;
+        var corners = [
+            [-size / 2 + margin, -size / 2 + margin],
+            [size / 2 - margin, -size / 2 + margin],
+            [-size / 2 + margin, size / 2 - margin],
+            [size / 2 - margin, size / 2 - margin]
+        ];
+        for (var i = 0; i < corners.length; i++) {
+            ctx.beginPath();
+            ctx.arc(corners[i][0], corners[i][1], dotR, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.shadowBlur = 0;
+    },
+
+    // === ГРУПА 3: СКЛАДНА ЛІГА ===
+
+    plasma: function (ctx, size, time) {
+        var pulseR = size / 2 + Math.sin(time * 0.003) * 8;
+        var gradient = ctx.createRadialGradient(0, 0, size * 0.05, 0, 0, pulseR);
+        gradient.addColorStop(0, "#ffffff");
+        gradient.addColorStop(0.3, "#ff2ea6");
+        gradient.addColorStop(0.6, "#6644ff");
+        gradient.addColorStop(1, "#0a0a30");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+    },
+
+    vortex: function (ctx, size, time) {
+        ctx.fillStyle = "#0a0a20";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.strokeStyle = "#00ffcc";
+        ctx.lineWidth = 1.5;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = "#00ffcc";
+        ctx.beginPath();
+        var turns = 3;
+        var steps = 20;
+        var maxR = size * 0.48;
+        for (var i = 0; i <= steps; i++) {
+            var t = i / steps;
+            var angle = t * turns * Math.PI * 2;
+            var r = t * maxR;
+            var sx = Math.cos(angle) * r;
+            var sy = Math.sin(angle) * r;
+            if (i === 0) { ctx.moveTo(sx, sy); }
+            else { ctx.lineTo(sx, sy); }
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    },
+
+    quantum_barrier: function (ctx, size, time) {
+        ctx.globalAlpha = 0.15;
+        ctx.fillStyle = "#00f6ff";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 25;
+        ctx.shadowColor = "#ffffff";
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 4;
+        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 0;
+    },
+
+    meteor: function (ctx, size, time, player) {
+        if (player && player.meteorTrail) {
+            for (var t = player.meteorTrail.length - 1; t >= 0; t--) {
+                var pt = player.meteorTrail[t];
+                var ox = pt.x - player.x;
+                var oy = -(pt.y - player.y);
+                ctx.globalAlpha = pt.alpha * 0.35;
+                ctx.fillStyle = "#ff4400";
+                ctx.fillRect(-size * 0.35 + ox, -size * 0.35 + oy, size * 0.7, size * 0.7);
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = "#ff6600";
+                ctx.strokeStyle = "#ff8844";
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(-size / 2 + ox, -size / 2 + oy, size, size);
+                ctx.shadowBlur = 0;
+            }
+            ctx.globalAlpha = 1;
+        }
+        ctx.fillStyle = "#1a0a00";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 14;
+        ctx.shadowColor = "#ff6600";
+        ctx.fillStyle = "#ff4400";
+        ctx.fillRect(-size * 0.35, -size * 0.35, size * 0.7, size * 0.7);
+        ctx.strokeStyle = "#ffaa44";
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 0;
+    },
+
+    // === ГРУПА 4: ЛІГА МАЙСТРІВ ===
+
+    galaxy: function (ctx, size, time) {
+        var gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.7);
+        gradient.addColorStop(0, "#220055");
+        gradient.addColorStop(0.5, "#110033");
+        gradient.addColorStop(1, "#080820");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.fillStyle = "#ffffff";
+        var stars = [
+            { x: -size * 0.3, y: -size * 0.25, r: size * 0.04 },
+            { x: size * 0.2, y: -size * 0.35, r: size * 0.025 },
+            { x: -size * 0.15, y: size * 0.15, r: size * 0.03 },
+            { x: size * 0.3, y: size * 0.25, r: size * 0.035 },
+            { x: size * 0.05, y: -size * 0.4, r: size * 0.02 },
+            { x: -size * 0.38, y: size * 0.3, r: size * 0.028 }
+        ];
+        for (var i = 0; i < stars.length; i++) {
+            var s = stars[i];
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    },
+
+    master_crown: function (ctx, size, time) {
+        ctx.fillStyle = "#0a0a20";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.strokeStyle = "#00ff88";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#ffd700";
+        ctx.fillStyle = "#ffd700";
+        ctx.strokeStyle = "#ffd700";
+        ctx.lineWidth = 1.5;
+        var crownBaseY = -size / 2 - 1;
+        var crownTopY = crownBaseY - size * 0.28;
+        ctx.fillRect(size * 0.08, crownBaseY - size * 0.06, size * 0.84, size * 0.06);
+        ctx.beginPath();
+        ctx.moveTo(size * 0.1, crownBaseY);
+        ctx.lineTo(size * 0.1, crownTopY);
+        ctx.lineTo(size * 0.25, crownBaseY - size * 0.1);
+        ctx.lineTo(size * 0.4, crownTopY);
+        ctx.lineTo(size * 0.5, crownBaseY - size * 0.12);
+        ctx.lineTo(size * 0.6, crownTopY);
+        ctx.lineTo(size * 0.75, crownBaseY - size * 0.1);
+        ctx.lineTo(size * 0.9, crownTopY);
+        ctx.lineTo(size * 0.9, crownBaseY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    },
+
+    // === ГРУПА 5: ЛІГА БОСА ===
+
+    demon_lord: function (ctx, size, time) {
+        ctx.fillStyle = "#0a0a08";
+        ctx.fillRect(-size / 2, -size / 2, size, size);
+        ctx.shadowBlur = 25;
+        ctx.shadowColor = "#ff1111";
+        ctx.fillStyle = "#ff1111";
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.2, -size * 0.12);
+        ctx.lineTo(-size * 0.08, size * 0.12);
+        ctx.lineTo(-size * 0.32, size * 0.12);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(size * 0.2, -size * 0.12);
+        ctx.lineTo(size * 0.08, size * 0.12);
+        ctx.lineTo(size * 0.32, size * 0.12);
+        ctx.closePath();
+        ctx.fill();
+        var hornY = -size / 2;
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.25, hornY);
+        ctx.lineTo(-size * 0.3, hornY - size * 0.28);
+        ctx.lineTo(-size * 0.1, hornY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(size * 0.25, hornY);
+        ctx.lineTo(size * 0.3, hornY - size * 0.28);
+        ctx.lineTo(size * 0.1, hornY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = "#440000";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(-size / 2, -size / 2, size, size);
+    }
+};
 
 // ---------- Генерація фіксованої траси ----------
 
@@ -198,8 +825,8 @@ function defaultSaveData() {
     }
     return {
         version: 1,
-        settings: { difficulty: "EASY", hitWindow: "normal", speed: "normal" },
-        progress: { unlocked: 1, levels: levels }
+        settings: { difficulty: "EASY", hitWindow: "normal", speed: "normal", activeSkin: null },
+        progress: { unlocked: 1, unlockedSkins: [], levels: levels }
     };
 }
 
@@ -217,10 +844,16 @@ function sanitizeSaveData(raw) {
     if (raw.settings && (raw.settings.speed === "slow" || raw.settings.speed === "normal" || raw.settings.speed === "fast")) {
         clean.settings.speed = raw.settings.speed;
     }
+    if (raw.settings && typeof raw.settings.activeSkin === "string" && raw.settings.activeSkin.length > 0) {
+        clean.settings.activeSkin = raw.settings.activeSkin;
+    }
     if (raw.progress && typeof raw.progress === "object") {
         const unlocked = Number(raw.progress.unlocked);
         if (Number.isFinite(unlocked)) {
             clean.progress.unlocked = Math.min(31, Math.max(1, Math.floor(unlocked)));
+        }
+        if (Array.isArray(raw.progress.unlockedSkins)) {
+            clean.progress.unlockedSkins = raw.progress.unlockedSkins.filter(function (s) { return typeof s === "string"; });
         }
         if (raw.progress.levels && typeof raw.progress.levels === "object") {
             for (const level of ALL_LEVELS) {
@@ -285,31 +918,40 @@ export const save = {
         }
         const cleanPct = Math.min(100, Math.max(0, Math.round(pct)));
         const cleanScore = Math.max(0, Math.round(score));
+        let skinUnlocked = null;
         if (cleanPct > entry.bestPct) {
             entry.bestPct = cleanPct;
         }
         if (cleanScore > entry.highScore) {
             entry.highScore = cleanScore;
         }
-        if (cleanPct === 100 && levelId < 31) {
-            const currentLevel = getLevelById(levelId);
-            if (currentLevel) {
-                const currentLeague = LEVELS_CONFIG.find(function (lg) { return lg.id === currentLevel.leagueId; });
-                if (currentLeague) {
-                    const idxInLeague = currentLeague.levels.indexOf(currentLevel);
-                    if (idxInLeague >= 0 && idxInLeague < currentLeague.levels.length - 1) {
-                        const nextLevel = currentLeague.levels[idxInLeague + 1];
-                        saveData.progress.unlocked = Math.max(saveData.progress.unlocked, nextLevel.id);
-                    } else if (currentLeague.id < 5) {
-                        const nextLeague = LEVELS_CONFIG[currentLeague.id];
-                        if (nextLeague && nextLeague.levels.length > 0) {
-                            saveData.progress.unlocked = Math.max(saveData.progress.unlocked, nextLeague.levels[0].id);
+        if (cleanPct === 100) {
+            if (levelId < 31) {
+                const currentLevel = getLevelById(levelId);
+                if (currentLevel) {
+                    const currentLeague = LEVELS_CONFIG.find(function (lg) { return lg.id === currentLevel.leagueId; });
+                    if (currentLeague) {
+                        const idxInLeague = currentLeague.levels.indexOf(currentLevel);
+                        if (idxInLeague >= 0 && idxInLeague < currentLeague.levels.length - 1) {
+                            const nextLevel = currentLeague.levels[idxInLeague + 1];
+                            saveData.progress.unlocked = Math.max(saveData.progress.unlocked, nextLevel.id);
+                        } else if (currentLeague.id < 5) {
+                            const nextLeague = LEVELS_CONFIG[currentLeague.id];
+                            if (nextLeague && nextLeague.levels.length > 0) {
+                                saveData.progress.unlocked = Math.max(saveData.progress.unlocked, nextLeague.levels[0].id);
+                            }
                         }
                     }
                 }
             }
+            const level = getLevelById(levelId);
+            if (level && level.skin && !saveData.progress.unlockedSkins.includes(level.skin.id)) {
+                saveData.progress.unlockedSkins.push(level.skin.id);
+                skinUnlocked = level.skin;
+            }
         }
         this.persist();
+        return skinUnlocked ? { skinUnlocked: skinUnlocked } : undefined;
     },
 
     setDifficulty(difficulty) {
@@ -363,6 +1005,21 @@ export const save = {
         return saveData.settings.speed || "normal";
     },
 
+    getActiveSkin() {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.settings.activeSkin || null;
+    },
+
+    setActiveSkin(skinId) {
+        if (!saveData) {
+            this.load();
+        }
+        saveData.settings.activeSkin = skinId || null;
+        this.persist();
+    },
+
     getProgress() {
         if (!saveData) {
             this.load();
@@ -414,6 +1071,7 @@ export class Engine {
         this.onJump = null;
         this.onExplode = null;
         this.onVictory = null;
+        this.currentTime = 0;
 
         const windows = hitWindowTimes(this.level.id);
         const multiplier = hitWindowSetting === "large" ? 2 : 1;
@@ -436,7 +1094,8 @@ export class Engine {
             onGround: true,
             rotation: 0,
             alive: true,
-            trail: []
+            trail: [],
+            meteorTrail: []
         };
 
         this.progressPct = 0;
@@ -590,6 +1249,7 @@ export class Engine {
             return;
         }
 
+        this.currentTime = performance.now();
         this.pulse = Math.max(0, this.pulse - dt * 2.2);
         for (const wave of this.waves) {
             wave.r += dt * 620;
@@ -639,6 +1299,18 @@ export class Engine {
             point.alpha -= dt * 1.4;
         }
         this.player.trail = this.player.trail.filter(function (t) { return t.alpha > 0; });
+
+        if (!this.player.onGround) {
+            this.player.meteorTrail.unshift({ x: this.player.x, y: this.player.y, alpha: 1 });
+            if (this.player.meteorTrail.length > 2) {
+                this.player.meteorTrail.pop();
+            }
+        } else if (this.player.meteorTrail.length > 0) {
+            for (var mt = 0; mt < this.player.meteorTrail.length; mt++) {
+                this.player.meteorTrail[mt].alpha -= dt * 3;
+            }
+            this.player.meteorTrail = this.player.meteorTrail.filter(function (t) { return t.alpha > 0; });
+        }
 
         if (this.demoMode) {
             const target = this.nearestAheadSpike();
@@ -943,20 +1615,20 @@ export class Engine {
         ctx.save();
         ctx.translate(anchorX, centerY);
         ctx.rotate(this.player.rotation);
-        ctx.shadowBlur = 18;
-        ctx.shadowColor = "#00f6ff";
-        const gradient = ctx.createLinearGradient(-CUBE_SIZE / 2, -CUBE_SIZE / 2, CUBE_SIZE / 2, CUBE_SIZE / 2);
-        gradient.addColorStop(0, "#00f6ff");
-        gradient.addColorStop(1, "#0077ff");
-        ctx.fillStyle = gradient;
-        ctx.fillRect(-CUBE_SIZE / 2, -CUBE_SIZE / 2, CUBE_SIZE, CUBE_SIZE);
-        ctx.strokeStyle = "#bffcff";
-        ctx.lineWidth = 3;
-        ctx.strokeRect(-CUBE_SIZE / 2, -CUBE_SIZE / 2, CUBE_SIZE, CUBE_SIZE);
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = "#05060f";
-        ctx.fillRect(-CUBE_SIZE * 0.18, -CUBE_SIZE * 0.2, CUBE_SIZE * 0.14, CUBE_SIZE * 0.28);
-        ctx.fillRect(CUBE_SIZE * 0.06, -CUBE_SIZE * 0.2, CUBE_SIZE * 0.14, CUBE_SIZE * 0.28);
+
+        const skinConfig = this.level.skin;
+        var activeSkinId = save.getActiveSkin ? save.getActiveSkin() : null;
+        var effectiveSkinConfig = skinConfig;
+        if (activeSkinId && SKIN_RENDERERS[activeSkinId]) {
+            effectiveSkinConfig = { renderType: activeSkinId };
+        }
+        const renderFn = effectiveSkinConfig ? SKIN_RENDERERS[effectiveSkinConfig.renderType] : null;
+        if (renderFn) {
+            renderFn(ctx, CUBE_SIZE, this.currentTime, this.player);
+        } else {
+            SKIN_RENDERERS.neon_base(ctx, CUBE_SIZE, this.currentTime, this.player);
+        }
+
         ctx.restore();
     }
 
