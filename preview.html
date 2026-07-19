@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview — Фони рівнів</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #080818;
+            color: #ccc;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            overflow-y: auto;
+            min-height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            padding: 16px 0 8px;
+            font-size: 1.3rem;
+            color: #00f6ff;
+            text-shadow: 0 0 16px rgba(0,246,255,0.4);
+            letter-spacing: 2px;
+        }
+        .grid {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 90vw;
+            margin: 0 auto 40px;
+            padding: 0;
+        }
+        .card {
+            background: #0c0c24;
+            border: 1px solid #1a1a40;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        .card canvas {
+            display: block;
+            width: 100%;
+            height: 220px;
+        }
+        .card-info {
+            padding: 6px 10px 8px;
+            font-size: 0.75rem;
+            line-height: 1.4;
+        }
+        .card-name { color: #fff; font-weight: 600; }
+        .card-league { color: #888; font-size: 0.7rem; }
+        .card-theme { color: #00f6ff; font-size: 0.65rem; }
+        .error-msg {
+            display: none;
+            text-align: center;
+            color: #ff4444;
+            padding: 40px;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>ПЕРЕГЛЯД ФОНІВ — УСІ РІВНІ</h1>
+    <div class="grid" id="grid"></div>
+    <div class="error-msg" id="error">Помилка завантаження модулів. Переконайтеся, що файли js/engine.js та js/backgrounds.js існують.</div>
+
+    <script type="module">
+        import { LEVELS_CONFIG, ALL_LEVELS } from "./js/engine.js";
+        import { BackgroundRenderer } from "./js/backgrounds.js";
+
+        const grid = document.getElementById("grid");
+        const errorEl = document.getElementById("error");
+
+        if (!LEVELS_CONFIG || !ALL_LEVELS || !BackgroundRenderer) {
+            errorEl.style.display = "block";
+            throw new Error("Modules not loaded");
+        }
+
+        const cards = [];
+        const DPR = window.devicePixelRatio || 1;
+        const CARD_ASPECT = 16 / 9;
+
+        function resizeCanvases() {
+            const gridWidth = grid.clientWidth;
+            const cardW = gridWidth;
+            const cardH = Math.round(gridWidth / CARD_ASPECT);
+            for (const c of cards) {
+                c.canvas.width = Math.round(cardW * DPR);
+                c.canvas.height = Math.round(cardH * DPR);
+                c.canvas.style.width = cardW + "px";
+                c.canvas.style.height = cardH + "px";
+                c.ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+                c.w = cardW;
+                c.h = cardH;
+            }
+        }
+
+        window.addEventListener("resize", resizeCanvases);
+
+        for (const level of ALL_LEVELS) {
+            const league = LEVELS_CONFIG.find(lg => lg.id === level.leagueId);
+
+            const card = document.createElement("div");
+            card.className = "card";
+
+            const canvas = document.createElement("canvas");
+            const info = document.createElement("div");
+            info.className = "card-info";
+            info.innerHTML =
+                '<span class="card-name">' + level.name + '</span><br>' +
+                '<span class="card-league">Ліга: ' + (league ? league.name : "?") + '  |  Lv.' + level.id + '</span><br>' +
+                '<span class="card-theme">Тема: ' + level.bgTheme + '</span>';
+
+            card.appendChild(canvas);
+            card.appendChild(info);
+            grid.appendChild(card);
+
+            cards.push({
+                canvas: canvas,
+                ctx: canvas.getContext("2d"),
+                level: level,
+                w: 0,
+                h: 0
+            });
+        }
+
+        resizeCanvases();
+
+        const GROUND_RATIO = 0.64;
+
+        function renderAll(time) {
+            for (const c of cards) {
+                const w = c.w;
+                const h = c.h;
+                const groundY = h * GROUND_RATIO;
+                const previewSpeed = c.level.speed * 0.35;
+                BackgroundRenderer.render(c.ctx, c.level.bgTheme, w, h, groundY, time, previewSpeed, c.level.accentColor, c.level.id);
+            }
+        }
+
+        function frame(now) {
+            const time = now / 1000;
+            renderAll(time);
+            requestAnimationFrame(frame);
+        }
+
+        requestAnimationFrame(frame);
+    </script>
+</body>
+</html>
+

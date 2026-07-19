@@ -8,6 +8,7 @@
 import { loadAssets, unlockAudio, playSound, playMusic } from "./assets.js";
 import { LEVELS_CONFIG, ALL_LEVELS, Engine, save } from "./engine.js";
 import { initKeyboardInput, drawKeyboard } from "./keyboard.js";
+import { BackgroundRenderer } from "./backgrounds.js";
 
 // ---------- Полотно та адаптивність ----------
 
@@ -23,6 +24,7 @@ function resizeCanvas() {
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    BackgroundRenderer.init(W, H, H * 0.64);
 }
 
 window.addEventListener("resize", resizeCanvas);
