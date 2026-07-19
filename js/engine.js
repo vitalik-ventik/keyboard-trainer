@@ -1,7 +1,6 @@
 // ============================================================
 // engine.js — ігрова логіка
-// 15 рівнів з анатомічною прогресією, процедурні фони,
-// 3 типи перешкод (spike/double_spike/saw),
+// 5 ліг, 31 рівень, процедурні фони, 3 типи перешкод,
 // SaveManager (localStorage), частинки, trail, демо-режим
 // ============================================================
 
@@ -18,199 +17,85 @@ function mulberry32(seed) {
     };
 }
 
-// ---------- Константи 15 рівнів ----------
+// ---------- Конфігурація 5 ліг та 31 рівня ----------
 
-export const LEVELS = [
+export const LEVELS_CONFIG = [
     {
         id: 1,
-        name: "Рівень 1",
-        letters: ["А", "О"],
-        newLetters: ["А", "О"],
-        speed: 160,
-        spikeCount: 12,
-        seed: 1001,
-        bgTheme: "deep_grid",
-        accentColor: "#00f6ff",
-        rhythmGroups: false
+        name: "Базова",
+        levels: [
+            { id: 1,  leagueId: 1, name: "Перші кроки",             letters: ["А","О","В","Л"], speed: 165, spikeCount: 12, seed: 2001, bgTheme: "deep_grid",              accentColor: "#00f6ff", rhythmGroups: false },
+            { id: 2,  leagueId: 1, name: "Голосний старт",          letters: ["У","К","Е","П"], speed: 172, spikeCount: 13, seed: 2002, bgTheme: "city_night",             accentColor: "#aa44ff", rhythmGroups: false },
+            { id: 3,  leagueId: 1, name: "Ближче до країв",         letters: ["Ф","І","Д","Ж"], speed: 179, spikeCount: 14, seed: 2003, bgTheme: "horizon",                 accentColor: "#00d4aa", rhythmGroups: false },
+            { id: 4,  leagueId: 1, name: "Нижній лівий фланг",     letters: ["Я","Ч","С","М"], speed: 186, spikeCount: 15, seed: 2004, bgTheme: "indigo_diag",             accentColor: "#6a5acd", rhythmGroups: false },
+            { id: 5,  leagueId: 1, name: "Ліва вертикаль",          letters: ["Й","Ц","Ф","І","Я","Ч"], speed: 193, spikeCount: 16, seed: 2005, bgTheme: "deep_blue_pulse",         accentColor: "#0066ff", rhythmGroups: false },
+            { id: 6,  leagueId: 1, name: "Права вертикаль",         letters: ["Ш","Щ","З","Х","Ї","Ґ"], speed: 200, spikeCount: 17, seed: 2006, bgTheme: "black_green_stripes",     accentColor: "#00ff41", rhythmGroups: false },
+            { id: 7,  leagueId: 1, name: "Ядро клавіатури",         letters: ["Е","Н","А","П","И","Т"], speed: 207, spikeCount: 18, seed: 2007, bgTheme: "dim_orange",              accentColor: "#ff8855", rhythmGroups: false },
+            { id: 8,  leagueId: 1, name: "Нижній правий фланг",     letters: ["И","Т","Ь","Б","Ю","Є"], speed: 214, spikeCount: 19, seed: 2008, bgTheme: "dark_purple_squares",     accentColor: "#9944dd", rhythmGroups: false },
+            { id: 9,  leagueId: 1, name: "Ліва діагональ",          letters: ["Й","У","І","В","Я","С"], speed: 221, spikeCount: 20, seed: 2009, bgTheme: "burgundy_icicles",        accentColor: "#ff2ea6", rhythmGroups: false },
+            { id: 10, leagueId: 1, name: "Права діагональ",         letters: ["Ш","Х","Л","Д","Ь","Б"], speed: 228, spikeCount: 21, seed: 2010, bgTheme: "cool_gray_shimmer",       accentColor: "#8899bb", rhythmGroups: false },
+            { id: 11, leagueId: 1, name: "Шиплячий мікс",           letters: ["Ч","Щ","Ж","Ц","Ю","Ґ"], speed: 235, spikeCount: 22, seed: 2011, bgTheme: "concentric_circles",      accentColor: "#ccccee", rhythmGroups: false },
+            { id: 12, leagueId: 1, name: "Вокальний лабіринт",      letters: ["У","Е","А","О","И","І"], speed: 242, spikeCount: 23, seed: 2012, bgTheme: "green_diagonal",          accentColor: "#39ff14", rhythmGroups: false },
+            { id: 13, leagueId: 1, name: "Далекі куточки",          letters: ["Й","Ф","Я","Х","Ї","Є"], speed: 249, spikeCount: 24, seed: 2013, bgTheme: "toxic_ripples",           accentColor: "#e5ff00", rhythmGroups: false },
+            { id: 14, leagueId: 1, name: "Центральні сусіди",       letters: ["К","Г","Р","Л","М","Т"], speed: 256, spikeCount: 25, seed: 2014, bgTheme: "dark_red_bezier",         accentColor: "#ff3800", rhythmGroups: false },
+            { id: 15, leagueId: 1, name: "Неонові крила",           letters: ["Й","Ц","Ф","Х","Ї","Ґ"], speed: 263, spikeCount: 26, seed: 2015, bgTheme: "neon_cyberpunk_glow",     accentColor: "#00f6ff", rhythmGroups: false },
+            { id: 16, leagueId: 1, name: "Базовий тріумф",          letters: ["В","А","П","Р","О","Л"], speed: 270, spikeCount: 28, seed: 2016, bgTheme: "emerald_pillars",         accentColor: "#39ff88", rhythmGroups: false }
+        ]
     },
     {
         id: 2,
-        name: "Рівень 2",
-        letters: ["А", "О", "П", "Р"],
-        newLetters: ["П", "Р"],
-        speed: 177,
-        spikeCount: 15,
-        seed: 1002,
-        bgTheme: "city_night",
-        accentColor: "#aa44ff",
-        rhythmGroups: false
+        name: "Середня",
+        levels: [
+            { id: 17, leagueId: 2, name: "Горизонт середнього ряду", letters: ["Ф","І","В","А","П","Р","О","Л","Д","Ж"], speed: 240, spikeCount: 26, seed: 2101, bgTheme: "purple_skyscrapers",     accentColor: "#bb55ff", rhythmGroups: false },
+            { id: 18, leagueId: 2, name: "Дах клавіатури",           letters: ["Й","Ц","У","К","Е","Н","Г","Ш","Щ","З","Х","Ї"], speed: 250, spikeCount: 28, seed: 2102, bgTheme: "crimson_synthwave",      accentColor: "#ff2ea6", rhythmGroups: false },
+            { id: 19, leagueId: 2, name: "Нижній ярус",              letters: ["Я","Ч","С","М","И","Т","Ь","Б","Ю","Є","Ґ"], speed: 255, spikeCount: 30, seed: 2103, bgTheme: "matrix",                 accentColor: "#00ff41", rhythmGroups: false },
+            { id: 20, leagueId: 2, name: "Лівий сектор",             letters: ["Й","Ф","Я","Ц","І","Ч","У","В","С","К","А","М"], speed: 260, spikeCount: 32, seed: 2104, bgTheme: "gold_speed_lines",       accentColor: "#ff8c00", rhythmGroups: false },
+            { id: 21, leagueId: 2, name: "Екватор",                  letters: ["Е","П","И","Н","Р","Т","Г","О","Ь","Ш","Л","Б"], speed: 268, spikeCount: 34, seed: 2105, bgTheme: "rotating_triangles",     accentColor: "#7b68ee", rhythmGroups: false },
+            { id: 22, leagueId: 2, name: "Правий загін",             letters: ["Щ","Д","Ю","З","Ж","Є","Х","Ї","Ґ"], speed: 275, spikeCount: 36, seed: 2106, bgTheme: "stalactites",            accentColor: "#ff2ea6", rhythmGroups: false },
+            { id: 23, leagueId: 2, name: "Парад голосних",           letters: ["А","О","У","І","И","Е","Я","Ю","Є","Ї"], speed: 282, spikeCount: 38, seed: 2107, bgTheme: "turquoise_pulse",         accentColor: "#00f6ff", rhythmGroups: false },
+            { id: 24, leagueId: 2, name: "Тверді звуки",            letters: ["Й","К","Н","Г","Ш","З","Ф","В","П","Р","Л","Д"], speed: 295, spikeCount: 40, seed: 2108, bgTheme: "burgundy_icicles",        accentColor: "#ff2ea6", rhythmGroups: false }
+        ]
     },
     {
         id: 3,
-        name: "Рівень 3",
-        letters: ["А", "О", "П", "Р", "В", "Л"],
-        newLetters: ["В", "Л"],
-        speed: 194,
-        spikeCount: 18,
-        seed: 1003,
-        bgTheme: "synthwave",
-        accentColor: "#ff2ea6",
-        rhythmGroups: false
+        name: "Складна",
+        levels: [
+            { id: 25, leagueId: 3, name: "Верхній штурм",           letters: ["Й","Ц","У","К","Е","Н","Г","Ш","Щ","З","Х","Ї","Ф","І","В","А"], speed: 310, spikeCount: 38, seed: 2201, bgTheme: "pink_cyan_eq",           accentColor: "#ff2ea6", rhythmGroups: false },
+            { id: 26, leagueId: 3, name: "Великий спуск",           letters: ["Ф","І","В","А","П","Р","О","Л","Д","Ж","Я","Ч","С","М","И","Т","Ь","Б"], speed: 325, spikeCount: 42, seed: 2202, bgTheme: "indigo_circles",         accentColor: "#6644ff", rhythmGroups: false },
+            { id: 27, leagueId: 3, name: "Дворядний бар'єр",        letters: ["Й","Ц","У","К","Е","Н","Я","Ч","С","М","И","Т","Ь","Б","Ю","Є","Ґ"], speed: 340, spikeCount: 46, seed: 2203, bgTheme: "tunnel",                 accentColor: "#00f6ff", rhythmGroups: false },
+            { id: 28, leagueId: 3, name: "Хаотичний мікс",          letters: ["А","О","П","Р","В","Л","І","Д","Ф","Ж","К","Е","Н","Г","У","Ш","Ц","Щ"], speed: 360, spikeCount: 50, seed: 2204, bgTheme: "acid_green_rain",        accentColor: "#7fff00", rhythmGroups: false }
+        ]
     },
     {
         id: 4,
-        name: "Рівень 4",
-        letters: ["А", "О", "П", "Р", "В", "Л", "І", "Д"],
-        newLetters: ["І", "Д"],
-        speed: 211,
-        spikeCount: 21,
-        seed: 1004,
-        bgTheme: "equalizer",
-        accentColor: "#00f6ff",
-        rhythmGroups: false
+        name: "Майстер",
+        levels: [
+            { id: 29, leagueId: 4, name: "Половина Всесвіту",       letters: ["А","Б","В","Г","Д","Е","Ж","З","И","І","Ї","Й","К","Л","М","Н","О","П","Р","С","Т","У","Ф","Х","Ц","Ч","Ш","Щ"], speed: 390, spikeCount: 50, seed: 2301, bgTheme: "toxic_radiation",        accentColor: "#e5ff00", rhythmGroups: false },
+            { id: 30, leagueId: 4, name: "Гранд Мастер",            letters: ["К","Л","М","Н","О","П","Р","С","Т","У","Ф","Х","Ц","Ч","Ш","Щ","Ь","Ю","Я","Є","Ї","І","Ґ"], speed: 418, spikeCount: 55, seed: 2302, bgTheme: "flame",                  accentColor: "#ff4400", rhythmGroups: false }
+        ]
     },
     {
         id: 5,
-        name: "Рівень 5",
-        letters: ["Ф", "І", "В", "А", "П", "Р", "О", "Л", "Д", "Ж"],
-        newLetters: ["Ф", "Ж"],
-        speed: 228,
-        spikeCount: 25,
-        seed: 1005,
-        bgTheme: "pulse_grid",
-        accentColor: "#ff2ea6",
-        rhythmGroups: false
-    },
-    {
-        id: 6,
-        name: "Рівень 6",
-        letters: ["Ф", "І", "В", "А", "П", "Р", "О", "Л", "Д", "Ж", "К", "Е"],
-        newLetters: ["К", "Е"],
-        speed: 245,
-        spikeCount: 28,
-        seed: 1006,
-        bgTheme: "matrix",
-        accentColor: "#00ff41",
-        rhythmGroups: false
-    },
-    {
-        id: 7,
-        name: "Рівень 7",
-        letters: ["Ф", "І", "В", "А", "П", "Р", "О", "Л", "Д", "Ж", "К", "Е", "Н", "Г"],
-        newLetters: ["Н", "Г"],
-        speed: 262,
-        spikeCount: 31,
-        seed: 1007,
-        bgTheme: "speed_lines",
-        accentColor: "#ff6a00",
-        rhythmGroups: false
-    },
-    {
-        id: 8,
-        name: "Рівень 8",
-        letters: ["Ф", "І", "В", "А", "П", "Р", "О", "Л", "Д", "Ж", "К", "Е", "Н", "Г", "У", "Ш"],
-        newLetters: ["У", "Ш"],
-        speed: 279,
-        spikeCount: 34,
-        seed: 1008,
-        bgTheme: "geometry",
-        accentColor: "#7b68ee",
-        rhythmGroups: false
-    },
-    {
-        id: 9,
-        name: "Рівень 9",
-        letters: ["Ф", "І", "В", "А", "П", "Р", "О", "Л", "Д", "Ж", "К", "Е", "Н", "Г", "У", "Ш", "Ц", "Щ"],
-        newLetters: ["Ц", "Щ"],
-        speed: 296,
-        spikeCount: 37,
-        seed: 1009,
-        bgTheme: "stalactites",
-        accentColor: "#ff2ea6",
-        rhythmGroups: false
-    },
-    {
-        id: 10,
-        name: "Рівень 10",
-        letters: ["Й", "Ц", "У", "К", "Е", "Н", "Г", "Ш", "Щ", "З", "Х", "Ї"],
-        newLetters: ["Й", "З", "Х", "Ї"],
-        speed: 313,
-        spikeCount: 41,
-        seed: 1010,
-        bgTheme: "light_pulse",
-        accentColor: "#ffe14d",
-        rhythmGroups: true
-    },
-    {
-        id: 11,
-        name: "Рівень 11",
-        letters: ["Й", "Ц", "У", "К", "Е", "Н", "Г", "Ш", "Щ", "З", "Х", "Ї", "М", "Т"],
-        newLetters: ["М", "Т"],
-        speed: 330,
-        spikeCount: 43,
-        seed: 1011,
-        bgTheme: "tunnel",
-        accentColor: "#00f6ff",
-        rhythmGroups: false
-    },
-    {
-        id: 12,
-        name: "Рівень 12",
-        letters: ["Й", "Ц", "У", "К", "Е", "Н", "Г", "Ш", "Щ", "З", "Х", "Ї", "М", "Т", "И", "Ь"],
-        newLetters: ["И", "Ь"],
-        speed: 347,
-        spikeCount: 45,
-        seed: 1012,
-        bgTheme: "rain",
-        accentColor: "#39ff14",
-        rhythmGroups: false
-    },
-    {
-        id: 13,
-        name: "Рівень 13",
-        letters: ["Й", "Ц", "У", "К", "Е", "Н", "Г", "Ш", "Щ", "З", "Х", "Ї", "М", "Т", "И", "Ь", "Ч", "Б"],
-        newLetters: ["Ч", "Б"],
-        speed: 364,
-        spikeCount: 48,
-        seed: 1013,
-        bgTheme: "pulse_ripples",
-        accentColor: "#ffcc00",
-        rhythmGroups: false
-    },
-    {
-        id: 14,
-        name: "Рівень 14",
-        letters: ["Й", "Ц", "У", "К", "Е", "Н", "Г", "Ш", "Щ", "З", "Х", "Ї", "М", "Т", "И", "Ь", "Ч", "Б", "Я", "Ю"],
-        newLetters: ["Я", "Ю"],
-        speed: 381,
-        spikeCount: 51,
-        seed: 1014,
-        bgTheme: "flame",
-        accentColor: "#ff4400",
-        rhythmGroups: false
-    },
-    {
-        id: 15,
-        name: "Рівень 15",
-        letters: [
-            "Й", "Ц", "У", "К", "Е", "Н", "Г", "Ш", "Щ", "З", "Х", "Ї",
-            "Ф", "І", "В", "А", "П", "Р", "О", "Л", "Д", "Ж", "Є", "Ґ",
-            "Я", "Ч", "С", "М", "И", "Т", "Ь", "Б", "Ю"
-        ],
-        newLetters: ["С", "Є"],
-        speed: 400,
-        spikeCount: 55,
-        seed: 1015,
-        bgTheme: "demon",
-        accentColor: "#ff1111",
-        rhythmGroups: true
+        name: "Бос",
+        levels: [
+            { id: 31, leagueId: 5, name: "ФІНАЛЬНИЙ ДЕМОН",        letters: ["А","Б","В","Г","Д","Е","Ж","З","И","І","Ї","Й","К","Л","М","Н","О","П","Р","С","Т","У","Ф","Х","Ц","Ч","Ш","Щ","Ь","Ю","Я","Є","Ґ"], speed: 450, spikeCount: 60, seed: 2401, bgTheme: "demon",                  accentColor: "#ff1111", rhythmGroups: true }
+        ]
     }
 ];
+
+export const ALL_LEVELS = LEVELS_CONFIG.reduce(function (acc, league) {
+    return acc.concat(league.levels);
+}, []);
+
+function getLevelById(levelId) {
+    return ALL_LEVELS.find(function (l) { return l.id === levelId; }) ||
+           ALL_LEVELS[0];
+}
 
 // ---------- Генерація фіксованої траси ----------
 
 function reactionTimeForLevel(levelId) {
-    const t = (levelId - 1) / 14;
+    const t = (levelId - 1) / 30;
     return 1.2 - 0.7 * t;
 }
 
@@ -306,7 +191,7 @@ const SAVE_KEY = "dfp_save_v1";
 
 function defaultSaveData() {
     const levels = {};
-    for (const level of LEVELS) {
+    for (const level of ALL_LEVELS) {
         levels[String(level.id)] = { bestPct: 0, highScore: 0 };
     }
     return {
@@ -333,10 +218,10 @@ function sanitizeSaveData(raw) {
     if (raw.progress && typeof raw.progress === "object") {
         const unlocked = Number(raw.progress.unlocked);
         if (Number.isFinite(unlocked)) {
-            clean.progress.unlocked = Math.min(15, Math.max(1, Math.floor(unlocked)));
+            clean.progress.unlocked = Math.min(31, Math.max(1, Math.floor(unlocked)));
         }
         if (raw.progress.levels && typeof raw.progress.levels === "object") {
-            for (const level of LEVELS) {
+            for (const level of ALL_LEVELS) {
                 const key = String(level.id);
                 const entry = raw.progress.levels[key];
                 if (entry && typeof entry === "object") {
@@ -404,8 +289,23 @@ export const save = {
         if (cleanScore > entry.highScore) {
             entry.highScore = cleanScore;
         }
-        if (cleanPct === 100 && levelId < 15) {
-            saveData.progress.unlocked = Math.max(saveData.progress.unlocked, levelId + 1);
+        if (cleanPct === 100 && levelId < 31) {
+            const currentLevel = getLevelById(levelId);
+            if (currentLevel) {
+                const currentLeague = LEVELS_CONFIG.find(function (lg) { return lg.id === currentLevel.leagueId; });
+                if (currentLeague) {
+                    const idxInLeague = currentLeague.levels.indexOf(currentLevel);
+                    if (idxInLeague >= 0 && idxInLeague < currentLeague.levels.length - 1) {
+                        const nextLevel = currentLeague.levels[idxInLeague + 1];
+                        saveData.progress.unlocked = Math.max(saveData.progress.unlocked, nextLevel.id);
+                    } else if (currentLeague.id < 5) {
+                        const nextLeague = LEVELS_CONFIG[currentLeague.id];
+                        if (nextLeague && nextLeague.levels.length > 0) {
+                            saveData.progress.unlocked = Math.max(saveData.progress.unlocked, nextLeague.levels[0].id);
+                        }
+                    }
+                }
+            }
         }
         this.persist();
     },
@@ -489,7 +389,7 @@ const DEATH_DELAY = 1.2;
 const DEMO_RESTART_DELAY = 1.4;
 
 function hitWindowTimes(levelId) {
-    const t = (levelId - 1) / 14;
+    const t = (levelId - 1) / 30;
     return {
         okTime: 0.45 - 0.17 * t,
         perfectTime: 0.16 - 0.06 * t
@@ -499,12 +399,13 @@ function hitWindowTimes(levelId) {
 // ---------- Клас Engine ----------
 
 export class Engine {
-    constructor(levelId, difficulty, demoMode, hitWindow, speed) {
+    constructor(levelId, difficulty, demoMode, hitWindow, speed, leagueInfo) {
         const SPEED_MULTIPLIERS = { slow: 0.75, normal: 1.0, fast: 1.25 };
-        this.level = { ...(LEVELS.find(function (l) { return l.id === levelId; }) || LEVELS[0]) };
+        this.level = { ...getLevelById(levelId) };
         this.effectiveSpeed = this.level.speed * (SPEED_MULTIPLIERS[speed] ?? 1.0);
         this.difficulty = difficulty === "HARD" ? "HARD" : "EASY";
         this.demoMode = !!demoMode;
+        this.leagueInfo = leagueInfo || null;
         const hitWindowSetting = hitWindow === "large" ? "large" : "normal";
 
         this.onJump = null;
@@ -651,6 +552,7 @@ export class Engine {
         if (this.demoMode || !this.player.alive || this.outcome !== "running") {
             return { result: "no_target", letter: letter };
         }
+        const upperLetter = letter.toUpperCase();
         const spike = this.nearestAheadSpike();
         if (!spike) {
             if (this.difficulty === "HARD") {
@@ -661,7 +563,7 @@ export class Engine {
         }
         const gap = spike.x - this.player.x;
         const inWindow = gap > 0 && gap <= this.okPx && this.player.onGround;
-        const correct = letter === spike.letter;
+        const correct = upperLetter === spike.letter.toUpperCase();
 
         if (correct && !this.player.onGround) {
             this.jumpBuffer = spike;
@@ -681,7 +583,7 @@ export class Engine {
             return { result: "exploded", letter: letter };
         }
 
-        const inPool = this.level.letters.indexOf(letter) !== -1;
+        const inPool = this.level.letters.some(function (l) { return l.toUpperCase() === upperLetter; });
         if (!inPool) {
             return { result: "wrong", letter: letter };
         }
@@ -830,22 +732,45 @@ export class Engine {
     renderBackground(ctx, W, H, groundY, time) {
         const theme = this.level.bgTheme;
         switch (theme) {
-            case "deep_grid":     this.renderDeepGrid(ctx, W, H, groundY, time); break;
-            case "city_night":    this.renderCityNight(ctx, W, H, groundY, time); break;
-            case "synthwave":     this.renderSynthwave(ctx, W, H, groundY, time); break;
-            case "equalizer":     this.renderEqualizer(ctx, W, H, groundY, time); break;
-            case "pulse_grid":    this.renderPulseGrid(ctx, W, H, groundY, time); break;
-            case "matrix":        this.renderMatrix(ctx, W, H, groundY, time); break;
-            case "speed_lines":   this.renderSpeedLines(ctx, W, H, groundY, time); break;
-            case "geometry":      this.renderGeometry(ctx, W, H, groundY, time); break;
-            case "stalactites":   this.renderStalactites(ctx, W, H, groundY); break;
-            case "light_pulse":   this.renderLightPulse(ctx, W, H, groundY, time); break;
-            case "tunnel":        this.renderTunnel(ctx, W, H, groundY, time); break;
-            case "rain":          this.renderRain(ctx, W, H, groundY, time); break;
-            case "pulse_ripples": this.renderPulseRipples(ctx, W, H, groundY, time); break;
-            case "flame":         this.renderFlame(ctx, W, H, groundY, time); break;
-            case "demon":         this.renderDemon(ctx, W, H, groundY, time); break;
-            default:              this.renderDeepGrid(ctx, W, H, groundY, time);
+            case "deep_grid":             this.renderDeepGrid(ctx, W, H, groundY, time); break;
+            case "city_night":            this.renderCityNight(ctx, W, H, groundY, time); break;
+            case "synthwave":             this.renderSynthwave(ctx, W, H, groundY, time); break;
+            case "horizon":               this.renderHorizon(ctx, W, H, groundY); break;
+            case "indigo_diag":           this.renderIndigoDiag(ctx, W, H, groundY, time); break;
+            case "deep_blue_pulse":       this.renderDeepBluePulse(ctx, W, H, groundY, time); break;
+            case "black_green_stripes":   this.renderBlackGreenStripes(ctx, W, H, groundY); break;
+            case "dim_orange":            this.renderDimOrange(ctx, W, H, groundY, time); break;
+            case "dark_purple_squares":   this.renderDarkPurpleSquares(ctx, W, H, groundY); break;
+            case "burgundy_icicles":      this.renderStalactites(ctx, W, H, groundY); break;
+            case "cool_gray_shimmer":     this.renderCoolGrayShimmer(ctx, W, H, groundY, time); break;
+            case "concentric_circles":    this.renderConcentricCircles(ctx, W, H, groundY, time); break;
+            case "green_diagonal":        this.renderGreenDiagonal(ctx, W, H, groundY, time); break;
+            case "toxic_ripples":         this.renderToxicRipples(ctx, W, H, groundY, time); break;
+            case "dark_red_bezier":       this.renderDarkRedBezier(ctx, W, H, groundY, time); break;
+            case "neon_cyberpunk_glow":   this.renderNeonCyberpunkGlow(ctx, W, H, groundY, time); break;
+            case "emerald_pillars":       this.renderEmeraldPillars(ctx, W, H, groundY, time); break;
+            case "purple_skyscrapers":    this.renderPurpleSkyscrapers(ctx, W, H, groundY, time); break;
+            case "crimson_synthwave":     this.renderCrimsonSynthwave(ctx, W, H, groundY, time); break;
+            case "gold_speed_lines":      this.renderGoldSpeedLines(ctx, W, H, groundY, time); break;
+            case "rotating_triangles":    this.renderRotatingTriangles(ctx, W, H, groundY, time); break;
+            case "turquoise_pulse":       this.renderTurquoisePulse(ctx, W, H, groundY, time); break;
+            case "pink_cyan_eq":          this.renderPinkCyanEq(ctx, W, H, groundY, time); break;
+            case "indigo_circles":        this.renderIndigoCircles(ctx, W, H, groundY, time); break;
+            case "acid_green_rain":       this.renderAcidGreenRain(ctx, W, H, groundY, time); break;
+            case "toxic_radiation":       this.renderToxicRadiation(ctx, W, H, groundY, time); break;
+            case "equalizer":             this.renderEqualizer(ctx, W, H, groundY, time); break;
+            case "pulse_grid":            this.renderPulseGrid(ctx, W, H, groundY, time); break;
+            case "matrix":                this.renderMatrix(ctx, W, H, groundY, time); break;
+            case "speed_lines":           this.renderSpeedLines(ctx, W, H, groundY, time); break;
+            case "geometry":              this.renderGeometry(ctx, W, H, groundY, time); break;
+            case "stalactites":           this.renderStalactites(ctx, W, H, groundY); break;
+            case "light_pulse":           this.renderLightPulse(ctx, W, H, groundY, time); break;
+            case "tunnel":                this.renderTunnel(ctx, W, H, groundY, time); break;
+            case "rain":                  this.renderRain(ctx, W, H, groundY, time); break;
+            case "pulse_ripples":         this.renderPulseRipples(ctx, W, H, groundY, time); break;
+            case "flame":                 this.renderFlame(ctx, W, H, groundY, time); break;
+            case "demon":                 this.renderDemon(ctx, W, H, groundY, time); break;
+            default:                      this.renderDeepGrid(ctx, W, H, groundY, time);
         }
 
         const anchorX = W * PLAYER_ANCHOR;
@@ -1417,6 +1342,485 @@ export class Engine {
         ctx.fillRect(0, 0, W, H);
     }
 
+    // ---------- Нові процедурні фони (рівні 1-3..4-2) ----------
+
+    renderHorizon(ctx, W, H, groundY) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#004040");
+        gradient.addColorStop(1, "#002020");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        const horizonY = groundY * 0.65;
+        ctx.strokeStyle = "rgba(0, 212, 170, 0.6)";
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = 14;
+        ctx.shadowColor = "rgba(0, 212, 170, 0.4)";
+        ctx.beginPath();
+        ctx.moveTo(0, horizonY);
+        ctx.lineTo(W, horizonY);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    }
+
+    renderIndigoDiag(ctx, W, H, groundY, time) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#0a0020");
+        gradient.addColorStop(1, "#1a0040");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        const gap = 60;
+        const offset = (this.player.x * 0.3) % gap;
+        ctx.strokeStyle = "rgba(106, 90, 205, 0.18)";
+        ctx.lineWidth = 1;
+        for (let d = -W - offset; d < W + H; d += gap) {
+            ctx.beginPath();
+            ctx.moveTo(d, 0);
+            ctx.lineTo(d + H, H);
+            ctx.stroke();
+        }
+    }
+
+    renderDeepBluePulse(ctx, W, H, groundY, time) {
+        ctx.fillStyle = "#000830";
+        ctx.fillRect(0, 0, W, H);
+        const pulseAlpha = 0.12 + Math.sin(time * 2.5) * 0.06;
+        const cell = 74;
+        const offset = (this.player.x * 0.5) % cell;
+        ctx.strokeStyle = "rgba(0, 102, 255, " + pulseAlpha.toFixed(3) + ")";
+        ctx.lineWidth = 1;
+        for (let x = -offset; x <= W; x += cell) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, groundY);
+            ctx.stroke();
+        }
+    }
+
+    renderBlackGreenStripes(ctx, W, H, groundY) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#000800");
+        gradient.addColorStop(1, "#001402");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        const stripeH = 24;
+        for (let y = 0; y < groundY; y += stripeH * 2) {
+            ctx.fillStyle = "rgba(0, 255, 65, 0.04)";
+            ctx.fillRect(0, y, W, stripeH);
+        }
+    }
+
+    renderDimOrange(ctx, W, H, groundY, time) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#200800");
+        gradient.addColorStop(1, "#301200");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        const cell = 80;
+        const offset = (this.player.x * 0.4) % cell;
+        ctx.strokeStyle = "rgba(255, 136, 85, 0.15)";
+        ctx.lineWidth = 1;
+        for (let x = -offset; x <= W; x += cell) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, groundY);
+            ctx.stroke();
+        }
+    }
+
+    renderDarkPurpleSquares(ctx, W, H, groundY) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#100020");
+        gradient.addColorStop(1, "#200840");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = "rgba(153, 68, 221, 0.15)";
+        ctx.lineWidth = 2;
+        const size = 70;
+        const offset = (this.player.x * 0.2) % size;
+        for (let x = -offset; x <= W; x += size) {
+            for (let y = 0; y < groundY; y += size) {
+                ctx.strokeRect(x + 4, y + 4, size - 8, size - 8);
+            }
+        }
+    }
+
+    renderCoolGrayShimmer(ctx, W, H, groundY, time) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#0a0f18");
+        gradient.addColorStop(1, "#121824");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        const shimmerAlpha = 0.08 + Math.sin(time * 3) * 0.04;
+        const cell = 90;
+        const offset = (this.player.x * 0.45) % cell;
+        ctx.strokeStyle = "rgba(136, 153, 187, " + shimmerAlpha.toFixed(3) + ")";
+        ctx.lineWidth = 1;
+        for (let x = -offset; x <= W; x += cell) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, groundY);
+            ctx.stroke();
+        }
+    }
+
+    renderConcentricCircles(ctx, W, H, groundY, time) {
+        ctx.fillStyle = "#181820";
+        ctx.fillRect(0, 0, W, H);
+        const cx = W / 2;
+        const cy = groundY * 0.45;
+        const baseR = (time * 30) % 100;
+        for (let i = 0; i < 16; i++) {
+            const r = baseR + i * 45;
+            if (r > W) break;
+            ctx.strokeStyle = "rgba(204, 204, 238, " + (0.04 + i * 0.005).toFixed(3) + ")";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    }
+
+    renderGreenDiagonal(ctx, W, H, groundY, time) {
+        ctx.fillStyle = "#001200";
+        ctx.fillRect(0, 0, W, H);
+        const gap = 22;
+        const offset = (time * 60 + this.player.x * 0.3) % (gap * 2);
+        ctx.strokeStyle = "rgba(57, 255, 20, 0.2)";
+        ctx.lineWidth = 1;
+        for (let d = -W - offset; d < W + H; d += gap) {
+            ctx.beginPath();
+            ctx.moveTo(d, 0);
+            ctx.lineTo(d - H, H);
+            ctx.stroke();
+        }
+    }
+
+    renderToxicRipples(ctx, W, H, groundY, time) {
+        ctx.fillStyle = "#1a1a00";
+        ctx.fillRect(0, 0, W, H);
+        if (!this._toxicRipples) {
+            this._toxicRipples = [];
+        }
+        const anchorX = W * PLAYER_ANCHOR;
+        for (const spike of this.spikes) {
+            if (spike.state !== "ahead") continue;
+            const sx = spike.x - this.player.x + anchorX;
+            if (sx < -100 || sx > W + 100) continue;
+            let exists = false;
+            for (const rp of this._toxicRipples) {
+                if (rp.ox === spike.x) { exists = true; break; }
+            }
+            if (!exists) {
+                this._toxicRipples.push({ ox: spike.x, r: 8, alpha: 0.45 });
+            }
+        }
+        for (let i = this._toxicRipples.length - 1; i >= 0; i--) {
+            const rp = this._toxicRipples[i];
+            rp.r += 2.0;
+            rp.alpha -= 0.005;
+            if (rp.alpha <= 0) { this._toxicRipples.splice(i, 1); continue; }
+            const sx = rp.ox - this.player.x + anchorX;
+            if (sx < -50 || sx > W + 50) continue;
+            ctx.strokeStyle = "rgba(229, 255, 0, " + rp.alpha.toFixed(3) + ")";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(sx, groundY - SPIKE_H / 2, rp.r, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    }
+
+    renderDarkRedBezier(ctx, W, H, groundY, time) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#140404");
+        gradient.addColorStop(1, "#220606");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        const waveH = 40;
+        const segmentW = W / 6;
+        ctx.save();
+        for (let seg = 0; seg < 6; seg++) {
+            const sx = seg * segmentW;
+            const offset = Math.sin(time * 1.8 + seg * 1.2) * 16;
+            const offset2 = Math.cos(time * 2.3 + seg * 0.9) * 12;
+            const waveGradient = ctx.createLinearGradient(0, groundY - waveH, 0, groundY + 10);
+            waveGradient.addColorStop(0, "rgba(255, 56, 0, 0)");
+            waveGradient.addColorStop(0.5, "rgba(255, 56, 0, 0.2)");
+            waveGradient.addColorStop(1, "rgba(255, 56, 0, 0)");
+            ctx.fillStyle = waveGradient;
+            ctx.beginPath();
+            ctx.moveTo(sx, groundY + 10);
+            ctx.bezierCurveTo(sx + segmentW * 0.3, groundY - waveH + offset, sx + segmentW * 0.7, groundY - waveH * 1.2 + offset2, sx + segmentW, groundY + 10);
+            ctx.fill();
+        }
+        ctx.restore();
+    }
+
+    renderNeonCyberpunkGlow(ctx, W, H, groundY, time) {
+        ctx.fillStyle = "#020812";
+        ctx.fillRect(0, 0, W, H);
+        const pulseAlpha = 0.3 + Math.sin(time * 4) * 0.15;
+        const cell = 64;
+        const offset = (this.player.x * 0.55) % cell;
+        ctx.strokeStyle = "rgba(0, 246, 255, " + pulseAlpha.toFixed(3) + ")";
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "rgba(0, 246, 255, " + (pulseAlpha * 0.5).toFixed(3) + ")";
+        for (let x = -offset; x <= W; x += cell) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, groundY);
+            ctx.stroke();
+        }
+        for (let y = 0; y <= groundY; y += cell) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(W, y);
+            ctx.stroke();
+        }
+        ctx.shadowBlur = 0;
+        const glowAlpha = Math.pow(Math.sin(time * 5), 2) * 0.06;
+        ctx.fillStyle = "rgba(0, 246, 255, " + glowAlpha.toFixed(3) + ")";
+        ctx.fillRect(0, 0, W, H);
+    }
+
+    renderEmeraldPillars(ctx, W, H, groundY, time) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#001a10");
+        gradient.addColorStop(1, "#003020");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        const pillarW = 40;
+        const gap = 100;
+        const offset = (this.player.x * 0.3) % (pillarW + gap);
+        ctx.fillStyle = "rgba(57, 255, 136, 0.12)";
+        for (let x = -offset; x <= W; x += pillarW + gap) {
+            const h = 40 + Math.sin(time * 1.5 + x * 0.01) * 20;
+            ctx.fillRect(x, 0, pillarW, h);
+            ctx.fillRect(x, groundY - h, pillarW, h);
+        }
+    }
+
+    renderPurpleSkyscrapers(ctx, W, H, groundY, time) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#0d0420");
+        gradient.addColorStop(1, "#251048");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        this.renderCityLayer(ctx, W, groundY, 0.15, 260, "rgba(100, 40, 180, 0.55)", 0.65, 17, time);
+        this.renderCityLayer(ctx, W, groundY, 0.35, 190, "rgba(187, 85, 255, 0.75)", 0.85, 41, time);
+    }
+
+    renderCrimsonSynthwave(ctx, W, H, groundY, time) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#200010");
+        gradient.addColorStop(0.3, "rgba(255, 46, 166, 0.08)");
+        gradient.addColorStop(1, "#100010");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        const sunX = W * 0.5;
+        const sunY = groundY * 0.38;
+        const baseR = groundY * 0.22;
+        const r = baseR + Math.sin(time * 2) * 8;
+        const lineCount = 22;
+        const lineGap = 3;
+        ctx.save();
+        for (let i = -Math.floor(r / lineGap); i <= Math.floor(r / lineGap); i++) {
+            const yy = sunY + i * lineGap;
+            if (yy < -10 || yy > groundY) continue;
+            const halfW = Math.sqrt(Math.max(0, r * r - (i * lineGap) * (i * lineGap)));
+            const tx = halfW / r;
+            ctx.strokeStyle = "rgb(255," + Math.round(100 + tx * 100) + "," + Math.round(120 + tx * 80) + ")";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(sunX - halfW, yy);
+            ctx.lineTo(sunX + halfW, yy);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    renderGoldSpeedLines(ctx, W, H, groundY, time) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#1a0c00");
+        gradient.addColorStop(1, "#0a0600");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        if (!this._goldLines) {
+            this._goldLines = [];
+            const slRng = mulberry32(8888);
+            for (let i = 0; i < 18; i++) {
+                this._goldLines.push({
+                    y: slRng() * groundY,
+                    speed: 200 + slRng() * 400,
+                    length: 60 + slRng() * 140,
+                    alpha: 0.25 + slRng() * 0.35
+                });
+            }
+        }
+        for (const line of this._goldLines) {
+            const x = (time * line.speed) % (W + line.length * 2) - line.length;
+            ctx.strokeStyle = "rgba(255, 140, 0, " + line.alpha.toFixed(3) + ")";
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(x, line.y);
+            ctx.lineTo(x + line.length, line.y);
+            ctx.stroke();
+        }
+    }
+
+    renderRotatingTriangles(ctx, W, H, groundY, time) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#080020");
+        gradient.addColorStop(1, "#100050");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        const triangles = [
+            { cx: W * 0.25, cy: groundY * 0.3, size: 70, angle: time * 0.5 },
+            { cx: W * 0.75, cy: groundY * 0.45, size: 50, angle: time * 0.6 + 1 },
+            { cx: W * 0.5, cy: groundY * 0.6, size: 90, angle: time * 0.4 + 2 },
+            { cx: W * 0.15, cy: groundY * 0.55, size: 40, angle: time * 0.55 + 3 },
+            { cx: W * 0.85, cy: groundY * 0.25, size: 60, angle: time * 0.45 + 4 }
+        ];
+        for (const tri of triangles) {
+            ctx.save();
+            ctx.translate(tri.cx, tri.cy);
+            ctx.rotate(tri.angle);
+            ctx.strokeStyle = "rgba(123, 104, 238, 0.22)";
+            ctx.lineWidth = 2;
+            const half = tri.size / 2;
+            ctx.beginPath();
+            ctx.moveTo(0, -half);
+            ctx.lineTo(half * 0.87, half * 0.5);
+            ctx.lineTo(-half * 0.87, half * 0.5);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.restore();
+        }
+    }
+
+    renderTurquoisePulse(ctx, W, H, groundY, time) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#002020");
+        gradient.addColorStop(1, "#004040");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        const pulseAlpha = 0.15 + Math.sin(time * 3.5) * 0.1;
+        const cell = 70;
+        const offset = (this.player.x * 0.4) % cell;
+        ctx.strokeStyle = "rgba(0, 246, 255, " + pulseAlpha.toFixed(3) + ")";
+        ctx.lineWidth = 1.5;
+        for (let x = -offset; x <= W; x += cell) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, groundY);
+            ctx.stroke();
+        }
+        for (let y = 0; y <= groundY; y += cell) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(W, y);
+            ctx.stroke();
+        }
+    }
+
+    renderPinkCyanEq(ctx, W, H, groundY, time) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#1a0020");
+        gradient.addColorStop(1, "#002020");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        const barCount = 32;
+        const barW = W / barCount;
+        const rng = mulberry32(4200);
+        for (let i = 0; i < barCount; i++) {
+            const phase = time * 4 + i * 0.5;
+            const amp = (Math.sin(phase) + 1) / 2;
+            const baseH = 25 + rng() * 80;
+            const barH = baseH + amp * 45;
+            ctx.fillStyle = i % 2 === 0
+                ? "rgba(255, 46, 166, 0.40)"
+                : "rgba(0, 246, 255, 0.35)";
+            ctx.fillRect(i * barW + 1, groundY - barH, barW - 2, barH);
+        }
+    }
+
+    renderIndigoCircles(ctx, W, H, groundY, time) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, H);
+        gradient.addColorStop(0, "#080020");
+        gradient.addColorStop(1, "#180040");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, W, H);
+        const cx = W / 2;
+        const cy = groundY * 0.45;
+        for (let i = 0; i < 14; i++) {
+            const baseR = 50 + i * 55;
+            const pulse = Math.sin(time * 1.5 + i * 0.4) * 10;
+            const r = baseR + pulse;
+            if (r > W) break;
+            ctx.strokeStyle = "rgba(102, 68, 255, " + (0.06 + i * 0.004).toFixed(3) + ")";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    }
+
+    renderAcidGreenRain(ctx, W, H, groundY, time) {
+        ctx.fillStyle = "#0a0a00";
+        ctx.fillRect(0, 0, W, H);
+        if (!this._acidRain) {
+            this._acidRain = [];
+            const arRng = mulberry32(5555);
+            for (let i = 0; i < 44; i++) {
+                this._acidRain.push({
+                    x: arRng() * W * 1.5,
+                    y: arRng() * groundY,
+                    length: 15 + arRng() * 30,
+                    speed: 220 + arRng() * 320,
+                    alpha: 0.3 + arRng() * 0.35
+                });
+            }
+        }
+        const cos45 = Math.cos(Math.PI / 4);
+        const sin45 = Math.sin(Math.PI / 4);
+        for (const drop of this._acidRain) {
+            drop.x -= drop.speed * cos45 * 0.016;
+            drop.y += drop.speed * sin45 * 0.016;
+            if (drop.y > groundY || drop.x < -drop.length) {
+                drop.y = -drop.length;
+                drop.x = W + (drop.length * cos45);
+            }
+            ctx.strokeStyle = "rgba(127, 255, 0, " + drop.alpha.toFixed(3) + ")";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(drop.x, drop.y);
+            ctx.lineTo(drop.x + drop.length * cos45, drop.y - drop.length * sin45);
+            ctx.stroke();
+        }
+    }
+
+    renderToxicRadiation(ctx, W, H, groundY, time) {
+        ctx.fillStyle = "#1a1a00";
+        ctx.fillRect(0, 0, W, H);
+        const anchorX = W * PLAYER_ANCHOR;
+        for (const spike of this.spikes) {
+            if (spike.state !== "ahead") continue;
+            const sx = spike.x - this.player.x + anchorX;
+            if (sx < -200 || sx > W + 200) continue;
+            const phases = [0, 1, 2];
+            for (const p of phases) {
+                const r = (time * 80 + p * 40) % 180;
+                if (r < 3) continue;
+                const alpha = Math.max(0, 0.25 - r / 720).toFixed(3);
+                ctx.strokeStyle = "rgba(229, 255, 0, " + alpha + ")";
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(sx, groundY - SPIKE_H / 2, r, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+    }
+
     // ---------- Земля, Hit Window, Фініш ----------
 
     renderGround(ctx, W, H, groundY, camX) {
@@ -1658,8 +2062,24 @@ export class Engine {
     renderProgressBar(ctx, W) {
         const barW = W * 0.6;
         const barX = (W - barW) / 2;
-        const barY = 18;
+        const barY = 30;
         const barH = 14;
+
+        if (this.leagueInfo !== null) {
+            ctx.font = "bold 14px 'Segoe UI', Arial, sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            ctx.fillStyle = "#00f6ff";
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = "rgba(0, 246, 255, 0.5)";
+            ctx.fillText(
+                "Ліга: " + this.leagueInfo.leagueName + " | " + this.leagueInfo.levelNumber + ": " + this.leagueInfo.levelName,
+                W / 2,
+                6
+            );
+            ctx.shadowBlur = 0;
+        }
+
         ctx.fillStyle = "rgba(8, 10, 26, 0.8)";
         ctx.fillRect(barX, barY, barW, barH);
         ctx.strokeStyle = "rgba(0, 246, 255, 0.6)";

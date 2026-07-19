@@ -150,7 +150,8 @@ const COLORS = {
  * @param {number} time — секунди від старту застосунку
  */
 export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyError, time) {
-    const group = new Set(groupLetters || []);
+    const group = new Set((groupLetters || []).map(function (l) { return l.toUpperCase(); }));
+    const targetUpper = (targetLetter || "").toUpperCase() || null;
     const gap = Math.max(2, area.w * 0.006);
     const keyW = Math.min(
         (area.w - gap * 12) / 12,
@@ -188,13 +189,13 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyErro
         let glow = 0;
         let glowColor = "rgba(0,0,0,0)";
 
-        if (errLetter !== null && key.letter === errLetter) {
+        if (errLetter !== null && key.letter === errLetter.toUpperCase()) {
             fill = COLORS.ERROR_FILL;
             stroke = COLORS.ERROR_STROKE;
             textColor = COLORS.ERROR_TEXT;
             glow = COLORS.ERROR_GLOW;
             glowColor = COLORS.ERROR_GLOW_COLOR;
-        } else if (key.letter === targetLetter) {
+        } else if (key.letter === targetUpper) {
             const glowPulse = COLORS.TARGET_GLOW + 6 * blink;
             fill = COLORS.TARGET_FILL;
             stroke = COLORS.TARGET_STROKE;

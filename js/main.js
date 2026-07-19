@@ -2,11 +2,11 @@
 // main.js — точка входу
 // Ігровий цикл (requestAnimationFrame + кламп delta),
 // Менеджер Станів, музика за станом, DOM-оверлеї, введення
-// 15 рівнів, розумна клавіатурна індикація
+// 5 ліг, 31 рівень, розумна клавіатурна індикація
 // ============================================================
 
 import { loadAssets, unlockAudio, playSound, playMusic } from "./assets.js";
-import { LEVELS, Engine, save } from "./engine.js";
+import { LEVELS_CONFIG, ALL_LEVELS, Engine, save } from "./engine.js";
 import { initKeyboardInput, drawKeyboard } from "./keyboard.js";
 
 // ---------- Полотно та адаптивність ----------
@@ -94,6 +94,7 @@ let state = "LOADING";
 let demoEngine = null;
 let gameEngine = null;
 let currentLevelId = 1;
+let currentLeagueId = 1;
 let resultRecorded = false;
 
 // Стан помилки клавіатури (in-memory, не серіалізується)
@@ -131,11 +132,29 @@ function createDemoEngine() {
 
 // ---------- Запуск рівня ----------
 
+function getLevelLeagueInfo(levelId) {
+    const level = ALL_LEVELS.find(function (l) { return l.id === levelId; });
+    if (!level) return null;
+    const league = LEVELS_CONFIG.find(function (lg) { return lg.id === level.leagueId; });
+    const levelIdx = league.levels.indexOf(level);
+    const levelNumber = level.leagueId + "-" + (levelIdx + 1);
+    return {
+        leagueName: league.name,
+        levelNumber: levelNumber,
+        levelName: level.name
+    };
+}
+
 function startLevel(levelId) {
     currentLevelId = levelId;
+    const level = ALL_LEVELS.find(function (l) { return l.id === levelId; });
+    if (level) {
+        currentLeagueId = level.leagueId;
+    }
     resultRecorded = false;
     wrongKeyError = { letter: null, timestamp: 0 };
-    gameEngine = new Engine(levelId, save.getDifficulty(), false, save.getHitWindow(), save.getSpeed());
+    const leagueInfo = getLevelLeagueInfo(levelId);
+    gameEngine = new Engine(levelId, save.getDifficulty(), false, save.getHitWindow(), save.getSpeed(), leagueInfo);
     gameEngine.onJump = function () {
         playSound("jump");
     };
@@ -171,13 +190,26 @@ function handleVictory() {
     const runState = gameEngine.getState();
     victoryScoreEl.textContent = String(runState.score);
 
-    const nextId = currentLevelId + 1;
-    const hasNext = nextId <= 15 && save.getLastPlayable() >= nextId;
-    if (currentLevelId === 15) {
-        victoryUnlockEl.textContent = "Ти переміг! Усі 15 рівнів пройдено! Повний алфавіт освоєно!";
+    const currentLevel = ALL_LEVELS.find(function (l) { return l.id === currentLevelId; });
+    const currentLeague = currentLevel ? LEVELS_CONFIG.find(function (lg) { return lg.id === currentLevel.leagueId; }) : null;
+    let nextLevel = null;
+    if (currentLevel && currentLeague) {
+        const idx = currentLeague.levels.indexOf(currentLevel);
+        if (idx >= 0 && idx < currentLeague.levels.length - 1) {
+            nextLevel = currentLeague.levels[idx + 1];
+        } else if (currentLeague.id < 5) {
+            const nextLeague = LEVELS_CONFIG[currentLeague.id];
+            if (nextLeague && nextLeague.levels.length > 0) {
+                nextLevel = nextLeague.levels[0];
+            }
+        }
+    }
+
+    if (currentLevelId === 31) {
+        victoryUnlockEl.textContent = "Ти переміг! Усі 31 рівень пройдено! Повний алфавіт освоєно!";
         btnNext.classList.add("hidden");
-    } else if (hasNext) {
-        victoryUnlockEl.textContent = "Відкрито Рівень " + nextId + "!";
+    } else if (nextLevel && save.getLastPlayable() >= nextLevel.id) {
+        victoryUnlockEl.textContent = "Відкрито: " + nextLevel.name + "!";
         btnNext.classList.remove("hidden");
     } else {
         victoryUnlockEl.textContent = "";
@@ -186,12 +218,39 @@ function handleVictory() {
     setState("VICTORY");
 }
 
-// ---------- Екран вибору рівня (15 рівнів) ----------
+// ---------- Екран вибору рівня (5 ліг, 31 рівень) ----------
+
+let activeLeagueId = 1;
+
+function buildLeagueTabs() {
+    const tabsEl = document.getElementById("leagueTabs");
+    if (!tabsEl) return;
+    tabsEl.innerHTML = "";
+    for (const league of LEVELS_CONFIG) {
+        const tab = document.createElement("button");
+        tab.className = "league-tab";
+        tab.textContent = league.name;
+        tab.type = "button";
+        if (league.id === activeLeagueId) {
+            tab.classList.add("active");
+        }
+        tab.addEventListener("click", function () {
+            activeLeagueId = league.id;
+            buildLevelCards();
+        });
+        tabsEl.appendChild(tab);
+    }
+}
 
 function buildLevelCards() {
     const progress = save.getProgress();
+    buildLeagueTabs();
     levelGridEl.innerHTML = "";
-    for (const level of LEVELS) {
+    const league = LEVELS_CONFIG.find(function (lg) { return lg.id === activeLeagueId; });
+    if (!league) return;
+    let levelIdx = 0;
+    for (const level of league.levels) {
+        levelIdx++;
         const entry = progress.levels[String(level.id)];
         const locked = level.id > progress.unlocked;
 
@@ -200,20 +259,14 @@ function buildLevelCards() {
         if (locked) {
             card.classList.add("locked");
         }
-        if (level.id === 10 || level.id === 15) {
+        if (level.id === 31) {
             card.classList.add("boss-card");
         }
 
-        const num = document.createElement("div");
-        num.className = "level-num";
-        if (level.id === 10) {
-            num.textContent = level.id + " · КОНСОЛІДАЦІЯ";
-        } else if (level.id === 15) {
-            num.textContent = level.id + " · DEMON";
-        } else {
-            num.textContent = String(level.id);
-        }
-        card.appendChild(num);
+        const titleEl = document.createElement("div");
+        titleEl.className = "level-title";
+        titleEl.textContent = level.leagueId + "-" + levelIdx + ": " + level.name;
+        card.appendChild(titleEl);
 
         if (locked) {
             const lockIcon = document.createElement("div");
@@ -222,15 +275,19 @@ function buildLevelCards() {
             card.appendChild(lockIcon);
         }
 
-        const letters = document.createElement("div");
-        letters.className = "level-letters";
-        letters.textContent = level.letters.join(" ");
-        card.appendChild(letters);
-
         const record = document.createElement("div");
         record.className = "level-record";
         record.textContent = "Кращий: " + entry.bestPct + "% | HS: " + entry.highScore;
         card.appendChild(record);
+
+        const lettersPreview = document.createElement("div");
+        lettersPreview.className = "level-letters-preview";
+        if (level.letters.length === 33) {
+            lettersPreview.textContent = "Усі 33 літери";
+        } else {
+            lettersPreview.textContent = level.letters.join(" ");
+        }
+        card.appendChild(lettersPreview);
 
         if (!locked) {
             card.addEventListener("click", function () {
@@ -353,8 +410,22 @@ btnGoMenu.addEventListener("click", function () {
 });
 
 btnNext.addEventListener("click", function () {
-    const nextId = Math.min(15, currentLevelId + 1);
-    if (save.getLastPlayable() >= nextId) {
+    const currentLevel = ALL_LEVELS.find(function (l) { return l.id === currentLevelId; });
+    if (currentLevel) {
+        const league = LEVELS_CONFIG.find(function (lg) { return lg.id === currentLevel.leagueId; });
+        if (league) {
+            const idx = league.levels.indexOf(currentLevel);
+            if (idx >= 0 && idx < league.levels.length - 1) {
+                const nextId = league.levels[idx + 1].id;
+                if (save.getLastPlayable() >= nextId) {
+                    startLevel(nextId);
+                }
+                return;
+            }
+        }
+    }
+    const nextId = currentLevelId + 1;
+    if (nextId <= 31 && save.getLastPlayable() >= nextId) {
         startLevel(nextId);
     }
 });
