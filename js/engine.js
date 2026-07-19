@@ -379,7 +379,8 @@ export const save = {
 // ---------- Фізичні константи ----------
 
 const GRAVITY = 2600;
-const JUMP_VELOCITY = 660;
+const MIN_JUMP_VELOCITY = 420;
+const SAFE_MARGIN = 25;
 const CUBE_SIZE = 42;
 const SPIKE_W = 44;
 const SPIKE_H = 48;
@@ -496,12 +497,14 @@ export class Engine {
             const perfect = gap <= this.perfectPx + this.okPx * 0.35;
             spike.state = "cleared";
             this.score += 10 + (perfect ? 5 : 0);
-            this.jump(perfect);
+            const distance = gap + SPIKE_W / 2 + SAFE_MARGIN;
+            this.jump(distance, perfect);
         }
     }
 
-    jump(perfect) {
-        this.player.vy = JUMP_VELOCITY;
+    jump(distance, perfect) {
+        const computedVy = GRAVITY * distance / (2 * this.effectiveSpeed);
+        this.player.vy = computedVy > MIN_JUMP_VELOCITY ? computedVy : MIN_JUMP_VELOCITY;
         this.player.onGround = false;
         this.pulse = 1;
         if (perfect) {
@@ -574,7 +577,8 @@ export class Engine {
             const perfect = gap <= this.perfectPx + this.okPx * 0.35;
             spike.state = "cleared";
             this.score += 10 + (perfect ? 5 : 0);
-            this.jump(perfect);
+            const distance = gap + SPIKE_W / 2 + SAFE_MARGIN;
+            this.jump(distance, perfect);
             return { result: "correct", letter: letter };
         }
 
@@ -657,7 +661,8 @@ export class Engine {
                 const gap = target.x - this.player.x;
                 if (gap > 0 && gap <= this.okPx * 0.5) {
                     target.state = "cleared";
-                    this.jump(true);
+                    const distance = gap + SPIKE_W / 2 + SAFE_MARGIN;
+                    this.jump(distance, true);
                 }
             }
         }
