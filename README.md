@@ -1,1 +1,3 @@
 Гра-тренажер на клавіатурі з дизайном як у Geometry Dash. Для дітей, щоб їм було легше навчитись друкувати
+
+Пограти можна тут - https://vitalik-ventik.github.io/keyboard-trainer/
