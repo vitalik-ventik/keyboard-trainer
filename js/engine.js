@@ -5,6 +5,7 @@
 // ============================================================
 
 import { BackgroundRenderer } from "./backgrounds.js";
+import { BackgroundCache } from "./cache.js";
 
 // ---------- Детермінований PRNG (фіксовані траси) ----------
 
@@ -1121,11 +1122,14 @@ export class Engine {
         this.maxEasy = maxScores.maxEasy;
         this.maxHard = maxScores.maxHard;
 
+        this.bgCache = new BackgroundCache();
+
         this.reset();
     }
 
     reset() {
         BackgroundRenderer.reset();
+        this.bgCache.reset();
         const track = generateTrack(this.level);
         this.spikes = track.spikes;
         this.finishX = track.finishX;
@@ -1473,7 +1477,15 @@ export class Engine {
         var anchorX = W * PLAYER_ANCHOR;
         var camX = this.player.x;
 
-        BackgroundRenderer.render(ctx, this.level.bgTheme, W, H, groundY, time, this.effectiveSpeed, this.level.accentColor, this.level.id);
+        this.bgCache.setTheme(this.level.bgTheme);
+        if (this.bgCache.shouldUpdate()) {
+            this.bgCache.resize(W, H);
+            var self = this;
+            this.bgCache.render(function (cacheCtx) {
+                BackgroundRenderer.render(cacheCtx, self.level.bgTheme, W, H, groundY, time, self.effectiveSpeed, self.level.accentColor, self.level.id);
+            });
+        }
+        this.bgCache.drawImage(ctx);
         this.renderGround(ctx, W, H, groundY, camX);
         this.renderHitWindow(ctx, W, groundY, anchorX, time);
         this.renderFinish(ctx, W, groundY, anchorX, camX);

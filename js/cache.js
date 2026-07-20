@@ -321,7 +321,6 @@ export class BackgroundCache {
     }
 
     render(renderFn) {
-        if (!this.dirty) return;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (typeof renderFn === "function") {
             renderFn(this.ctx);
