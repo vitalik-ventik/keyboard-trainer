@@ -25,11 +25,11 @@ Templates requiring updates:
     посилань не знайдено
 Follow-up TODOs:
   - AGENTS.md у корені репозиторію називає проект "KeyboardTrainer", тоді як конституція
-    ратифікована під назвою "DrillForPerfection" (за явним введенням користувача).
+    ратифікована під назвою "Keyboard Trainer" (за явним введенням користувача).
     Рекомендовано синхронізувати назву в AGENTS.md окремим коммітом.
 -->
 
-# DrillForPerfection Constitution
+# Keyboard Trainer Constitution
 
 Клавіатурний тренажер у стилі Geometry Dash: модульний веб-застосунок на чистому
 HTML5 Canvas + Vanilla JS (ES6 Modules) з українською розкладкою ЙЦУКЕН.
