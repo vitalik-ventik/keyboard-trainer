@@ -563,7 +563,7 @@ function frame(now) {
         gameEngine.update(dt);
         gameEngine.render(ctx, W, H, time);
 
-        if (state === "PLAYING") {
+        if (state === "PLAYING" || state === "GAMEOVER") {
             if (wrongKeyError.letter !== null && (performance.now() - wrongKeyError.timestamp) > 350) {
                 wrongKeyError.letter = null;
             }
@@ -593,11 +593,13 @@ function frame(now) {
             }
             kbCache.drawImage(ctx, keyboardArea.x, keyboardArea.y);
 
-            const outcome = gameEngine.getOutcome();
-            if (outcome === "dead") {
-                handleGameOver();
-            } else if (outcome === "won") {
-                handleVictory();
+            if (state === "PLAYING") {
+                const outcome = gameEngine.getOutcome();
+                if (outcome === "dead") {
+                    handleGameOver();
+                } else if (outcome === "won") {
+                    handleVictory();
+                }
             }
         }
     }
