@@ -7,7 +7,6 @@
 const SOUND_FILES = {
     jump: "sounds/jump.wav",
     explode: "sounds/explode.wav",
-    victory: "sounds/victory.wav",
     click: "sounds/click.wav"
 };
 
@@ -25,7 +24,7 @@ export const audio = {
 
 // Реєстр декодованих буферів: null = файл не завантажився (гра працює далі)
 const registry = {
-    sounds: { jump: null, explode: null, victory: null, click: null },
+    sounds: { jump: null, explode: null, click: null },
     music: { menu: null, game: null, gameover: null, win: null }
 };
 
@@ -144,7 +143,7 @@ export function unlockAudio() {
 /**
  * Відтворює звуковий ефект один раз.
  * Тихо ігнорує відсутній буфер або недоступний контекст.
- * @param {"jump"|"explode"|"victory"|"click"} name
+ * @param {"jump"|"explode"|"click"} name
  */
 export function playSound(name) {
     try {

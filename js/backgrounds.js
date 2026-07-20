@@ -1,7 +1,7 @@
 ﻿const MAX_PARTICLES = 50;const MAX_RAINDROPS = 120;const MAX_MATRIX_COLUMNS = 40;const NEON_PALETTE = ["#00f6ff","#ff2ea6","#ffe14d","#00ff88"];
 let _W=0,_H=0,_groundY=0,_particles=[],_raindrops=[],_matrixColumns=[],_stars=[],_sparks=[],_rainTimer=0,_matrixInitialized=!1,_starsInitialized=!1,_landscapeSeed=0,_cityBuildings=null;
 function rand(min,max){return min+Math.random()*(max-min)}function randInt(min,max){return Math.floor(rand(min,max+1))}function noise1D(x,t){return Math.sin(x*0.7+t)*Math.cos(x*1.1-t*0.6)*0.5+0.5}
-function applyGlow(ctx,color,blur){ctx.shadowBlur=blur;ctx.shadowColor=color}function clearGlow(ctx){ctx.shadowBlur=0;ctx.shadowColor="transparent"}
+function applyGlow(ctx,color,blur){ctx.shadowBlur=Math.min(blur,4);ctx.shadowColor=color}function clearGlow(ctx){ctx.shadowBlur=0;ctx.shadowColor="transparent"}
 const BackgroundRenderer = {
     init(W,H,groundY){_W=W;_H=H;_groundY=groundY;_particles=[];_raindrops=[];_matrixColumns=[];_sparks=[];_starsInitialized=!1;_matrixInitialized=!1;_cityBuildings=null;_landscapeSeed=Math.random()*1000},
     reset(){_particles=[];_raindrops=[];_matrixColumns=[];_sparks=[];_starsInitialized=!1;_matrixInitialized=!1;_cityBuildings=null;_rainTimer=0;_landscapeSeed=Math.random()*1000},

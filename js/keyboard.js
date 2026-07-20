@@ -210,15 +210,27 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyErro
             glowColor = COLORS.GROUP_GLOW_COLOR;
         }
 
-        ctx.shadowBlur = glow;
-        ctx.shadowColor = glowColor;
+        if (glow > 0) {
+            var glowR = Math.round(Math.min(8, keyW * 0.16));
+            var centerX = x + keyW / 2;
+            var centerY = y + keyH / 2;
+            var glowRadius = Math.max(keyW, keyH) * 0.7;
+            var glowGrad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, glowRadius);
+            glowGrad.addColorStop(0, glowColor);
+            glowGrad.addColorStop(1, "transparent");
+            ctx.save();
+            ctx.globalAlpha = 0.35;
+            roundRect(ctx, x - glowR, y - glowR, keyW + glowR * 2, keyH + glowR * 2, Math.max(glowR + 2, keyW * 0.2));
+            ctx.fillStyle = glowGrad;
+            ctx.fill();
+            ctx.restore();
+        }
         roundRect(ctx, x, y, keyW, keyH, Math.min(8, keyW * 0.16));
         ctx.fillStyle = fill;
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = stroke;
         ctx.stroke();
-        ctx.shadowBlur = 0;
 
         ctx.fillStyle = textColor;
         ctx.fillText(key.letter, x + keyW / 2, y + keyH / 2 + 1);

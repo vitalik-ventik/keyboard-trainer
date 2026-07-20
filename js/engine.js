@@ -94,6 +94,22 @@ function getLevelById(levelId) {
            ALL_LEVELS[0];
 }
 
+// ---------- Допоміжна функція градієнтного ореолу (замість shadowBlur) ----------
+
+function renderSkinGlow(ctx, size, color, blur) {
+    if (blur <= 0) return;
+    var r = size / 2 + blur * 1.2;
+    var grad = ctx.createRadialGradient(0, 0, size * 0.12, 0, 0, r);
+    grad.addColorStop(0, color);
+    grad.addColorStop(0.35, color);
+    grad.addColorStop(1, "transparent");
+    var prevAlpha = ctx.globalAlpha;
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = grad;
+    ctx.fillRect(-r, -r, r * 2, r * 2);
+    ctx.globalAlpha = prevAlpha;
+}
+
 // ---------- Реєстр функцій рендерингу скінів ----------
 
 export const SKIN_RENDERERS = {
@@ -101,8 +117,7 @@ export const SKIN_RENDERERS = {
     // === ГРУПА 1: БАЗОВА ЛІГА ===
 
     neon_base: function (ctx, size, time) {
-        ctx.shadowBlur = 18;
-        ctx.shadowColor = "#00f6ff";
+        renderSkinGlow(ctx, size, "#00f6ff", 18);
         var gradient = ctx.createLinearGradient(-size / 2, -size / 2, size / 2, size / 2);
         gradient.addColorStop(0, "#00f6ff");
         gradient.addColorStop(1, "#0077ff");
@@ -111,14 +126,12 @@ export const SKIN_RENDERERS = {
         ctx.strokeStyle = "#bffcff";
         ctx.lineWidth = 3;
         ctx.strokeRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 0;
     },
 
     cyber_eye: function (ctx, size, time) {
         ctx.fillStyle = "#0a0a20";
         ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 16;
-        ctx.shadowColor = "#00ffcc";
+        renderSkinGlow(ctx, size, "#00ffcc", 16);
         ctx.fillStyle = "#00ffcc";
         ctx.beginPath();
         ctx.arc(size * 0.18, 0, size * 0.18, 0, Math.PI * 2);
@@ -127,14 +140,12 @@ export const SKIN_RENDERERS = {
         ctx.beginPath();
         ctx.arc(size * 0.22, 0, size * 0.08, 0, Math.PI * 2);
         ctx.fill();
-        ctx.shadowBlur = 0;
     },
 
     retro_gamer: function (ctx, size, time) {
         ctx.fillStyle = "#0a0a20";
         ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = "#00ff41";
+        renderSkinGlow(ctx, size, "#00ff41", 8);
         ctx.strokeStyle = "#00ff41";
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -149,14 +160,12 @@ export const SKIN_RENDERERS = {
         ctx.moveTo(-size * 0.15, size * 0.25);
         ctx.lineTo(size * 0.15, size * 0.25);
         ctx.stroke();
-        ctx.shadowBlur = 0;
     },
 
     throne: function (ctx, size, time) {
         ctx.fillStyle = "#0a0a20";
         ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "#9944dd";
+        renderSkinGlow(ctx, size, "#9944dd", 10);
         ctx.strokeStyle = "#bb55ff";
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -167,14 +176,12 @@ export const SKIN_RENDERERS = {
         ctx.moveTo(size / 2, -size / 2);
         ctx.lineTo(-size / 2, size / 2);
         ctx.stroke();
-        ctx.shadowBlur = 0;
     },
 
     crosshair: function (ctx, size, time) {
         ctx.fillStyle = "#0a0a20";
         ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 6;
-        ctx.shadowColor = "#ff2222";
+        renderSkinGlow(ctx, size, "#ff2222", 6);
         ctx.strokeStyle = "#ff2222";
         ctx.lineWidth = 1.5;
         ctx.beginPath();
@@ -188,15 +195,13 @@ export const SKIN_RENDERERS = {
         ctx.moveTo(0, -size * 0.28);
         ctx.lineTo(0, size * 0.28);
         ctx.stroke();
-        ctx.shadowBlur = 0;
     },
 
     matrix_pixel: function (ctx, size, time) {
         ctx.fillStyle = "#003300";
         ctx.fillRect(-size / 2, -size / 2, size, size);
+        renderSkinGlow(ctx, size, "#00ff41", 4);
         ctx.fillStyle = "#00ff41";
-        ctx.shadowBlur = 4;
-        ctx.shadowColor = "#00ff41";
         var px1x = -size * 0.25, px1y = -size * 0.20;
         var px2x = size * 0.08, px2y = size * 0.12;
         var px3x = -size * 0.08, px3y = size * 0.28;
@@ -204,7 +209,6 @@ export const SKIN_RENDERERS = {
         ctx.fillRect(px1x, px1y, pxSize, pxSize);
         ctx.fillRect(px2x, px2y, pxSize, pxSize);
         ctx.fillRect(px3x, px3y, pxSize, pxSize);
-        ctx.shadowBlur = 0;
     },
 
     slice: function (ctx, size, time) {
@@ -234,8 +238,7 @@ export const SKIN_RENDERERS = {
         ctx.strokeStyle = "#9944dd";
         ctx.lineWidth = 2;
         ctx.strokeRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 18;
-        ctx.shadowColor = "#cc88ff";
+        renderSkinGlow(ctx, size, "#cc88ff", 18);
         ctx.globalAlpha = 0.9;
         ctx.fillStyle = "#bb77ee";
         ctx.beginPath();
@@ -245,7 +248,6 @@ export const SKIN_RENDERERS = {
         ctx.lineTo(-size * 0.38, 0);
         ctx.closePath();
         ctx.fill();
-        ctx.shadowBlur = 0;
         ctx.globalAlpha = 1;
     },
 
@@ -292,8 +294,7 @@ export const SKIN_RENDERERS = {
     speed_arrow: function (ctx, size, time) {
         ctx.fillStyle = "#0a0a20";
         ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = "#ffff00";
+        renderSkinGlow(ctx, size, "#ffff00", 12);
         ctx.strokeStyle = "#ffff00";
         ctx.lineWidth = 2.5;
         var ay = -size * 0.12;
@@ -308,19 +309,16 @@ export const SKIN_RENDERERS = {
         ctx.lineTo(-size * 0.05, ay);
         ctx.lineTo(-size * 0.28, ay + size * 0.16);
         ctx.stroke();
-        ctx.shadowBlur = 0;
     },
 
     neon_cross: function (ctx, size, time) {
         ctx.fillStyle = "#0a0a20";
         ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = "#e5ff00";
+        renderSkinGlow(ctx, size, "#e5ff00", 20);
         ctx.fillStyle = "#e5ff00";
         var crossW = size * 0.2;
         ctx.fillRect(-crossW / 2, -size / 2, crossW, size);
         ctx.fillRect(-size / 2, -crossW / 2, size, crossW);
-        ctx.shadowBlur = 0;
     },
 
     liquid_gradient: function (ctx, size, time) {
@@ -338,8 +336,7 @@ export const SKIN_RENDERERS = {
     winged: function (ctx, size, time) {
         ctx.fillStyle = "#0a0a20";
         ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = "#00f6ff";
+        renderSkinGlow(ctx, size, "#00f6ff", 12);
         ctx.fillStyle = "#0066cc";
         ctx.fillRect(-size * 0.35, -size * 0.4, size * 0.7, size * 0.8);
         ctx.strokeStyle = "#00f6ff";
@@ -358,14 +355,12 @@ export const SKIN_RENDERERS = {
         ctx.lineTo(size / 2, size * 0.1);
         ctx.closePath();
         ctx.fill();
-        ctx.shadowBlur = 0;
     },
 
     light_cup: function (ctx, size, time) {
         ctx.fillStyle = "#004d33";
         ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "#ffd700";
+        renderSkinGlow(ctx, size, "#ffd700", 10);
         ctx.strokeStyle = "#39ff88";
         ctx.lineWidth = 2;
         ctx.strokeRect(-size / 2, -size / 2, size, size);
@@ -384,7 +379,6 @@ export const SKIN_RENDERERS = {
         }
         ctx.closePath();
         ctx.fill();
-        ctx.shadowBlur = 0;
     },
 
     // === ГРУПА 2: СЕРЕДНЯ ЛІГА ===
@@ -412,15 +406,13 @@ export const SKIN_RENDERERS = {
         gradient.addColorStop(1, "#ffdd44");
         ctx.fillStyle = gradient;
         ctx.fillRect(-size / 2, -size / 2, size, size);
+        renderSkinGlow(ctx, size, "#00ddff", 10);
         ctx.strokeStyle = "#00ddff";
         ctx.lineWidth = 2;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "#00ddff";
         ctx.beginPath();
         ctx.moveTo(-size / 2, -size * 0.15);
         ctx.lineTo(size / 2, -size * 0.15);
         ctx.stroke();
-        ctx.shadowBlur = 0;
     },
 
     glitch_cube: function (ctx, size, time) {
@@ -448,9 +440,8 @@ export const SKIN_RENDERERS = {
         ctx.strokeStyle = "#aa7700";
         ctx.lineWidth = 2;
         ctx.strokeRect(-size / 2, -size / 2, size, size);
+        renderSkinGlow(ctx, size, "#ffffff", 8);
         ctx.fillStyle = "#ffffff";
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = "#ffffff";
         ctx.beginPath();
         ctx.moveTo(-size * 0.3, -size * 0.4);
         ctx.lineTo(-size * 0.22, -size * 0.48);
@@ -458,19 +449,16 @@ export const SKIN_RENDERERS = {
         ctx.lineTo(-size * 0.22, -size * 0.32);
         ctx.closePath();
         ctx.fill();
-        ctx.shadowBlur = 0;
     },
 
     orbit: function (ctx, size, time) {
         ctx.fillStyle = "#0a0a20";
         ctx.fillRect(-size / 2, -size / 2, size, size);
+        renderSkinGlow(ctx, size, "#ff8c00", 10);
         ctx.fillStyle = "#ff8c00";
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "#ff8c00";
         ctx.beginPath();
         ctx.arc(0, 0, size * 0.18, 0, Math.PI * 2);
         ctx.fill();
-        ctx.shadowBlur = 0;
         ctx.save();
         ctx.rotate(Math.PI / 4);
         ctx.strokeStyle = "#ffcc44";
@@ -512,12 +500,10 @@ export const SKIN_RENDERERS = {
         var heights = [size * 0.5, size * 0.75, size * 0.35];
         var colors = ["#ff2ea6", "#00f6ff", "#39ff14"];
         for (var i = 0; i < 3; i++) {
+            renderSkinGlow(ctx, size, colors[i], 6);
             ctx.fillStyle = colors[i];
-            ctx.shadowBlur = 6;
-            ctx.shadowColor = colors[i];
             ctx.fillRect(startX + i * (barW + gap), size / 2 - heights[i], barW, heights[i]);
         }
-        ctx.shadowBlur = 0;
     },
 
     shield: function (ctx, size, time) {
@@ -526,9 +512,8 @@ export const SKIN_RENDERERS = {
         ctx.strokeStyle = "#666677";
         ctx.lineWidth = 2;
         ctx.strokeRect(-size / 2, -size / 2, size, size);
+        renderSkinGlow(ctx, size, "#aaaacc", 6);
         ctx.fillStyle = "#888899";
-        ctx.shadowBlur = 6;
-        ctx.shadowColor = "#aaaacc";
         var dotR = size * 0.07;
         var margin = size * 0.16;
         var corners = [
@@ -542,7 +527,6 @@ export const SKIN_RENDERERS = {
             ctx.arc(corners[i][0], corners[i][1], dotR, 0, Math.PI * 2);
             ctx.fill();
         }
-        ctx.shadowBlur = 0;
     },
 
     // === ГРУПА 3: СКЛАДНА ЛІГА ===
@@ -561,10 +545,9 @@ export const SKIN_RENDERERS = {
     vortex: function (ctx, size, time) {
         ctx.fillStyle = "#0a0a20";
         ctx.fillRect(-size / 2, -size / 2, size, size);
+        renderSkinGlow(ctx, size, "#00ffcc", 8);
         ctx.strokeStyle = "#00ffcc";
         ctx.lineWidth = 1.5;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = "#00ffcc";
         ctx.beginPath();
         var turns = 3;
         var steps = 20;
@@ -579,7 +562,6 @@ export const SKIN_RENDERERS = {
             else { ctx.lineTo(sx, sy); }
         }
         ctx.stroke();
-        ctx.shadowBlur = 0;
     },
 
     quantum_barrier: function (ctx, size, time) {
@@ -587,12 +569,10 @@ export const SKIN_RENDERERS = {
         ctx.fillStyle = "#00f6ff";
         ctx.fillRect(-size / 2, -size / 2, size, size);
         ctx.globalAlpha = 1;
-        ctx.shadowBlur = 25;
-        ctx.shadowColor = "#ffffff";
+        renderSkinGlow(ctx, size, "#ffffff", 25);
         ctx.strokeStyle = "#ffffff";
         ctx.lineWidth = 4;
         ctx.strokeRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 0;
     },
 
     meteor: function (ctx, size, time, player) {
@@ -604,25 +584,17 @@ export const SKIN_RENDERERS = {
                 ctx.globalAlpha = pt.alpha * 0.35;
                 ctx.fillStyle = "#ff4400";
                 ctx.fillRect(-size * 0.35 + ox, -size * 0.35 + oy, size * 0.7, size * 0.7);
-                ctx.shadowBlur = 6;
-                ctx.shadowColor = "#ff6600";
-                ctx.strokeStyle = "#ff8844";
-                ctx.lineWidth = 1.5;
-                ctx.strokeRect(-size / 2 + ox, -size / 2 + oy, size, size);
-                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 1;
             }
-            ctx.globalAlpha = 1;
         }
         ctx.fillStyle = "#1a0a00";
         ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 14;
-        ctx.shadowColor = "#ff6600";
+        renderSkinGlow(ctx, size, "#ff6600", 14);
         ctx.fillStyle = "#ff4400";
         ctx.fillRect(-size * 0.35, -size * 0.35, size * 0.7, size * 0.7);
         ctx.strokeStyle = "#ffaa44";
         ctx.lineWidth = 2.5;
         ctx.strokeRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 0;
     },
 
     // === ГРУПА 4: ЛІГА МАЙСТРІВ ===
@@ -657,8 +629,7 @@ export const SKIN_RENDERERS = {
         ctx.strokeStyle = "#00ff88";
         ctx.lineWidth = 2;
         ctx.strokeRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "#ffd700";
+        renderSkinGlow(ctx, size, "#ffd700", 10);
         ctx.fillStyle = "#ffd700";
         ctx.strokeStyle = "#ffd700";
         ctx.lineWidth = 1.5;
@@ -678,7 +649,6 @@ export const SKIN_RENDERERS = {
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
-        ctx.shadowBlur = 0;
     },
 
     // === ГРУПА 5: ЛІГА БОСА ===
@@ -686,8 +656,7 @@ export const SKIN_RENDERERS = {
     demon_lord: function (ctx, size, time) {
         ctx.fillStyle = "#0a0a08";
         ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.shadowBlur = 25;
-        ctx.shadowColor = "#ff1111";
+        renderSkinGlow(ctx, size, "#ff1111", 25);
         ctx.fillStyle = "#ff1111";
         ctx.beginPath();
         ctx.moveTo(-size * 0.2, -size * 0.12);
@@ -714,7 +683,6 @@ export const SKIN_RENDERERS = {
         ctx.lineTo(size * 0.1, hornY);
         ctx.closePath();
         ctx.fill();
-        ctx.shadowBlur = 0;
         ctx.strokeStyle = "#440000";
         ctx.lineWidth = 1;
         ctx.strokeRect(-size / 2, -size / 2, size, size);
@@ -1501,9 +1469,9 @@ export class Engine {
     // ---------- Рендер ----------
 
     render(ctx, W, H, time) {
-        const groundY = H * 0.64;
-        const anchorX = W * PLAYER_ANCHOR;
-        const camX = this.player.x;
+        var groundY = H * 0.64;
+        var anchorX = W * PLAYER_ANCHOR;
+        var camX = this.player.x;
 
         BackgroundRenderer.render(ctx, this.level.bgTheme, W, H, groundY, time, this.effectiveSpeed, this.level.accentColor, this.level.id);
         this.renderGround(ctx, W, H, groundY, camX);
@@ -1541,15 +1509,18 @@ export class Engine {
         ctx.fillRect(0, groundY, W, H - groundY);
 
         const accent = this.level.accentColor || "#00f6ff";
+        var groundGrad = ctx.createLinearGradient(0, groundY - 6, 0, groundY + 6);
+        groundGrad.addColorStop(0, "transparent");
+        groundGrad.addColorStop(0.5, accent);
+        groundGrad.addColorStop(1, "transparent");
+        ctx.fillStyle = groundGrad;
+        ctx.fillRect(0, groundY - 6, W, 12);
         ctx.strokeStyle = accent;
         ctx.lineWidth = 3;
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = accent;
         ctx.beginPath();
         ctx.moveTo(0, groundY);
         ctx.lineTo(W, groundY);
         ctx.stroke();
-        ctx.shadowBlur = 0;
 
         const step = 140;
         const offset = camX % step;
@@ -1579,27 +1550,19 @@ export class Engine {
         const topY = groundY - hwH - 2;
         const botY = groundY + 2;
 
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "rgba(57, 255, 136, " + pulseAlpha.toFixed(3) + ")";
         ctx.fillStyle = "rgba(57, 255, 136, " + pulseAlpha.toFixed(3) + ")";
         ctx.fillRect(anchorX, topY, perfectWidth, hwH);
 
-        ctx.shadowBlur = 6;
-        ctx.shadowColor = "rgba(0, 246, 255, 0.2)";
         ctx.fillStyle = "rgba(0, 246, 255, 0.2)";
         ctx.fillRect(anchorX, botY, okWidth, hwH);
 
         const spikeScreenX = (spike.x - this.player.x) + anchorX;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = "rgba(255, 225, 77, 0.7)";
         ctx.strokeStyle = "rgba(255, 225, 77, 0.6)";
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(spikeScreenX, groundY - 14);
         ctx.lineTo(spikeScreenX, groundY - hwH - 4);
         ctx.stroke();
-
-        ctx.shadowBlur = 0;
     }
 
     renderFinish(ctx, W, groundY, anchorX, camX) {
@@ -1607,21 +1570,29 @@ export class Engine {
         if (screenX < -60 || screenX > W + 60) {
             return;
         }
-        ctx.save();
+        var finishGrad = ctx.createLinearGradient(screenX - 8, 0, screenX + 8, 0);
+        finishGrad.addColorStop(0, "transparent");
+        finishGrad.addColorStop(0.5, "rgba(57, 255, 136, 0.6)");
+        finishGrad.addColorStop(1, "transparent");
+        ctx.fillStyle = finishGrad;
+        ctx.fillRect(screenX - 22, groundY - 170, 44, 170);
         ctx.strokeStyle = "#39ff88";
         ctx.lineWidth = 6;
-        ctx.shadowBlur = 22;
-        ctx.shadowColor = "#39ff88";
         ctx.strokeRect(screenX - 8, groundY - 170, 16, 170);
-        ctx.restore();
     }
 
     // ---------- Перешкоди (3 типи) ----------
 
     drawSpike(ctx, screenX, groundY, accentColor, cleared) {
         const color = cleared ? "rgba(57, 255, 136, 0.5)" : accentColor;
-        ctx.shadowBlur = cleared ? 4 : 14;
-        ctx.shadowColor = color;
+        var glowR = cleared ? 20 : 40;
+        var glowGrad = ctx.createRadialGradient(screenX, groundY - SPIKE_H * 0.4, 4, screenX, groundY - SPIKE_H * 0.4, glowR);
+        glowGrad.addColorStop(0, color);
+        glowGrad.addColorStop(1, "transparent");
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = glowGrad;
+        ctx.fillRect(screenX - glowR, groundY - SPIKE_H - glowR * 0.5, glowR * 2, SPIKE_H + glowR);
+        ctx.globalAlpha = 1;
         ctx.fillStyle = cleared ? "rgba(20, 60, 40, 0.8)" : "#4a1030";
         ctx.strokeStyle = color;
         ctx.lineWidth = 2.5;
@@ -1632,14 +1603,19 @@ export class Engine {
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
-        ctx.shadowBlur = 0;
     }
 
     drawDoubleSpike(ctx, screenX, groundY, accentColor, cleared) {
         const offset = SPIKE_W * 0.45;
         const color = cleared ? "rgba(57, 255, 136, 0.5)" : accentColor;
-        ctx.shadowBlur = cleared ? 4 : 10;
-        ctx.shadowColor = color;
+        var glowR = cleared ? 18 : 36;
+        var glowGrad = ctx.createRadialGradient(screenX, groundY - SPIKE_H * 0.4, 4, screenX, groundY - SPIKE_H * 0.4, glowR);
+        glowGrad.addColorStop(0, color);
+        glowGrad.addColorStop(1, "transparent");
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = glowGrad;
+        ctx.fillRect(screenX - glowR - offset, groundY - SPIKE_H - glowR * 0.5, (glowR + offset) * 2, SPIKE_H + glowR);
+        ctx.globalAlpha = 1;
         ctx.fillStyle = cleared ? "rgba(20, 60, 40, 0.8)" : "#4a1030";
         ctx.strokeStyle = color;
         ctx.lineWidth = 2.5;
@@ -1659,7 +1635,6 @@ export class Engine {
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
-        ctx.shadowBlur = 0;
     }
 
     drawSaw(ctx, screenX, groundY, radius, rotationAngle, accentColor, cleared) {
@@ -1667,12 +1642,20 @@ export class Engine {
         const color = cleared ? "rgba(57, 255, 136, 0.5)" : accentColor;
         const teeth = 8;
 
+        var glowR = cleared ? radius * 0.8 : radius * 1.2;
+        var glowGrad = ctx.createRadialGradient(screenX, centerY, radius * 0.2, screenX, centerY, glowR);
+        glowGrad.addColorStop(0, color);
+        glowGrad.addColorStop(1, "transparent");
+        ctx.globalAlpha = 0.3;
+        ctx.fillStyle = glowGrad;
+        ctx.beginPath();
+        ctx.arc(screenX, centerY, glowR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
         ctx.save();
         ctx.translate(screenX, centerY);
         ctx.rotate(rotationAngle);
-
-        ctx.shadowBlur = cleared ? 4 : 12;
-        ctx.shadowColor = color;
 
         ctx.fillStyle = cleared ? "rgba(20, 60, 40, 0.8)" : "#301030";
         ctx.beginPath();
@@ -1693,7 +1676,6 @@ export class Engine {
         ctx.strokeStyle = color;
         ctx.lineWidth = 2.5;
         ctx.stroke();
-        ctx.shadowBlur = 0;
 
         ctx.fillStyle = cleared ? "rgba(20, 60, 40, 0.6)" : "rgba(20, 10, 20, 0.9)";
         ctx.beginPath();
@@ -1730,12 +1712,9 @@ export class Engine {
             }
 
             if (!cleared) {
-                ctx.shadowBlur = 8;
-                ctx.shadowColor = "rgba(255, 225, 77, 0.8)";
                 ctx.fillStyle = "#ffe14d";
-                const letterY = spike.type === "saw" ? groundY - SPIKE_H * 0.6 - 20 : groundY - SPIKE_H - 12;
+                var letterY = spike.type === "saw" ? groundY - SPIKE_H * 0.6 - 20 : groundY - SPIKE_H - 12;
                 ctx.fillText(spike.letter, screenX, letterY);
-                ctx.shadowBlur = 0;
             }
         }
         ctx.restore();
@@ -1817,45 +1796,41 @@ export class Engine {
         }
 
         if (achievement === "hard") {
-            ctx.shadowBlur = 18;
-            ctx.shadowColor = "#ffaa00";
+            var goldGlow = ctx.createRadialGradient(0, 0, CUBE_SIZE * 0.3, 0, 0, CUBE_SIZE * 0.9);
+            goldGlow.addColorStop(0, "rgba(255, 170, 0, 0.5)");
+            goldGlow.addColorStop(1, "transparent");
+            ctx.fillStyle = goldGlow;
+            ctx.fillRect(-CUBE_SIZE * 0.9, -CUBE_SIZE * 0.9, CUBE_SIZE * 1.8, CUBE_SIZE * 1.8);
             ctx.strokeStyle = "rgba(255, 170, 0, 0.9)";
             ctx.lineWidth = 3;
             ctx.strokeRect(-CUBE_SIZE / 2, -CUBE_SIZE / 2, CUBE_SIZE, CUBE_SIZE);
-            ctx.shadowBlur = 0;
         }
 
         if (achievement === "easy") {
             ctx.strokeStyle = "#d4dce8";
             ctx.lineWidth = 1.8;
-            ctx.shadowBlur = 6;
-            ctx.shadowColor = "rgba(200, 210, 225, 0.6)";
             ctx.strokeRect(-CUBE_SIZE / 2, -CUBE_SIZE / 2, CUBE_SIZE, CUBE_SIZE);
-            ctx.shadowBlur = 0;
         }
 
         ctx.restore();
     }
 
     renderProgressBar(ctx, W) {
-        const barW = W * 0.6;
-        const barX = (W - barW) / 2;
-        const barY = 30;
-        const barH = 14;
+        var barW = W * 0.6;
+        var barX = (W - barW) / 2;
+        var barY = 30;
+        var barH = 14;
 
         if (this.leagueInfo !== null) {
             ctx.font = "bold 14px 'Segoe UI', Arial, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
             ctx.fillStyle = "#00f6ff";
-            ctx.shadowBlur = 6;
-            ctx.shadowColor = "rgba(0, 246, 255, 0.5)";
             ctx.fillText(
                 "Ліга: " + this.leagueInfo.leagueName + " | " + this.leagueInfo.levelNumber + ": " + this.leagueInfo.levelName,
                 W / 2,
                 6
             );
-            ctx.shadowBlur = 0;
         }
 
         ctx.fillStyle = "rgba(8, 10, 26, 0.8)";
@@ -1863,8 +1838,8 @@ export class Engine {
         ctx.strokeStyle = "rgba(0, 246, 255, 0.6)";
         ctx.lineWidth = 2;
         ctx.strokeRect(barX, barY, barW, barH);
-        const fillW = barW * (this.progressPct / 100);
-        const gradient = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+        var fillW = barW * (this.progressPct / 100);
+        var gradient = ctx.createLinearGradient(barX, 0, barX + barW, 0);
         gradient.addColorStop(0, "#00f6ff");
         gradient.addColorStop(1, "#39ff88");
         ctx.fillStyle = gradient;
@@ -1876,7 +1851,7 @@ export class Engine {
         ctx.fillText(Math.floor(this.progressPct) + "%", barX + barW + 12, barY + barH / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = "#ffe14d";
-        const maxForMode = this.difficulty === "HARD" ? this.maxHard : this.maxEasy;
+        var maxForMode = this.difficulty === "HARD" ? this.maxHard : this.maxEasy;
         ctx.fillText("Очки: " + this.score + " / " + maxForMode, barX - 12, barY + barH / 2);
     }
 
@@ -1887,15 +1862,12 @@ export class Engine {
             var sx = pp.x - camX + anchorX;
             var sy = groundY - pp.y;
             ctx.fillStyle = pp.color;
-            ctx.globalAlpha = alpha;
-            ctx.shadowBlur = 4;
-            ctx.shadowColor = pp.color;
+            ctx.globalAlpha = alpha * 0.8;
             ctx.beginPath();
             ctx.arc(sx, sy, pp.size * alpha, 0, Math.PI * 2);
             ctx.fill();
         }
         ctx.globalAlpha = 1;
-        ctx.shadowBlur = 0;
     }
 
     renderPerfectPopups(ctx, groundY, anchorX, camX) {
@@ -1911,8 +1883,6 @@ export class Engine {
             ctx.textAlign = "center";
             ctx.textBaseline = "bottom";
             ctx.globalAlpha = alpha;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = popColor;
             ctx.fillStyle = popColor;
             ctx.fillText("PERFECT!", sx, sy);
             ctx.restore();

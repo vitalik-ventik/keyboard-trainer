@@ -9,6 +9,7 @@ import { loadAssets, unlockAudio, playSound, playMusic } from "./assets.js";
 import { LEVELS_CONFIG, ALL_LEVELS, Engine, save, SKIN_RENDERERS } from "./engine.js";
 import { initKeyboardInput, drawKeyboard } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
+import { FrameController, KeyboardCache } from "./cache.js";
 
 // ---------- Полотно та адаптивність ----------
 
@@ -16,6 +17,9 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 let W = 0;
 let H = 0;
+
+const frameCtrl = new FrameController();
+const kbCache = new KeyboardCache();
 
 function resizeCanvas() {
     const dpr = window.devicePixelRatio || 1;
@@ -25,6 +29,7 @@ function resizeCanvas() {
     canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     BackgroundRenderer.init(W, H, H * 0.64);
+    kbCache.markDirty();
 }
 
 window.addEventListener("resize", resizeCanvas);
@@ -164,6 +169,7 @@ function startLevel(levelId) {
     }
     resultRecorded = false;
     wrongKeyError = { letter: null, timestamp: 0 };
+    kbCache.markDirty();
     const leagueInfo = getLevelLeagueInfo(levelId);
     gameEngine = new Engine(levelId, save.getDifficulty(), false, save.getHitWindow(), save.getSpeed(), leagueInfo);
     gameEngine.onJump = function () {
@@ -171,9 +177,6 @@ function startLevel(levelId) {
     };
     gameEngine.onExplode = function () {
         playSound("explode");
-    };
-    gameEngine.onVictory = function () {
-        playSound("victory");
     };
     setState("PLAYING");
 }
@@ -522,11 +525,9 @@ initKeyboardInput(
 
 // ---------- Пауза при прихованій вкладці ----------
 
-let lastTime = null;
-
 document.addEventListener("visibilitychange", function () {
     if (document.hidden) {
-        lastTime = null;
+        frameCtrl.reset();
     }
 });
 
@@ -536,12 +537,12 @@ const appStart = performance.now();
 
 function frame(now) {
     requestAnimationFrame(frame);
-    if (lastTime === null) {
-        lastTime = now;
+    const dtMs = now - (frameCtrl.lastTime || now);
+    if (frameCtrl.shouldSkip(dtMs, now)) {
         return;
     }
-    const dt = Math.min((now - lastTime) / 1000, 0.05);
-    lastTime = now;
+    const dt = frameCtrl.clampDt(dtMs);
+    frameCtrl.advance(now);
     const time = (now - appStart) / 1000;
 
     ctx.clearRect(0, 0, W, H);
@@ -573,14 +574,24 @@ function frame(now) {
                 w: W * 0.92,
                 h: H * 0.28
             };
-            drawKeyboard(
-                ctx,
-                keyboardArea,
-                gameEngine.level.letters,
-                gameEngine.getTargetLetter(),
-                wrongKeyError,
-                time
-            );
+            var tarLetter = gameEngine.getTargetLetter();
+            var grpLetters = gameEngine.level.letters;
+            var wrongLetter = wrongKeyError.letter;
+            if (kbCache.shouldUpdate(tarLetter, grpLetters, wrongLetter)) {
+                kbCache.setState(tarLetter, grpLetters, wrongLetter);
+                kbCache.resize(keyboardArea.w, keyboardArea.h);
+                kbCache.render(function (cacheCtx) {
+                    drawKeyboard(
+                        cacheCtx,
+                        { x: 0, y: 0, w: keyboardArea.w, h: keyboardArea.h },
+                        grpLetters,
+                        tarLetter,
+                        wrongKeyError,
+                        time
+                    );
+                });
+            }
+            kbCache.drawImage(ctx, keyboardArea.x, keyboardArea.y);
 
             const outcome = gameEngine.getOutcome();
             if (outcome === "dead") {
