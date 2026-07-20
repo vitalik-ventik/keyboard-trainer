@@ -184,7 +184,11 @@ function handleGameOver() {
     if (!resultRecorded) {
         resultRecorded = true;
         const runState = gameEngine.getState();
-        save.recordResult(currentLevelId, Math.floor(runState.progressPct), runState.score);
+        save.recordResult(currentLevelId, Math.floor(runState.progressPct), runState.score, {
+            maxEasy: runState.maxEasy,
+            maxHard: runState.maxHard,
+            difficulty: runState.difficulty
+        });
     }
     const runState = gameEngine.getState();
     gameoverPctEl.textContent = Math.floor(runState.progressPct) + "%";
@@ -197,7 +201,11 @@ function handleVictory() {
     if (!resultRecorded) {
         resultRecorded = true;
         const runState = gameEngine.getState();
-        victorySkinResult = save.recordResult(currentLevelId, 100, runState.score);
+        victorySkinResult = save.recordResult(currentLevelId, 100, runState.score, {
+            maxEasy: runState.maxEasy,
+            maxHard: runState.maxHard,
+            difficulty: runState.difficulty
+        });
     }
     const runState = gameEngine.getState();
     victoryScoreEl.textContent = String(runState.score);
@@ -206,6 +214,12 @@ function handleVictory() {
     var skinUnlockText = "";
     if (victorySkinResult && victorySkinResult.skinUnlocked) {
         skinUnlockText = "Розблоковано новий скін: " + victorySkinResult.skinUnlocked.name + "!";
+    }
+    if (victorySkinResult && victorySkinResult.achievementUnlocked) {
+        const achName = victorySkinResult.achievementUnlocked === "hard"
+            ? "Золотий Максимум"
+            : "Срібний Максимум";
+        skinUnlockText = (skinUnlockText ? skinUnlockText + " | " : "") + achName + "!";
     }
 
     const currentLeague = currentLevel ? LEVELS_CONFIG.find(function (lg) { return lg.id === currentLevel.leagueId; }) : null;
@@ -296,6 +310,15 @@ function buildLevelCards() {
         record.className = "level-record";
         record.textContent = "Кращий: " + entry.bestPct + "% | HS: " + entry.highScore;
         card.appendChild(record);
+
+        const achievement = save.getLevelAchievement(level.id);
+        if (achievement) {
+            const star = document.createElement("div");
+            star.className = "level-star";
+            star.textContent = "★";
+            card.insertBefore(star, card.firstChild);
+            card.classList.add(achievement === "hard" ? "perfect-gold" : "perfect-silver");
+        }
 
         const lettersPreview = document.createElement("div");
         lettersPreview.className = "level-letters-preview";
@@ -582,8 +605,13 @@ function renderCurrentSkinIcon() {
 
     var activeSkinId = save.getActiveSkin();
     var renderType = null;
+    var achievement = null;
     if (activeSkinId && SKIN_RENDERERS[activeSkinId]) {
         renderType = activeSkinId;
+        var skinLevel = ALL_LEVELS.find(function (l) { return l.skin && l.skin.renderType === activeSkinId; });
+        if (skinLevel) {
+            achievement = save.getLevelAchievement(skinLevel.id);
+        }
     }
 
     if (!renderType) {
@@ -604,6 +632,22 @@ function renderCurrentSkinIcon() {
     skinCtx.save();
     skinCtx.translate(size / 2, size / 2);
     SKIN_RENDERERS[renderType](skinCtx, miniSize, performance.now());
+    if (achievement === "hard") {
+        skinCtx.shadowBlur = 18;
+        skinCtx.shadowColor = "#ffaa00";
+        skinCtx.strokeStyle = "rgba(255, 170, 0, 0.9)";
+        skinCtx.lineWidth = 3;
+        skinCtx.strokeRect(-miniSize / 2, -miniSize / 2, miniSize, miniSize);
+        skinCtx.shadowBlur = 0;
+    }
+    if (achievement === "easy") {
+        skinCtx.strokeStyle = "#d4dce8";
+        skinCtx.lineWidth = 1.8;
+        skinCtx.shadowBlur = 6;
+        skinCtx.shadowColor = "rgba(200, 210, 225, 0.6)";
+        skinCtx.strokeRect(-miniSize / 2, -miniSize / 2, miniSize, miniSize);
+        skinCtx.shadowBlur = 0;
+    }
     skinCtx.restore();
     activeSkinCache = activeSkinId;
 }
@@ -624,9 +668,15 @@ function buildSkinGrid() {
 
         var isUnlocked = (level.id === 1) || (progress.unlockedSkins && progress.unlockedSkins.indexOf(skin.id) !== -1);
         var isActive = (skin.renderType === activeSkinId);
+        var achievement = save.getLevelAchievement(level.id);
 
         var card = document.createElement("div");
         card.className = "skin-card" + (isUnlocked ? "" : " locked") + (isActive ? " active" : "");
+        if (achievement === "easy") {
+            card.classList.add("perfect-silver");
+        } else if (achievement === "hard") {
+            card.classList.add("perfect-gold");
+        }
         card.setAttribute("data-skin-type", skin.renderType);
         card.setAttribute("data-skin-id", skin.id);
 
@@ -663,7 +713,7 @@ function buildSkinGrid() {
         grid.appendChild(card);
 
         if (isUnlocked) {
-            (function (cardCanvas, renderType) {
+            (function (cardCanvas, renderType, achv) {
                 requestAnimationFrame(function () {
                     var pctx = cardCanvas.getContext("2d");
                     var dpr2 = window.devicePixelRatio || 1;
@@ -675,10 +725,27 @@ function buildSkinGrid() {
                     pctx.setTransform(dpr2, 0, 0, dpr2, 0, 0);
                     pctx.save();
                     pctx.translate(psize / 2, psize / 2);
-                    SKIN_RENDERERS[renderType](pctx, psize * 0.75, performance.now());
+                    var previewSize = psize * 0.75;
+                    SKIN_RENDERERS[renderType](pctx, previewSize, performance.now());
+                    if (achv === "hard") {
+                        pctx.shadowBlur = 18;
+                        pctx.shadowColor = "#ffaa00";
+                        pctx.strokeStyle = "rgba(255, 170, 0, 0.9)";
+                        pctx.lineWidth = 3;
+                        pctx.strokeRect(-previewSize / 2, -previewSize / 2, previewSize, previewSize);
+                        pctx.shadowBlur = 0;
+                    }
+                    if (achv === "easy") {
+                        pctx.strokeStyle = "#d4dce8";
+                        pctx.lineWidth = 1.8;
+                        pctx.shadowBlur = 6;
+                        pctx.shadowColor = "rgba(200, 210, 225, 0.6)";
+                        pctx.strokeRect(-previewSize / 2, -previewSize / 2, previewSize, previewSize);
+                        pctx.shadowBlur = 0;
+                    }
                     pctx.restore();
                 });
-            })(previewCanvas, skin.renderType);
+            })(previewCanvas, skin.renderType, achievement);
         } else {
             (function (cardCanvas) {
                 requestAnimationFrame(function () {

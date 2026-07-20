@@ -821,7 +821,7 @@ const SAVE_KEY = "dfp_save_v1";
 function defaultSaveData() {
     const levels = {};
     for (const level of ALL_LEVELS) {
-        levels[String(level.id)] = { bestPct: 0, highScore: 0 };
+        levels[String(level.id)] = { bestPct: 0, highScore: 0, perfect: null };
     }
     return {
         version: 1,
@@ -868,6 +868,9 @@ function sanitizeSaveData(raw) {
                     if (Number.isFinite(score)) {
                         clean.progress.levels[key].highScore = Math.max(0, Math.round(score));
                     }
+                    if (entry.perfect === "easy" || entry.perfect === "hard") {
+                        clean.progress.levels[key].perfect = entry.perfect;
+                    }
                 }
             }
         }
@@ -907,7 +910,7 @@ export const save = {
         }
     },
 
-    recordResult(levelId, pct, score) {
+    recordResult(levelId, pct, score, options) {
         if (!saveData) {
             this.load();
         }
@@ -919,11 +922,25 @@ export const save = {
         const cleanPct = Math.min(100, Math.max(0, Math.round(pct)));
         const cleanScore = Math.max(0, Math.round(score));
         let skinUnlocked = null;
+        let achievementUnlocked = null;
         if (cleanPct > entry.bestPct) {
             entry.bestPct = cleanPct;
         }
         if (cleanScore > entry.highScore) {
             entry.highScore = cleanScore;
+        }
+        if (cleanPct === 100 && options) {
+            const currentPerfect = entry.perfect || null;
+            const maxHard = Number(options.maxHard) || 0;
+            const maxEasy = Number(options.maxEasy) || 0;
+            const difficulty = options.difficulty || "EASY";
+            if (maxHard > 0 && difficulty === "HARD" && cleanScore >= maxHard && currentPerfect !== "hard") {
+                entry.perfect = "hard";
+                achievementUnlocked = "hard";
+            } else if (maxEasy > 0 && difficulty === "EASY" && cleanScore >= maxEasy && !currentPerfect) {
+                entry.perfect = "easy";
+                achievementUnlocked = "easy";
+            }
         }
         if (cleanPct === 100) {
             if (levelId < 31) {
@@ -951,7 +968,14 @@ export const save = {
             }
         }
         this.persist();
-        return skinUnlocked ? { skinUnlocked: skinUnlocked } : undefined;
+        const result = {};
+        if (skinUnlocked) {
+            result.skinUnlocked = skinUnlocked;
+        }
+        if (achievementUnlocked) {
+            result.achievementUnlocked = achievementUnlocked;
+        }
+        return (result.skinUnlocked || result.achievementUnlocked) ? result : undefined;
     },
 
     setDifficulty(difficulty) {
@@ -1032,6 +1056,14 @@ export const save = {
             this.load();
         }
         return saveData.progress.unlocked;
+    },
+
+    getLevelAchievement(levelId) {
+        if (!saveData) {
+            this.load();
+        }
+        const entry = saveData.progress.levels[String(levelId)];
+        return (entry && entry.perfect) || null;
     }
 };
 
@@ -1056,6 +1088,27 @@ function hitWindowTimes(levelId) {
     };
 }
 
+// ---------- Нова система балів ----------
+
+function calculateHitScore(isOkZone, config) {
+    const base = isOkZone ? 100 : 80;
+    const diffBonus = config.difficulty === "HARD" ? 50 : 0;
+    const zoneBonus = config.hitWindow === "normal" ? 20 : 0;
+    const speedBonus = config.speed === "fast" ? 40 : config.speed === "slow" ? -20 : 0;
+    return Math.max(0, base + diffBonus + zoneBonus + speedBonus);
+}
+
+function calculateMaxScores(spikeCount, hitWindow, speed) {
+    const zoneBonus = hitWindow === "normal" ? 20 : 0;
+    const speedBonus = speed === "fast" ? 40 : speed === "slow" ? -20 : 0;
+    const easyPerHit = 100 + 0 + zoneBonus + speedBonus;
+    const hardPerHit = 100 + 50 + zoneBonus + speedBonus;
+    return {
+        maxEasy: spikeCount * Math.max(0, easyPerHit),
+        maxHard: spikeCount * Math.max(0, hardPerHit)
+    };
+}
+
 // ---------- Клас Engine ----------
 
 export class Engine {
@@ -1066,7 +1119,8 @@ export class Engine {
         this.difficulty = difficulty === "HARD" ? "HARD" : "EASY";
         this.demoMode = !!demoMode;
         this.leagueInfo = leagueInfo || null;
-        const hitWindowSetting = hitWindow === "large" ? "large" : "normal";
+        this.hitWindowSetting = hitWindow === "large" ? "large" : "normal";
+        this.speedSetting = speed === "slow" || speed === "fast" ? speed : "normal";
 
         this.onJump = null;
         this.onExplode = null;
@@ -1074,9 +1128,19 @@ export class Engine {
         this.currentTime = 0;
 
         const windows = hitWindowTimes(this.level.id);
-        const multiplier = hitWindowSetting === "large" ? 2 : 1;
+        const multiplier = this.hitWindowSetting === "large" ? 2 : 1;
         this.okPx = this.effectiveSpeed * windows.okTime * multiplier;
         this.perfectPx = this.effectiveSpeed * windows.perfectTime * multiplier;
+
+        this.scoreConfig = {
+            difficulty: this.difficulty,
+            hitWindow: this.hitWindowSetting,
+            speed: this.speedSetting
+        };
+
+        const maxScores = calculateMaxScores(this.level.spikeCount, this.hitWindowSetting, this.speedSetting);
+        this.maxEasy = maxScores.maxEasy;
+        this.maxHard = maxScores.maxHard;
 
         this.reset();
     }
@@ -1095,7 +1159,8 @@ export class Engine {
             rotation: 0,
             alive: true,
             trail: [],
-            meteorTrail: []
+            meteorTrail: [],
+            goldTrail: []
         };
 
         this.progressPct = 0;
@@ -1137,7 +1202,10 @@ export class Engine {
             progressPct: this.progressPct,
             score: this.score,
             combo: this.combo,
-            alive: this.player.alive
+            alive: this.player.alive,
+            maxEasy: this.maxEasy,
+            maxHard: this.maxHard,
+            difficulty: this.difficulty
         };
     }
 
@@ -1158,7 +1226,7 @@ export class Engine {
         if (gap > 0 && gap <= this.okPx) {
             const perfect = gap <= this.perfectPx + this.okPx * 0.35;
             spike.state = "cleared";
-            this.score += 10 + (perfect ? 5 : 0);
+            this.score += calculateHitScore(true, this.scoreConfig);
             const distance = gap + SPIKE_W / 2 + SAFE_MARGIN;
             this.jump(distance, perfect);
         }
@@ -1226,7 +1294,7 @@ export class Engine {
         if (correct && inWindow) {
             const perfect = gap <= this.perfectPx + this.okPx * 0.35;
             spike.state = "cleared";
-            this.score += 10 + (perfect ? 5 : 0);
+            this.score += calculateHitScore(true, this.scoreConfig);
             const distance = gap + SPIKE_W / 2 + SAFE_MARGIN;
             this.jump(distance, perfect);
             return { result: "correct", letter: letter };
@@ -1611,13 +1679,52 @@ export class Engine {
             );
         }
 
+        // Gold trail for perfectHard
+        var achievementLevelId = this.level.id;
+        var activeSkinId = save.getActiveSkin ? save.getActiveSkin() : null;
+        if (activeSkinId) {
+            var skinLevel = ALL_LEVELS.find(function (l) { return l.skin && l.skin.renderType === activeSkinId; });
+            if (skinLevel) {
+                achievementLevelId = skinLevel.id;
+            }
+        }
+        const achievement = save.getLevelAchievement ? save.getLevelAchievement(achievementLevelId) : null;
+        if (achievement === "hard" && !this.player.onGround && this.player.vy !== 0) {
+            this.player.goldTrail = this.player.goldTrail || [];
+            this.player.goldTrail.push({
+                x: this.player.x,
+                y: this.player.y + CUBE_SIZE / 2,
+                alpha: 1.0,
+                time: this.currentTime
+            });
+            for (var gi = this.player.goldTrail.length - 1; gi >= 0; gi--) {
+                var gp = this.player.goldTrail[gi];
+                var gage = (this.currentTime - gp.time) / 1000;
+                gp.alpha = Math.max(0, 1.0 - gage / 0.4);
+                if (gp.alpha <= 0) {
+                    this.player.goldTrail.splice(gi, 1);
+                    continue;
+                }
+                var gpx = anchorX + (gp.x - this.player.x);
+                var gpy = groundY - gp.y - CUBE_SIZE / 2;
+                ctx.fillStyle = "rgba(255, 200, 40, " + (gp.alpha * 0.5).toFixed(3) + ")";
+                ctx.beginPath();
+                ctx.arc(gpx, gpy, 4 * gp.alpha, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            if (this.player.goldTrail.length > 15) {
+                this.player.goldTrail.splice(0, this.player.goldTrail.length - 15);
+            }
+        }
+
         const centerY = groundY - this.player.y - CUBE_SIZE / 2;
         ctx.save();
         ctx.translate(anchorX, centerY);
         ctx.rotate(this.player.rotation);
 
-        const skinConfig = this.level.skin;
         var activeSkinId = save.getActiveSkin ? save.getActiveSkin() : null;
+
+        const skinConfig = this.level.skin;
         var effectiveSkinConfig = skinConfig;
         if (activeSkinId && SKIN_RENDERERS[activeSkinId]) {
             effectiveSkinConfig = { renderType: activeSkinId };
@@ -1627,6 +1734,24 @@ export class Engine {
             renderFn(ctx, CUBE_SIZE, this.currentTime, this.player);
         } else {
             SKIN_RENDERERS.neon_base(ctx, CUBE_SIZE, this.currentTime, this.player);
+        }
+
+        if (achievement === "hard") {
+            ctx.shadowBlur = 18;
+            ctx.shadowColor = "#ffaa00";
+            ctx.strokeStyle = "rgba(255, 170, 0, 0.9)";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(-CUBE_SIZE / 2, -CUBE_SIZE / 2, CUBE_SIZE, CUBE_SIZE);
+            ctx.shadowBlur = 0;
+        }
+
+        if (achievement === "easy") {
+            ctx.strokeStyle = "#d4dce8";
+            ctx.lineWidth = 1.8;
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = "rgba(200, 210, 225, 0.6)";
+            ctx.strokeRect(-CUBE_SIZE / 2, -CUBE_SIZE / 2, CUBE_SIZE, CUBE_SIZE);
+            ctx.shadowBlur = 0;
         }
 
         ctx.restore();
@@ -1671,7 +1796,8 @@ export class Engine {
         ctx.fillText(Math.floor(this.progressPct) + "%", barX + barW + 12, barY + barH / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = "#ffe14d";
-        ctx.fillText("Очки: " + this.score, barX - 12, barY + barH / 2);
+        const maxForMode = this.difficulty === "HARD" ? this.maxHard : this.maxEasy;
+        ctx.fillText("Очки: " + this.score + " / " + maxForMode, barX - 12, barY + barH / 2);
     }
 }
 

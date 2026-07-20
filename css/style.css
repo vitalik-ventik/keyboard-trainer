@@ -740,3 +740,82 @@ body {
     text-align: center;
     margin-top: 2px;
 }
+
+/* ============================================================
+   Досягнення: срібні та золоті картки рівнів
+   ============================================================ */
+
+@keyframes goldPulse {
+    0%, 100% {
+        box-shadow:
+            0 0 14px rgba(255, 215, 0, 0.5),
+            0 0 28px rgba(255, 180, 0, 0.2),
+            inset 0 0 20px rgba(255, 215, 0, 0.08);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow:
+            0 0 24px rgba(255, 215, 0, 0.85),
+            0 0 48px rgba(255, 180, 0, 0.45),
+            inset 0 0 32px rgba(255, 215, 0, 0.18);
+        transform: scale(1.03);
+    }
+}
+
+@keyframes goldStarPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+.level-card.perfect-silver {
+    border: 0.25vmin solid #b0b8c8;
+    box-shadow: 0 0 10px rgba(192, 200, 216, 0.5);
+}
+
+.level-card.perfect-gold {
+    border: 0.45vmin solid transparent;
+    border-image: linear-gradient(135deg, #ffd700, #b8860b, #ffd700, #8b6914) 1;
+    animation: goldPulse 2s ease-in-out infinite;
+}
+
+.level-card.perfect-gold:hover {
+    transform: translateY(-0.6vmin) scale(1.03);
+}
+
+.level-star {
+    font-size: 3vmin;
+    line-height: 1;
+    margin-bottom: -0.4vmin;
+}
+
+.perfect-silver .level-star {
+    background: linear-gradient(180deg, #ffffff 0%, #b0b8c8 40%, #6b7280 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 8px rgba(192, 200, 216, 0.6);
+}
+
+.perfect-gold .level-star {
+    background: linear-gradient(180deg, #fff7cc 0%, #ffd700 30%, #b8860b 70%, #8b6914 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 14px rgba(255, 215, 0, 0.8), 0 0 28px rgba(255, 180, 0, 0.4);
+    animation: goldStarPulse 1.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   Досягнення: срібні та золоті картки скінів
+   ============================================================ */
+
+.skin-card.perfect-silver {
+    border-color: #b0b8c8;
+    box-shadow: 0 0 10px rgba(192, 200, 216, 0.5);
+}
+
+.skin-card.perfect-gold {
+    border-color: #ffd700;
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.6), 0 0 28px rgba(255, 180, 0, 0.3);
+    animation: goldPulse 2s ease-in-out infinite;
+}
