@@ -400,40 +400,48 @@ btnSettings.addEventListener("click", function () {
 btnEasy.addEventListener("click", function () {
     save.setDifficulty("EASY");
     refreshDifficultyButtons();
+    createDemoEngine();
 });
 
 btnHard.addEventListener("click", function () {
     save.setDifficulty("HARD");
     refreshDifficultyButtons();
+    createDemoEngine();
 });
 
 btnCloseSettings.addEventListener("click", function () {
+    createDemoEngine();
     setState("MENU");
 });
 
 btnNormal.addEventListener("click", function () {
     save.setHitWindow("normal");
     refreshHitWindowButtons();
+    createDemoEngine();
 });
 
 btnLarge.addEventListener("click", function () {
     save.setHitWindow("large");
     refreshHitWindowButtons();
+    createDemoEngine();
 });
 
 btnSpeedSlow.addEventListener("click", function () {
     save.setSpeed("slow");
     refreshSpeedButtons();
+    createDemoEngine();
 });
 
 btnSpeedNormal.addEventListener("click", function () {
     save.setSpeed("normal");
     refreshSpeedButtons();
+    createDemoEngine();
 });
 
 btnSpeedFast.addEventListener("click", function () {
     save.setSpeed("fast");
     refreshSpeedButtons();
+    createDemoEngine();
 });
 
 btnLevelsBack.addEventListener("click", function () {

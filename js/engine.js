@@ -1080,6 +1080,16 @@ const TRAIL_MAX = 20;
 const DEATH_DELAY = 1.2;
 const DEMO_RESTART_DELAY = 1.4;
 
+function spikeHalfWidth(type) {
+    if (type === "double_spike") {
+        return SPIKE_W * 0.45 + SPIKE_W / 2;
+    }
+    if (type === "saw") {
+        return SPIKE_H * 0.6;
+    }
+    return SPIKE_W / 2;
+}
+
 function hitWindowTimes(levelId) {
     const t = (levelId - 1) / 30;
     return {
@@ -1090,19 +1100,20 @@ function hitWindowTimes(levelId) {
 
 // ---------- Нова система балів ----------
 
-function calculateHitScore(isOkZone, config) {
+function calculateHitScore(isOkZone, config, isPerfect) {
     const base = isOkZone ? 100 : 80;
     const diffBonus = config.difficulty === "HARD" ? 50 : 0;
     const zoneBonus = config.hitWindow === "normal" ? 20 : 0;
     const speedBonus = config.speed === "fast" ? 40 : config.speed === "slow" ? -20 : 0;
-    return Math.max(0, base + diffBonus + zoneBonus + speedBonus);
+    const perfectBonus = isPerfect ? 30 : 0;
+    return Math.max(0, base + diffBonus + zoneBonus + speedBonus + perfectBonus);
 }
 
 function calculateMaxScores(spikeCount, hitWindow, speed) {
     const zoneBonus = hitWindow === "normal" ? 20 : 0;
     const speedBonus = speed === "fast" ? 40 : speed === "slow" ? -20 : 0;
-    const easyPerHit = 100 + 0 + zoneBonus + speedBonus;
-    const hardPerHit = 100 + 50 + zoneBonus + speedBonus;
+    const easyPerHit = 100 + 0 + zoneBonus + speedBonus + 30;
+    const hardPerHit = 100 + 50 + zoneBonus + speedBonus + 30;
     return {
         maxEasy: spikeCount * Math.max(0, easyPerHit),
         maxHard: spikeCount * Math.max(0, hardPerHit)
@@ -1167,6 +1178,8 @@ export class Engine {
         this.score = 0;
         this.combo = 0;
         this.particles = [];
+        this.perfectParticles = [];
+        this.perfectPopups = [];
         this.waves = [];
         this.ripples = [];
         this.pulse = 0;
@@ -1179,7 +1192,7 @@ export class Engine {
 
     nearestAheadSpike() {
         for (const spike of this.spikes) {
-            if (spike.state === "ahead" && spike.x + SPIKE_W / 2 >= this.player.x) {
+            if (spike.state === "ahead" && spike.x - spikeHalfWidth(spike.type) + 0.01 >= this.player.x) {
                 return spike;
             }
         }
@@ -1222,12 +1235,12 @@ export class Engine {
         if (spike.state !== "ahead") {
             return;
         }
-        const gap = spike.x - this.player.x;
+        const gap = spike.x - spikeHalfWidth(spike.type) - this.player.x;
         if (gap > 0 && gap <= this.okPx) {
             const perfect = gap <= this.perfectPx + this.okPx * 0.35;
             spike.state = "cleared";
-            this.score += calculateHitScore(true, this.scoreConfig);
-            const distance = gap + SPIKE_W / 2 + SAFE_MARGIN;
+            this.score += calculateHitScore(true, this.scoreConfig, perfect);
+            const distance = gap + 2 * spikeHalfWidth(spike.type) + SAFE_MARGIN;
             this.jump(distance, perfect);
         }
     }
@@ -1239,6 +1252,31 @@ export class Engine {
         this.pulse = 1;
         if (perfect) {
             this.combo++;
+            const count = 8 + Math.floor(Math.random() * 5);
+            const isHard = this.difficulty === "HARD";
+            const silverColors = ["#f0f4ff", "#c8d0e0", "#e8ecf2", "#d4dce8", "#88aacc"];
+            const goldColors = ["#ffd700", "#ffaa00", "#ffe14d", "#ff8c00", "#ffcc44"];
+            const palette = isHard ? goldColors : silverColors;
+            for (var pi = 0; pi < count; pi++) {
+                var angle = Math.random() * Math.PI * 2;
+                var speed = 40 + Math.random() * 120;
+                this.perfectParticles.push({
+                    x: this.player.x,
+                    y: this.player.y + CUBE_SIZE / 2,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 1.2,
+                    maxLife: 1.2,
+                    size: 2 + Math.random() * 3,
+                    color: palette[Math.floor(Math.random() * palette.length)]
+                });
+            }
+            this.perfectPopups.push({
+                x: this.player.x,
+                y: this.player.y + CUBE_SIZE,
+                life: 1.5,
+                maxLife: 1.5
+            });
         } else {
             this.combo = 0;
         }
@@ -1282,7 +1320,7 @@ export class Engine {
             }
             return { result: "no_target", letter: letter };
         }
-        const gap = spike.x - this.player.x;
+        const gap = spike.x - spikeHalfWidth(spike.type) - this.player.x;
         const inWindow = gap > 0 && gap <= this.okPx && this.player.onGround;
         const correct = upperLetter === spike.letter.toUpperCase();
 
@@ -1294,8 +1332,8 @@ export class Engine {
         if (correct && inWindow) {
             const perfect = gap <= this.perfectPx + this.okPx * 0.35;
             spike.state = "cleared";
-            this.score += calculateHitScore(true, this.scoreConfig);
-            const distance = gap + SPIKE_W / 2 + SAFE_MARGIN;
+            this.score += calculateHitScore(true, this.scoreConfig, perfect);
+            const distance = gap + 2 * spikeHalfWidth(spike.type) + SAFE_MARGIN;
             this.jump(distance, perfect);
             return { result: "correct", letter: letter };
         }
@@ -1326,6 +1364,27 @@ export class Engine {
         this.waves = this.waves.filter(function (w) { return w.alpha > 0; });
 
         BackgroundRenderer.updateParticles(dt);
+
+        for (var ppi = this.perfectParticles.length - 1; ppi >= 0; ppi--) {
+            var pp = this.perfectParticles[ppi];
+            pp.life -= dt;
+            if (pp.life <= 0) {
+                this.perfectParticles.splice(ppi, 1);
+                continue;
+            }
+            pp.x += pp.vx * dt;
+            pp.y += pp.vy * dt;
+            pp.vy += 400 * dt;
+        }
+        for (var poi = this.perfectPopups.length - 1; poi >= 0; poi--) {
+            var po = this.perfectPopups[poi];
+            po.life -= dt;
+            if (po.life <= 0) {
+                this.perfectPopups.splice(poi, 1);
+                continue;
+            }
+            po.y += 80 * dt;
+        }
 
         if (!this.player.alive) {
             this.deathTimer += dt;
@@ -1383,10 +1442,10 @@ export class Engine {
         if (this.demoMode) {
             const target = this.nearestAheadSpike();
             if (target && this.player.onGround) {
-                const gap = target.x - this.player.x;
+                const gap = target.x - spikeHalfWidth(target.type) - this.player.x;
                 if (gap > 0 && gap <= this.okPx * 0.5) {
                     target.state = "cleared";
-                    const distance = gap + SPIKE_W / 2 + SAFE_MARGIN;
+                    const distance = gap + 2 * spikeHalfWidth(target.type) + SAFE_MARGIN;
                     this.jump(distance, true);
                 }
             }
@@ -1395,8 +1454,8 @@ export class Engine {
         if (!this.demoMode && this.difficulty === "HARD") {
             const target = this.nearestAheadSpike();
             if (target && this.player.onGround) {
-                const gap = target.x - this.player.x;
-                if (gap <= SPIKE_W * 0.5 + CUBE_SIZE * 0.4) {
+                const gap = target.x - spikeHalfWidth(target.type) - this.player.x;
+                if (gap <= CUBE_SIZE * 0.4) {
                     this.explode();
                     return;
                 }
@@ -1408,12 +1467,13 @@ export class Engine {
                 continue;
             }
             const dx = Math.abs(spike.x - this.player.x);
-            if (dx < (SPIKE_W + CUBE_SIZE) * 0.32 && this.player.y < SPIKE_H * 0.72) {
+            const halfW = spikeHalfWidth(spike.type);
+            if (dx < halfW + CUBE_SIZE * 0.32 && this.player.y < SPIKE_H * 0.72) {
                 spike.state = "hit";
                 this.explode();
                 return;
             }
-            if (spike.x + SPIKE_W / 2 < this.player.x) {
+            if (spike.x + halfW < this.player.x) {
                 spike.state = "cleared";
             }
         }
@@ -1452,6 +1512,8 @@ export class Engine {
         this.renderObstacles(ctx, W, groundY, anchorX, camX);
         this.renderPlayer(ctx, groundY, anchorX);
         BackgroundRenderer.renderParticles(ctx, groundY, anchorX, camX);
+        this.renderPerfectParticles(ctx, groundY, anchorX, camX);
+        this.renderPerfectPopups(ctx, groundY, anchorX, camX);
         if (!this.demoMode) {
             this.renderProgressBar(ctx, W);
         }
@@ -1502,22 +1564,40 @@ export class Engine {
     }
 
     renderHitWindow(ctx, W, groundY, anchorX, time) {
-        if (!this.player.alive || !this.nearestAheadSpike()) {
+        if (!this.player.alive) {
             return;
         }
-        const hwH = 6;
-        const hwY = groundY - hwH / 2;
+        const spike = this.nearestAheadSpike();
+        if (!spike) {
+            return;
+        }
+        const hwH = 5;
+        const perfectWidth = this.perfectPx + this.okPx * 0.35;
+        const okWidth = this.okPx;
+        const pulseAlpha = 0.4 + 0.2 * (Math.sin(time * 6) + 1) / 2;
 
-        ctx.shadowBlur = 6;
-        ctx.shadowColor = "rgba(0, 246, 255, 0.15)";
-        ctx.fillStyle = "rgba(0, 246, 255, 0.15)";
-        ctx.fillRect(anchorX, hwY, this.okPx, hwH);
+        const topY = groundY - hwH - 2;
+        const botY = groundY + 2;
 
-        const pulseAlpha = 0.35 + 0.15 * (Math.sin(time * 6) + 1) / 2;
         ctx.shadowBlur = 10;
         ctx.shadowColor = "rgba(57, 255, 136, " + pulseAlpha.toFixed(3) + ")";
         ctx.fillStyle = "rgba(57, 255, 136, " + pulseAlpha.toFixed(3) + ")";
-        ctx.fillRect(anchorX, hwY, this.perfectPx, hwH);
+        ctx.fillRect(anchorX, topY, perfectWidth, hwH);
+
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = "rgba(0, 246, 255, 0.2)";
+        ctx.fillStyle = "rgba(0, 246, 255, 0.2)";
+        ctx.fillRect(anchorX, botY, okWidth, hwH);
+
+        const spikeScreenX = (spike.x - this.player.x) + anchorX;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = "rgba(255, 225, 77, 0.7)";
+        ctx.strokeStyle = "rgba(255, 225, 77, 0.6)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(spikeScreenX, groundY - 14);
+        ctx.lineTo(spikeScreenX, groundY - hwH - 4);
+        ctx.stroke();
 
         ctx.shadowBlur = 0;
     }
@@ -1798,6 +1878,45 @@ export class Engine {
         ctx.fillStyle = "#ffe14d";
         const maxForMode = this.difficulty === "HARD" ? this.maxHard : this.maxEasy;
         ctx.fillText("Очки: " + this.score + " / " + maxForMode, barX - 12, barY + barH / 2);
+    }
+
+    renderPerfectParticles(ctx, groundY, anchorX, camX) {
+        for (var i = 0; i < this.perfectParticles.length; i++) {
+            var pp = this.perfectParticles[i];
+            var alpha = pp.life / pp.maxLife;
+            var sx = pp.x - camX + anchorX;
+            var sy = groundY - pp.y;
+            ctx.fillStyle = pp.color;
+            ctx.globalAlpha = alpha;
+            ctx.shadowBlur = 4;
+            ctx.shadowColor = pp.color;
+            ctx.beginPath();
+            ctx.arc(sx, sy, pp.size * alpha, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+    }
+
+    renderPerfectPopups(ctx, groundY, anchorX, camX) {
+        var isHard = this.difficulty === "HARD";
+        var popColor = isHard ? "#ffd700" : "#e8ecf2";
+        for (var i = 0; i < this.perfectPopups.length; i++) {
+            var po = this.perfectPopups[i];
+            var alpha = po.life / po.maxLife;
+            var sx = po.x - camX + anchorX;
+            var sy = groundY - po.y;
+            ctx.save();
+            ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "bottom";
+            ctx.globalAlpha = alpha;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = popColor;
+            ctx.fillStyle = popColor;
+            ctx.fillText("PERFECT!", sx, sy);
+            ctx.restore();
+        }
     }
 }
 
