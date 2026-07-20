@@ -518,7 +518,11 @@ initKeyboardInput(
         if (state === "GAMEOVER") {
             btnRetry.click();
         } else if (state === "VICTORY") {
-            btnRetryWin.click();
+            if (!btnNext.classList.contains("hidden")) {
+                btnNext.click();
+            } else {
+                btnRetryWin.click();
+            }
         }
     }
 );

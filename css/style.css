@@ -604,15 +604,16 @@ body {
 }
 
 .action-btn.secondary {
-    color: var(--neon-cyan);
-    background: transparent;
-    border: 0.3vmin solid var(--neon-cyan);
-    box-shadow: 0 0 12px rgba(0, 246, 255, 0.45);
+    color: #05060f;
+    background: var(--neon-pink);
+    border: none;
+    box-shadow: 0 0 18px rgba(255, 46, 166, 0.7);
 }
 
 .action-btn.secondary:hover {
-    background: rgba(0, 246, 255, 0.12);
-    box-shadow: 0 0 22px rgba(0, 246, 255, 0.75);
+    background: var(--neon-pink);
+    box-shadow: 0 0 28px rgba(255, 46, 166, 0.95);
+    transform: scale(1.05);
 }
 
 .action-btn.hidden {
