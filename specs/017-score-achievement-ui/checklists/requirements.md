@@ -2,6 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-07-20
+**Updated**: 2026-07-20 (post-sync)
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -31,6 +32,12 @@
 
 ## Notes
 
-- FR-015 згадує `shadowBlur` та `shadowColor` — це загальноприйняті терміни Canvas API, що є частиною заданого технічного стеку проекту (HTML5 Canvas), тому не вважається витоком імплементації
-- Аналогічно, згадка `CSS keyframes` у FR-011 є посиланням на стандарт веб-платформи, а не на конкретну реалізацію
-- Специфікація не містить [NEEDS CLARIFICATION] — усі аспекти були достатньо детально описані у вхідному описі функції
+- Spec синхронізовано з актуальним кодом 2026-07-20. Додано:
+  - FR-003: Perfect-бонус +30
+  - FR-006–008: spikeHalfWidth та gap від лівого краю
+  - FR-022–028: Canvas-ефекти на скінах (прев'ю, кнопка, гра)
+  - FR-029–030: perfectParticles та perfectPopups
+  - FR-031–032: візуалізація hit window (дві смуги + маркер)
+  - FR-033: оновлення демо-режиму при зміні налаштувань
+  - SC-007–008: нові критерії успіху
+  - Edge case: конфлікт shadowBlur скінів, активний скін з іншого рівня
