@@ -11,7 +11,7 @@ import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js"
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
-import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity } from "./shop.js";
+import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity, coinsText } from "./shop.js";
 import { drawShopItemScene, drawShopSkinScene, drawChestScene, CHEST_SHAKE_MS, CHEST_OPEN_MS } from "./shop_preview.js";
 import { ACHIEVEMENTS, ACHIEVEMENT_GROUPS, achievementProgress, buildAchievementCard, buildAchievementToast } from "./achievements.js";
 
@@ -256,7 +256,7 @@ function handleGameOver() {
         });
         save.recordLetterStats(gameEngine.getLetterStats());
         noteRunForAchievements(runState, false);
-        // Вибух: зберігається половина кристалів, зібраних у забігу
+        // Вибух: зберігається половина монет, зібраних у забігу
         const balanceBefore = save.getCrystals();
         const reward = computeReward({
             hits: runState.runHits,
@@ -294,7 +294,7 @@ function handleVictory() {
         });
         save.recordLetterStats(gameEngine.getLetterStats());
         noteRunForAchievements(runState, true);
-        // Кристали: стрибки, серії, фініш і разові бонуси рівня
+        // Монети: стрибки, серії, фініш і разові бонуси рівня
         const wonLevel = ALL_LEVELS.find(function (l) { return l.id === currentLevelId; });
         const achievementNow = save.getLevelAchievement(currentLevelId);
         const balanceBefore = save.getCrystals();
@@ -1100,7 +1100,7 @@ function buildShopSkinSection(grid, activeSkinId) {
             const hint = document.createElement("span");
             hint.className = "sale-hint";
             const reqProgress = save.getRequirementProgress(item);
-            hint.textContent = reqProgress.met ? "💎 " + item.price + " — у магазині" : requirementLabel(reqProgress);
+            hint.textContent = reqProgress.met ? "🪙 " + item.price + " — у магазині" : requirementLabel(reqProgress);
             card.appendChild(hint);
             card.addEventListener("click", function () {
                 // Відкриваємо магазин одразу на вкладці скінів із цим товаром
@@ -1310,15 +1310,15 @@ function showNextAchievementToast() {
     setTimeout(finish, showTime);
 }
 
-// ---------- Кристали: відображення й розбивка нагороди ----------
+// ---------- Монети: відображення й розбивка нагороди ----------
 
-// Повідомлення в меню про кристали, нараховані задним числом за вже пройдені рівні
+// Повідомлення в меню про монети, нараховані задним числом за вже пройдені рівні
 function showRetroNotice(result) {
     const el = document.getElementById("retroNotice");
     if (!el || !result || result.total <= 0) {
         return;
     }
-    el.textContent = "💎 +" + result.total + " за вже пройдені рівні (" + result.levels + ")! Заглянь у магазин.";
+    el.textContent = "🪙 +" + result.total + " за вже пройдені рівні (" + result.levels + ")! Заглянь у магазин.";
     el.classList.remove("hidden");
     el.addEventListener("click", function () {
         el.classList.add("hidden");
@@ -1360,14 +1360,14 @@ function addBreakdownRow(el, label, value, extraClass) {
     el.appendChild(v);
 }
 
-// Показує, за що нараховано кристали, та підказує, на що тепер вистачає
+// Показує, за що нараховано монети, та підказує, на що тепер вистачає
 function renderRewardBreakdown(el, reward, balanceBefore) {
     if (!el) {
         return;
     }
     el.innerHTML = "";
     for (const line of reward.lines) {
-        addBreakdownRow(el, "💎 " + line.label, "+" + line.value);
+        addBreakdownRow(el, "🪙 " + line.label, "+" + line.value);
     }
     if (reward.mult !== 1) {
         addBreakdownRow(el, "Множник налаштувань", "×" + reward.mult);
@@ -1376,7 +1376,7 @@ function renderRewardBreakdown(el, reward, balanceBefore) {
         addBreakdownRow(el, "Вибух — лишається половина", "÷2");
     }
     const balanceAfter = balanceBefore + reward.total;
-    addBreakdownRow(el, "Разом (усього " + balanceAfter + ")", "+" + reward.total + " 💎", "cb-total");
+    addBreakdownRow(el, "Разом (усього " + balanceAfter + ")", "+" + reward.total + " 🪙", "cb-total");
     const newlyAffordable = SHOP_ITEMS.filter(function (item) {
         return item.price > balanceBefore && item.price <= balanceAfter && !save.isOwned(item.id) &&
             save.getRequirementProgress(item).met;
@@ -1476,9 +1476,9 @@ function buildShop() {
         } else if (balance >= item.price) {
             if (confirmItemId === item.id) {
                 btn.classList.add("confirm");
-                btn.textContent = "ТОЧНО? 💎 " + item.price;
+                btn.textContent = "ТОЧНО? 🪙 " + item.price;
             } else {
-                btn.textContent = "КУПИТИ 💎 " + item.price;
+                btn.textContent = "КУПИТИ 🪙 " + item.price;
             }
             btn.addEventListener("click", function () {
                 if (confirmItemId !== item.id) {
@@ -1500,7 +1500,7 @@ function buildShop() {
             });
         } else {
             btn.classList.add("poor");
-            btn.textContent = "Ще " + (item.price - balance) + " 💎";
+            btn.textContent = "Ще " + (item.price - balance) + " 🪙";
             btn.disabled = true;
         }
         card.appendChild(btn);
@@ -1768,7 +1768,7 @@ function chestPrimaryAction() {
 function showChestResult() {
     const result = chestView.opened.result;
     if (result.kind === "crystals") {
-        chestResultEl.innerHTML = "💎 +" + result.amount + " кристалів!";
+        chestResultEl.innerHTML = "🪙 +" + coinsText(result.amount) + "!";
         playSound("chest_coins");
     } else {
         const item = getShopItem(result.id);

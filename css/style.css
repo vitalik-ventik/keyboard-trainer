@@ -1117,13 +1117,18 @@ body {
     --c: 255, 204, 51;
 }
 
-.crystal-ico,
+/* Золота монета — значок валюти; на кнопці магазину — стос монет */
+.coin-ico,
 .shop-trigger-icon {
     display: inline-block;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 1L14 6L8 15L2 6Z' fill='%2339c6ff'/%3E%3Cpath d='M8 1L14 6L8 7.5L2 6Z' fill='%23bff0ff'/%3E%3Crect x='5' y='3.6' width='1.6' height='1.6' fill='white'/%3E%3C/svg%3E") center / contain no-repeat;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7.5' fill='%23a8641a'/%3E%3Ccircle cx='8' cy='8' r='6.2' fill='%23ffc93a'/%3E%3Ccircle cx='8' cy='8' r='4.2' fill='none' stroke='%23e8961e' stroke-width='1'/%3E%3Crect x='7.1' y='5' width='1.8' height='6' fill='%23b8741a'/%3E%3Crect x='4' y='3.6' width='1.8' height='1.8' fill='%23fff6c8'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
-.crystal-ico {
+.shop-trigger-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cellipse cx='8' cy='16' rx='7' ry='3' fill='%23a8641a'/%3E%3Cellipse cx='8' cy='15' rx='7' ry='3' fill='%23ffc93a'/%3E%3Cellipse cx='8' cy='12.5' rx='7' ry='3' fill='%23a8641a'/%3E%3Cellipse cx='8' cy='11.5' rx='7' ry='3' fill='%23ffc93a'/%3E%3Ccircle cx='13' cy='8' r='6.5' fill='%23a8641a'/%3E%3Ccircle cx='13' cy='8' r='5.3' fill='%23ffc93a'/%3E%3Ccircle cx='13' cy='8' r='3.5' fill='none' stroke='%23e8961e' stroke-width='0.9'/%3E%3Crect x='12.2' y='5.4' width='1.6' height='5.2' fill='%23b8741a'/%3E%3Crect x='9.6' y='4.2' width='1.5' height='1.5' fill='%23fff6c8'/%3E%3C/svg%3E");
+}
+
+.coin-ico {
     width: 1em;
     height: 1em;
     vertical-align: -0.12em;
@@ -1132,7 +1137,7 @@ body {
 .shop-trigger-icon {
     width: 40px;
     height: 40px;
-    filter: drop-shadow(0 0 6px rgba(57, 198, 255, 0.8));
+    filter: drop-shadow(0 0 6px rgba(255, 200, 60, 0.8));
 }
 
 .shop-balance-badge {
@@ -1143,9 +1148,9 @@ body {
     border-radius: 8px;
     font-size: 2.2vmin;
     font-weight: 800;
-    color: #7df9ff;
+    color: #ffd84a;
     background: rgba(0, 0, 0, 0.35);
-    text-shadow: 0 0 0.6vmin rgba(0, 246, 255, 0.8);
+    text-shadow: 0 0 0.6vmin rgba(255, 190, 60, 0.8);
 }
 
 .shop-balance {
@@ -1155,8 +1160,8 @@ body {
     margin: 0;
     font-size: 3.2vmin;
     font-weight: 800;
-    color: #7df9ff;
-    text-shadow: 0 0 0.8vmin rgba(0, 246, 255, 0.8);
+    color: #ffd84a;
+    text-shadow: 0 0 0.8vmin rgba(255, 190, 60, 0.8);
 }
 
 .shop-grid {
@@ -1241,7 +1246,7 @@ body {
 .crystal-breakdown .cb-value {
     text-align: right;
     font-weight: 700;
-    color: #7df9ff;
+    color: #ffd84a;
 }
 
 .crystal-breakdown .cb-total {
@@ -1253,7 +1258,7 @@ body {
 }
 
 .crystal-breakdown .cb-total.cb-value {
-    color: #7df9ff;
+    color: #ffd84a;
 }
 
 .crystal-breakdown .cb-note {
@@ -1307,21 +1312,21 @@ body {
     color: #ffd86a;
 }
 
-/* ---------- Кристали за вже пройдені рівні ---------- */
+/* ---------- Монети за вже пройдені рівні ---------- */
 
 .retro-notice {
     margin: 0.6vmin auto 0;
     padding: 0.8vmin 1.8vmin;
     max-width: 90%;
     border-radius: 999px;
-    border: 1px solid rgba(0, 246, 255, 0.6);
-    background: rgba(0, 40, 60, 0.75);
-    color: #bff8ff;
+    border: 1px solid rgba(255, 200, 60, 0.7);
+    background: rgba(60, 40, 0, 0.75);
+    color: #ffe9a8;
     font-size: 1.8vmin;
     font-weight: 700;
     text-align: center;
     cursor: pointer;
-    box-shadow: 0 0 1.6vmin rgba(0, 246, 255, 0.35);
+    box-shadow: 0 0 1.6vmin rgba(255, 200, 60, 0.35);
     animation: retro-pop 0.5s ease-out;
 }
 

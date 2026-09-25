@@ -40,7 +40,7 @@ export const ACHIEVEMENTS = [
     { id: "flawless", group: "flawless", icon: "✨", name: "Без помилок: Базова ліга", desc: "Пройди рівень Базової ліги без жодної зайвої літери", chest: "wood", target: 1, value: function (s) { return s.flawlessLeagues[1] ? 1 : 0; } },
     { id: "flawless_2", group: "flawless", icon: "💫", name: "Без помилок: Середня ліга", desc: "Пройди рівень Середньої ліги без жодної зайвої літери", chest: "silver", target: 1, value: function (s) { return s.flawlessLeagues[2] ? 1 : 0; } },
     { id: "flawless_3", group: "flawless", icon: "🌠", name: "Без помилок: Складна ліга", desc: "Пройди рівень Складної ліги без жодної зайвої літери", chest: "silver", target: 1, value: function (s) { return s.flawlessLeagues[3] ? 1 : 0; } },
-    { id: "flawless_4", group: "flawless", icon: "💎", name: "Без помилок: Майстер", desc: "Пройди рівень ліги Майстер без жодної зайвої літери", chest: "gold", target: 1, value: function (s) { return s.flawlessLeagues[4] ? 1 : 0; } },
+    { id: "flawless_4", group: "flawless", icon: "🎯", name: "Без помилок: Майстер", desc: "Пройди рівень ліги Майстер без жодної зайвої літери", chest: "gold", target: 1, value: function (s) { return s.flawlessLeagues[4] ? 1 : 0; } },
     { id: "flawless_5", group: "flawless", icon: "😇", name: "Без помилок: Бос", desc: "Здолай Боса без жодної зайвої літери", chest: "gold", target: 1, value: function (s) { return s.flawlessLeagues[5] ? 1 : 0; } },
 
     // Серії «Ідеально»

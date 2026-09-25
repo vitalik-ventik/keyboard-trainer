@@ -4,7 +4,7 @@
 // ============================================================
 
 import { SKIN_RENDERERS } from "./engine.js";
-import { drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, drawChest, getShopItem, itemRarity } from "./shop.js";
+import { drawTrail, drawExplosion, drawAccessory, drawCoinIcon, drawChest, getShopItem, itemRarity } from "./shop.js";
 import { drawWeaponDemo } from "./weapons.js";
 
 // Сценка скіна: темне тло, земля й кубик (з аксесуаром, якщо його передано)
@@ -202,14 +202,14 @@ export function drawChestScene(c, W, H, type, openT, result, now, opts) {
         c.globalAlpha = Math.min(1, k * 1.5);
         if (result.kind === "crystals") {
             const y = bottom - 90 - ease * 70;
-            drawCrystalIcon(c, cx - 30, y, 46 + ease * 10);
+            drawCoinIcon(c, cx - 30, y, 46 + ease * 10);
             c.font = "900 30px 'Segoe UI', Arial";
             c.textAlign = "left";
             c.textBaseline = "middle";
             c.lineWidth = 5;
             c.strokeStyle = "#070b1c";
             c.strokeText("+" + result.amount, cx - 2, y);
-            c.fillStyle = "#7df9ff";
+            c.fillStyle = "#ffd84a";
             c.fillText("+" + result.amount, cx - 2, y);
         } else {
             // Жива сценка предмета в рамці кольору рідкості

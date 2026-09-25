@@ -1,7 +1,7 @@
 // ============================================================
-// shop.js — кристали та магазин
+// shop.js — золоті монети та магазин
 // Каталог товарів (шлейфи, вибухи, аксесуари), правила нарахування
-// кристалів за забіг і малювання всіх товарів на Canvas.
+// монет за забіг і малювання всіх товарів на Canvas.
 // Модуль нічого не імпортує: його використовують і рушій, і меню.
 // ============================================================
 
@@ -115,7 +115,8 @@ export function getShopSkinByRenderType(renderType) {
     return null;
 }
 
-// ---------- Нарахування кристалів ----------
+// ---------- Нарахування монет ----------
+// (у збереженні рахунок і далі зветься crystals — так зберігається старий прогрес)
 
 // Бонус за фініш і за перше проходження залежить від ліги
 const FINISH_BONUS = { 1: 10, 2: 15, 3: 20, 4: 30, 5: 50 };
@@ -137,7 +138,7 @@ export function seriesBonus(streak) {
     return 0;
 }
 
-// Множник від налаштувань: складніше грати — більше кристалів
+// Множник від налаштувань: складніше грати — більше монет
 export function rewardMultiplier(difficulty, speed, hitWindow) {
     // Легші налаштування (повільно, широка зона) не штрафуються — лише складніші дають більше
     let mult = 1;
@@ -196,28 +197,46 @@ export function computeReward(run) {
     return { lines: lines, mult: mult, half: false, total: Math.ceil(base * mult) };
 }
 
-// ---------- Значок кристала ----------
+// ---------- Золота монета: значок валюти ----------
 
-export function drawCrystalIcon(ctx, x, y, s) {
-    const h = s / 2;
-    ctx.fillStyle = "#39c6ff";
+export function drawCoinIcon(ctx, x, y, s) {
+    const r = s / 2;
+    ctx.save();
+    // Ребро, золото й внутрішнє кільце
+    ctx.fillStyle = "#a8641a";
     ctx.beginPath();
-    ctx.moveTo(x, y - h);
-    ctx.lineTo(x + h * 0.8, y - h * 0.2);
-    ctx.lineTo(x, y + h);
-    ctx.lineTo(x - h * 0.8, y - h * 0.2);
-    ctx.closePath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = "#bff0ff";
+    ctx.fillStyle = "#ffc93a";
     ctx.beginPath();
-    ctx.moveTo(x, y - h);
-    ctx.lineTo(x + h * 0.8, y - h * 0.2);
-    ctx.lineTo(x, y - h * 0.05);
-    ctx.lineTo(x - h * 0.8, y - h * 0.2);
-    ctx.closePath();
+    ctx.arc(x, y, r * 0.82, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(Math.round(x - h * 0.35), Math.round(y - h * 0.55), Math.max(1, Math.round(s * 0.12)), Math.max(1, Math.round(s * 0.12)));
+    ctx.strokeStyle = "#e8961e";
+    ctx.lineWidth = Math.max(1, s * 0.07);
+    ctx.beginPath();
+    ctx.arc(x, y, r * 0.56, 0, Math.PI * 2);
+    ctx.stroke();
+    // Карбована риска посередині
+    ctx.fillStyle = "#b8741a";
+    ctx.fillRect(Math.round(x - s * 0.07), Math.round(y - r * 0.45), Math.max(1, Math.round(s * 0.14)), Math.max(1, Math.round(r * 0.9)));
+    // Відблиск
+    ctx.fillStyle = "#fff6c8";
+    ctx.fillRect(Math.round(x - r * 0.55), Math.round(y - r * 0.6), Math.max(1, Math.round(s * 0.13)), Math.max(1, Math.round(s * 0.13)));
+    ctx.restore();
+}
+
+// «1 монета», «3 монети», «25 монет»
+export function coinsText(n) {
+    const abs = Math.abs(Math.floor(n));
+    const last = abs % 10;
+    const lastTwo = abs % 100;
+    let word = "монет";
+    if (last === 1 && lastTwo !== 11) {
+        word = "монета";
+    } else if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) {
+        word = "монети";
+    }
+    return n + " " + word;
 }
 
 // ---------- Детерміновані випадкові числа для ефектів ----------
@@ -554,7 +573,7 @@ export function drawAccessory(ctx, id, size, time) {
 
 // ---------- Сундуки ----------
 
-// Типи сундуків: шанс предмета (інакше кристали), діапазон кристалів,
+// Типи сундуків: шанс предмета (інакше монети), діапазон монет,
 // найдорожчий предмет, який може випасти, і наскільки сундук «тягне» до дорогих речей
 // (rarityPower: чим менше, тим частіше випадають дорогі; 1 — вага обернено пропорційна ціні).
 // legendaryChance — окремий крихітний шанс легендарного предмета: він випадає навіть
@@ -624,7 +643,7 @@ export function chestItemPool(type, isOwned) {
 }
 
 // Вміст сундука: { kind: "item", id } або { kind: "crystals", amount }.
-// Якщо купувати вже нічого (усе з пулу є) — завжди кристали.
+// Якщо купувати вже нічого (усе з пулу є) — завжди монети.
 export function rollChest(type, isOwned, random) {
     const rnd = random || Math.random;
     const chest = CHEST_TYPES[type] || CHEST_TYPES.wood;
