@@ -9,7 +9,7 @@ import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
 import { DEFAULT_ITEMS, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
-import { getWeaponSpec, drawHeldWeapon, drawProjectile, drawBeam, beamTiming, drawStuckArrow, drawSpikeDestruction, DESTRUCTION_TIME, SWING_TIME, SWING_HIT } from "./weapons.js";
+import { getWeaponSpec, drawHeldWeapon, drawProjectile, drawBeam, beamTiming, drawStuckArrow, drawSpikeDestruction, DESTRUCTION_TIME, SWING_TIME, SWING_HIT, BOLT_TIME, MELEE_CONTACT, meleeTriggerGap } from "./weapons.js";
 
 // ---------- Детермінований PRNG (фіксовані траси) ----------
 
@@ -3132,18 +3132,31 @@ export class Engine {
             if (a.kind === "melee") {
                 if (a.stage === "wait") {
                     const gap = a.spike.x - spikeHalfWidth(a.spike.type) - this.player.x;
-                    if (gap <= this.weaponSpec.reach) {
+                    if (gap <= meleeTriggerGap(CUBE_SIZE, this.effectiveSpeed)) {
                         a.stage = "swing";
                         a.t = 0;
                     }
                     continue;
                 }
                 a.t += dt;
-                if (!a.hit && a.t >= SWING_HIT) {
+                // Лезо влучає, коли шип дійшов майже впритул (з поправкою на пів кадру),
+                // а не за таймером — тоді проміжок однаковий на будь-якій швидкості
+                const hitGap = a.spike.x - spikeHalfWidth(a.spike.type) - this.player.x;
+                const contactGap = CUBE_SIZE / 2 + MELEE_CONTACT + this.effectiveSpeed * dt * 0.5;
+                if (!a.hit && (hitGap <= contactGap || a.t >= SWING_HIT * 2)) {
                     a.hit = true;
                     this.destroySpike(a.spike);
+                    if (this.weaponSpec.bolt) {
+                        // Громовий молот: у мить удару з неба б'є блискавка
+                        this.attacks.push({ kind: "bolt", spike: a.spike, stage: "bolt", t: 0, hit: true });
+                    }
                 }
                 if (a.t >= SWING_TIME) {
+                    this.attacks.splice(i, 1);
+                }
+            } else if (a.kind === "bolt") {
+                a.t += dt;
+                if (a.t >= BOLT_TIME) {
                     this.attacks.splice(i, 1);
                 }
             } else {
@@ -3268,6 +3281,10 @@ export class Engine {
                 const x2 = anchorX + a.spike.x - camX;
                 const y2 = groundY - SPIKE_H * 0.45;
                 drawBeam(ctx, this.weaponSpec.beam, x1, y1, x2, y2, a.t / beamTiming(this.weaponSpec).time, time);
+            } else if (a.kind === "bolt") {
+                const bx = anchorX + a.spike.x - camX;
+                const by = groundY - SPIKE_H * 0.45;
+                drawBeam(ctx, "thunder", bx, by, bx, by, a.t / BOLT_TIME, time);
             }
         }
         for (const s of this.shots) {
