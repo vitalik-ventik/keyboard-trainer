@@ -50,14 +50,14 @@ export const LEVELS_CONFIG = [
         id: 2,
         name: "Середня",
         levels: [
-            { id: 17, leagueId: 2, name: "Зигзаг: верх і середина",  letters: ["Ц","В","К","П","Р","Г","Л","Щ"], speed: 240, spikeCount: 26, seed: 2101, bgTheme: "midnight_skyline", accentColor: "#bb55ff", rhythmGroups: false, skin: { id: "skin_2_1", name: "Ретро-сонце", renderType: "synthwave_sun" } },
-            { id: 18, leagueId: 2, name: "Зигзаг: середина і низ",   letters: ["І","С","А","И","Т","О","Б","Д"], speed: 250, spikeCount: 28, seed: 2102, bgTheme: "neon_rooftops", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_2", name: "Кіберпанк Горизонт", renderType: "cyberpunk_horizon" } },
-            { id: 19, leagueId: 2, name: "Зигзаг: верх і низ",       letters: ["Ч","У","М","Е","Н","Ь","Ш","Ю"], speed: 255, spikeCount: 30, seed: 2103, bgTheme: "deep_abyss", accentColor: "#00ff41", rhythmGroups: false, skin: { id: "skin_2_3", name: "Глітч-Куб", renderType: "glitch_cube" } },
-            { id: 20, leagueId: 2, name: "Перші краї",               letters: ["Й","І","С","К","Д","З","Є","Ґ"], speed: 260, spikeCount: 32, seed: 2104, bgTheme: "matrix_flow", accentColor: "#ff8c00", rhythmGroups: false, skin: { id: "skin_2_4", name: "Золотий Злиток", renderType: "gold_ingot" } },
+            { id: 17, leagueId: 2, name: "Зигзаг: верх і середина",  letters: ["Ц","В","К","П","Р","Г","Л","Щ"], speed: 240, spikeCount: 26, seed: 2101, bgTheme: "neon_rooftops", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_1", name: "Ретро-сонце", renderType: "synthwave_sun" } },
+            { id: 18, leagueId: 2, name: "Зигзаг: середина і низ",   letters: ["І","С","А","И","Т","О","Б","Д"], speed: 250, spikeCount: 28, seed: 2102, bgTheme: "night_harbor", accentColor: "#66e0ff", rhythmGroups: false, skin: { id: "skin_2_2", name: "Кіберпанк Горизонт", renderType: "cyberpunk_horizon" } },
+            { id: 19, leagueId: 2, name: "Зигзаг: верх і низ",       letters: ["Ч","У","М","Е","Н","Ь","Ш","Ю"], speed: 255, spikeCount: 30, seed: 2103, bgTheme: "glitch_world", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_3", name: "Глітч-Куб", renderType: "glitch_cube" } },
+            { id: 20, leagueId: 2, name: "Перші краї",               letters: ["Й","І","С","К","Д","З","Є","Ґ"], speed: 260, spikeCount: 32, seed: 2104, bgTheme: "treasury", accentColor: "#ffcc33", rhythmGroups: false, skin: { id: "skin_2_4", name: "Золотий Злиток", renderType: "gold_ingot" } },
             { id: 21, leagueId: 2, name: "П'ять на п'ять",           letters: ["Ф","Ч","У","А","И","Н","О","Б","Ж","Х"], speed: 268, spikeCount: 34, seed: 2105, bgTheme: "hyperspace_tunnel", accentColor: "#7b68ee", rhythmGroups: false, skin: { id: "skin_2_5", name: "Орбіта", renderType: "orbit" } },
-            { id: 22, leagueId: 2, name: "Усі стовпці",              letters: ["Я","Ц","В","М","Е","Р","Ь","Ш","Ю","Ї"], speed: 275, spikeCount: 36, seed: 2106, bgTheme: "spore_field", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_6", name: "Дракон", renderType: "stalagmite" } },
+            { id: 22, leagueId: 2, name: "Усі стовпці",              letters: ["Я","Ц","В","М","Е","Р","Ь","Ш","Ю","Ї"], speed: 275, spikeCount: 36, seed: 2106, bgTheme: "dragon_lair", accentColor: "#ff7a3d", rhythmGroups: false, skin: { id: "skin_2_6", name: "Дракон", renderType: "stalagmite" } },
             { id: 23, leagueId: 2, name: "Далекі сусіди",            letters: ["Й","І","С","К","П","Т","Г","Л","Щ","Є"], speed: 282, spikeCount: 38, seed: 2107, bgTheme: "pixel_cave", accentColor: "#33d6d0", rhythmGroups: false, skin: { id: "skin_2_7", name: "Алмазна руда", renderType: "equalizer" } },
-            { id: 24, leagueId: 2, name: "Фінал ліги",               letters: ["Ф","Ц","С","А","Е","О","Ш","Ю","З","Ґ"], speed: 295, spikeCount: 40, seed: 2108, bgTheme: "diamond_matrix", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_8", name: "Щит", renderType: "shield" } }
+            { id: 24, leagueId: 2, name: "Фінал ліги",               letters: ["Ф","Ц","С","А","Е","О","Ш","Ю","З","Ґ"], speed: 295, spikeCount: 40, seed: 2108, bgTheme: "knight_castle", accentColor: "#8fa3ff", rhythmGroups: false, skin: { id: "skin_2_8", name: "Лицарський щит", renderType: "shield" } }
         ]
     },
     {
@@ -74,8 +74,8 @@ export const LEVELS_CONFIG = [
         id: 4,
         name: "Майстер",
         levels: [
-            { id: 29, leagueId: 4, name: "Серце клавіатури",        letters: ["Ц","У","К","Е","І","В","А","П","Ч","С","М","И","Н","Г","Ш","Щ","Р","О","Л","Д","Т","Ь","Б","Ю"], speed: 390, spikeCount: 50, seed: 2301, bgTheme: "nebula_drift", accentColor: "#e5ff00", rhythmGroups: false, skin: { id: "skin_4_1", name: "Галактика", renderType: "galaxy" } },
-            { id: 30, leagueId: 4, name: "Гранд Мастер",            letters: ["Й","Ц","У","К","Е","Ф","І","В","А","П","Я","Ч","С","М","И","Н","Г","Ш","З","Х","Р","О","Л","Д","Ж","Є","Т","Ь","Б","Ю"], speed: 418, spikeCount: 55, seed: 2302, bgTheme: "grand_hex", accentColor: "#ff4400", rhythmGroups: false, skin: { id: "skin_4_2", name: "Корона Майстра", renderType: "master_crown" } }
+            { id: 29, leagueId: 4, name: "Серце клавіатури",        letters: ["Ц","У","К","Е","І","В","А","П","Ч","С","М","И","Н","Г","Ш","Щ","Р","О","Л","Д","Т","Ь","Б","Ю"], speed: 390, spikeCount: 50, seed: 2301, bgTheme: "black_hole", accentColor: "#ffb35c", rhythmGroups: false, skin: { id: "skin_4_1", name: "Галактика", renderType: "galaxy" } },
+            { id: 30, leagueId: 4, name: "Гранд Мастер",            letters: ["Й","Ц","У","К","Е","Ф","І","В","А","П","Я","Ч","С","М","И","Н","Г","Ш","З","Х","Р","О","Л","Д","Ж","Є","Т","Ь","Б","Ю"], speed: 418, spikeCount: 55, seed: 2302, bgTheme: "throne_room", accentColor: "#ffd700", rhythmGroups: false, skin: { id: "skin_4_2", name: "Корона Майстра", renderType: "master_crown" } }
         ]
     },
     {
@@ -784,40 +784,90 @@ export const SKIN_RENDERERS = {
         ctx.stroke();
     },
 
+    // Глітч-Куб: кубик «ламається» — смуги зсуваються, кольори розщеплюються
     glitch_cube: function (ctx, size, time) {
+        var h = size / 2;
+        var tick = Math.floor(time / 90);
+        var glitching = (tick % 7) < 2;
+        var split = glitching ? size * 0.08 : size * 0.03;
         ctx.fillStyle = "#0a0a20";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.strokeStyle = "#ff2222";
-        ctx.lineWidth = 3;
-        ctx.strokeRect(-size / 2 - 3, -size / 2 - 2, size, size);
-        ctx.strokeStyle = "#00aaff";
-        ctx.lineWidth = 3;
-        ctx.strokeRect(-size / 2 + 3, -size / 2 + 2, size, size);
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 1;
-        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        ctx.fillRect(-h, -h, size, size);
+        // Кольорове розщеплення рамки
+        ctx.lineWidth = Math.max(2, size * 0.07);
+        ctx.strokeStyle = "rgba(255, 0, 68, 0.9)";
+        ctx.strokeRect(-h + ctx.lineWidth / 2 - split, -h + ctx.lineWidth / 2, size - ctx.lineWidth, size - ctx.lineWidth);
+        ctx.strokeStyle = "rgba(0, 229, 255, 0.9)";
+        ctx.strokeRect(-h + ctx.lineWidth / 2 + split, -h + ctx.lineWidth / 2, size - ctx.lineWidth, size - ctx.lineWidth);
+        // Обличчя-«помилка»: очі-хрестики
+        ctx.fillStyle = "#ffffff";
+        var e = size * 0.05;
+        var eyes = [-size * 0.18, size * 0.18];
+        for (var i = 0; i < 2; i++) {
+            ctx.fillRect(eyes[i] - e * 1.5, -size * 0.12 - e / 2, e * 3, e);
+            ctx.fillRect(eyes[i] - e / 2, -size * 0.12 - e * 1.5, e, e * 3);
+        }
+        ctx.fillRect(-size * 0.18, size * 0.14, size * 0.36, size * 0.05);
+        // Зсунуті горизонтальні смуги
+        var seedBase = tick * 7;
+        for (var k = 0; k < (glitching ? 3 : 1); k++) {
+            var rnd = Math.abs(Math.sin(seedBase + k * 12.9898) * 43758.5453) % 1;
+            var y = -h + rnd * size * 0.85;
+            var sh = (rnd - 0.5) * size * 0.3;
+            ctx.fillStyle = k % 2 === 0 ? "rgba(255, 46, 166, 0.8)" : "rgba(0, 246, 255, 0.8)";
+            ctx.fillRect(-h + sh, y, size, size * 0.06);
+        }
     },
 
+    // Золотий Злиток: об'ємний злиток із гранями та відблиском, що пробігає
     gold_ingot: function (ctx, size, time) {
-        var gradient = ctx.createLinearGradient(-size / 2, -size / 2, size / 2, size / 2);
-        gradient.addColorStop(0, "#ffd700");
-        gradient.addColorStop(0.3, "#ffec80");
-        gradient.addColorStop(0.6, "#cc9900");
-        gradient.addColorStop(1, "#ffd700");
-        ctx.fillStyle = gradient;
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.strokeStyle = "#aa7700";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(-size / 2, -size / 2, size, size);
-        renderSkinGlow(ctx, size, "#ffffff", 8);
-        ctx.fillStyle = "#ffffff";
+        var h = size / 2;
+        ctx.fillStyle = "#3a2600";
+        ctx.fillRect(-h, -h, size, size);
+        // Верхня грань
+        ctx.fillStyle = "#fff2a0";
         ctx.beginPath();
-        ctx.moveTo(-size * 0.3, -size * 0.4);
-        ctx.lineTo(-size * 0.22, -size * 0.48);
-        ctx.lineTo(-size * 0.14, -size * 0.4);
-        ctx.lineTo(-size * 0.22, -size * 0.32);
+        ctx.moveTo(-size * 0.28, -size * 0.26);
+        ctx.lineTo(size * 0.28, -size * 0.26);
+        ctx.lineTo(size * 0.4, -size * 0.06);
+        ctx.lineTo(-size * 0.4, -size * 0.06);
         ctx.closePath();
         ctx.fill();
+        // Передня грань
+        var front = ctx.createLinearGradient(0, -size * 0.06, 0, size * 0.3);
+        front.addColorStop(0, "#ffd700");
+        front.addColorStop(1, "#c98a00");
+        ctx.fillStyle = front;
+        ctx.fillRect(-size * 0.4, -size * 0.06, size * 0.8, size * 0.36);
+        ctx.fillStyle = "#a36a00";
+        ctx.fillRect(-size * 0.4, size * 0.26, size * 0.8, size * 0.04);
+        // Штамп
+        ctx.strokeStyle = "#a36a00";
+        ctx.lineWidth = Math.max(1, size * 0.025);
+        ctx.strokeRect(-size * 0.2, size * 0.02, size * 0.4, size * 0.18);
+        // Відблиск
+        var glint = (time * 0.0009) % 1.6;
+        if (glint < 1) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(-size * 0.4, -size * 0.26, size * 0.8, size * 0.56);
+            ctx.clip();
+            ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
+            var gx = -size * 0.5 + glint * size;
+            ctx.beginPath();
+            ctx.moveTo(gx, -size * 0.3);
+            ctx.lineTo(gx + size * 0.1, -size * 0.3);
+            ctx.lineTo(gx - size * 0.05, size * 0.32);
+            ctx.lineTo(gx - size * 0.15, size * 0.32);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+        var spark = Math.max(0, Math.sin(time * 0.005));
+        ctx.fillStyle = "rgba(255, 255, 255, " + spark.toFixed(2) + ")";
+        var ss = size * 0.035;
+        ctx.fillRect(size * 0.26 - ss / 2, -size * 0.3 - ss * 1.5, ss, ss * 3);
+        ctx.fillRect(size * 0.26 - ss * 1.5, -size * 0.3 - ss / 2, ss * 3, ss);
+        drawSkinFrame(ctx, size, "#ffd700");
     },
 
     // Орбіта: планета з кільцем, навколо літає супутник
@@ -968,27 +1018,46 @@ export const SKIN_RENDERERS = {
         drawSkinFrame(ctx, size, "#7ff5f0");
     },
 
+    // Лицарський щит: геральдичний щит із хрестом і левовою короною
     shield: function (ctx, size, time) {
-        ctx.fillStyle = "#3a3a4a";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.strokeStyle = "#666677";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(-size / 2, -size / 2, size, size);
-        renderSkinGlow(ctx, size, "#aaaacc", 6);
-        ctx.fillStyle = "#888899";
-        var dotR = size * 0.07;
-        var margin = size * 0.16;
-        var corners = [
-            [-size / 2 + margin, -size / 2 + margin],
-            [size / 2 - margin, -size / 2 + margin],
-            [-size / 2 + margin, size / 2 - margin],
-            [size / 2 - margin, size / 2 - margin]
-        ];
-        for (var i = 0; i < corners.length; i++) {
+        var h = size / 2;
+        ctx.fillStyle = "#1a1e2e";
+        ctx.fillRect(-h, -h, size, size);
+        // Форма щита
+        function shieldPath() {
             ctx.beginPath();
-            ctx.arc(corners[i][0], corners[i][1], dotR, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.moveTo(-size * 0.34, -size * 0.36);
+            ctx.lineTo(size * 0.34, -size * 0.36);
+            ctx.lineTo(size * 0.34, size * 0.02);
+            ctx.quadraticCurveTo(size * 0.3, size * 0.3, 0, size * 0.42);
+            ctx.quadraticCurveTo(-size * 0.3, size * 0.3, -size * 0.34, size * 0.02);
+            ctx.closePath();
         }
+        ctx.save();
+        shieldPath();
+        ctx.clip();
+        // Четвертини: синій і срібний
+        ctx.fillStyle = "#2a5aff";
+        ctx.fillRect(-h, -h, size, size);
+        ctx.fillStyle = "#d8dce8";
+        ctx.fillRect(0, -h, h, size * 0.44);
+        ctx.fillRect(-h, -size * 0.06, h, h + size * 0.06);
+        // Золотий хрест
+        ctx.fillStyle = "#ffd700";
+        ctx.fillRect(-size * 0.05, -h, size * 0.1, size);
+        ctx.fillRect(-h, -size * 0.1, size, size * 0.1);
+        ctx.restore();
+        ctx.strokeStyle = "#ffd700";
+        ctx.lineWidth = Math.max(1.5, size * 0.05);
+        shieldPath();
+        ctx.stroke();
+        // Блиск по краю
+        var glint = (time * 0.0008) % 1.5;
+        if (glint < 1) {
+            ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+            ctx.fillRect(-size * 0.34 + glint * size * 0.64, -size * 0.38, size * 0.06, size * 0.05);
+        }
+        drawSkinFrame(ctx, size, "#8fa3ff");
     },
 
     // === ГРУПА 3: СКЛАДНА ЛІГА ===
