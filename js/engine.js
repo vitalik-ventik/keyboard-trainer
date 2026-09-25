@@ -87,6 +87,9 @@ export const LEVELS_CONFIG = [
     }
 ];
 
+// Стартовий скін рівня 1-1, яким кубик малюється до першого вибору
+export const DEFAULT_SKIN = "neon_base";
+
 export const ALL_LEVELS = LEVELS_CONFIG.reduce(function (acc, league) {
     return acc.concat(league.levels);
 }, []);
@@ -1934,7 +1937,8 @@ export const save = {
         if (!saveData) {
             this.load();
         }
-        return saveData.settings.activeSkin || null;
+        // Поки гравець нічого не вибрав, кубик носить стартовий скін (завжди відкритий)
+        return saveData.settings.activeSkin || DEFAULT_SKIN;
     },
 
     setActiveSkin(skinId) {
