@@ -31,6 +31,51 @@ body {
     user-select: none;
 }
 
+/* ---------- Неонові смуги прокрутки ---------- */
+
+/* Chrome / Edge: тонка смуга з неоновим градієнтом, прозора доріжка
+   з відступами, щоб смуга не виходила за закруглені кути вікон */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(8, 10, 26, 0.6);
+    border-radius: 10px;
+    margin: 14px 0;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--neon-pink), var(--neon-cyan));
+    border-radius: 10px;
+    border: 2px solid rgba(8, 10, 26, 0.9);
+    box-shadow: 0 0 6px rgba(0, 246, 255, 0.6);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #ff6ac4, #7df9ff);
+}
+
+::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Firefox не підтримує ::-webkit-scrollbar — там лише колір і товщина.
+   Для Chrome ці властивості не задаємо: інакше вони перекривають стилі вище */
+@supports (-moz-appearance: none) {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--neon-cyan) rgba(8, 10, 26, 0.6);
+    }
+}
+
 /* ---------- Полотно ---------- */
 
 #gameCanvas {
@@ -441,8 +486,6 @@ body {
     max-height: 82vh;
     overflow-y: auto;
     padding: 2vmin 2vmin 2vmin 2vmin;
-    scrollbar-width: thin;
-    scrollbar-color: var(--neon-cyan) rgba(8, 10, 26, 0.6);
 }
 
 .level-card {
