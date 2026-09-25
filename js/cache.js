@@ -284,6 +284,8 @@ export class KeyboardCache {
 export const BackgroundQuality = {
     scale: 1,
     minScale: 0.5,
+    // 0 — фон щокадру; якщо навіть мінімальної якості замало, фон малюється ~20 разів/с
+    redrawInterval: 0,
     slowFrameThreshold: 25,
     slowBudgetMs: 2000,
     slowTime: 0,
@@ -297,8 +299,12 @@ export const BackgroundQuality = {
         } else {
             this.slowTime = Math.max(0, this.slowTime - frameMs * 0.5);
         }
-        if (this.slowTime >= this.slowBudgetMs && this.scale > this.minScale) {
-            this.scale = Math.max(this.minScale, this.scale - 0.25);
+        if (this.slowTime >= this.slowBudgetMs) {
+            if (this.scale > this.minScale) {
+                this.scale = Math.max(this.minScale, this.scale - 0.25);
+            } else {
+                this.redrawInterval = 0.045;
+            }
             this.slowTime = 0;
         }
     }
@@ -314,9 +320,6 @@ export class BackgroundCache {
         this.height = 0;
         this.scale = 1;
         this.currentTheme = null;
-        // Фон перемальовується приблизно 20 разів на секунду незалежно від частоти монітора
-        // (раніше — кожен 3-й кадр, тобто 48 разів на секунду на моніторі 144 Гц)
-        this.redrawInterval = 0.045;
         this.lastRenderTime = null;
         this.dirty = true;
         this.isInitialized = false;
@@ -324,14 +327,17 @@ export class BackgroundCache {
 
     shouldUpdate(time) {
         if (this.dirty || this.lastRenderTime === null) return true;
-        if (time < this.lastRenderTime || time - this.lastRenderTime >= this.redrawInterval) {
+        if (time < this.lastRenderTime || time - this.lastRenderTime >= BackgroundQuality.redrawInterval) {
             return true;
         }
         return false;
     }
 
+    // Фон рендериться в повній роздільній здатності екрана (з урахуванням масштабу Windows,
+    // але не більше 2×), помноженій на адаптивну якість
     resize(w, h) {
-        var scale = BackgroundQuality.scale;
+        var dpr = Math.min(2, (typeof window !== "undefined" && window.devicePixelRatio) || 1);
+        var scale = dpr * BackgroundQuality.scale;
         if (this.width !== w || this.height !== h || this.scale !== scale) {
             this.width = w;
             this.height = h;
@@ -355,6 +361,8 @@ export class BackgroundCache {
         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.setTransform(this.scale, 0, 0, this.scale, 0, 0);
+        // Буфери сцен масштабуються без згладжування — піксельна графіка лишається чіткою
+        this.ctx.imageSmoothingEnabled = false;
         if (typeof renderFn === "function") {
             renderFn(this.ctx);
         }

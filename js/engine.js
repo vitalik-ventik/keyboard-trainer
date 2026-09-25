@@ -1962,6 +1962,7 @@ const TRAIL_MAX = 20;
 const DEATH_DELAY = 1.2;
 const DEMO_RESTART_DELAY = 1.4;
 const PERFECT_FLASH_TIME = 0.35;
+const EASTER_EGG_DURATION = 5000;
 
 function spikeHalfWidth(type) {
     if (type === "double_spike") {
@@ -2001,6 +2002,243 @@ function calculateMaxScores(spikeCount, hitWindow, speed) {
         maxEasy: spikeCount * Math.max(0, easyPerHit),
         maxHard: spikeCount * Math.max(0, hardPerHit)
     };
+}
+
+// ---------- Стиль перешкод під світ рівня ----------
+
+// Вигляд шипів змінюється під тему фону; розміри й зона зіткнення — ті самі
+const SPIKE_STYLE_BY_THEME = {
+    pixel_snow: "ice",
+    pixel_desert: "cactus",
+    pixel_ocean: "urchin",
+    night_harbor: "urchin",
+    pirate_bay: "urchin",
+    knight_castle: "iron",
+    throne_room: "iron",
+    treasury: "iron",
+    crystal_cave: "crystal",
+    pixel_cave: "crystal",
+    pixel_islands: "crystal",
+    pixel_nether: "lava",
+    dragon_lair: "lava",
+    pixel_night: "pixel",
+    digital_forest: "pixel",
+    retro_arcade: "pixel"
+};
+
+// Основні кольори кожного стилю (для уламків, коли шип розсипається)
+const SPIKE_STYLE_COLORS = {
+    ice: ["#bfe9ff", "#ffffff", "#7cc8f0"],
+    cactus: ["#2f8a3a", "#4fb55a", "#ffffff"],
+    urchin: ["#6a2a8a", "#b06bff", "#e0c0ff"],
+    iron: ["#6a7080", "#b8c0d0", "#40444f"],
+    crystal: ["#b35cff", "#5cc8ff", "#e6bfff"],
+    lava: ["#ff6a00", "#ffcc33", "#3a1a0a"],
+    pixel: ["#ff2ea6", "#ffffff", "#4a1030"]
+};
+
+const SPIKE_POP_DISTANCE = 140;
+const SPIKE_CRUMBLE_TIME = 0.35;
+const KEYCAP_SIZE = 34;
+
+function roundedRectPath(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+}
+
+// Один шип заданого стилю: основа в (0, 0), вершина в (0, -SPIKE_H)
+function drawStyledSpikeShape(ctx, style, accent, time) {
+    const hw = SPIKE_W / 2;
+    const H = SPIKE_H;
+    if (style === "ice") {
+        ctx.fillStyle = "#7cc8f0";
+        ctx.beginPath();
+        ctx.moveTo(-hw, 0);
+        ctx.lineTo(0, -H);
+        ctx.lineTo(hw, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "#bfe9ff";
+        ctx.beginPath();
+        ctx.moveTo(-hw, 0);
+        ctx.lineTo(0, -H);
+        ctx.lineTo(0, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(-3, -H + 6, 3, 12);
+        ctx.strokeStyle = "#e6f7ff";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-hw, 0);
+        ctx.lineTo(0, -H);
+        ctx.lineTo(hw, 0);
+        ctx.stroke();
+    } else if (style === "cactus") {
+        ctx.fillStyle = "#2f8a3a";
+        ctx.fillRect(-7, -H, 14, H);
+        ctx.fillRect(-18, -H * 0.6, 7, H * 0.35);
+        ctx.fillRect(-18, -H * 0.3, 14, 7);
+        ctx.fillRect(11, -H * 0.8, 7, H * 0.4);
+        ctx.fillRect(4, -H * 0.45, 14, 7);
+        ctx.fillStyle = "#4fb55a";
+        ctx.fillRect(-4, -H, 3, H);
+        ctx.fillStyle = "#ffffff";
+        const spines = [[-9, -H * 0.8], [9, -H * 0.65], [-9, -H * 0.4], [9, -H * 0.2], [-20, -H * 0.5], [20, -H * 0.7], [0, -H - 3]];
+        for (const sp of spines) {
+            ctx.fillRect(sp[0] - 1, sp[1] - 1, 3, 3);
+        }
+        ctx.strokeStyle = "#1a5a24";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-7, -H, 14, H);
+    } else if (style === "urchin") {
+        const r = 15;
+        ctx.strokeStyle = "#e0c0ff";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        for (let i = 0; i < 11; i++) {
+            const a = Math.PI + (i / 10) * Math.PI;
+            const len = i % 2 === 0 ? H - r : H * 0.6 - r;
+            ctx.moveTo(Math.cos(a) * r, -r + Math.sin(a) * r);
+            ctx.lineTo(Math.cos(a) * (r + len), -r + Math.sin(a) * (r + len));
+        }
+        ctx.stroke();
+        ctx.fillStyle = "#6a2a8a";
+        ctx.beginPath();
+        ctx.arc(0, -r, r, Math.PI, 0);
+        ctx.lineTo(r, 0);
+        ctx.lineTo(-r, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "#b06bff";
+        ctx.fillRect(-6, -r - 6, 4, 4);
+        ctx.fillRect(3, -r - 2, 3, 3);
+    } else if (style === "iron") {
+        ctx.fillStyle = "#40444f";
+        ctx.fillRect(-hw, -5, SPIKE_W, 5);
+        ctx.fillStyle = "#6a7080";
+        ctx.beginPath();
+        ctx.moveTo(-hw + 6, -5);
+        ctx.lineTo(0, -H);
+        ctx.lineTo(hw - 6, -5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "#b8c0d0";
+        ctx.beginPath();
+        ctx.moveTo(-hw + 6, -5);
+        ctx.lineTo(0, -H);
+        ctx.lineTo(-3, -5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "#d8dce8";
+        ctx.fillRect(-hw + 3, -4, 3, 3);
+        ctx.fillRect(hw - 6, -4, 3, 3);
+    } else if (style === "crystal") {
+        const shards = [[-10, 0.7, "#5cc8ff", "#c8f0ff"], [8, 0.8, "#ff4fd8", "#ffc0f0"], [0, 1, "#b35cff", "#e6bfff"]];
+        for (const sh of shards) {
+            const h = H * sh[1];
+            ctx.fillStyle = sh[2];
+            ctx.beginPath();
+            ctx.moveTo(sh[0] - 8, 0);
+            ctx.lineTo(sh[0] - 6, -h * 0.75);
+            ctx.lineTo(sh[0], -h);
+            ctx.lineTo(sh[0] + 6, -h * 0.75);
+            ctx.lineTo(sh[0] + 8, 0);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = sh[3];
+            ctx.beginPath();
+            ctx.moveTo(sh[0] - 6, -h * 0.75);
+            ctx.lineTo(sh[0], -h);
+            ctx.lineTo(sh[0] - 1, -h * 0.2);
+            ctx.closePath();
+            ctx.fill();
+        }
+    } else if (style === "lava") {
+        const glow = 0.6 + 0.4 * Math.sin(time * 0.006);
+        ctx.fillStyle = "#2a120a";
+        ctx.beginPath();
+        ctx.moveTo(-hw, 0);
+        ctx.lineTo(0, -H);
+        ctx.lineTo(hw, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255, " + Math.round(110 + 90 * glow) + ", 0, " + glow.toFixed(2) + ")";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(0, -H + 4);
+        ctx.lineTo(-4, -H * 0.6);
+        ctx.lineTo(3, -H * 0.4);
+        ctx.lineTo(-6, 0);
+        ctx.moveTo(-4, -H * 0.6);
+        ctx.lineTo(-12, -H * 0.25);
+        ctx.moveTo(3, -H * 0.4);
+        ctx.lineTo(12, -H * 0.15);
+        ctx.stroke();
+        ctx.fillStyle = "#ffcc33";
+        ctx.fillRect(-2, -H, 4, 5);
+    } else if (style === "pixel") {
+        const b = 8;
+        for (let row = 0; row < 6; row++) {
+            const w = SPIKE_W - row * b * 0.9;
+            ctx.fillStyle = row % 2 === 0 ? "#4a1030" : "#5a1438";
+            ctx.fillRect(-w / 2, -(row + 1) * b, w, b);
+        }
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let row = 0; row < 6; row++) {
+            const w = SPIKE_W - row * b * 0.9;
+            ctx.moveTo(-w / 2, -row * b);
+            ctx.lineTo(-w / 2, -(row + 1) * b);
+            ctx.lineTo(-w / 2 + b * 0.45, -(row + 1) * b);
+            ctx.moveTo(w / 2, -row * b);
+            ctx.lineTo(w / 2, -(row + 1) * b);
+            ctx.lineTo(w / 2 - b * 0.45, -(row + 1) * b);
+        }
+        ctx.stroke();
+    }
+}
+
+// Клавіша з літерою над перешкодою — як на справжній клавіатурі
+function drawKeycap(ctx, cx, bottomY, letter, state) {
+    const s = KEYCAP_SIZE;
+    const x = cx - s / 2;
+    const y = bottomY - s;
+    const depth = 5;
+    const colors = {
+        idle: { top: "#2a2f45", side: "#141726", border: "rgba(160, 170, 210, 0.55)", text: "#e8ecf8" },
+        target: { top: "#3a3f5c", side: "#1a1d30", border: "#ffe14d", text: "#ffe14d" },
+        ok: { top: "#123a44", side: "#08222a", border: "#00f6ff", text: "#ffffff" },
+        perfect: { top: "#12442a", side: "#082a18", border: "#39ff88", text: "#ffffff" }
+    }[state];
+    ctx.fillStyle = colors.side;
+    roundedRectPath(ctx, x, y + depth, s, s, 6);
+    ctx.fill();
+    ctx.fillStyle = colors.top;
+    roundedRectPath(ctx, x, y, s, s, 6);
+    ctx.fill();
+    ctx.strokeStyle = colors.border;
+    ctx.lineWidth = state === "idle" ? 1.5 : 2.5;
+    ctx.stroke();
+    ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
+    roundedRectPath(ctx, x + 3, y + 3, s - 6, s * 0.35, 4);
+    ctx.fill();
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "rgba(5, 5, 20, 0.85)";
+    ctx.strokeText(letter, cx, y + s / 2 + 1);
+    ctx.fillStyle = colors.text;
+    ctx.fillText(letter, cx, y + s / 2 + 1);
 }
 
 // ---------- Кольори скіна для уламків вибуху ----------
@@ -2127,6 +2365,11 @@ export class Engine {
         // Уламки вибуху та пил приземлення (квадратні «блоки»)
         this.debris = [];
         this.perfectFlash = 0;
+        this.scorePopups = [];
+        this.spikeStyle = SPIKE_STYLE_BY_THEME[this.level.bgTheme] || "neon";
+        // Пасхалка: з'являється один раз, коли гравець пройде випадкову частину рівня (30–70%)
+        this.eggAt = 0.3 + mulberry32(this.level.seed + 7)() * 0.4;
+        this.eggStart = null;
     }
 
     // Тип скіна, яким зараз малюється кубик (вибраний гравцем або скін рівня)
@@ -2139,6 +2382,32 @@ export class Engine {
             return this.level.skin.renderType;
         }
         return "neon_base";
+    }
+
+    // Шип подолано: він розсипається на уламки, над ним спливають зароблені очки
+    markSpikeCleared(spike, points) {
+        spike.state = "cleared";
+        spike.clearedAt = this.currentTime;
+        const colors = SPIKE_STYLE_COLORS[this.spikeStyle] || [this.level.accentColor || "#ff2ea6", "#ffffff"];
+        this.spawnDebris(10, {
+            x: spike.x,
+            y: SPIKE_H * 0.4,
+            spread: SPIKE_W * 0.6,
+            angleMin: Math.PI * 0.1,
+            angleMax: Math.PI * 0.9,
+            speedMin: 90,
+            speedMax: 220,
+            sizeMin: 4,
+            sizeMax: 8,
+            spin: 10,
+            colors: colors,
+            gravity: 700,
+            life: 0.7,
+            outline: true
+        });
+        if (points > 0) {
+            this.scorePopups.push({ x: spike.x, y: SPIKE_H + 50, text: "+" + points, life: 0.9, maxLife: 0.9 });
+        }
     }
 
     spawnDebris(count, options) {
@@ -2213,8 +2482,9 @@ export class Engine {
         const gap = spike.x - spikeHalfWidth(spike.type) - this.player.x;
         if (gap > 0 && gap <= this.okPx) {
             const perfect = gap <= this.perfectPx + this.okPx * 0.35;
-            spike.state = "cleared";
-            this.score += calculateHitScore(true, this.scoreConfig, perfect);
+            const points = calculateHitScore(true, this.scoreConfig, perfect);
+            this.score += points;
+            this.markSpikeCleared(spike, points);
             const distance = gap + 2 * spikeHalfWidth(spike.type) + SAFE_MARGIN;
             this.jump(distance, perfect);
         }
@@ -2324,8 +2594,9 @@ export class Engine {
 
         if (correct && inWindow) {
             const perfect = gap <= this.perfectPx + this.okPx * 0.35;
-            spike.state = "cleared";
-            this.score += calculateHitScore(true, this.scoreConfig, perfect);
+            const points = calculateHitScore(true, this.scoreConfig, perfect);
+            this.score += points;
+            this.markSpikeCleared(spike, points);
             const distance = gap + 2 * spikeHalfWidth(spike.type) + SAFE_MARGIN;
             this.jump(distance, perfect);
             return { result: "correct", letter: letter };
@@ -2392,6 +2663,14 @@ export class Engine {
             }
         }
         this.perfectFlash = Math.max(0, this.perfectFlash - dt);
+        for (var si = this.scorePopups.length - 1; si >= 0; si--) {
+            var sp = this.scorePopups[si];
+            sp.life -= dt;
+            sp.y += 60 * dt;
+            if (sp.life <= 0) {
+                this.scorePopups.splice(si, 1);
+            }
+        }
 
         if (!this.player.alive) {
             this.deathTimer += dt;
@@ -2468,7 +2747,7 @@ export class Engine {
             if (target && this.player.onGround) {
                 const gap = target.x - spikeHalfWidth(target.type) - this.player.x;
                 if (gap > 0 && gap <= this.okPx * 0.5) {
-                    target.state = "cleared";
+                    this.markSpikeCleared(target, 0);
                     const distance = gap + 2 * spikeHalfWidth(target.type) + SAFE_MARGIN;
                     this.jump(distance, true);
                 }
@@ -2499,6 +2778,9 @@ export class Engine {
             }
             if (spike.x + halfW < this.player.x) {
                 spike.state = "cleared";
+                if (spike.clearedAt === undefined) {
+                    spike.clearedAt = this.currentTime;
+                }
             }
         }
 
@@ -2531,6 +2813,16 @@ export class Engine {
 
         this.bgCache.setTheme(this.level.bgTheme);
         this.bgCache.resize(W, H);
+        if (this.eggStart === null && this.progressPct / 100 >= this.eggAt) {
+            this.eggStart = this.currentTime;
+        }
+        var eggT = this.eggStart === null ? null : (this.currentTime - this.eggStart) / EASTER_EGG_DURATION;
+        BackgroundRenderer.setEffects({
+            progress: this.progressPct / 100,
+            combo: this.combo,
+            perfect: this.perfectFlash / PERFECT_FLASH_TIME,
+            eggT: eggT !== null && eggT <= 1 ? eggT : null
+        });
         if (this.bgCache.shouldUpdate(time)) {
             var self = this;
             this.bgCache.render(function (cacheCtx) {
@@ -2548,6 +2840,7 @@ export class Engine {
         this.renderDebris(ctx, groundY, anchorX, camX);
         this.renderPerfectParticles(ctx, groundY, anchorX, camX);
         this.renderPerfectPopups(ctx, groundY, anchorX, camX);
+        this.renderScorePopups(ctx, groundY, anchorX, camX);
         if (!this.demoMode) {
             this.renderProgressBar(ctx, W);
         }
@@ -2586,16 +2879,15 @@ export class Engine {
         ctx.lineTo(W, groundY);
         ctx.stroke();
 
-        const step = 140;
-        const offset = camX % step;
-        ctx.strokeStyle = "rgba(0, 246, 255, 0.12)";
-        ctx.lineWidth = 2;
-        for (let x = -offset; x <= W; x += step) {
-            ctx.beginPath();
-            ctx.moveTo(x, groundY + 6);
-            ctx.lineTo(x - 28, groundY + 34);
-            ctx.stroke();
-        }
+        // Земля під шипами в стилі світу (трава, сніг, пісок, камінь, лава…)
+        BackgroundRenderer.renderGroundDetail(ctx, this.level.bgTheme, W, H, groundY, camX, accent);
+        // Неонова лінія землі поверх текстури
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, groundY);
+        ctx.lineTo(W, groundY);
+        ctx.stroke();
     }
 
     renderHitWindow(ctx, W, groundY, anchorX, time) {
@@ -2733,6 +3025,24 @@ export class Engine {
         ctx.lineWidth = 2.5;
         ctx.stroke();
 
+        // Світні кінчики зубців і «слід» обертання
+        if (!cleared) {
+            ctx.fillStyle = "#ffffff";
+            for (let i = 0; i < teeth; i++) {
+                const angle = (i / teeth) * Math.PI * 2;
+                ctx.fillRect(Math.cos(angle) * radius - 1.5, Math.sin(angle) * radius - 1.5, 3, 3);
+            }
+            ctx.strokeStyle = color;
+            ctx.globalAlpha = 0.35;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, 0, radius * 1.12, 0, Math.PI * 0.6);
+            ctx.moveTo(Math.cos(Math.PI) * radius * 1.12, Math.sin(Math.PI) * radius * 1.12);
+            ctx.arc(0, 0, radius * 1.12, Math.PI, Math.PI * 1.6);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+
         ctx.fillStyle = cleared ? "rgba(20, 60, 40, 0.6)" : "rgba(20, 10, 20, 0.9)";
         ctx.beginPath();
         ctx.arc(0, 0, radius * 0.35, 0, Math.PI * 2);
@@ -2747,8 +3057,11 @@ export class Engine {
     renderObstacles(ctx, W, groundY, anchorX, camX) {
         ctx.save();
         ctx.textAlign = "center";
-        ctx.textBaseline = "alphabetic";
-        ctx.font = "bold 26px 'Segoe UI', Arial, sans-serif";
+        ctx.textBaseline = "middle";
+        ctx.font = "bold 22px 'Segoe UI', Arial, sans-serif";
+        const accentColor = this.level.accentColor || "#ff2ea6";
+        const target = this.player.alive ? this.nearestAheadSpike() : null;
+        const perfectWidth = this.perfectPx + this.okPx * 0.35;
 
         for (const spike of this.spikes) {
             const screenX = spike.x - camX + anchorX;
@@ -2756,27 +3069,106 @@ export class Engine {
                 continue;
             }
             const cleared = spike.state === "cleared";
-            const accentColor = this.level.accentColor || "#ff2ea6";
+            // Подоланий шип за мить «осідає» в землю
+            let crumble = 1;
+            if (cleared) {
+                const since = spike.clearedAt === undefined ? 1 : (this.currentTime - spike.clearedAt) / 1000;
+                crumble = 1 - since / SPIKE_CRUMBLE_TIME;
+                if (crumble <= 0) {
+                    continue;
+                }
+            }
+            // Поява: шип «виростає» із землі, коли заходить на екран
+            const appear = Math.min(1, Math.max(0, (W + 40 - screenX) / SPIKE_POP_DISTANCE));
+            const grow = (1 - Math.pow(1 - appear, 3)) * crumble;
+            if (grow <= 0.01) {
+                continue;
+            }
 
+            // Підсвітка моменту натискання для цільового шипа
+            let zone = null;
+            if (spike === target) {
+                const gap = spike.x - spikeHalfWidth(spike.type) - this.player.x;
+                if (gap > 0 && gap <= perfectWidth) {
+                    zone = "perfect";
+                } else if (gap > 0 && gap <= this.okPx) {
+                    zone = "ok";
+                }
+            }
+            if (zone) {
+                const zoneColor = zone === "perfect" ? "57, 255, 136" : "0, 246, 255";
+                const glow = ctx.createRadialGradient(screenX, groundY - SPIKE_H * 0.45, 4, screenX, groundY - SPIKE_H * 0.45, SPIKE_H * 1.1);
+                glow.addColorStop(0, "rgba(" + zoneColor + ", 0.55)");
+                glow.addColorStop(1, "rgba(" + zoneColor + ", 0)");
+                ctx.fillStyle = glow;
+                ctx.fillRect(screenX - SPIKE_H * 1.1, groundY - SPIKE_H * 1.6, SPIKE_H * 2.2, SPIKE_H * 1.6);
+            }
+
+            ctx.save();
+            ctx.translate(screenX, groundY);
+            ctx.scale(1, grow);
+            ctx.translate(-screenX, -groundY);
             if (spike.type === "saw") {
-                const sawRadius = SPIKE_H * 0.6;
-                this.drawSaw(ctx, screenX, groundY, sawRadius, spike.rotationAngle || 0, accentColor, cleared);
-            } else if (spike.type === "double_spike") {
-                this.drawDoubleSpike(ctx, screenX, groundY, accentColor, cleared);
+                this.drawSaw(ctx, screenX, groundY, SPIKE_H * 0.6, spike.rotationAngle || 0, accentColor, cleared);
+            } else if (this.spikeStyle === "neon") {
+                if (spike.type === "double_spike") {
+                    this.drawDoubleSpike(ctx, screenX, groundY, accentColor, cleared);
+                } else {
+                    this.drawSpike(ctx, screenX, groundY, accentColor, cleared);
+                }
             } else {
-                this.drawSpike(ctx, screenX, groundY, accentColor, cleared);
+                const offsets = spike.type === "double_spike" ? [-SPIKE_W * 0.45, SPIKE_W * 0.45] : [0];
+                // «Небезпечна» аура: перешкоду завжди видно на тлі схожих декорацій світу
+                if (!cleared) {
+                    const auraW = spike.type === "double_spike" ? SPIKE_W * 1.6 : SPIKE_W;
+                    const aura = ctx.createRadialGradient(screenX, groundY - SPIKE_H * 0.35, 4, screenX, groundY - SPIKE_H * 0.35, auraW);
+                    aura.addColorStop(0, "rgba(255, 40, 80, 0.45)");
+                    aura.addColorStop(1, "rgba(255, 40, 80, 0)");
+                    ctx.fillStyle = aura;
+                    ctx.fillRect(screenX - auraW, groundY - SPIKE_H * 1.3, auraW * 2, SPIKE_H * 1.3);
+                }
+                for (const off of offsets) {
+                    ctx.save();
+                    ctx.translate(screenX + off, groundY);
+                    drawStyledSpikeShape(ctx, this.spikeStyle, accentColor, this.currentTime);
+                    // Червона «лінія небезпеки» біля основи
+                    ctx.fillStyle = "rgba(255, 40, 80, 0.85)";
+                    ctx.fillRect(-SPIKE_W / 2, -3, SPIKE_W, 3);
+                    ctx.restore();
+                }
             }
+            ctx.restore();
 
+            // Клавіша з літерою над перешкодою
             if (!cleared) {
-                var letterY = spike.type === "saw" ? groundY - SPIKE_H * 0.6 - 20 : groundY - SPIKE_H - 12;
-                // Темна обводка — літеру добре видно на будь-якому фоні (пісок, сніг, небо)
-                ctx.lineJoin = "round";
-                ctx.lineWidth = 5;
-                ctx.strokeStyle = "rgba(5, 5, 20, 0.9)";
-                ctx.strokeText(spike.letter, screenX, letterY);
-                ctx.fillStyle = "#ffe14d";
-                ctx.fillText(spike.letter, screenX, letterY);
+                const topY = spike.type === "saw" ? groundY - SPIKE_H * 1.2 : groundY - SPIKE_H;
+                const state = zone ? zone : spike === target ? "target" : "idle";
+                ctx.globalAlpha = grow;
+                drawKeycap(ctx, screenX, topY - 12, spike.letter, state);
+                ctx.globalAlpha = 1;
             }
+        }
+        ctx.restore();
+    }
+
+    renderScorePopups(ctx, groundY, anchorX, camX) {
+        if (this.scorePopups.length === 0) {
+            return;
+        }
+        ctx.save();
+        ctx.font = "bold 20px 'Segoe UI', Arial, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        ctx.lineJoin = "round";
+        for (const sp of this.scorePopups) {
+            ctx.globalAlpha = Math.min(1, sp.life / sp.maxLife * 1.5);
+            const x = sp.x - camX + anchorX;
+            const y = groundY - sp.y;
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "rgba(5, 5, 20, 0.9)";
+            ctx.strokeText(sp.text, x, y);
+            ctx.fillStyle = "#ffe14d";
+            ctx.fillText(sp.text, x, y);
         }
         ctx.restore();
     }
