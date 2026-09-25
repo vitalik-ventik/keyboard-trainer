@@ -7,7 +7,7 @@
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
-import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, drawHeartLife, accessoryPerk, trailSlowdown, explosionWindowBonus, skinPerk, skinPerkValue, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
+import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, drawHeartLife, accessoryPerk, trailSlowdown, explosionWindowBonus, skinPerk, skinPerkValue, shopSkinPerkValue, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
 import { EXTRA_LEVEL_SKINS } from "./level_skins_extra.js";
 import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, sanitizeAchievementData, localDayKey } from "./achievements.js";
@@ -196,7 +196,7 @@ export function levelSkinPerk(level) {
 export function activeSkinPerk(renderType) {
     const shopKind = skinPerk(renderType);
     if (shopKind) {
-        return { kind: shopKind, value: shopKind === "shield" ? 1 : skinPerkValue(shopKind, 2) };
+        return { kind: shopKind, value: shopSkinPerkValue(renderType) };
     }
     const level = ALL_LEVELS.find(function (l) { return l.skin && l.skin.renderType === renderType; });
     return levelSkinPerk(level);
@@ -2483,9 +2483,13 @@ export const save = {
         const type = saveData.shop.chests.shift();
         saveData.achievements.stats.chestsOpened++;
         const self = this;
-        // Аксесуар може підвищити шанс, що з сундука випаде річ
-        const itemBonus = accessoryPerk(this.getEquipped("accessory")).item || 0;
-        const result = rollChest(type, function (id) { return self.isOwned(id); }, undefined, itemBonus);
+        // Аксесуар може підвищити шанс, що з сундука випаде річ;
+        // скін і аксесуар із бонусом «сердечка» — шанс сердечка
+        const accPerk = accessoryPerk(this.getEquipped("accessory"));
+        const itemBonus = accPerk.item || 0;
+        const skin = activeSkinPerk(this.getActiveSkin());
+        const heartBonus = (accPerk.hearts || 0) + (skin && skin.kind === "hearts" ? skin.value : 0);
+        const result = rollChest(type, function (id) { return self.isOwned(id); }, undefined, itemBonus, heartBonus);
         if (result.kind === "item") {
             saveData.shop.owned.push(result.id);
         } else if (result.kind === "heart") {
