@@ -49,14 +49,14 @@ export const LEVELS_CONFIG = [
         id: 2,
         name: "Середня",
         levels: [
-            { id: 17, leagueId: 2, name: "Горизонт середнього ряду", letters: ["Ф","І","В","А","П","Р","О","Л","Д","Ж"], speed: 240, spikeCount: 26, seed: 2101, bgTheme: "midnight_skyline", accentColor: "#bb55ff", rhythmGroups: false, skin: { id: "skin_2_1", name: "Synthwave Sun", renderType: "synthwave_sun" } },
-            { id: 18, leagueId: 2, name: "Дах клавіатури",           letters: ["Й","Ц","У","К","Е","Н","Г","Ш","Щ","З","Х","Ї"], speed: 250, spikeCount: 28, seed: 2102, bgTheme: "rooftop_grid", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_2", name: "Кіберпанк Горизонт", renderType: "cyberpunk_horizon" } },
-            { id: 19, leagueId: 2, name: "Нижній ярус",              letters: ["Я","Ч","С","М","И","Т","Ь","Б","Ю","Є","Ґ"], speed: 255, spikeCount: 30, seed: 2103, bgTheme: "deep_abyss", accentColor: "#00ff41", rhythmGroups: false, skin: { id: "skin_2_3", name: "Глітч-Куб", renderType: "glitch_cube" } },
-            { id: 20, leagueId: 2, name: "Лівий сектор",             letters: ["Й","Ф","Я","Ц","І","Ч","У","В","С","К","А","М"], speed: 260, spikeCount: 32, seed: 2104, bgTheme: "matrix_flow", accentColor: "#ff8c00", rhythmGroups: false, skin: { id: "skin_2_4", name: "Золотий Злиток", renderType: "gold_ingot" } },
-            { id: 21, leagueId: 2, name: "Екватор",                  letters: ["Е","П","И","Н","Р","Т","Г","О","Ь","Ш","Л","Б"], speed: 268, spikeCount: 34, seed: 2105, bgTheme: "equator_beam", accentColor: "#7b68ee", rhythmGroups: false, skin: { id: "skin_2_5", name: "Орбіта", renderType: "orbit" } },
-            { id: 22, leagueId: 2, name: "Правий загін",             letters: ["Щ","Д","Ю","З","Ж","Є","Х","Ї","Ґ"], speed: 275, spikeCount: 36, seed: 2106, bgTheme: "spore_field", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_6", name: "Сталагміт", renderType: "stalagmite" } },
-            { id: 23, leagueId: 2, name: "Парад голосних",           letters: ["А","О","У","І","И","Е","Я","Ю","Є","Ї"], speed: 282, spikeCount: 38, seed: 2107, bgTheme: "vowel_waves", accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_2_7", name: "Еквалайзер", renderType: "equalizer" } },
-            { id: 24, leagueId: 2, name: "Тверді звуки",            letters: ["Й","К","Н","Г","Ш","З","Ф","В","П","Р","Л","Д"], speed: 295, spikeCount: 40, seed: 2108, bgTheme: "diamond_matrix", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_8", name: "Щит", renderType: "shield" } }
+            { id: 17, leagueId: 2, name: "Зигзаг: верх і середина",  letters: ["Ц","В","К","П","Р","Г","Л","Щ"], speed: 240, spikeCount: 26, seed: 2101, bgTheme: "midnight_skyline", accentColor: "#bb55ff", rhythmGroups: false, skin: { id: "skin_2_1", name: "Synthwave Sun", renderType: "synthwave_sun" } },
+            { id: 18, leagueId: 2, name: "Зигзаг: середина і низ",   letters: ["І","С","А","И","Т","О","Б","Д"], speed: 250, spikeCount: 28, seed: 2102, bgTheme: "rooftop_grid", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_2", name: "Кіберпанк Горизонт", renderType: "cyberpunk_horizon" } },
+            { id: 19, leagueId: 2, name: "Зигзаг: верх і низ",       letters: ["Ч","У","М","Е","Н","Ь","Ш","Ю"], speed: 255, spikeCount: 30, seed: 2103, bgTheme: "deep_abyss", accentColor: "#00ff41", rhythmGroups: false, skin: { id: "skin_2_3", name: "Глітч-Куб", renderType: "glitch_cube" } },
+            { id: 20, leagueId: 2, name: "Перші краї",               letters: ["Й","І","С","К","Д","З","Є","Ґ"], speed: 260, spikeCount: 32, seed: 2104, bgTheme: "matrix_flow", accentColor: "#ff8c00", rhythmGroups: false, skin: { id: "skin_2_4", name: "Золотий Злиток", renderType: "gold_ingot" } },
+            { id: 21, leagueId: 2, name: "П'ять на п'ять",           letters: ["Ф","Ч","У","А","И","Н","О","Б","Ж","Х"], speed: 268, spikeCount: 34, seed: 2105, bgTheme: "equator_beam", accentColor: "#7b68ee", rhythmGroups: false, skin: { id: "skin_2_5", name: "Орбіта", renderType: "orbit" } },
+            { id: 22, leagueId: 2, name: "Усі стовпці",              letters: ["Я","Ц","В","М","Е","Р","Ь","Ш","Ю","Ї"], speed: 275, spikeCount: 36, seed: 2106, bgTheme: "spore_field", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_6", name: "Сталагміт", renderType: "stalagmite" } },
+            { id: 23, leagueId: 2, name: "Далекі сусіди",            letters: ["Й","І","С","К","П","Т","Г","Л","Щ","Є"], speed: 282, spikeCount: 38, seed: 2107, bgTheme: "vowel_waves", accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_2_7", name: "Еквалайзер", renderType: "equalizer" } },
+            { id: 24, leagueId: 2, name: "Фінал ліги",               letters: ["Ф","Ц","С","А","Е","О","Ш","Ю","З","Ґ"], speed: 295, spikeCount: 40, seed: 2108, bgTheme: "diamond_matrix", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_8", name: "Щит", renderType: "shield" } }
         ]
     },
     {
@@ -760,7 +760,6 @@ function generateTrack(level, effectiveSpeed, okPx) {
     const baseGapTime = reactionTimeForLevel(level.id);
     let x = level.speed * 3.0;
     let lastLetter1 = null;
-    let lastLetter2 = null;
     const lastTypes = [];
 
     const leftPool = level.letters.filter(function (l) { return LEFT_HAND_LETTERS.has(l); });
@@ -780,15 +779,26 @@ function generateTrack(level, effectiveSpeed, okPx) {
         return leftPool;
     }
 
-    function pickLetter() {
-        const pool = choosePool();
-        let letter = pool[Math.floor(rng() * pool.length)];
-        let guard = 0;
-        while (letter === lastLetter1 && letter === lastLetter2 && guard < 10) {
-            letter = pool[Math.floor(rng() * pool.length)];
-            guard++;
+    // «Мішок» для кожного пулу: літери видаються без повторів, доки не вичерпаються всі,
+    // тож кожна літера рівня гарантовано трапляється і тренується порівну
+    const bags = new Map();
+
+    function drawFromBag(pool) {
+        let bag = bags.get(pool);
+        if (!bag || bag.length === 0) {
+            bag = pool.slice();
+            bags.set(pool, bag);
         }
-        lastLetter2 = lastLetter1;
+        let idx = Math.floor(rng() * bag.length);
+        // Не ставимо одну літеру двічі поспіль, якщо в мішку є інша
+        if (bag[idx] === lastLetter1 && bag.length > 1) {
+            idx = (idx + 1 + Math.floor(rng() * (bag.length - 1))) % bag.length;
+        }
+        return bag.splice(idx, 1)[0];
+    }
+
+    function pickLetter() {
+        const letter = drawFromBag(choosePool());
         lastLetter1 = letter;
         return letter;
     }
