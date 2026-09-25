@@ -106,6 +106,14 @@ async function loadOneBuffer(ctx, path, optional) {
 }
 
 /**
+ * Скільки аудіофайлів буде завантажено (для лічильника на екрані завантаження).
+ * @returns {number}
+ */
+export function audioFileCount() {
+    return Object.keys(SOUND_FILES).length + Object.keys(MUSIC_FILES).length;
+}
+
+/**
  * Асинхронно вантажить усі аудіофайли (звуки й музику).
  * НІКОЛИ не reject-иться: невдалі файли лишаються null у реєстрі.
  * @param {(loaded:number, total:number) => void} onProgress

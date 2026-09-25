@@ -5,7 +5,7 @@
 // 5 ліг, 31 рівень, розумна клавіатурна індикація
 // ============================================================
 
-import { loadAssets, unlockAudio, playSound, playMusic } from "./assets.js";
+import { loadAssets, unlockAudio, playSound, playMusic, audioFileCount } from "./assets.js";
 import { LEVELS_CONFIG, ALL_LEVELS, Engine, save, SKIN_RENDERERS, drawAchievementFrame, DEFAULT_SKIN, BOSS_LEVEL_ID, levelOrderIndex, nextLevelOf } from "./engine.js";
 import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
@@ -1650,6 +1650,8 @@ refreshCrystalDisplays();
 currentLevelId = save.getLastPlayable();
 currentLeagueId = (ALL_LEVELS.find(function (l) { return l.id === currentLevelId; }) || { leagueId: 1 }).leagueId;
 
+// Загальна кількість файлів відома одразу — лічильник не «стрибає» з кількості в розмітці
+loadingProgressEl.textContent = "0 / " + audioFileCount();
 loadAssets(function (loaded, total) {
     loadingProgressEl.textContent = loaded + " / " + total;
 }).then(function () {
