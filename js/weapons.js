@@ -32,6 +32,36 @@ export const WEAPON_SPECS = {
     weapon_gravity:   { mode: "beam", beam: "gravity", time: 0.73, hit: 0.18, fx: "fling" }
 };
 
+// Звуки зброї за подіями: «fire» — постріл, кидок або промінь, «swing» — мах
+// ближнього бою, «hit» — шип знищено. sound — ключ із assets.js (SOUND_FILES),
+// offset/duration — яку частину файлу грати (довгі файли обрізаються з затуханням),
+// volume — гучність, вирівняна за рівнем звуку стрибка.
+export const WEAPON_SOUNDS = {
+    weapon_sword: { swing: { sound: "sword", volume: 0.85 } },
+    weapon_firesword: { swing: { sound: "fire_sword", duration: 0.9, volume: 0.65 } },
+    weapon_axe: { hit: { sound: "axe", volume: 0.32 } },
+    weapon_pickaxe: { hit: { sound: "pickaxe", volume: 0.9 } },
+    weapon_thunder: { hit: { sound: "thunder", duration: 1.8, volume: 0.75 } },
+    weapon_bow: { fire: { sound: "bow", volume: 0.55 } },
+    weapon_ball: { fire: { sound: "soccer", volume: 0.6 } },
+    weapon_pistol: { fire: { sound: "gun", volume: 1.0 } },
+    weapon_rifle: { fire: { sound: "machine_gun", duration: 0.4, volume: 0.3 } },
+    weapon_flamethrower: { fire: { sound: "flamethrower", offset: 0.15, duration: 0.8, volume: 1.3 } },
+    weapon_laser: { fire: { sound: "laser_gun", volume: 0.5 } },
+    // У файлі ракети спершу політ (0.15–1.2 с), потім вибух (з 1.2 с): граємо частинами
+    weapon_rocket: {
+        fire: { sound: "missile_boom", offset: 0.15, duration: 0.6, volume: 0.75 },
+        hit: { sound: "missile_boom", offset: 1.18, duration: 2.2, volume: 0.8 }
+    },
+    weapon_gravity: { fire: { sound: "gravi_sound", volume: 0.75 } }
+};
+
+// Звук зброї для події або null
+export function getWeaponSound(id, event) {
+    const cues = WEAPON_SOUNDS[id];
+    return cues && cues[event] ? cues[event] : null;
+}
+
 export function getWeaponSpec(id) {
     return WEAPON_SPECS[id] || null;
 }
@@ -1149,7 +1179,9 @@ function drawPreviewSpike(ctx, x, groundY, hw, h) {
 
 // Зациклена сценка: шип під'їжджає, кубик атакує, шип руйнується.
 // drawCube(ctx, size) малює кубик гравця в локальних координатах.
-export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
+// План зацикленої сценки: коли натиснуто літеру (press), коли почався мах (swingAt),
+// коли шип знищено (hitAt), як летить снаряд і скільки триває промінь
+function planWeaponDemo(id, w, h, time) {
     const spec = WEAPON_SPECS[id];
     const groundY = h * 0.82;
     const s = 30;
@@ -1194,6 +1226,37 @@ export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
             hitAt = press + dur + (count - 1) * (spec.gap || 0);
         }
     }
+    return {
+        spec: spec, groundY: groundY, s: s, scale: scale, cubeX: cubeX, hw: hw, sh: sh,
+        cycle: cycle, u: u, spikeSpeed: spikeSpeed, spikeAt: spikeAt, press: press,
+        muzzleX: muzzleX, muzzleY: muzzleY, hitAt: hitAt, demoBeam: demoBeam,
+        swingAt: swingAt, flight: flight
+    };
+}
+
+// Події сценки для звуку в preview: «fire» — постріл/кидок/промінь, «swing» — мах,
+// «hit» — шип знищено. at — секунди від початку циклу, cycleIndex — номер циклу.
+export function weaponDemoEvents(id, time) {
+    const plan = planWeaponDemo(id, 150, 100, time);
+    const events = [];
+    if (plan.spec) {
+        if (plan.swingAt >= 0) {
+            events.push({ at: plan.swingAt, event: "swing" });
+        } else {
+            events.push({ at: plan.press, event: "fire" });
+        }
+        if (plan.hitAt < Infinity) {
+            events.push({ at: plan.hitAt, event: "hit" });
+        }
+    }
+    return { cycleIndex: Math.floor(time / 1000 / plan.cycle), cycle: plan.cycle, u: plan.u, events: events };
+}
+
+// Зациклена сценка: шип під'їжджає, кубик атакує, шип руйнується.
+// drawCube(ctx, size) малює кубик гравця в локальних координатах.
+export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
+    const plan = planWeaponDemo(id, w, h, time);
+    const { spec, groundY, s, scale, cubeX, hw, sh, u, spikeAt, press, muzzleX, muzzleY, hitAt, demoBeam, swingAt, flight } = plan;
     const spikeX = u < hitAt ? spikeAt(u) : spikeAt(hitAt);
 
     // Шип або його руйнування

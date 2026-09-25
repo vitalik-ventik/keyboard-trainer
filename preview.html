@@ -143,6 +143,49 @@
         .shop-item-name { color: #fff; font-weight: 600; font-size: 0.8rem; text-align: center; }
         .shop-item-meta { color: #7df9ff; font-size: 0.7rem; text-align: center; }
         .shop-item-req { color: #ffcc33; font-size: 0.68rem; text-align: center; }
+        /* ---------- Перевірка звуків ---------- */
+        .sound-panel {
+            width: 90vw;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .sound-help { color: #aab; font-size: 0.75rem; line-height: 1.5; }
+        .sound-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 0.8rem; }
+        .sound-toolbar button, .sound-row button {
+            background: #1a1d3a;
+            color: #eaf6ff;
+            border: 1px solid #3a3f7a;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .sound-toolbar button.primary { background: #00f6ff; color: #04101c; border-color: #00f6ff; }
+        .sound-toolbar button:disabled, .sound-row button:disabled { opacity: 0.4; cursor: default; }
+        .sound-table { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 6px; }
+        .sound-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #0c0c24;
+            border: 1px solid #1a1a40;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 0.75rem;
+        }
+        .sound-row { flex-wrap: wrap; }
+        .sound-row .sound-name { flex: 1 1 150px; min-width: 150px; }
+        .sound-row .sound-name b { color: #fff; }
+        .sound-row .sound-meta { color: #888; font-size: 0.68rem; }
+        .sound-row.missing { border-color: #ff4444; }
+        .shop-item.sound-on {
+            border-color: #39ff88;
+            box-shadow: 0 0 12px rgba(57, 255, 136, 0.45);
+        }
+        .shop-item.has-sound { cursor: pointer; }
+        .shop-item-sound { color: #39ff88; font-size: 0.66rem; text-align: center; }
         .error-msg {
             display: none;
             text-align: center;
@@ -159,9 +202,12 @@
         <span id="fps">FPS: —</span>
         <button type="button" id="btnBench">Заміряти всі фони</button>
         <span id="benchStatus"></span>
+        <a href="#sounds">До звуків ↓</a>
         <a href="#shop">До магазину ↓</a>
     </div>
     <div class="grid" id="grid"></div>
+    <h1 id="sounds">ЗВУКИ</h1>
+    <div class="sound-panel" id="soundPanel"></div>
     <h1 id="shop">МАГАЗИН — УСІ ТОВАРИ</h1>
     <p class="subtitle">Тут усі товари анімовані, навіть ті, що в грі ще не куплені (у грі до покупки вони сірі й нерухомі). Кубик — стандартний неоновий.</p>
     <div id="shopSections"></div>

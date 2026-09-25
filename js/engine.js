@@ -9,7 +9,7 @@ import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
 import { DEFAULT_ITEMS, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
-import { getWeaponSpec, drawHeldWeapon, drawProjectile, drawBeam, beamTiming, drawStuckArrow, drawSpikeDestruction, DESTRUCTION_TIME, SWING_TIME, SWING_HIT, BOLT_TIME, MELEE_CONTACT, meleeTriggerGap, gravityLiftOffset, gravityGrabTime, GRAVITY_LIFT } from "./weapons.js";
+import { getWeaponSpec, drawHeldWeapon, drawProjectile, drawBeam, beamTiming, drawStuckArrow, drawSpikeDestruction, DESTRUCTION_TIME, SWING_TIME, SWING_HIT, BOLT_TIME, MELEE_CONTACT, meleeTriggerGap, gravityLiftOffset, gravityGrabTime, GRAVITY_LIFT, getWeaponSound } from "./weapons.js";
 
 // ---------- Детермінований PRNG (фіксовані траси) ----------
 
@@ -2660,6 +2660,8 @@ export class Engine {
         this.speedSetting = speed === "slow" || speed === "fast" ? speed : "normal";
 
         this.onJump = null;
+        // Звук зброї: onSound(cue) з WEAPON_SOUNDS (у демо в меню не призначається — тиша)
+        this.onSound = null;
         this.onExplode = null;
         this.onVictory = null;
         this.currentTime = 0;
@@ -2941,7 +2943,8 @@ export class Engine {
             this.combo = 0;
         }
         this.waves.push({ r: 10, alpha: 0.8 });
-        if (typeof this.onJump === "function") {
+        // Зі зброєю звук стрибка не граємо — у зброї свої звуки
+        if (typeof this.onJump === "function" && !this.weaponSpec) {
             this.onJump();
         }
     }
@@ -3058,6 +3061,7 @@ export class Engine {
                 beamAttack.time = beamAttack.hitAt + GRAVITY_LIFT;
             }
             this.attacks.push(beamAttack);
+            this.emitWeaponSound("fire");
             this.weaponRecoil = 1;
         } else {
             const count = spec.mode === "burst" ? spec.count : 1;
@@ -3078,7 +3082,19 @@ export class Engine {
                     prev: []
                 });
             }
+            this.emitWeaponSound("fire");
             this.weaponRecoil = 1;
+        }
+    }
+
+    // Звук зброї для події «fire» / «swing» / «hit»
+    emitWeaponSound(event) {
+        if (typeof this.onSound !== "function" || !this.weaponSpec) {
+            return;
+        }
+        const cue = getWeaponSound(this.weaponId, event);
+        if (cue) {
+            this.onSound(cue);
         }
     }
 
@@ -3091,6 +3107,7 @@ export class Engine {
         spike.state = "cleared";
         spike.clearedAt = this.currentTime;
         spike.fx = { kind: fx, t0: this.currentTime };
+        this.emitWeaponSound("hit");
         const colors = SPIKE_STYLE_COLORS[this.spikeStyle] || [this.level.accentColor || "#ff2ea6", "#ffffff"];
         const base = { x: spike.x, y: SPIKE_H * 0.4, spread: SPIKE_W * 0.6, spin: 10, colors: colors, outline: true };
         if (fx === "shatter" || fx === "pop") {
@@ -3140,6 +3157,7 @@ export class Engine {
                     const gap = a.spike.x - spikeHalfWidth(a.spike.type) - this.player.x;
                     if (gap <= meleeTriggerGap(CUBE_SIZE, this.effectiveSpeed)) {
                         a.stage = "swing";
+                        this.emitWeaponSound("swing");
                         a.t = 0;
                     }
                     continue;

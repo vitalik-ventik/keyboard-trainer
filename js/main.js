@@ -219,6 +219,9 @@ function startLevel(levelId) {
     gameEngine.onJump = function () {
         playSound("jump");
     };
+    gameEngine.onSound = function (cue) {
+        playSound(cue.sound, cue);
+    };
     gameEngine.onExplode = function () {
         playSound("explode");
     };
