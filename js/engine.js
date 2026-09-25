@@ -7,7 +7,7 @@
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
-import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, accessoryPerk, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
+import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, accessoryPerk, trailSlowdown, explosionWindowBonus, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
 import { EXTRA_LEVEL_SKINS } from "./level_skins_extra.js";
 import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, sanitizeAchievementData, localDayKey } from "./achievements.js";
@@ -3169,6 +3169,10 @@ export class Engine {
             this.adaptiveFromStats = !!weak;
         }
         this.effectiveSpeed = this.level.speed * (SPEED_MULTIPLIERS[speed] ?? 1.0);
+        // Бонуси з магазину (лише в справжній грі): шлейф сповільнює трасу, вибух розширює зону стрибка
+        const trailSlow = demoMode ? 0 : trailSlowdown(save.getEquipped("trail"));
+        const windowBonus = demoMode ? 0 : explosionWindowBonus(save.getEquipped("explosion"));
+        this.effectiveSpeed *= 1 - trailSlow;
         this.difficulty = difficulty === "HARD" ? "HARD" : "EASY";
         this.demoMode = !!demoMode;
         this.leagueInfo = leagueInfo || null;
@@ -3183,7 +3187,7 @@ export class Engine {
         this.currentTime = 0;
 
         const windows = hitWindowTimes(this.level.tuneAs || this.level.id);
-        const multiplier = this.hitWindowSetting === "large" ? 2 : 1;
+        const multiplier = (this.hitWindowSetting === "large" ? 2 : 1) * (1 + windowBonus);
         this.okPx = this.effectiveSpeed * windows.okTime * multiplier;
         this.perfectPx = this.effectiveSpeed * windows.perfectTime * multiplier;
 

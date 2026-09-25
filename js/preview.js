@@ -1,7 +1,7 @@
 // preview.js — сторінка перегляду всіх фонів і скінів (preview.html)
 import { LEVELS_CONFIG, ALL_LEVELS, SKIN_RENDERERS, drawAchievementFrame } from "./engine.js";
 import { BackgroundRenderer } from "./backgrounds.js";
-import { SHOP_ITEMS, SHOP_TYPES, CHEST_TYPES, REPLAY_CHEST_CHANCE, CHEST_PITY_WINS, chestItemPool, rollChest, getShopItem, itemRarity, coinsText, weaponCoinBonus, accessoryPerkText } from "./shop.js";
+import { SHOP_ITEMS, SHOP_TYPES, CHEST_TYPES, REPLAY_CHEST_CHANCE, CHEST_PITY_WINS, chestItemPool, rollChest, getShopItem, itemRarity, coinsText, weaponCoinBonus, itemPerkText } from "./shop.js";
 import { drawShopItemScene, drawChestScene, CHEST_SHAKE_MS, CHEST_OPEN_MS } from "./shop_preview.js";
 import { loadAssets, unlockAudio, playSound, SOUND_NAMES, hasSound, soundDuration } from "./assets.js";
 import { WEAPON_SOUNDS, weaponDemoEvents } from "./weapons.js";
@@ -320,7 +320,7 @@ if (shopSectionsEl) {
             meta.className = "shop-item-meta";
             meta.textContent = (item.price > 0 ? "🪙 " + item.price : "безкоштовно") + " · " + item.id +
                 (item.type === "weapon" && weaponCoinBonus(item.id) > 1 ? " · монети ×" + weaponCoinBonus(item.id) : "") +
-                (item.type === "accessory" && accessoryPerkText(item.id) ? " · " + accessoryPerkText(item.id) : "");
+                (itemPerkText(item.id) ? " · " + itemPerkText(item.id) : "");
             card.appendChild(canvas);
             card.appendChild(name);
             card.appendChild(meta);

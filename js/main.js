@@ -11,7 +11,7 @@ import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js"
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
-import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity, coinsText, weaponCoinBonus, accessoryPerk, accessoryPerkText } from "./shop.js";
+import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity, coinsText, weaponCoinBonus, accessoryPerk, itemPerkText } from "./shop.js";
 import { drawShopItemScene, drawShopSkinScene, drawChestScene, CHEST_SHAKE_MS, CHEST_OPEN_MS } from "./shop_preview.js";
 import { ACHIEVEMENTS, ACHIEVEMENT_GROUPS, achievementProgress, buildAchievementCard, buildAchievementToast } from "./achievements.js";
 
@@ -1476,11 +1476,11 @@ function buildShop() {
             bonus.textContent = "🪙 монети ×" + weaponCoinBonus(item.id);
             card.appendChild(bonus);
         }
-        // Аксесуари дають бонус: монети, шанс сундука або шанс речі
-        if (item.type === "accessory" && accessoryPerkText(item.id)) {
+        // Аксесуари, шлейфи й вибухи дають бонус: монети, сундуки, повільніша траса, ширша зона
+        if (itemPerkText(item.id)) {
             const perk = document.createElement("span");
             perk.className = "weapon-coin-bonus";
-            perk.textContent = accessoryPerkText(item.id);
+            perk.textContent = itemPerkText(item.id);
             card.appendChild(perk);
         }
 
