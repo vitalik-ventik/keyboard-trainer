@@ -2497,6 +2497,22 @@ export const save = {
             }
             return { met: golds >= leagueLevels.length, current: golds, target: leagueLevels.length, text: "Золото на всіх рівнях Ліги " + req.league };
         }
+        if (req.kind === "combo_levels") {
+            // Усі рівні-комбінації (склади, перекати, печатки…)
+            const comboLevels = ALL_LEVELS.filter(function (l) { return !!l.combo; });
+            let done = 0;
+            for (const level of comboLevels) {
+                const entry = levels[String(level.id)];
+                if (entry && entry.bestPct === 100) {
+                    done++;
+                }
+            }
+            return { met: done >= comboLevels.length, current: done, target: comboLevels.length, text: "Пройди всі рівні-комбінації" };
+        }
+        if (req.kind === "achievements") {
+            const got = saveData.achievements.done.length;
+            return { met: got >= req.target, current: Math.min(got, req.target), target: req.target, text: "Досягнення" };
+        }
         return { met: false, current: 0, target: 1, text: "" };
     },
 

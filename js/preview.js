@@ -275,7 +275,9 @@ const SHOP_H = 100;
 const REQUIREMENT_TEXT = {
     boss: function () { return "Умова: пройти Боса (5-1)"; },
     gold_count: function (req) { return "Умова: " + req.target + " золотих рамок"; },
-    gold_league: function (req) { return "Умова: золото на всіх рівнях Ліги " + req.league; }
+    gold_league: function (req) { return "Умова: золото на всіх рівнях Ліги " + req.league; },
+    combo_levels: function () { return "Умова: пройти всі рівні-комбінації"; },
+    achievements: function (req) { return "Умова: " + req.target + " досягнень"; }
 };
 const shopCards = [];
 const shopSectionsEl = document.getElementById("shopSections");
