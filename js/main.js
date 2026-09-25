@@ -816,9 +816,28 @@ function refreshWeakLetters() {
         return;
     }
     const report = save.getLetterReport(5);
-    el.textContent = report.length === 0
-        ? "Найважчі літери: ще мало даних — пограй кілька рівнів"
-        : "Найважчі літери: " + report.map(function (r) { return r.letter + " (" + r.missPct + "% помилок)"; }).join(", ");
+    el.textContent = "";
+    if (report.length === 0) {
+        el.textContent = "Найважчі літери: ще мало даних — пограй кілька рівнів";
+        return;
+    }
+    // Компактні плашки «Літера — % помилок», що переносяться рядками
+    const title = document.createElement("span");
+    title.className = "weak-title";
+    title.textContent = "Найважчі літери (% помилок):";
+    el.appendChild(title);
+    const row = document.createElement("span");
+    row.className = "weak-chips";
+    for (const r of report) {
+        const chip = document.createElement("span");
+        chip.className = "weak-chip";
+        const letter = document.createElement("b");
+        letter.textContent = r.letter;
+        chip.appendChild(letter);
+        chip.appendChild(document.createTextNode(" " + r.missPct + "%"));
+        row.appendChild(chip);
+    }
+    el.appendChild(row);
 }
 
 // Підпис версії в налаштуваннях
