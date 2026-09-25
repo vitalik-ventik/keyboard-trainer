@@ -2416,36 +2416,105 @@ BackgroundRenderer.renderSkyCity = function (ctx, W, H, groundY, time, speed) {
     drawScrollingStrip(ctx, st.clouds, W, gY, time, speed, 0.3);
 };
 
-// ---------- 16. Стадіон-фінал ----------
+// ---------- 16. Футбольний стадіон ----------
 
 function buildStadium(W, H, groundY, B) {
     const rng = pixelRng(1616);
     const gY = Math.round(groundY);
     const sky = makeSky(W, H, [[0, "#04030c"], [1, "#120a24"]]);
     const sx = sky.getContext("2d");
-    // Трибуни з глядачами
-    const standTop = Math.round(gY * 0.35);
-    const crowdColors = ["#ff2ea6", "#00f6ff", "#ffe14d", "#39ff88", "#ffffff", "#ff7a3d"];
-    for (let row = 0; row < 8; row++) {
-        const y = standTop + row * B * 0.9;
+    // Трибуни з уболівальниками двох команд
+    const standTop = Math.round(gY * 0.3);
+    const rows = 8;
+    const rowH = B * 0.8;
+    const fans = [];
+    for (let row = 0; row < rows; row++) {
+        const y = standTop + row * rowH;
         sx.fillStyle = row % 2 === 0 ? "#1a1430" : "#161028";
-        sx.fillRect(0, y, W, B * 0.9);
-        for (let x = (row % 2) * B / 3; x < W; x += B * 0.66) {
-            if (rng() < 0.85) {
-                sx.fillStyle = crowdColors[Math.floor(rng() * crowdColors.length)];
-                sx.globalAlpha = 0.55;
-                sx.fillRect(x, y + B * 0.2, B * 0.35, B * 0.35);
+        sx.fillRect(0, y, W, rowH);
+        for (let x = (row % 2) * B / 3; x < W; x += B * 0.6) {
+            if (rng() < 0.9) {
+                const home = x < W / 2;
+                const color = home ? (rng() < 0.7 ? "#2a6aff" : "#ffe14d") : (rng() < 0.7 ? "#e8173c" : "#ffffff");
+                sx.fillStyle = color;
+                sx.globalAlpha = 0.6;
+                sx.fillRect(x, y + B * 0.15, B * 0.32, B * 0.32);
                 sx.globalAlpha = 1;
+                // Частина вболівальників махає шарфами (малюються щокадру)
+                if (rng() < 0.08) {
+                    fans.push({ x: x, y: y, color: color, phase: rng() * 6 });
+                }
             }
         }
     }
     // Табло
     sx.fillStyle = "#0a0a14";
-    sx.fillRect(W * 0.4, B, W * 0.2, B * 3);
-    sx.fillStyle = "#39ff88";
-    sx.fillRect(W * 0.42, B * 1.5, W * 0.16, B / 3);
-    sx.fillRect(W * 0.42, B * 2.5, W * 0.1, B / 3);
-    return { W: W, H: H, sky: sky, standTop: standTop };
+    sx.fillRect(W * 0.4, B * 0.8, W * 0.2, B * 3);
+    sx.strokeStyle = "#39ff88";
+    sx.lineWidth = 2;
+    sx.strokeRect(W * 0.4, B * 0.8, W * 0.2, B * 3);
+    sx.fillStyle = "#2a6aff";
+    sx.fillRect(W * 0.415, B * 1.2, B * 0.9, B * 0.9);
+    sx.fillStyle = "#e8173c";
+    sx.fillRect(W * 0.585 - B * 0.9, B * 1.2, B * 0.9, B * 0.9);
+
+    // Поле зі смугами трави, розміткою та воротами (прокручується)
+    const fieldH = B * 3;
+    const stripW = Math.ceil(W * 1.3 / (B * 2)) * B * 2;
+    const field = makeCanvas(stripW, fieldH + B * 3);
+    const fx = field.getContext("2d");
+    const top = field.height - fieldH;
+    for (let x = 0; x < stripW; x += B * 2) {
+        fx.fillStyle = (x / (B * 2)) % 2 === 0 ? "#2f8a3a" : "#277a32";
+        fx.fillRect(x, top, B * 2, fieldH);
+    }
+    fx.fillStyle = "rgba(255, 255, 255, 0.85)";
+    fx.fillRect(0, top + B * 0.3, stripW, 3);
+    // Центральна лінія та коло
+    const mid = Math.round(stripW * 0.35);
+    fx.fillRect(mid, top + B * 0.3, 3, fieldH - B * 0.3);
+    fx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+    fx.lineWidth = 3;
+    fx.beginPath();
+    fx.ellipse(mid + 1, top + fieldH * 0.6, B * 2.5, B * 0.9, 0, 0, Math.PI * 2);
+    fx.stroke();
+    // Ворота з сіткою
+    const gx = Math.round(stripW * 0.8);
+    fx.fillStyle = "#ffffff";
+    fx.fillRect(gx, top - B * 2.2, B / 5, B * 2.2 + B * 0.5);
+    fx.fillRect(gx + B * 2.5, top - B * 2.2, B / 5, B * 2.2 + B * 0.5);
+    fx.fillRect(gx, top - B * 2.2, B * 2.7, B / 5);
+    fx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+    fx.lineWidth = 1;
+    fx.beginPath();
+    for (let k = 1; k < 6; k++) {
+        fx.moveTo(gx + k * B * 0.45, top - B * 2);
+        fx.lineTo(gx + k * B * 0.45, top + B * 0.3);
+        fx.moveTo(gx, top - B * 2.2 + k * B * 0.45);
+        fx.lineTo(gx + B * 2.7, top - B * 2.2 + k * B * 0.45);
+    }
+    fx.stroke();
+    return { W: W, H: H, sky: sky, field: field, fans: fans, standTop: standTop, rowH: rowH };
+}
+
+// Цифри рахунку на табло 3×5 пікселів
+const SCORE_DIGITS = {
+    0: ["111", "101", "101", "101", "111"],
+    1: ["010", "110", "010", "010", "111"],
+    2: ["111", "001", "111", "100", "111"],
+    3: ["111", "001", "111", "001", "111"]
+};
+
+function drawScoreDigit(ctx, digit, x, y, px, color) {
+    const rows = SCORE_DIGITS[digit] || SCORE_DIGITS[0];
+    ctx.fillStyle = color;
+    for (let r = 0; r < rows.length; r++) {
+        for (let c = 0; c < 3; c++) {
+            if (rows[r][c] === "1") {
+                ctx.fillRect(x + c * px, y + r * px, px, px);
+            }
+        }
+    }
 }
 
 BackgroundRenderer.renderStadium = function (ctx, W, H, groundY, time, speed) {
@@ -2457,17 +2526,33 @@ BackgroundRenderer.renderStadium = function (ctx, W, H, groundY, time, speed) {
     }
     const gY = Math.round(groundY);
     ctx.drawImage(st.sky, 0, 0);
-    // Спалахи камер у натовпі
+    // Рахунок змінюється: кожні 8 с «забивають гол»
+    const goals = Math.floor(time / 8) % 4;
+    const home = Math.min(3, Math.floor((goals + 1) / 2));
+    const away = Math.min(3, Math.floor(goals / 2));
+    const px = Math.max(2, Math.round(B / 5));
+    drawScoreDigit(ctx, home, Math.round(W * 0.47 - px * 3), Math.round(B * 1.3), px, "#ffe14d");
+    ctx.fillStyle = "#ffe14d";
+    ctx.fillRect(Math.round(W * 0.5 - px / 2), Math.round(B * 1.3 + px), px, px);
+    ctx.fillRect(Math.round(W * 0.5 - px / 2), Math.round(B * 1.3 + px * 3), px, px);
+    drawScoreDigit(ctx, away, Math.round(W * 0.53), Math.round(B * 1.3), px, "#ffe14d");
+    // Уболівальники махають шарфами
+    for (const f of st.fans) {
+        const wave = Math.sin(time * 6 + f.phase);
+        ctx.fillStyle = f.color;
+        ctx.fillRect(f.x - B * 0.15, f.y - B * 0.1 + wave * B * 0.15, B * 0.6, B * 0.18);
+    }
+    // Спалахи камер
     const r = pixelRng(Math.floor(time * 8));
     ctx.fillStyle = "#ffffff";
-    for (let i = 0; i < 6; i++) {
-        ctx.fillRect(Math.round(r() * W), Math.round(st.standTop + r() * B * 7), B / 3, B / 3);
+    for (let i = 0; i < 5; i++) {
+        ctx.fillRect(Math.round(r() * W), Math.round(st.standTop + r() * st.rowH * 8), B / 3, B / 3);
     }
     // Прожектори
     for (let i = 0; i < 4; i++) {
         const baseX = W * (0.1 + i * 0.27);
-        const ang = Math.PI / 2 + Math.sin(time * 0.9 + i * 1.7) * 0.5;
-        ctx.fillStyle = i % 2 === 0 ? "rgba(0, 246, 255, 0.08)" : "rgba(255, 46, 166, 0.08)";
+        const ang = Math.PI / 2 + Math.sin(time * 0.9 + i * 1.7) * 0.45;
+        ctx.fillStyle = "rgba(255, 255, 230, 0.06)";
         ctx.beginPath();
         ctx.moveTo(baseX, 0);
         ctx.lineTo(baseX + Math.cos(ang - 0.12) * gY * 1.3, Math.sin(ang - 0.12) * gY * 1.3);
@@ -2475,30 +2560,24 @@ BackgroundRenderer.renderStadium = function (ctx, W, H, groundY, time, speed) {
         ctx.closePath();
         ctx.fill();
     }
-    // Феєрверки: вибух із піксельних іскор кожні ~1.7 с
-    for (let f = 0; f < 3; f++) {
-        const period = 1.7 + f * 0.4;
-        const local = (time + f * 0.9) % period;
-        const burst = Math.floor((time + f * 0.9) / period);
-        const fr = pixelRng(burst * 31 + f);
-        const cx = W * (0.15 + fr() * 0.7);
-        const cy = st.standTop * (0.3 + fr() * 0.5);
-        const colors = ["#ffe14d", "#ff2ea6", "#00f6ff", "#39ff88"];
-        const color = colors[Math.floor(fr() * colors.length)];
-        if (local < 1.2) {
-            const rad = local * B * 6;
-            ctx.globalAlpha = Math.max(0, 1 - local / 1.2);
-            ctx.fillStyle = color;
-            for (let k = 0; k < 14; k++) {
-                const a = k / 14 * Math.PI * 2;
-                ctx.fillRect(Math.round(cx + Math.cos(a) * rad), Math.round(cy + Math.sin(a) * rad + local * local * B), B / 3, B / 3);
-            }
-            ctx.globalAlpha = 1;
-        }
-    }
-    // Поле біля землі
-    ctx.fillStyle = "#1f6a2a";
-    ctx.fillRect(0, gY - B / 2, W, B / 2);
+    drawScrollingStrip(ctx, st.field, W, gY, time, speed, 0.3);
+    // М'яч стрибає полем по дузі від гравця до гравця
+    const pass = 2.4;
+    const t = (time % pass) / pass;
+    const leg = Math.floor(time / pass);
+    const fromX = W * (0.2 + ((leg * 0.37) % 0.6));
+    const toX = W * (0.2 + (((leg + 1) * 0.37) % 0.6));
+    const bx = fromX + (toX - fromX) * t;
+    const by = gY - B * 1.4 - Math.sin(t * Math.PI) * B * 4;
+    const bs = Math.round(B * 0.7);
+    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    ctx.fillRect(Math.round(bx - bs / 2), gY - B * 0.9, bs, B / 5);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(Math.round(bx - bs / 2), Math.round(by - bs / 2), bs, bs);
+    ctx.fillStyle = "#111111";
+    ctx.fillRect(Math.round(bx - bs / 6), Math.round(by - bs / 6), Math.round(bs / 3), Math.round(bs / 3));
+    ctx.fillRect(Math.round(bx - bs / 2), Math.round(by - bs / 2), Math.round(bs / 4), Math.round(bs / 4));
+    ctx.fillRect(Math.round(bx + bs / 4), Math.round(by + bs / 4), Math.round(bs / 4), Math.round(bs / 4));
 };
 
 // ---------- Ліги 2 та 4: сцени рівнів ----------
