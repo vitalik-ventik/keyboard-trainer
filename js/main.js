@@ -619,7 +619,12 @@ function renderCurrentSkinIcon() {
     var canvas = activeSkinCanvas;
     if (!canvas) return;
     var skinCtx = canvas.getContext("2d");
-    var size = canvas.width;
+    // Логічний розмір запам'ятовуємо один раз: canvas.width далі множиться на dpr,
+    // і повторне читання з нього збільшувало б значок при кожному поверненні в меню
+    if (!canvas.dataset.logicalSize) {
+        canvas.dataset.logicalSize = String(canvas.width);
+    }
+    var size = Number(canvas.dataset.logicalSize);
     var dpr = window.devicePixelRatio || 1;
     canvas.width = Math.round(size * dpr);
     canvas.height = Math.round(size * dpr);
