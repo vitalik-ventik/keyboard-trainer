@@ -92,7 +92,7 @@ export const SHOP_ITEMS = [
     // Легендарна зброя: як легендарні скіни, купується лише після виконання умови
     { id: "weapon_firesword", type: "weapon", name: "Вогняний меч", price: 900, legendary: true, requirement: { kind: "clears", target: 15 } },
     { id: "weapon_thunder", type: "weapon", name: "Громовий молот", price: 1000, legendary: true, requirement: { kind: "gold_count", target: 10 } },
-    { id: "weapon_gravity", type: "weapon", name: "Гравітаційна гармата", price: 1200, legendary: true, requirement: { kind: "gold_league", league: 1 } },
+    { id: "weapon_gravity", type: "weapon", name: "Гравітаційна гармата", price: 1200, legendary: true, requirement: { kind: "gold_count", target: 20 } },
 
     { id: "acc_none", type: "accessory", name: "Без аксесуара", price: 0 },
     { id: "acc_cap", type: "accessory", name: "Кепка", price: 30 },
@@ -240,12 +240,58 @@ export function explosionWindowBonus(explosionId) {
 // Підпис бонусу будь-якого товару (аксесуар, шлейф, вибух) для магазину, або ""
 export function itemPerkText(itemId) {
     if (TRAIL_PERKS[itemId]) {
-        return "🐢 траса на " + Math.round(TRAIL_PERKS[itemId].slow * 100) + "% повільніша";
+        return "🐢 Швидкість −" + Math.round(TRAIL_PERKS[itemId].slow * 100) + "%";
     }
     if (EXPLOSION_PERKS[itemId]) {
-        return "🎯 зона стрибка +" + Math.round(EXPLOSION_PERKS[itemId].window * 100) + "%";
+        return "🎯 Зона стрибка +" + Math.round(EXPLOSION_PERKS[itemId].window * 100) + "%";
+    }
+    const item = getShopItem(itemId);
+    if (item && item.type === "skin") {
+        return skinPerkText(skinPerk(item.renderType));
     }
     return accessoryPerkText(itemId);
+}
+
+// Бонуси скінів із магазину (скіни рівнів — нагорода без бонусу), за ціною:
+//   до 150 — series: монети за серії «Ідеально» ×1.5
+//   до 230 — words: монети за слова й комбінації ×2
+//   дорожчі — perfect: зона «Ідеально» +20%
+//   легендарні — shield: одна помилка чи зіткнення за рівень пробачається
+export const SKIN_SERIES_MULT = 1.5;
+export const SKIN_WORDS_MULT = 2;
+export const SKIN_PERFECT_BONUS = 0.2;
+
+export function skinPerk(renderType) {
+    const item = renderType ? getShopSkinByRenderType(renderType) : null;
+    if (!item || item.price <= 0) {
+        return null;
+    }
+    if (item.legendary) {
+        return "shield";
+    }
+    if (item.price <= 150) {
+        return "series";
+    }
+    if (item.price <= 230) {
+        return "words";
+    }
+    return "perfect";
+}
+
+export function skinPerkText(perk) {
+    if (perk === "series") {
+        return "🔥 Монети за серії ×" + SKIN_SERIES_MULT;
+    }
+    if (perk === "words") {
+        return "📝 Монети за слова ×" + SKIN_WORDS_MULT;
+    }
+    if (perk === "perfect") {
+        return "💠 Зона «Ідеально» +" + Math.round(SKIN_PERFECT_BONUS * 100) + "%";
+    }
+    if (perk === "shield") {
+        return "🛡 Щит: 1 помилка за рівень";
+    }
+    return "";
 }
 
 // Бонус монет за зброю: крутіша зброя — монети збираються швидше.
@@ -288,14 +334,15 @@ export function computeReward(run) {
         base += run.series;
     }
     // Рівні-слова: +2 за кожне слово без жодної помилки
+    const wordsMult = run.wordsMult || 1;
     if (run.words > 0) {
-        lines.push({ label: "Слова без помилок", value: run.words * 2 });
-        base += run.words * 2;
+        lines.push({ label: "Слова без помилок", value: run.words * 2 * wordsMult });
+        base += run.words * 2 * wordsMult;
     }
     // Рівні-комбінації: +1 за кожен склад, перекат чи повтор без помилки
     if (run.combos > 0) {
-        lines.push({ label: "Комбінації без помилок", value: run.combos });
-        base += run.combos;
+        lines.push({ label: "Комбінації без помилок", value: run.combos * wordsMult });
+        base += run.combos * wordsMult;
     }
     if (!run.won) {
         // Вибух: зберігається половина зібраного

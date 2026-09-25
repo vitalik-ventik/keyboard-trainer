@@ -7,7 +7,7 @@
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
-import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, accessoryPerk, trailSlowdown, explosionWindowBonus, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
+import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, accessoryPerk, trailSlowdown, explosionWindowBonus, skinPerk, SKIN_SERIES_MULT, SKIN_WORDS_MULT, SKIN_PERFECT_BONUS, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
 import { EXTRA_LEVEL_SKINS } from "./level_skins_extra.js";
 import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, sanitizeAchievementData, localDayKey } from "./achievements.js";
@@ -3190,6 +3190,13 @@ export class Engine {
         const multiplier = (this.hitWindowSetting === "large" ? 2 : 1) * (1 + windowBonus);
         this.okPx = this.effectiveSpeed * windows.okTime * multiplier;
         this.perfectPx = this.effectiveSpeed * windows.perfectTime * multiplier;
+        // Бонус скіна з магазину: серії, слова, ширша зона «Ідеально» або щит
+        this.skinPerk = demoMode ? null : skinPerk(save.getActiveSkin());
+        if (this.skinPerk === "perfect") {
+            this.perfectPx = Math.min(this.okPx * 0.9, this.perfectPx * (1 + SKIN_PERFECT_BONUS));
+        }
+        this.shieldReady = this.skinPerk === "shield";
+        this.shieldFlash = 0;
 
         this.cameraMotion = save.getCameraMotion();
 
@@ -3384,6 +3391,7 @@ export class Engine {
             runHits: this.runHits,
             runWords: this.runWords,
             runCombos: this.runCombos,
+            wordsMult: this.wordsMult(),
             runPerfect: this.runPerfect,
             runSeries: this.runSeries,
             runMaxCombo: this.runMaxCombo,
@@ -3446,6 +3454,9 @@ export class Engine {
             if (perfect) {
                 this.runPerfect++;
                 bonus = seriesBonus(this.combo + 1);
+                if (bonus > 0 && this.skinPerk === "series") {
+                    bonus = Math.round(bonus * SKIN_SERIES_MULT);
+                }
                 this.runSeries += bonus;
                 gain += 1 + bonus;
             }
@@ -3497,6 +3508,30 @@ export class Engine {
         if (typeof this.onJump === "function" && !this.weaponSpec) {
             this.onJump();
         }
+    }
+
+    // Множник монет за слова й комбінації (бонус скіна)
+    wordsMult() {
+        return this.skinPerk === "words" ? SKIN_WORDS_MULT : 1;
+    }
+
+    // Щит легендарного скіна: пробачає одну помилку чи зіткнення за рівень.
+    // Повертає true, якщо щит спрацював (тоді вибуху немає)
+    useShield() {
+        if (!this.shieldReady || this.demoMode || !this.player.alive) {
+            return false;
+        }
+        this.shieldReady = false;
+        this.shieldFlash = 1;
+        this.combo = 0;
+        this.scorePopups.push({
+            x: this.player.x,
+            y: this.player.y + CUBE_SIZE * 2.2,
+            text: "🛡 Щит!",
+            life: 1.3,
+            maxLife: 1.3
+        });
+        return true;
     }
 
     explode() {
@@ -3585,6 +3620,9 @@ export class Engine {
         }
         this.worldReact();
         if (this.difficulty === "HARD") {
+            if (this.useShield()) {
+                return { result: "wrong", letter: letter };
+            }
             this.explode();
             return { result: "exploded", letter: letter };
         }
@@ -3679,7 +3717,7 @@ export class Engine {
             this.scorePopups.push({
                 x: spike.x,
                 y: SPIKE_H + 90,
-                text: (kind ? kind.unit : "Комбо") + " «" + spike.word + "»! +" + COMBO_BONUS,
+                text: (kind ? kind.unit : "Комбо") + " «" + spike.word + "»! +" + COMBO_BONUS * this.wordsMult(),
                 life: 1.3,
                 maxLife: 1.3,
                 crystal: true
@@ -3689,7 +3727,7 @@ export class Engine {
             this.scorePopups.push({
                 x: spike.x,
                 y: SPIKE_H + 90,
-                text: "Слово «" + spike.word + "»! +" + WORD_BONUS,
+                text: "Слово «" + spike.word + "»! +" + WORD_BONUS * this.wordsMult(),
                 life: 1.5,
                 maxLife: 1.5,
                 crystal: true
@@ -4010,6 +4048,7 @@ export class Engine {
             }
         }
         this.perfectFlash = Math.max(0, this.perfectFlash - dt);
+        this.shieldFlash = Math.max(0, (this.shieldFlash || 0) - dt * 1.2);
         if (this.boom) {
             this.boom.t += dt;
             if (this.boom.t > EXPLOSION_DURATION) {
@@ -4124,8 +4163,14 @@ export class Engine {
                 const gap = target.x - spikeHalfWidth(target.type) - this.player.x;
                 if (gap <= CUBE_SIZE * 0.4) {
                     this.noteSpikeMiss(target);
-                    this.explode();
-                    return;
+                    if (this.useShield()) {
+                        // Щит перестрибує шип замість вибуху
+                        this.markSpikeCleared(target, 0);
+                        this.jump(gap + 2 * spikeHalfWidth(target.type) + SAFE_MARGIN, false);
+                    } else {
+                        this.explode();
+                        return;
+                    }
                 }
             }
         }
@@ -4138,6 +4183,11 @@ export class Engine {
             const halfW = spikeHalfWidth(spike.type);
             if (dx < halfW + CUBE_SIZE * 0.32 && this.player.y < SPIKE_H * 0.72) {
                 this.noteSpikeMiss(spike);
+                if (this.useShield()) {
+                    // Щит розбиває шип, і кубик їде далі
+                    this.markSpikeCleared(spike, 0);
+                    continue;
+                }
                 spike.state = "hit";
                 this.explode();
                 return;
@@ -4800,6 +4850,17 @@ export class Engine {
             drawHeldWeapon(ctx, this.weaponId, CUBE_SIZE, this.weaponPose(), this.currentTime);
         }
 
+        // Щит: поки не використаний — ледь помітна бульбашка; спрацював — яскравий спалах, що гасне
+        if (this.shieldReady || this.shieldFlash > 0) {
+            const flash = this.shieldFlash || 0;
+            const r = CUBE_SIZE * (0.85 + flash * 0.4);
+            ctx.strokeStyle = "rgba(140, 220, 255, " + (this.shieldReady ? 0.35 + 0.15 * Math.sin(this.currentTime * 0.004) : flash).toFixed(3) + ")";
+            ctx.lineWidth = this.shieldReady ? 2 : 4;
+            ctx.beginPath();
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
         // Спалах рамки після «Ідеально»
         if (this.perfectFlash > 0) {
             var flashT = this.perfectFlash / PERFECT_FLASH_TIME;
@@ -4861,7 +4922,7 @@ export class Engine {
         // Монети, зібрані в цьому забігу
         drawCoinIcon(ctx, barX + barW + 70, barY + barH / 2, 16);
         ctx.fillStyle = "#ffd84a";
-        ctx.fillText(String(this.runHits + this.runPerfect + this.runSeries + this.runWords * WORD_BONUS + this.runCombos * COMBO_BONUS), barX + barW + 82, barY + barH / 2);
+        ctx.fillText(String(this.runHits + this.runPerfect + this.runSeries + (this.runWords * WORD_BONUS + this.runCombos * COMBO_BONUS) * this.wordsMult()), barX + barW + 82, barY + barH / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = "#ffe14d";
         var maxForMode = this.difficulty === "HARD" ? this.maxHard : this.maxEasy;
