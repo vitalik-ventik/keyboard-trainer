@@ -27,22 +27,22 @@ export const LEVELS_CONFIG = [
         id: 1,
         name: "Базова",
         levels: [
-            { id: 1,  leagueId: 1, name: "Перші кроки",             letters: ["А","О","В","Л"], speed: 165, spikeCount: 12, seed: 2001, bgTheme: "cyber_grid",              accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_1_1", name: "Стандартний Неон", renderType: "neon_base" } },
-            { id: 2,  leagueId: 1, name: "Голосний старт",          letters: ["У","К","Е","П"], speed: 172, spikeCount: 13, seed: 2002, bgTheme: "parallax_city",             accentColor: "#aa44ff", rhythmGroups: false, skin: { id: "skin_1_2", name: "Кібер-Око", renderType: "cyber_eye" } },
-            { id: 3,  leagueId: 1, name: "Ближче до країв",         letters: ["Ф","І","Д","Ж"], speed: 179, spikeCount: 14, seed: 2003, bgTheme: "starfield",                 accentColor: "#00d4aa", rhythmGroups: false, skin: { id: "skin_1_3", name: "Ретро-Геймер", renderType: "retro_gamer" } },
-            { id: 4,  leagueId: 1, name: "Нижній лівий фланг",     letters: ["Я","Ч","С","М"], speed: 186, spikeCount: 15, seed: 2004, bgTheme: "energy_grid",             accentColor: "#6a5acd", rhythmGroups: false, skin: { id: "skin_1_4", name: "Трон", renderType: "throne" } },
-            { id: 5,  leagueId: 1, name: "Ліва вертикаль",          letters: ["Й","Ц","Ф","І","Я","Ч"], speed: 193, spikeCount: 16, seed: 2005, bgTheme: "cyber_columns",         accentColor: "#0066ff", rhythmGroups: false, skin: { id: "skin_1_5", name: "Приціл", renderType: "crosshair" } },
-            { id: 6,  leagueId: 1, name: "Права вертикаль",         letters: ["Ш","Щ","З","Х","Ї","Ґ"], speed: 200, spikeCount: 17, seed: 2006, bgTheme: "geo_landscape",     accentColor: "#00ff41", rhythmGroups: false, skin: { id: "skin_1_6", name: "Матричний Піксель", renderType: "matrix_pixel" } },
-            { id: 7,  leagueId: 1, name: "Ядро клавіатури",         letters: ["Е","Н","А","П","И","Т"], speed: 207, spikeCount: 18, seed: 2007, bgTheme: "pulsar_core",            accentColor: "#ff8855", rhythmGroups: false, skin: { id: "skin_1_7", name: "Слайс", renderType: "slice" } },
-            { id: 8,  leagueId: 1, name: "Нижній правий фланг",     letters: ["И","Т","Ь","Б","Ю","Є"], speed: 214, spikeCount: 19, seed: 2008, bgTheme: "demon",            accentColor: "#9944dd", rhythmGroups: false, skin: { id: "skin_1_8", name: "Сяючий Алмаз", renderType: "shining_diamond" } },
-            { id: 9,  leagueId: 1, name: "Ліва діагональ",          letters: ["Й","У","І","В","Я","С"], speed: 221, spikeCount: 20, seed: 2009, bgTheme: "scanline_sweep",         accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_1_9", name: "Подвійна Рамка", renderType: "double_frame" } },
-            { id: 10, leagueId: 1, name: "Права діагональ",         letters: ["Ш","Х","Л","Д","Ь","Б"], speed: 228, spikeCount: 21, seed: 2010, bgTheme: "hyperspace_tunnel",       accentColor: "#8899bb", rhythmGroups: false, skin: { id: "skin_1_10", name: "Моноліт", renderType: "monolith" } },
-            { id: 11, leagueId: 1, name: "Шиплячий мікс",           letters: ["Ч","Щ","Ж","Ц","Ю","Ґ"], speed: 235, spikeCount: 22, seed: 2011, bgTheme: "toxic_waste",            accentColor: "#ccccee", rhythmGroups: false, skin: { id: "skin_1_11", name: "Радар", renderType: "radar" } },
-            { id: 12, leagueId: 1, name: "Вокальний лабіринт",      letters: ["У","Е","А","О","И","І"], speed: 242, spikeCount: 23, seed: 2012, bgTheme: "neon_rain",          accentColor: "#39ff14", rhythmGroups: false, skin: { id: "skin_1_12", name: "Стріла Швидкості", renderType: "speed_arrow" } },
-            { id: 13, leagueId: 1, name: "Далекі куточки",          letters: ["Й","Ф","Я","Х","Ї","Є"], speed: 249, spikeCount: 24, seed: 2013, bgTheme: "bezier_waves",           accentColor: "#e5ff00", rhythmGroups: false, skin: { id: "skin_1_13", name: "Неоновий Хрест", renderType: "neon_cross" } },
-            { id: 14, leagueId: 1, name: "Центральні сусіди",       letters: ["К","Г","Р","Л","М","Т"], speed: 256, spikeCount: 25, seed: 2014, bgTheme: "binary_star",      accentColor: "#ff3800", rhythmGroups: false, skin: { id: "skin_1_14", name: "Рідкий Градієнт", renderType: "liquid_gradient" } },
-            { id: 15, leagueId: 1, name: "Неонові крила",           letters: ["Й","Ц","Ф","Х","Ї","Ґ"], speed: 263, spikeCount: 26, seed: 2015, bgTheme: "aurora_wings",           accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_1_15", name: "Крилатий", renderType: "winged" } },
-            { id: 16, leagueId: 1, name: "Базовий тріумф",          letters: ["В","А","П","Р","О","Л"], speed: 270, spikeCount: 28, seed: 2016, bgTheme: "triumph_flare",          accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_16", name: "Кубок Світла", renderType: "light_cup" } }
+            { id: 1,  leagueId: 1, name: "Перші кроки",             letters: ["А","П","Р","О"], speed: 165, spikeCount: 12, seed: 2001, bgTheme: "cyber_grid",              accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_1_1", name: "Стандартний Неон", renderType: "neon_base" } },
+            { id: 2,  leagueId: 1, name: "Сусіди центру",           letters: ["В","І","Л","Д"], speed: 172, spikeCount: 13, seed: 2002, bgTheme: "parallax_city",             accentColor: "#aa44ff", rhythmGroups: false, skin: { id: "skin_1_2", name: "Кібер-Око", renderType: "cyber_eye" } },
+            { id: 3,  leagueId: 1, name: "Верхній центр",           letters: ["К","Е","Н","Г"], speed: 179, spikeCount: 14, seed: 2003, bgTheme: "starfield",                 accentColor: "#00d4aa", rhythmGroups: false, skin: { id: "skin_1_3", name: "Ретро-Геймер", renderType: "retro_gamer" } },
+            { id: 4,  leagueId: 1, name: "Нижній центр",            letters: ["М","И","Т","Ь"], speed: 186, spikeCount: 15, seed: 2004, bgTheme: "energy_grid",             accentColor: "#6a5acd", rhythmGroups: false, skin: { id: "skin_1_4", name: "Трон", renderType: "throne" } },
+            { id: 5,  leagueId: 1, name: "Верхні сусіди",           letters: ["У","Ц","Ш","Щ"], speed: 193, spikeCount: 16, seed: 2005, bgTheme: "cyber_columns",         accentColor: "#0066ff", rhythmGroups: false, skin: { id: "skin_1_5", name: "Приціл", renderType: "crosshair" } },
+            { id: 6,  leagueId: 1, name: "Нижні сусіди",            letters: ["С","Ч","Б","Ю"], speed: 200, spikeCount: 17, seed: 2006, bgTheme: "geo_landscape",     accentColor: "#00ff41", rhythmGroups: false, skin: { id: "skin_1_6", name: "Матричний Піксель", renderType: "matrix_pixel" } },
+            { id: 7,  leagueId: 1, name: "Краї середнього ряду",    letters: ["Ф","І","Ж","Є"], speed: 207, spikeCount: 18, seed: 2007, bgTheme: "pulsar_core",            accentColor: "#ff8855", rhythmGroups: false, skin: { id: "skin_1_7", name: "Слайс", renderType: "slice" } },
+            { id: 8,  leagueId: 1, name: "Краї верхнього ряду",     letters: ["Й","Ц","З","Х"], speed: 214, spikeCount: 19, seed: 2008, bgTheme: "demon",            accentColor: "#9944dd", rhythmGroups: false, skin: { id: "skin_1_8", name: "Сяючий Алмаз", renderType: "shining_diamond" } },
+            { id: 9,  leagueId: 1, name: "Далекі кути",             letters: ["Я","Ч","Х","Ї"], speed: 221, spikeCount: 20, seed: 2009, bgTheme: "scanline_sweep",         accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_1_9", name: "Подвійна Рамка", renderType: "double_frame" } },
+            { id: 10, leagueId: 1, name: "Остання літера",          letters: ["А","В","Є","Ґ"], speed: 228, spikeCount: 21, seed: 2010, bgTheme: "hyperspace_tunnel",       accentColor: "#8899bb", rhythmGroups: false, skin: { id: "skin_1_10", name: "Моноліт", renderType: "monolith" } },
+            { id: 11, leagueId: 1, name: "Середній ряд",            letters: ["В","А","П","Р","О","Л"], speed: 235, spikeCount: 22, seed: 2011, bgTheme: "toxic_waste",            accentColor: "#ccccee", rhythmGroups: false, skin: { id: "skin_1_11", name: "Радар", renderType: "radar" } },
+            { id: 12, leagueId: 1, name: "Верхній ряд",             letters: ["У","К","Е","Н","Г","Ш"], speed: 242, spikeCount: 23, seed: 2012, bgTheme: "neon_rain",          accentColor: "#39ff14", rhythmGroups: false, skin: { id: "skin_1_12", name: "Стріла Швидкості", renderType: "speed_arrow" } },
+            { id: 13, leagueId: 1, name: "Нижній ряд",              letters: ["С","М","И","Т","Ь","Б"], speed: 249, spikeCount: 24, seed: 2013, bgTheme: "bezier_waves",           accentColor: "#e5ff00", rhythmGroups: false, skin: { id: "skin_1_13", name: "Неоновий Хрест", renderType: "neon_cross" } },
+            { id: 14, leagueId: 1, name: "Широкий середній ряд",    letters: ["Ф","І","В","Ж","Є","Ґ"], speed: 256, spikeCount: 25, seed: 2014, bgTheme: "binary_star",      accentColor: "#ff3800", rhythmGroups: false, skin: { id: "skin_1_14", name: "Рідкий Градієнт", renderType: "liquid_gradient" } },
+            { id: 15, leagueId: 1, name: "Широкий верхній ряд",     letters: ["Й","Ц","У","Щ","З","Х"], speed: 263, spikeCount: 26, seed: 2015, bgTheme: "aurora_wings",           accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_1_15", name: "Крилатий", renderType: "winged" } },
+            { id: 16, leagueId: 1, name: "Широкий нижній ряд",      letters: ["Я","Ч","С","Ю","Є","Ї"], speed: 270, spikeCount: 28, seed: 2016, bgTheme: "triumph_flare",          accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_16", name: "Кубок Світла", renderType: "light_cup" } }
         ]
     },
     {
@@ -692,6 +692,16 @@ export const SKIN_RENDERERS = {
 
 // ---------- Генерація фіксованої траси ----------
 
+// Ліва половина розкладки ЙЦУКЕН (набирається лівою рукою), решта — правою
+const LEFT_HAND_LETTERS = new Set([
+    "Й","Ц","У","К","Е",
+    "Ф","І","В","А","П",
+    "Я","Ч","С","М","И"
+]);
+
+// Ймовірність, що наступна літера буде з протилежного боку клавіатури
+const HAND_SWITCH_CHANCE = 0.7;
+
 function reactionTimeForLevel(levelId) {
     const t = (levelId - 1) / 30;
     return 1.2 - 0.7 * t;
@@ -722,11 +732,29 @@ function generateTrack(level) {
     let lastLetter2 = null;
     const lastTypes = [];
 
+    const leftPool = level.letters.filter(function (l) { return LEFT_HAND_LETTERS.has(l); });
+    const rightPool = level.letters.filter(function (l) { return !LEFT_HAND_LETTERS.has(l); });
+    const canAlternate = leftPool.length > 0 && rightPool.length > 0;
+
+    // Вибір пулу: переважно чергуємо руки, щоб літери не йшли довгою серією з одного боку
+    function choosePool() {
+        if (!canAlternate || lastLetter1 === null) {
+            return level.letters;
+        }
+        const lastWasLeft = LEFT_HAND_LETTERS.has(lastLetter1);
+        const switchHand = rng() < HAND_SWITCH_CHANCE;
+        if (lastWasLeft === switchHand) {
+            return rightPool;
+        }
+        return leftPool;
+    }
+
     function pickLetter() {
-        let letter = level.letters[Math.floor(rng() * level.letters.length)];
+        const pool = choosePool();
+        let letter = pool[Math.floor(rng() * pool.length)];
         let guard = 0;
         while (letter === lastLetter1 && letter === lastLetter2 && guard < 10) {
-            letter = level.letters[Math.floor(rng() * level.letters.length)];
+            letter = pool[Math.floor(rng() * pool.length)];
             guard++;
         }
         lastLetter2 = lastLetter1;
