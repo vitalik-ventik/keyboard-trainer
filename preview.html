@@ -186,6 +186,34 @@
         }
         .shop-item.has-sound { cursor: pointer; }
         .shop-item-sound { color: #39ff88; font-size: 0.66rem; text-align: center; }
+        /* ---------- Сундуки ---------- */
+        .chest-help { width: 90vw; margin: 0 auto 8px; color: #aab; font-size: 0.75rem; line-height: 1.5; }
+        .chest-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 10px; width: 90vw; margin: 0 auto; }
+        .chest-card {
+            background: #0c0c24;
+            border: 1px solid #1a1a40;
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .chest-card.sound-on { border-color: #39ff88; box-shadow: 0 0 12px rgba(57, 255, 136, 0.45); }
+        .chest-card canvas {
+            display: block;
+            border-radius: 8px;
+            background: radial-gradient(ellipse at 50% 70%, rgba(60, 40, 90, 0.9), rgba(5, 6, 15, 0.95));
+        }
+        .chest-card-title { color: #ffcc33; font-weight: 700; font-size: 0.9rem; }
+        .chest-card-result { color: #fff4c8; font-size: 0.78rem; min-height: 1.2em; text-align: center; }
+        .chest-card-info { color: #bbc; font-size: 0.7rem; line-height: 1.5; width: 100%; }
+        .chest-card-info b { color: #fff; }
+        .chest-card button {
+            background: #1a1d3a; color: #eaf6ff; border: 1px solid #3a3f7a; border-radius: 6px;
+            padding: 5px 10px; font-weight: 600; cursor: pointer;
+        }
         .error-msg {
             display: none;
             text-align: center;
@@ -203,11 +231,14 @@
         <button type="button" id="btnBench">Заміряти всі фони</button>
         <span id="benchStatus"></span>
         <a href="#sounds">До звуків ↓</a>
+        <a href="#chests">До сундуків ↓</a>
         <a href="#shop">До магазину ↓</a>
     </div>
     <div class="grid" id="grid"></div>
     <h1 id="sounds">ЗВУКИ</h1>
     <div class="sound-panel" id="soundPanel"></div>
+    <h1 id="chests">СУНДУКИ</h1>
+    <div id="chestSection"></div>
     <h1 id="shop">МАГАЗИН — УСІ ТОВАРИ</h1>
     <p class="subtitle">Тут усі товари анімовані, навіть ті, що в грі ще не куплені (у грі до покупки вони сірі й нерухомі). Кубик — стандартний неоновий.</p>
     <div id="shopSections"></div>
