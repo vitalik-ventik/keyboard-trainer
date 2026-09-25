@@ -85,6 +85,9 @@ export const SHOP_ITEMS = [
     { id: "weapon_rifle", type: "weapon", name: "Автомат", price: 280 },
     { id: "weapon_flamethrower", type: "weapon", name: "Вогнемет", price: 320 },
     { id: "weapon_laser", type: "weapon", name: "Лазер", price: 350 },
+    { id: "weapon_saber_green", type: "weapon", name: "Світловий меч (зелений)", price: 400 },
+    { id: "weapon_saber_blue", type: "weapon", name: "Світловий меч (синій)", price: 400 },
+    { id: "weapon_saber_red", type: "weapon", name: "Світловий меч (червоний)", price: 400 },
     { id: "weapon_rocket", type: "weapon", name: "Ракетниця", price: 450 },
     // Легендарна зброя: як легендарні скіни, купується лише після виконання умови
     { id: "weapon_firesword", type: "weapon", name: "Вогняний меч", price: 900, legendary: true, requirement: { kind: "boss" } },

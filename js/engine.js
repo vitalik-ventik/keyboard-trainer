@@ -3602,7 +3602,8 @@ export class Engine {
             const count = spec.mode === "burst" ? spec.count : 1;
             for (let i = 0; i < count; i++) {
                 this.shots.push({
-                    kind: spec.mode === "axe" ? "axe" : spec.projectile,
+                    kind: spec.mode === "axe" ? (spec.saber ? "saber" : "axe") : spec.projectile,
+                    color: spec.saber || null,
                     spike: spike,
                     t: -(spec.gap || 0) * i,
                     index: i,
@@ -3724,6 +3725,9 @@ export class Engine {
             }
         } else if (fx === "burn") {
             this.spawnDebris(14, Object.assign(base, { colors: ["#ffb81a", "#ff5a1a", "#ffe680", "rgba(60, 50, 50, 0.9)"], angleMin: Math.PI * 0.3, angleMax: Math.PI * 0.7, speedMin: 40, speedMax: 120, sizeMin: 2, sizeMax: 4, gravity: -140, life: 1.4, outline: false, spin: 3 }));
+        } else if (fx === "saber_green" || fx === "saber_blue" || fx === "saber_red") {
+            const glow = this.weaponSpec.saber || "#ffffff";
+            this.spawnDebris(10, Object.assign(base, { colors: [glow, "#ffffff", colors[0]], angleMin: Math.PI * 0.1, angleMax: Math.PI * 0.8, speedMin: 90, speedMax: 240, sizeMin: 2, sizeMax: 4, gravity: 300, life: 0.7, outline: false }));
         } else if (fx === "fireslice") {
             this.spawnDebris(12, Object.assign(base, { colors: ["#ffb81a", "#ff5a1a", "#fff4a0"], angleMin: Math.PI * 0.1, angleMax: Math.PI * 0.8, speedMin: 90, speedMax: 240, sizeMin: 2, sizeMax: 4, gravity: 200, life: 0.8, outline: false }));
         } else if (fx === "zap") {
@@ -3816,8 +3820,8 @@ export class Engine {
                 } else {
                     this.destroySpike(s.spike);
                 }
-                if (s.kind === "axe") {
-                    // Сокира-бумеранг повертається в руку
+                if (s.kind === "axe" || s.kind === "saber") {
+                    // Сокира-бумеранг і світловий меч повертаються в руку
                     s.returning = true;
                     s.t = 0;
                     s.dur = 0.32;
@@ -3876,7 +3880,7 @@ export class Engine {
         }
         let away = false;
         for (const s of this.shots) {
-            if (s.kind === "axe") {
+            if (s.kind === "axe" || s.kind === "saber") {
                 away = true;
             }
         }
@@ -3918,7 +3922,7 @@ export class Engine {
             const prev = s.prev.length > 1 ? s.prev[1] : { x: s.fromX, y: s.fromY };
             const angle = Math.atan2(-(pos.y - prev.y), pos.x - prev.x);
             const trail = s.prev.map(function (p) { return { x: anchorX + p.x - camX, y: groundY - p.y }; });
-            drawProjectile(ctx, s.kind, anchorX + pos.x - camX, groundY - pos.y, angle, s.t, CUBE_SIZE, trail);
+            drawProjectile(ctx, s.kind, anchorX + pos.x - camX, groundY - pos.y, angle, s.t, CUBE_SIZE, trail, s.color);
         }
     }
 

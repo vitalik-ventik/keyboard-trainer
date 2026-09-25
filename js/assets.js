@@ -22,6 +22,7 @@ const SOUND_FILES = {
     missile_boom: "sounds/missile_boom.wav",
     thunder: "sounds/thunder.wav",
     gravi_sound: "sounds/gravi_sound.wav",
+    lightsaber: "sounds/lightsaber.wav",
     // Сундук (тимчасові синтезовані звуки — можна замінити файлами з тими самими іменами)
     chest_shake: "sounds/chest_shake.wav",
     chest_open: "sounds/chest_open.wav",
