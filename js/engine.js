@@ -1988,8 +1988,8 @@ const PERFECT_FLASH_TIME = 0.35;
 const EASTER_EGG_DURATION = 5000;
 const SHAKE_TIME = 0.45;
 const TITLE_TIME = 2.6;
-// Рев демона на рівні боса після помилки гравця
-const ROAR_TIME = 0.7;
+// Реакція світу на помилку гравця (на рівні боса — рев демона)
+const OOPS_TIME = 0.7;
 const FINISH_OPEN_DISTANCE = 300;
 
 // Реакція світу на приземлення кубика
@@ -2424,7 +2424,7 @@ export class Engine {
         this.eggStart = null;
         this.weather = BackgroundRenderer.pickWeather(this.level.bgTheme);
         this.shakeTime = 0;
-        this.roarTime = 0;
+        this.oopsTime = 0;
         this.elapsed = 0;
     }
 
@@ -2681,7 +2681,7 @@ export class Engine {
             return { result: "correct", letter: letter };
         }
 
-        this.demonRoar();
+        this.worldReact();
         if (this.difficulty === "HARD") {
             this.explode();
             return { result: "exploded", letter: letter };
@@ -2690,13 +2690,11 @@ export class Engine {
         return { result: "wrong", letter: letter };
     }
 
-    // На рівні боса демон реве на кожну помилку: очі спалахують, екран ледь здригається
-    demonRoar() {
-        if (this.level.bgTheme !== "pixel_nether") {
-            return;
-        }
-        this.roarTime = ROAR_TIME;
-        if (this.cameraMotion) {
+    // Світ реагує на кожну помилку: гуркіт грому, гудіння трибун, спалах очей дракона…
+    // На рівні боса демон реве, а екран ледь здригається
+    worldReact() {
+        this.oopsTime = OOPS_TIME;
+        if (this.level.bgTheme === "pixel_nether" && this.cameraMotion) {
             this.shakeTime = Math.max(this.shakeTime, SHAKE_TIME * 0.4);
         }
     }
@@ -2755,7 +2753,7 @@ export class Engine {
         }
         this.perfectFlash = Math.max(0, this.perfectFlash - dt);
         this.shakeTime = Math.max(0, this.shakeTime - dt);
-        this.roarTime = Math.max(0, this.roarTime - dt);
+        this.oopsTime = Math.max(0, this.oopsTime - dt);
         this.elapsed += dt;
         for (var si = this.scorePopups.length - 1; si >= 0; si--) {
             var sp = this.scorePopups[si];
@@ -2919,7 +2917,7 @@ export class Engine {
             eggT: eggT !== null && eggT <= 1 ? eggT : null,
             weather: this.weather,
             camY: this.cameraMotion ? this.player.y * 0.35 : 0,
-            roar: this.roarTime / ROAR_TIME
+            oops: this.oopsTime / OOPS_TIME
         });
         if (this.bgCache.shouldUpdate(time)) {
             var self = this;
