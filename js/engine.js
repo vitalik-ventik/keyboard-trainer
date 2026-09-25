@@ -7,7 +7,8 @@
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
-import { DEFAULT_ITEMS, getShopItem, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
+import { DEFAULT_ITEMS, getShopItem, getShopSkinByRenderType, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
+import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
 
 // ---------- Детермінований PRNG (фіксовані траси) ----------
 
@@ -1588,6 +1589,9 @@ export const SKIN_RENDERERS = {
     }
 };
 
+// Скіни з магазину малюються так само, як скіни рівнів
+Object.assign(SKIN_RENDERERS, SHOP_SKIN_RENDERERS);
+
 // ---------- Генерація фіксованої траси ----------
 
 // Ліва половина розкладки ЙЦУКЕН (набирається лівою рукою), решта — правою
@@ -2054,6 +2058,11 @@ export const save = {
         if (stored && !SKIN_RENDERERS[stored]) {
             return DEFAULT_SKIN;
         }
+        // Магазинний скін, який не куплено (наприклад, після підробки збереження)
+        const shopSkin = stored ? getShopSkinByRenderType(stored) : null;
+        if (shopSkin && !this.isOwned(shopSkin.id)) {
+            return DEFAULT_SKIN;
+        }
         // Поки гравець нічого не вибрав, кубик носить стартовий скін (завжди відкритий)
         return saveData.settings.activeSkin || DEFAULT_SKIN;
     },
@@ -2145,7 +2154,12 @@ export const save = {
         if (!item || !this.isOwned(itemId)) {
             return false;
         }
-        saveData.shop.equipped[item.type] = itemId;
+        if (item.type === "skin") {
+            // Скін одягається так само, як скіни рівнів
+            saveData.settings.activeSkin = item.renderType;
+        } else {
+            saveData.shop.equipped[item.type] = itemId;
+        }
         this.persist();
         return true;
     },

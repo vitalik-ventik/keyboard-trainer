@@ -1260,3 +1260,33 @@ body {
     color: #ffe14d;
     font-weight: 700;
 }
+
+/* ---------- Скіни з магазину в окні вибору скіна ---------- */
+
+.skins-section-title {
+    grid-column: 1 / -1;
+    margin: 6px 0 -4px;
+    font-size: 1.7vmin;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #9fb4d8;
+    border-bottom: 1px solid rgba(159, 180, 216, 0.25);
+    padding-bottom: 4px;
+}
+
+.skin-card.for-sale {
+    --c: 255, 204, 51;
+    border-style: dashed;
+}
+
+.skin-card.for-sale .skin-card-name {
+    color: #9a9aa8;
+}
+
+.skin-card .sale-hint {
+    font-size: 1.3vmin;
+    font-weight: 700;
+    color: #ffcc33;
+    text-align: center;
+}
