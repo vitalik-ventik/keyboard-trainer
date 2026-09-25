@@ -295,13 +295,13 @@ function drawSaberShape(ctx, s, time, color) {
     ctx.fillRect(-s * 0.06, s * 0.14, s * 0.12, s * 0.04);
     ctx.fillStyle = "#e0303a";
     ctx.fillRect(s * 0.03, 0, s * 0.03, s * 0.04);
-    const hum = 1 + Math.sin(time * 0.05) * 0.04;
-    const len = s * 1.05 * hum;
-    // Сяйво навколо леза
-    ctx.globalAlpha *= 0.35;
+    // Довжина леза стала; «гудіння» — лише м'яке повільне дихання сяйва
+    const len = s * 1.05;
+    const glow = 0.32 + 0.06 * Math.sin(time * 0.006);
+    ctx.globalAlpha *= glow;
     ctx.fillStyle = color;
     ctx.fillRect(-s * 0.1, -len - s * 0.04, s * 0.2, len);
-    ctx.globalAlpha /= 0.35;
+    ctx.globalAlpha /= glow;
     ctx.fillStyle = color;
     ctx.fillRect(-s * 0.05, -len, s * 0.1, len - s * 0.04);
     ctx.fillStyle = "#ffffff";
