@@ -75,7 +75,7 @@ export const LEVELS_CONFIG = [
             { id: 23, leagueId: 2, name: "Далекі сусіди",            letters: ["Й","І","С","К","П","Т","Г","Л","Щ","Є"], speed: 282, spikeCount: 38, seed: 2107, bgTheme: "pixel_cave", accentColor: "#33d6d0", rhythmGroups: false, skin: { id: "skin_2_7", name: "Алмазна руда", renderType: "equalizer" } },
             { id: 44, leagueId: 2, name: "Тренування помилок: вершина", letters: ["Ж","Є","Х","Ї","Щ","Ґ","Ю","Ф"], adaptive: { pool: ["Й","Ц","У","К","Е","Н","Г","Ш","Щ","З","Х","Ї","Ф","І","В","А","П","Р","О","Л","Д","Ж","Є","Ґ","Я","Ч","С","М","И","Т","Ь","Б","Ю"], count: 8 }, speed: 285, spikeCount: 38, seed: 2029, tuneAs: 23, bgTheme: "obsidian_peak", accentColor: "#b06bff", rhythmGroups: false, skin: { id: "skin_2_x5", name: "Обсидіановий голем", renderType: "obsidian_golem" } },
             { id: 24, leagueId: 2, name: "Фінал ліги",               letters: ["Ф","Ц","С","А","Е","О","Ш","Ю","З","Ґ"], speed: 295, spikeCount: 40, seed: 2108, bgTheme: "knight_castle", accentColor: "#8fa3ff", rhythmGroups: false, skin: { id: "skin_2_8", name: "Лицарський щит", renderType: "shield" } },
-            { id: 45, leagueId: 2, name: "Королева вулика",          words: ["КОРОЛЕВА","ВУЛИК","ЩУПАЛЬЦЕ","ЇЖАК","ҐАНОК","ЄДНІСТЬ","ЮНГА","ЯХТА","ФІНІШ","ХВИЛЯ","ЧЕРВОНИЙ","БУРШТИН","ЖОЛУДЬ","ЦЕГЛА","ЗОРЕЛІТ","ПІЙМАЙ"], speed: 300, spikeCount: 42, seed: 2030, tuneAs: 24, bgTheme: "hive_queen", accentColor: "#78ffbe", rhythmGroups: false, skin: { id: "skin_2_x6", name: "Корона вулика", renderType: "hive_crown" } }
+            { id: 45, leagueId: 2, name: "Битва в ангарі",           words: ["КОРОЛЕВА","ВУЛИК","ЩУПАЛЬЦЕ","ЇЖАК","ҐАНОК","ЄДНІСТЬ","ЮНГА","ЯХТА","ФІНІШ","ХВИЛЯ","ЧЕРВОНИЙ","БУРШТИН","ЖОЛУДЬ","ЦЕГЛА","ЗОРЕЛІТ","ПІЙМАЙ"], speed: 300, spikeCount: 42, seed: 2030, tuneAs: 24, bgTheme: "hangar_bay", accentColor: "#ffa21a", rhythmGroups: false, skin: { id: "skin_2_x6", name: "Корона вулика", renderType: "hive_crown" } }
         ]
     },
     {
@@ -2575,7 +2575,8 @@ const LANDING_FX = {
     planet_colony: { kind: "splash", colors: ["#b8703a", "#8a5a2a"] },
     hunter_ship: { kind: "sparks", colors: ["#5aff9a", "#ffffff"] },
     obsidian_peak: { kind: "pebbles", colors: ["#2a1a3a", "#b06bff"] },
-    hive_queen: { kind: "splash", colors: ["#78ffbe", "#2a443c"] }
+    hive_queen: { kind: "splash", colors: ["#78ffbe", "#2a443c"] },
+    hangar_bay: { kind: "sparks", colors: ["#ffcc33", "#ffffff"] }
 };
 
 function spikeHalfWidth(type) {
@@ -2652,7 +2653,8 @@ const SPIKE_STYLE_BY_THEME = {
     planet_colony: "iron",
     hunter_ship: "crystal",
     obsidian_peak: "crystal",
-    hive_queen: "urchin"
+    hive_queen: "urchin",
+    hangar_bay: "iron"
 };
 
 // Основні кольори кожного стилю (для уламків, коли шип розсипається)
