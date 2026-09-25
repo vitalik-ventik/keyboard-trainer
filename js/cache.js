@@ -276,6 +276,34 @@ export class KeyboardCache {
     }
 }
 
+// ---------- Адаптивна якість фону ----------
+
+// Якщо кадри стабільно повільні (довше 25 мс, тобто нижче ~40 fps, сумарно 2 с),
+// фон рендериться в меншій роздільній здатності (1 → 0.75 → 0.5) і розтягується
+// на екран. Фони розмиті й неонові, тож різниця майже непомітна, а пікселів у 2–4 рази менше.
+export const BackgroundQuality = {
+    scale: 1,
+    minScale: 0.5,
+    slowFrameThreshold: 25,
+    slowBudgetMs: 2000,
+    slowTime: 0,
+
+    report(frameMs) {
+        if (!(frameMs > 0) || frameMs > 250) {
+            return;
+        }
+        if (frameMs > this.slowFrameThreshold) {
+            this.slowTime += frameMs;
+        } else {
+            this.slowTime = Math.max(0, this.slowTime - frameMs * 0.5);
+        }
+        if (this.slowTime >= this.slowBudgetMs && this.scale > this.minScale) {
+            this.scale = Math.max(this.minScale, this.scale - 0.25);
+            this.slowTime = 0;
+        }
+    }
+};
+
 // ---------- BackgroundCache (FR-001) ----------
 
 export class BackgroundCache {
@@ -284,6 +312,7 @@ export class BackgroundCache {
         this.ctx = this.canvas.getContext("2d");
         this.width = 0;
         this.height = 0;
+        this.scale = 1;
         this.currentTheme = null;
         // Фон перемальовується приблизно 20 разів на секунду незалежно від частоти монітора
         // (раніше — кожен 3-й кадр, тобто 48 разів на секунду на моніторі 144 Гц)
@@ -302,11 +331,13 @@ export class BackgroundCache {
     }
 
     resize(w, h) {
-        if (this.width !== w || this.height !== h) {
+        var scale = BackgroundQuality.scale;
+        if (this.width !== w || this.height !== h || this.scale !== scale) {
             this.width = w;
             this.height = h;
-            this.canvas.width = Math.round(w);
-            this.canvas.height = Math.round(h);
+            this.scale = scale;
+            this.canvas.width = Math.max(1, Math.round(w * scale));
+            this.canvas.height = Math.max(1, Math.round(h * scale));
             this.dirty = true;
             this.isInitialized = false;
         }
@@ -321,7 +352,9 @@ export class BackgroundCache {
     }
 
     render(renderFn, time) {
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.setTransform(this.scale, 0, 0, this.scale, 0, 0);
         if (typeof renderFn === "function") {
             renderFn(this.ctx);
         }
