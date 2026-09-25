@@ -717,7 +717,7 @@ function chestInfoHtml(type) {
     const itemShare = rollShare * pool.reduce(function (sum, p) { return sum + p.chance * p.keep; }, 0);
     pool.sort(function (a, b) { return b.chance * b.keep - a.chance * a.keep; });
     const fmt = function (p) { return p.item.name + " " + pct(rollShare * p.chance * p.keep); };
-    return "<b>Предмет:</b> " + pct(itemShare) + " (ціною до " + chest.maxPrice + " 🪙, дешеві частіше; не-скіни — рідше) · " +
+    return "<b>Предмет:</b> " + pct(itemShare) + " (базова ціна до " + chest.maxPrice + " 🪙 — без коефіцієнта ліги; дешеві частіше; не-скіни — рідше) · " +
         "<b>Монети:</b> " + pct(rest - itemShare) + " (" + chest.crystals[0] + "–" + chest.crystals[1] + ") · " +
         "<b>❤ Сердечко:</b> " + pct((1 - chest.legendaryChance) * (chest.heartChance || 0)) + " · " +
         "<b>Легендарний:</b> " + pct(chest.legendaryChance) + "<br>" +

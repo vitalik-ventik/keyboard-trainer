@@ -1508,6 +1508,9 @@ function renderRewardBreakdown(el, reward, balanceBefore) {
     if (reward.mult !== 1) {
         addBreakdownRow(el, "Множник налаштувань", "×" + reward.mult);
     }
+    if (reward.leagueMult && reward.leagueMult !== 1) {
+        addBreakdownRow(el, "Бонус ліги", "×" + reward.leagueMult);
+    }
     if (reward.weaponMult && reward.weaponMult !== 1) {
         addBreakdownRow(el, "Бонус зброї", "×" + reward.weaponMult);
     }
