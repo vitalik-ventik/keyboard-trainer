@@ -144,9 +144,9 @@ export function getShopSkinByRenderType(renderType) {
 
 // Бонус за фініш і за перше проходження залежить від ліги
 const FINISH_BONUS = { 1: 10, 2: 15, 3: 20, 4: 30, 5: 50 };
-export const FIRST_CLEAR_BONUS = { 1: 20, 2: 30, 3: 40, 4: 60, 5: 100 };
-export const SILVER_BONUS = 30;
-export const GOLD_BONUS = 60;
+export const FIRST_CLEAR_BONUS = { 1: 10, 2: 25, 3: 40, 4: 60, 5: 100 };
+export const SILVER_BONUS = 15;
+export const GOLD_BONUS = 30;
 
 // Бонус за серію ідеальних дій: на 3, 5, 10 і далі кожні +5
 export function seriesBonus(streak) {
@@ -167,7 +167,7 @@ export function rewardMultiplier(difficulty, speed, hitWindow) {
     // Легші налаштування (повільно, широка зона) не штрафуються — лише складніші дають більше
     let mult = 1;
     if (difficulty === "HARD") {
-        mult *= 1.5;
+        mult *= 1.3;
     }
     if (speed === "fast") {
         mult *= 1.25;
@@ -420,7 +420,6 @@ export function itemPerkHint(itemId) {
 }
 
 // Бонус монет за зброю: крутіша зброя — монети збираються швидше.
-// Без зброї ×1, до 200 — ×1.1, до 350 — ×1.2, дорожча — ×1.3, легендарна — ×1.5
 // Бонус росте з ціною, тож кожна дорожча зброя вигідніша за дешевшу:
 // звичайна — 1 + ціна/1500 (меч ×1.08 … ракетниця ×1.3),
 // легендарна — 1.4 + (ціна − 900)/2000 (вогняний меч ×1.4 … гравітаційна гармата ×1.55)
@@ -995,10 +994,9 @@ export function chestsForVictory(win, random) {
     if (win.firstClear) {
         chests.push(win.leagueId >= 4 ? "gold" : win.leagueId >= 2 ? "silver" : "wood");
     }
+    // Нова золота рамка — дерев'яний сундук (за срібну — лише монети)
     if (win.newGold) {
-        chests.push("gold");
-    } else if (win.newSilver) {
-        chests.push("silver");
+        chests.push("wood");
     }
     if (chests.length === 0) {
         const pity = (win.winsWithoutChest || 0) + 1 >= CHEST_PITY_WINS;
@@ -1008,6 +1006,15 @@ export function chestsForVictory(win, random) {
         }
     }
     return { chests: chests, winsWithoutChest: chests.length > 0 ? 0 : (win.winsWithoutChest || 0) + 1 };
+}
+
+// Звичайні товари відкриваються за лігою, до якої дійшов гравець:
+// до 200 — одразу, до 350 — з Ліги 2, дорожчі — з Ліги 3 (легендарні — за своїми умовами)
+export function shopTierLeague(item) {
+    if (!item || item.legendary || item.price <= 200) {
+        return 1;
+    }
+    return item.price <= 350 ? 2 : 3;
 }
 
 // Предмети, які можуть випасти із сундука: ще не куплені, не безкоштовні,
