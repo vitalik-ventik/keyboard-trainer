@@ -45,7 +45,7 @@ export const WEAPON_SOUNDS = {
     weapon_bow: { fire: { sound: "bow", volume: 0.55 } },
     weapon_ball: { fire: { sound: "soccer", volume: 2.2 } },
     weapon_pistol: { fire: { sound: "gun", volume: 1.0 } },
-    weapon_rifle: { fire: { sound: "machine_gun", duration: 0.4, volume: 0.3 } },
+    weapon_rifle: { fire: { sound: "machine_gun", duration: 0.4, volume: 0.45 } },
     weapon_flamethrower: { fire: { sound: "flamethrower", offset: 0.15, duration: 0.8, volume: 1.3 } },
     weapon_laser: { fire: { sound: "laser_gun", volume: 0.5 } },
     // У файлі ракети спершу політ (0.15–1.2 с), потім вибух (з 1.2 с): граємо частинами
