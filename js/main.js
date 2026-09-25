@@ -1224,8 +1224,9 @@ function buildShop() {
         canvas.style.height = "100px";
         card.appendChild(canvas);
         const entry = { canvas: canvas, item: item, dpr: dpr, owned: owned, drawn: false, gray: null };
-        if (item.type === "skin" && (!owned || (justBought && justBought.id === item.id))) {
-            entry.gray = makeGraySkinSnapshot(item, dpr);
+        // Некуплений товар — сірий нерухомий кадр: як він працює, видно лише після покупки
+        if (!owned || (justBought && justBought.id === item.id)) {
+            entry.gray = makeGraySnapshot(item, dpr);
         }
         shopPreviews.push(entry);
 
@@ -1273,9 +1274,7 @@ function buildShop() {
                 if (save.buyItem(item.id)) {
                     save.equipItem(item.id);
                     playSound("click");
-                    if (item.type === "skin") {
-                        justBought = { id: item.id, start: performance.now() };
-                    }
+                    justBought = { id: item.id, start: performance.now() };
                 }
                 renderCurrentSkinIcon();
                 buildShop();
@@ -1312,24 +1311,41 @@ function drawShopSkinScene(pctx, item, time, withAccessory) {
     pctx.restore();
 }
 
-// Сірий нерухомий знімок скіна для картки магазину
-function makeGraySkinSnapshot(item, dpr) {
+// Момент, який показує сірий знімок некупленого товару: кубик зі шлейфом,
+// перша мить вибуху, кубик з аксесуаром, кубик зі зброєю перед атакою
+const GRAY_FRAME_TIME = { skin: 0, trail: 500, explosion: 780, accessory: 0, weapon: 500 };
+
+// Сірий нерухомий знімок товару для картки магазину
+function makeGraySnapshot(item, dpr) {
     const snap = document.createElement("canvas");
     snap.width = Math.round(150 * dpr);
     snap.height = Math.round(100 * dpr);
     const sctx = snap.getContext("2d");
     sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    drawShopSkinScene(sctx, item, 0, false);
+    if (item.type === "skin") {
+        drawShopSkinScene(sctx, item, 0, false);
+    } else {
+        drawShopItemLive({ canvas: snap, item: item, dpr: dpr }, GRAY_FRAME_TIME[item.type] || 0);
+    }
     grayscaleCanvas(snap);
     return snap;
 }
 
+// Напис після покупки залежно від типу товару
+const BOUGHT_TEXT = {
+    skin: "Новий скін!",
+    trail: "Новий шлейф!",
+    explosion: "Новий вибух!",
+    accessory: "Новий аксесуар!",
+    weapon: "Нова зброя!"
+};
+
 const BUY_POUR_MS = 1100;
 const BUY_BANNER_MS = 2600;
 
-// Прев'ю скіна: сірий кадр до покупки, живий кольоровий після,
-// а щойно куплений ще й «заливається» кольором із написом «Новий скін!»
-function drawShopSkinPreview(entry, now) {
+// Прев'ю товару: сірий нерухомий кадр до покупки, живий кольоровий після,
+// а щойно куплений ще й «заливається» кольором із написом «Новий …!»
+function drawShopPreview(entry, now) {
     const pctx = entry.canvas.getContext("2d");
     if (!entry.owned) {
         if (!entry.drawn && entry.gray) {
@@ -1339,8 +1355,8 @@ function drawShopSkinPreview(entry, now) {
         }
         return;
     }
+    drawShopItemLive(entry, now);
     pctx.setTransform(entry.dpr, 0, 0, entry.dpr, 0, 0);
-    drawShopSkinScene(pctx, entry.item, now, true);
     if (!justBought || justBought.id !== entry.item.id) {
         return;
     }
@@ -1375,9 +1391,10 @@ function drawShopSkinPreview(entry, now) {
         pctx.textBaseline = "middle";
         pctx.lineWidth = 3;
         pctx.strokeStyle = "#070b1c";
-        pctx.strokeText("Новий скін!", 75, 16);
+        const boughtText = BOUGHT_TEXT[entry.item.type] || "Куплено!";
+        pctx.strokeText(boughtText, 75, 16);
         pctx.fillStyle = "#ffcc33";
-        pctx.fillText("Новий скін!", 75, 16);
+        pctx.fillText(boughtText, 75, 16);
         pctx.globalAlpha = 1;
     }
 }
@@ -1429,9 +1446,11 @@ function drawShopWeaponPreview(entry, now) {
 }
 
 // Живий попередній перегляд товару на кубику з поточним скіном
-function drawShopPreview(entry, now) {
+function drawShopItemLive(entry, now) {
     if (entry.item.type === "skin") {
-        drawShopSkinPreview(entry, now);
+        const sctx = entry.canvas.getContext("2d");
+        sctx.setTransform(entry.dpr, 0, 0, entry.dpr, 0, 0);
+        drawShopSkinScene(sctx, entry.item, now, true);
         return;
     }
     if (entry.item.type === "weapon") {

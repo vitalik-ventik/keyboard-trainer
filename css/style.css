@@ -1331,3 +1331,15 @@ body {
     from { transform: scale(0.8); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
+
+/* Вікно магазину завжди однакового (максимального) розміру,
+   щоб воно не «стрибало» при перемиканні вкладок */
+.list-modal.shop-modal-box {
+    width: min(94vw, 140vmin);
+    height: 92vh;
+    max-height: 92vh;
+}
+
+.shop-modal-box .list-modal-scroll {
+    align-self: stretch;
+}
