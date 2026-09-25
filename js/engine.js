@@ -3301,6 +3301,9 @@ export class Engine {
         this.onReviveOffer = null;
         this.pendingRevive = null;
         this.paused = false;
+        // Причина паузи: "start" (перед стартом рівня), "user" (Пробіл), "resume" (після сердечка),
+        // "revive" (вікно «Друге життя?»)
+        this.pauseReason = null;
         this.pauseStart = null;
         this.pausedTotal = 0;
         this.heartFlash = 0;
@@ -3653,6 +3656,7 @@ export class Engine {
         if (!this.demoMode && typeof this.onReviveOffer === "function" && save.getHearts() > 0 && this.player.alive) {
             this.pendingRevive = { kind: kind, spike: spike, gap: gap };
             this.paused = true;
+            this.pauseReason = "revive";
             this.onReviveOffer(save.getHearts());
             return "paused";
         }
@@ -3677,14 +3681,16 @@ export class Engine {
         }
     }
 
-    // Гравець погодився використати сердечко (Пробіл)
+    // Гравець погодився використати сердечко (Enter). Гра лишається на паузі,
+    // доки гравець не натисне Пробіл — встигне приготуватися
     acceptRevive() {
         const r = this.pendingRevive;
         if (!r) {
             return;
         }
         this.pendingRevive = null;
-        this.paused = false;
+        this.paused = true;
+        this.pauseReason = "resume";
         save.useHeart();
         this.heartFlash = 1;
         this.combo = 0;
@@ -3706,10 +3712,36 @@ export class Engine {
         }
         this.pendingRevive = null;
         this.paused = false;
+        this.pauseReason = null;
         if (r.kind === "collision" && r.spike) {
             r.spike.state = "hit";
         }
         this.explode();
+    }
+
+    // Пауза гравця: перед стартом рівня ("start"), Пробілом ("user") чи після сердечка ("resume").
+    // Під час вікна «Друге життя?» не вмикається й не знімається
+    pauseGame(reason) {
+        if (this.demoMode || this.outcome !== "running" || !this.player.alive || this.pendingRevive) {
+            return false;
+        }
+        this.paused = true;
+        this.pauseReason = reason || "user";
+        return true;
+    }
+
+    resumeGame() {
+        if (!this.paused || this.pendingRevive) {
+            return false;
+        }
+        this.paused = false;
+        this.pauseReason = null;
+        return true;
+    }
+
+    // Чи стоїть гра на паузі гравця (не вікно сердечка)
+    isUserPaused() {
+        return this.paused && !this.pendingRevive;
     }
 
     explode() {
@@ -4406,6 +4438,7 @@ export class Engine {
     // ---------- Рендер ----------
 
     render(ctx, W, H, time) {
+        const realTime = time;
         // Під час паузи фон і всі анімації завмирають: час рендера не йде вперед
         if (this.paused) {
             if (this.pauseStart === null) {
@@ -4472,10 +4505,90 @@ export class Engine {
         ctx.restore();
         if (!this.demoMode) {
             this.renderWordBar(ctx, W);
-            this.renderWorldTitle(ctx, W, H);
+            // Назва світу не накладається на екран паузи
+            if (!this.isUserPaused()) {
+                this.renderWorldTitle(ctx, W, H);
+            }
             this.renderProgressBar(ctx, W);
             this.renderHearts(ctx);
+            if (this.isUserPaused() && this.outcome === "running") {
+                this.renderPauseOverlay(ctx, W, H, realTime);
+            }
         }
+    }
+
+    // Літери рівня в порядку появи на трасі (для екрана паузи)
+    getLevelLetters() {
+        const seen = [];
+        for (const spike of this.spikes) {
+            const l = (spike.letter || "").toUpperCase();
+            if (l && seen.indexOf(l) === -1) {
+                seen.push(l);
+            }
+        }
+        return seen;
+    }
+
+    // Екран паузи над ігровим полем (клавіатуру внизу не закриває):
+    // заголовок, літери рівня й мигаюча підказка «Натисни ПРОБІЛ»
+    renderPauseOverlay(ctx, W, H, time) {
+        const areaH = H * 0.68;
+        const reason = this.pauseReason;
+        ctx.save();
+        ctx.fillStyle = "rgba(5, 6, 20, 0.72)";
+        ctx.fillRect(0, 0, W, areaH);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        const unit = Math.min(W, H);
+        // Заголовок
+        const title = reason === "start" ? "ГОТОВИЙ?" : reason === "resume" ? "❤ ДРУГЕ ЖИТТЯ" : "ПАУЗА";
+        ctx.font = "bold " + Math.round(unit * 0.075) + "px 'Segoe UI', Arial, sans-serif";
+        ctx.lineWidth = Math.max(3, unit * 0.008);
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+        ctx.strokeText(title, W / 2, areaH * 0.2);
+        ctx.fillStyle = reason === "resume" ? "#ff6a8a" : "#00f6ff";
+        ctx.fillText(title, W / 2, areaH * 0.2);
+        // Літери рівня — великими плашками
+        const letters = this.getLevelLetters();
+        ctx.font = Math.round(unit * 0.028) + "px 'Segoe UI', Arial, sans-serif";
+        ctx.fillStyle = "#c8d6f0";
+        ctx.fillText("Літери рівня:", W / 2, areaH * 0.38);
+        const size = Math.min(unit * 0.085, (W * 0.9) / Math.max(1, letters.length) - unit * 0.015);
+        const gap = unit * 0.015;
+        const rowW = letters.length * size + (letters.length - 1) * gap;
+        let x = W / 2 - rowW / 2;
+        const y = areaH * 0.52 - size / 2;
+        ctx.font = "bold " + Math.round(size * 0.55) + "px 'Segoe UI', Arial, sans-serif";
+        for (const letter of letters) {
+            ctx.fillStyle = "rgba(0, 246, 255, 0.12)";
+            ctx.fillRect(x, y, size, size);
+            ctx.strokeStyle = "#00f6ff";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x + 1, y + 1, size - 2, size - 2);
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(letter, x + size / 2, y + size / 2 + 1);
+            x += size + gap;
+        }
+        // Мигаюча підказка
+        // time — секунди (як у головному циклі)
+        const blink = 0.55 + 0.45 * Math.sin(time * 5);
+        const action = reason === "start" ? "почати" : "продовжити";
+        ctx.globalAlpha = blink;
+        ctx.font = "bold " + Math.round(unit * 0.042) + "px 'Segoe UI', Arial, sans-serif";
+        ctx.fillStyle = "#ffe14d";
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.8)";
+        ctx.lineWidth = Math.max(3, unit * 0.006);
+        const prompt = "Натисни ПРОБІЛ, щоб " + action;
+        ctx.strokeText(prompt, W / 2, areaH * 0.74);
+        ctx.fillText(prompt, W / 2, areaH * 0.74);
+        ctx.globalAlpha = 1;
+        ctx.font = Math.round(unit * 0.024) + "px 'Segoe UI', Arial, sans-serif";
+        ctx.fillStyle = "#9fb4d8";
+        const note = reason === "start"
+            ? "Під час гри Пробіл — пауза · Esc — вийти в меню"
+            : "Esc — вийти в меню";
+        ctx.fillText(note, W / 2, areaH * 0.86);
+        ctx.restore();
     }
 
     // Запас сердечок — у лівому верхньому куті під панеллю
