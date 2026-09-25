@@ -54,7 +54,10 @@ export const EGG_BY_THEME = {
     pixel_nether: { key: "ghast", name: "Гаст" },
     sponge_reef: { key: "starfish", name: "Морська зірка" },
     ninja_temple: { key: "skelbike", name: "Скелет на мотоциклі" },
-    machine_war: { key: "liquidcop", name: "Рідкий метал" }
+    machine_war: { key: "liquidcop", name: "Рідкий метал" },
+    kaiju_bay: { key: "mothra", name: "Велетенський метелик" },
+    strange_town: { key: "demogorgon", name: "Демогоргон у стіні" },
+    leaf_village: { key: "ninefox", name: "Дев'ятихвостий лис" }
 };
 
 // Малювальник прямокутників у одиницях блоку відносно точки (ox, oy).
@@ -103,6 +106,105 @@ function speechBubble(ctx, x, y, B, text, color) {
 }
 
 export const EGG_DRAWERS = {
+
+    // Велетенський метелик пролітає над затокою, крила складаються й розкриваються
+    mothra(ctx, t, W, H, gY, time, B) {
+        const x = crossRight(t, W, B, 6);
+        const y = gY * 0.22 + Math.sin(t * Math.PI * 2) * B * 1.5;
+        const flap = Math.abs(Math.sin(time * 4));
+        ctx.save();
+        ctx.translate(x, y);
+        // Крила: верхні більші, з візерунком-очима
+        for (const side of [-1, 1]) {
+            ctx.save();
+            ctx.scale(1, side * (0.25 + flap * 0.75));
+            ctx.fillStyle = "#e8962a";
+            ctx.beginPath();
+            ctx.moveTo(-B * 1.2, 0);
+            ctx.lineTo(side < 0 ? B * 1.5 : B * 0.8, B * 4);
+            ctx.lineTo(side < 0 ? -B * 3.5 : -B * 2.5, B * 3.2);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = "#ffd84a";
+            ctx.fillRect(Math.round(-B * 1.2), Math.round(B * 1.6), Math.round(B * 1.2), Math.round(B * 1.1));
+            ctx.fillStyle = "#39c6ff";
+            ctx.fillRect(Math.round(-B * 0.9), Math.round(B * 1.9), Math.round(B * 0.6), Math.round(B * 0.5));
+            ctx.restore();
+        }
+        // Тіло з вусиками
+        ctx.fillStyle = "#6a3a1a";
+        ctx.fillRect(Math.round(-B * 2.2), Math.round(-B * 0.4), Math.round(B * 3.2), Math.round(B * 0.8));
+        ctx.fillRect(Math.round(B), Math.round(-B * 0.5), Math.round(B * 0.9), Math.round(B));
+        ctx.fillStyle = "#39c6ff";
+        ctx.fillRect(Math.round(B * 1.5), Math.round(-B * 0.35), Math.round(B * 0.3), Math.round(B * 0.3));
+        ctx.fillStyle = "#6a3a1a";
+        ctx.fillRect(Math.round(B * 1.7), Math.round(-B * 1.5), Math.round(B * 0.15), Math.round(B));
+        ctx.fillRect(Math.round(B * 1.3), Math.round(-B * 1.4), Math.round(B * 0.15), Math.round(B * 0.9));
+        ctx.restore();
+    },
+
+    // Стіна вигинається, з неї висувається Демогоргон і розкриває голову-квітку
+    demogorgon(ctx, t, W, H, gY, time, B) {
+        const x = W * 0.7;
+        const y = gY * 0.62;
+        const out = t < 0.25 ? t / 0.25 : t > 0.8 ? (1 - t) / 0.2 : 1;
+        const bloom = Math.max(0, Math.min(1, (t - 0.35) / 0.2)) * (t > 0.8 ? (1 - t) / 0.2 : 1);
+        const base = ctx.globalAlpha;
+        // Розтягнута шпалера навколо
+        ctx.globalAlpha = base * 0.5 * out;
+        ctx.fillStyle = "#5a4a2a";
+        ctx.fillRect(Math.round(x - B * 3), Math.round(y - B * 6), Math.round(B * 6), Math.round(B * 10));
+        ctx.globalAlpha = base * out;
+        const p = painter(ctx, B, x, y, false);
+        p("#8a8a94", -1.4, -1.0, 2.8, 4.0);
+        p("#7a7a84", -2.6, -0.6, 1.2, 0.5);
+        p("#7a7a84", 1.4, -0.6, 1.2, 0.5);
+        p("#7a7a84", -3.0, -0.6, 0.5, 2.0);
+        p("#7a7a84", 2.5, -0.6, 0.5, 2.0);
+        p("#8a8a94", -0.8, -2.6, 1.6, 1.6);
+        // Пелюстки голови
+        if (bloom > 0.05) {
+            for (let i = 0; i < 5; i++) {
+                const a = -Math.PI / 2 + (i - 2) * 0.55;
+                const len = 1.2 + bloom * 1.6;
+                const px = Math.cos(a) * len;
+                const py = -1.8 + Math.sin(a) * len;
+                p("#9a9aa4", px - 0.4, py - 0.4, 0.8, 0.8);
+                p("#e05a6a", px * 0.6 - 0.3, -1.8 + (py + 1.8) * 0.6 - 0.3, 0.6, 0.6);
+            }
+            p("#ff8a9a", -0.3, -2.1, 0.6, 0.6);
+        }
+        ctx.globalAlpha = base;
+    },
+
+    // Дев'ятихвостий лис біжить стрибками, дев'ять хвостів маяють
+    ninefox(ctx, t, W, H, gY, time, B) {
+        const x = crossLeft(t, W, B, 8);
+        const leap = Math.abs(Math.sin(t * Math.PI * 4));
+        const y = gY - leap * B * 1.5;
+        const p = painter(ctx, B, x, y, false);
+        for (let i = 0; i < 9; i++) {
+            const a = -0.9 + i * 0.22 + Math.sin(time * 5 + i) * 0.12;
+            for (let k = 0; k < 4; k++) {
+                const tx = 3.0 + Math.cos(a) * k * 0.9;
+                const ty = -2.2 + Math.sin(a) * k * 0.9 - k * 0.2;
+                p(k === 3 ? "#ffe0b0" : "#ff7a1a", tx, ty, 0.7, 0.7);
+            }
+        }
+        const legs = leap > 0.5 ? 0.35 : 0;
+        p("#e8621a", -0.3 - legs, -1.0, 0.4, 1.0);
+        p("#e8621a", 0.3, -1.0, 0.4, 1.0);
+        p("#e8621a", 2.0, -1.0, 0.4, 1.0);
+        p("#e8621a", 2.6 + legs, -1.0, 0.4, 1.0);
+        p("#ff8a2a", 0, -2.4, 3.2, 1.5);
+        p("#ffe0b0", 0.3, -1.2, 2.2, 0.3);
+        p("#ff8a2a", -1.3, -3.0, 1.6, 1.4);
+        p("#ff8a2a", -1.2, -3.6, 0.4, 0.6);
+        p("#ff8a2a", -0.4, -3.6, 0.4, 0.6);
+        p("#ffe0b0", -1.8, -2.3, 0.7, 0.5);
+        p("#1a1a1a", -1.85, -2.35, 0.2, 0.2);
+        p("#ff2a2a", -0.9, -2.7, 0.3, 0.2);
+    },
 
     // Рожева морська зірка в зелених шортах шкутильгає піском і махає рукою
     starfish(ctx, t, W, H, gY, time, B) {
