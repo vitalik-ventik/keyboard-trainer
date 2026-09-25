@@ -3310,10 +3310,6 @@ export class Engine {
             speed: this.speedSetting
         };
 
-        const maxScores = calculateMaxScores(this.level.spikeCount, this.hitWindowSetting, this.speedSetting);
-        this.maxEasy = maxScores.maxEasy;
-        this.maxHard = maxScores.maxHard;
-
         this.bgCache = new BackgroundCache();
 
         this.reset();
@@ -3325,6 +3321,11 @@ export class Engine {
         const track = generateTrack(this.level, this.effectiveSpeed, this.okPx);
         this.spikes = track.spikes;
         this.finishX = track.finishX;
+        // Максимум очок — за справжньою кількістю шипів: на рівнях зі словами
+        // останнє слово добудовується повністю, тож шипів буває більше за spikeCount
+        const maxScores = calculateMaxScores(this.spikes.length, this.hitWindowSetting, this.speedSetting);
+        this.maxEasy = maxScores.maxEasy;
+        this.maxHard = maxScores.maxHard;
 
         this.player = {
             x: 0,
