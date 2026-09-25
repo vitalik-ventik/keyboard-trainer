@@ -78,8 +78,8 @@ export const SHOP_ITEMS = [
     { id: "weapon_none", type: "weapon", name: "Без зброї (стрибки)", price: 0 },
     { id: "weapon_sword", type: "weapon", name: "Меч", price: 120 },
     { id: "weapon_axe", type: "weapon", name: "Сокира-бумеранг", price: 150 },
+    { id: "weapon_pickaxe", type: "weapon", name: "Кирка", price: 170 },
     { id: "weapon_bow", type: "weapon", name: "Лук", price: 180 },
-    { id: "weapon_pickaxe", type: "weapon", name: "Кирка", price: 180 },
     { id: "weapon_ball", type: "weapon", name: "Футбольний м'яч", price: 200 },
     { id: "weapon_pistol", type: "weapon", name: "Пістолет", price: 220 },
     { id: "weapon_rifle", type: "weapon", name: "Автомат", price: 280 },
@@ -351,11 +351,11 @@ const PERK_HINTS = {
     shield: "🛡 Щит — одна помилка чи зіткнення за рівень пробачається: кубик не вибухає, а їде далі",
     slow: "🐢 Швидкість — шипи рухаються повільніше, тож більше часу знайти потрібну клавішу (монет не менше)",
     zone: "🎯 Зона — зона, де можна натиснути літеру («ОК» та «Ідеально»), ширша",
-    coins: "🪙 Монети — усі монети за забіг більші",
+    coins: "🪙 Монети — монети, зароблені в забігу, більші (разові бонуси рівня не змінюються)",
     chest: "🎁 Сундуки — вищий шанс отримати сундук за повторну перемогу рівня",
     item: "✨ Речі — у сундуку частіше випадає предмет замість монет (діє аксесуар, надягнутий, коли відкриваєш сундук)",
     hearts: "❤ Сердечка — у сундуку частіше випадає сердечко, запасне життя (діють скін і аксесуар, надягнуті, коли відкриваєш сундук)",
-    weapon: "🪙 Монети — з цією зброєю всі монети за забіг множаться: крутіша зброя — більше монет"
+    weapon: "🪙 Монети — з цією зброєю монети, зароблені в забігу, множаться: що дорожча зброя, то більший множник"
 };
 
 // Які пояснення показати внизу вкладки магазину
@@ -421,21 +421,16 @@ export function itemPerkHint(itemId) {
 
 // Бонус монет за зброю: крутіша зброя — монети збираються швидше.
 // Без зброї ×1, до 200 — ×1.1, до 350 — ×1.2, дорожча — ×1.3, легендарна — ×1.5
+// Бонус росте з ціною, тож кожна дорожча зброя вигідніша за дешевшу:
+// звичайна — 1 + ціна/1500 (меч ×1.08 … ракетниця ×1.3),
+// легендарна — 1.4 + (ціна − 900)/2000 (вогняний меч ×1.4 … гравітаційна гармата ×1.55)
 export function weaponCoinBonus(weaponId) {
     const item = weaponId ? getShopItem(weaponId) : null;
     if (!item || item.type !== "weapon" || item.price <= 0) {
         return 1;
     }
-    if (item.legendary) {
-        return 1.5;
-    }
-    if (item.price <= 200) {
-        return 1.1;
-    }
-    if (item.price <= 350) {
-        return 1.2;
-    }
-    return 1.3;
+    const bonus = item.legendary ? 1.4 + (item.price - 900) / 2000 : 1 + item.price / 1500;
+    return Math.round(bonus * 100) / 100;
 }
 
 // Підсумок забігу: рядки для екрана результату та загальна сума.
@@ -477,20 +472,23 @@ export function computeReward(run) {
     const finish = FINISH_BONUS[run.leagueId] || 10;
     lines.push({ label: "Фініш", value: finish });
     base += finish;
+    // Разові бонуси рівня (перше проходження, рамки) не множаться:
+    // множники налаштувань, зброї й аксесуара діють лише на монети, зароблені в забігу
+    let flat = 0;
     if (run.firstClear) {
         const first = FIRST_CLEAR_BONUS[run.leagueId] || 20;
-        lines.push({ label: "Перше проходження", value: first });
-        base += first;
+        lines.push({ label: "Перше проходження", value: first, flat: true });
+        flat += first;
     }
     if (run.newSilver) {
-        lines.push({ label: "Срібна рамка", value: SILVER_BONUS });
-        base += SILVER_BONUS;
+        lines.push({ label: "Срібна рамка", value: SILVER_BONUS, flat: true });
+        flat += SILVER_BONUS;
     }
     if (run.newGold) {
-        lines.push({ label: "Золота рамка", value: GOLD_BONUS });
-        base += GOLD_BONUS;
+        lines.push({ label: "Золота рамка", value: GOLD_BONUS, flat: true });
+        flat += GOLD_BONUS;
     }
-    return { lines: lines, mult: settingsMult, weaponMult: weaponMult, accessoryMult: accessoryMult, half: false, total: Math.ceil(base * mult) };
+    return { lines: lines, mult: settingsMult, weaponMult: weaponMult, accessoryMult: accessoryMult, half: false, total: Math.ceil(base * mult) + flat };
 }
 
 // ---------- Сердечко: запасне життя ----------
