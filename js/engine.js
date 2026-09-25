@@ -2913,6 +2913,9 @@ function hitWindowTimes(levelId) {
 
 // ---------- Нова система балів ----------
 
+// Колір очок (спливаючі «+150» і напис «Очки» вгорі) — бірюзовий, щоб не плутати із золотими монетами
+const POINTS_COLOR = "#5ae8ff";
+
 function calculateHitScore(isOkZone, config, isPerfect) {
     const base = isOkZone ? 100 : 80;
     const diffBonus = config.difficulty === "HARD" ? 50 : 0;
@@ -3420,7 +3423,7 @@ export class Engine {
             outline: true
         });
         if (points > 0) {
-            this.scorePopups.push({ x: spike.x, y: SPIKE_H + 50, text: "+" + points, life: 0.9, maxLife: 0.9 });
+            this.scorePopups.push({ x: spike.x, y: SPIKE_H + 12, text: "+" + points, life: 0.9, maxLife: 0.9, points: true });
         }
     }
 
@@ -3981,7 +3984,7 @@ export class Engine {
             this.spawnDebris(12, Object.assign(base, { angleMin: Math.PI * 0.15, angleMax: Math.PI * 0.85, speedMin: 100, speedMax: 240, sizeMin: 5, sizeMax: 9, gravity: 900, life: 0.8, spin: 6 }));
         }
         if (spike.points > 0) {
-            this.scorePopups.push({ x: spike.x, y: SPIKE_H + 50, text: "+" + spike.points, life: 0.9, maxLife: 0.9 });
+            this.scorePopups.push({ x: spike.x, y: SPIKE_H + 12, text: "+" + spike.points, life: 0.9, maxLife: 0.9, points: true });
         }
     }
 
@@ -4970,7 +4973,8 @@ export class Engine {
             ctx.lineWidth = 4;
             ctx.strokeStyle = "rgba(5, 5, 20, 0.9)";
             ctx.strokeText(sp.text, x, y);
-            ctx.fillStyle = sp.crystal ? "#ffd84a" : "#ffe14d";
+            // Монети — золоті, очки — бірюзові (як напис «Очки» вгорі), решта — жовті
+            ctx.fillStyle = sp.crystal ? "#ffd84a" : sp.points ? POINTS_COLOR : "#ffe14d";
             ctx.fillText(sp.text, x, y);
             if (sp.crystal) {
                 // Значок монети праворуч від напису
@@ -5140,7 +5144,7 @@ export class Engine {
         ctx.fillStyle = "#ffd84a";
         ctx.fillText(String(this.runHits + this.runPerfect + this.runSeries + (this.runWords * WORD_BONUS + this.runCombos * COMBO_BONUS) * this.wordsMult()), barX + barW + 82, barY + barH / 2);
         ctx.textAlign = "right";
-        ctx.fillStyle = "#ffe14d";
+        ctx.fillStyle = POINTS_COLOR;
         var maxForMode = this.difficulty === "HARD" ? this.maxHard : this.maxEasy;
         ctx.fillText("Очки: " + this.score + " / " + maxForMode, barX - 12, barY + barH / 2);
     }
