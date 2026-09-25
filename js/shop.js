@@ -38,34 +38,34 @@ export const SHOP_ITEMS = [
     { id: "shop_illager", type: "skin", name: "Ілагер", price: 600, renderType: "shop_illager" },
     { id: "shop_goalkeeper", type: "skin", name: "Воротар", price: 600, renderType: "shop_goalkeeper" },
     { id: "shop_green_ninja", type: "skin", name: "Зелений ніндзя", price: 600, renderType: "shop_green_ninja" },
-    { id: "shop_enderman", type: "skin", name: "Кубик-ендермен", price: 800, renderType: "shop_enderman" },
-    { id: "shop_wizard", type: "skin", name: "Кубик-чарівник", price: 800, renderType: "shop_wizard" },
-    { id: "shop_gamer", type: "skin", name: "Кубик-геймер", price: 800, renderType: "shop_gamer" },
-    { id: "shop_diver", type: "skin", name: "Водолаз", price: 800, renderType: "shop_diver" },
-    { id: "shop_gorilla", type: "skin", name: "Горила", price: 800, renderType: "shop_gorilla" },
-    { id: "shop_gd_spider", type: "skin", name: "GD-павук", price: 800, renderType: "shop_gd_spider" },
-    { id: "shop_superhero", type: "skin", name: "Кубик-супергерой", price: 1000, renderType: "shop_superhero" },
-    { id: "shop_crystal_golem", type: "skin", name: "Кристальний голем", price: 1000, renderType: "shop_crystal_golem" },
-    { id: "shop_shades", type: "skin", name: "Кубик у темних окулярах", price: 1000, renderType: "shop_shades" },
-    { id: "shop_ufo", type: "skin", name: "Кубик-НЛО", price: 1300, renderType: "shop_ufo" },
-    { id: "shop_warden", type: "skin", name: "Вартовий", price: 1300, renderType: "shop_warden" },
-    { id: "shop_sharingan", type: "skin", name: "Шарінган", price: 1300, renderType: "shop_sharingan" },
-    { id: "shop_dragon", type: "skin", name: "Кубик-дракончик", price: 1600, renderType: "shop_dragon" },
-    { id: "shop_galaxy", type: "skin", name: "Кубик-галактика", price: 2000, renderType: "shop_galaxy" },
+    { id: "shop_enderman", type: "skin", name: "Кубик-ендермен", price: 1200, league: 2, renderType: "shop_enderman" },
+    { id: "shop_wizard", type: "skin", name: "Кубик-чарівник", price: 1200, league: 2, renderType: "shop_wizard" },
+    { id: "shop_gamer", type: "skin", name: "Кубик-геймер", price: 1200, league: 2, renderType: "shop_gamer" },
+    { id: "shop_diver", type: "skin", name: "Водолаз", price: 1200, league: 2, renderType: "shop_diver" },
+    { id: "shop_gorilla", type: "skin", name: "Горила", price: 1200, league: 2, renderType: "shop_gorilla" },
+    { id: "shop_gd_spider", type: "skin", name: "GD-павук", price: 1200, league: 2, renderType: "shop_gd_spider" },
+    { id: "shop_superhero", type: "skin", name: "Кубик-супергерой", price: 1500, league: 2, renderType: "shop_superhero" },
+    { id: "shop_crystal_golem", type: "skin", name: "Кристальний голем", price: 1500, league: 2, renderType: "shop_crystal_golem" },
+    { id: "shop_shades", type: "skin", name: "Кубик у темних окулярах", price: 1500, league: 2, renderType: "shop_shades" },
+    { id: "shop_ufo", type: "skin", name: "Кубик-НЛО", price: 1950, league: 2, renderType: "shop_ufo" },
+    { id: "shop_warden", type: "skin", name: "Вартовий", price: 1950, league: 2, renderType: "shop_warden" },
+    { id: "shop_sharingan", type: "skin", name: "Шарінган", price: 1950, league: 2, renderType: "shop_sharingan" },
+    { id: "shop_dragon", type: "skin", name: "Кубик-дракончик", price: 2400, league: 2, renderType: "shop_dragon" },
+    { id: "shop_galaxy", type: "skin", name: "Кубик-галактика", price: 3000, league: 2, renderType: "shop_galaxy" },
     // Скіни пізніх ліг (league — з якої ліги відкриваються)
-    { id: "shop_terminator", type: "skin", name: "Термінатор", price: 2500, league: 3, renderType: "shop_terminator" },
-    { id: "shop_predator", type: "skin", name: "Хижак", price: 3000, league: 3, renderType: "shop_predator" },
-    { id: "shop_kurama", type: "skin", name: "Дев'ятихвостий лис", price: 3500, league: 3, renderType: "shop_kurama" },
-    { id: "shop_godzilla", type: "skin", name: "Ґодзілла", price: 4000, league: 4, renderType: "shop_godzilla" },
-    { id: "shop_demogorgon", type: "skin", name: "Демогоргон", price: 5000, league: 4, renderType: "shop_demogorgon" },
-    { id: "shop_reaper", type: "skin", name: "Жнець-левіафан", price: 6000, league: 4, renderType: "shop_reaper" },
+    { id: "shop_terminator", type: "skin", name: "Термінатор", price: 5000, league: 3, renderType: "shop_terminator" },
+    { id: "shop_predator", type: "skin", name: "Хижак", price: 6000, league: 3, renderType: "shop_predator" },
+    { id: "shop_kurama", type: "skin", name: "Дев'ятихвостий лис", price: 7000, league: 3, renderType: "shop_kurama" },
+    { id: "shop_godzilla", type: "skin", name: "Ґодзілла", price: 12000, league: 4, renderType: "shop_godzilla" },
+    { id: "shop_demogorgon", type: "skin", name: "Демогоргон", price: 15000, league: 4, renderType: "shop_demogorgon" },
+    { id: "shop_reaper", type: "skin", name: "Жнець-левіафан", price: 18000, league: 4, renderType: "shop_reaper" },
 
     // Легендарні скіни: купуються лише після виконання умови (requirement)
-    { id: "shop_phoenix", type: "skin", name: "Вогняний фенікс", price: 3000, renderType: "shop_phoenix", legendary: true, requirement: { kind: "clears", target: 25 } },
-    { id: "shop_golden_ninja", type: "skin", name: "Золотий ніндзя", price: 3500, renderType: "shop_golden_ninja", legendary: true, requirement: { kind: "combo_levels" } },
-    { id: "shop_rainbow", type: "skin", name: "Кубик-райдуга", price: 4000, renderType: "shop_rainbow", legendary: true, requirement: { kind: "gold_count", target: 10 } },
-    { id: "shop_trophy", type: "skin", name: "Кубок досягнень", price: 4500, renderType: "shop_trophy", legendary: true, requirement: { kind: "achievements", target: 25 } },
-    { id: "shop_golden", type: "skin", name: "Золотий кубик", price: 5000, renderType: "shop_golden", legendary: true, requirement: { kind: "gold_league", league: 1 } },
+    { id: "shop_phoenix", type: "skin", name: "Вогняний фенікс", price: 6000, renderType: "shop_phoenix", legendary: true, requirement: { kind: "clears", target: 25 } },
+    { id: "shop_golden_ninja", type: "skin", name: "Золотий ніндзя", price: 7000, renderType: "shop_golden_ninja", legendary: true, requirement: { kind: "combo_levels" } },
+    { id: "shop_rainbow", type: "skin", name: "Кубик-райдуга", price: 8000, renderType: "shop_rainbow", legendary: true, requirement: { kind: "gold_count", target: 10 } },
+    { id: "shop_trophy", type: "skin", name: "Кубок досягнень", price: 9000, renderType: "shop_trophy", legendary: true, requirement: { kind: "achievements", target: 25 } },
+    { id: "shop_golden", type: "skin", name: "Золотий кубик", price: 10000, renderType: "shop_golden", legendary: true, requirement: { kind: "gold_league", league: 1 } },
 
     { id: "trail_default", type: "trail", name: "Звичайний", price: 0 },
     { id: "trail_neon", type: "trail", name: "Неонова лінія", price: 200 },
@@ -73,10 +73,10 @@ export const SHOP_ITEMS = [
     { id: "trail_rainbow", type: "trail", name: "Райдуга", price: 380 },
     { id: "trail_blocks", type: "trail", name: "Кубічні пікселі", price: 480 },
     { id: "trail_stars", type: "trail", name: "Зірочки", price: 600 },
-    { id: "trail_fire", type: "trail", name: "Вогонь", price: 1000 },
-    { id: "trail_plasma", type: "trail", name: "Плазма", price: 2500, league: 3 },
-    { id: "trail_comet", type: "trail", name: "Комета", price: 3200, league: 3 },
-    { id: "trail_blackhole", type: "trail", name: "Чорна діра", price: 4500, league: 4 },
+    { id: "trail_fire", type: "trail", name: "Вогонь", price: 1500, league: 2 },
+    { id: "trail_plasma", type: "trail", name: "Плазма", price: 5000, league: 3 },
+    { id: "trail_comet", type: "trail", name: "Комета", price: 6400, league: 3 },
+    { id: "trail_blackhole", type: "trail", name: "Чорна діра", price: 13500, league: 4 },
 
     { id: "boom_default", type: "explosion", name: "Звичайний", price: 0 },
     { id: "boom_confetti", type: "explosion", name: "Конфеті", price: 200 },
@@ -84,10 +84,10 @@ export const SHOP_ITEMS = [
     { id: "boom_bubbles", type: "explosion", name: "Мильні бульбашки", price: 380 },
     { id: "boom_watermelon", type: "explosion", name: "Кавун", price: 480 },
     { id: "boom_fireworks", type: "explosion", name: "Феєрверк", price: 600 },
-    { id: "boom_starfall", type: "explosion", name: "Зорепад", price: 1000 },
-    { id: "boom_plasma", type: "explosion", name: "Плазмовий розряд", price: 2500, league: 3 },
-    { id: "boom_supernova", type: "explosion", name: "Наднова", price: 3200, league: 3 },
-    { id: "boom_atomic", type: "explosion", name: "Атомний вибух", price: 4500, league: 4 },
+    { id: "boom_starfall", type: "explosion", name: "Зорепад", price: 1500, league: 2 },
+    { id: "boom_plasma", type: "explosion", name: "Плазмовий розряд", price: 5000, league: 3 },
+    { id: "boom_supernova", type: "explosion", name: "Наднова", price: 6400, league: 3 },
+    { id: "boom_atomic", type: "explosion", name: "Атомний вибух", price: 13500, league: 4 },
 
     { id: "weapon_none", type: "weapon", name: "Без зброї (стрибки)", price: 0 },
     { id: "weapon_sword", type: "weapon", name: "Меч", price: 200, league: 1, bonus: 1.05 },
@@ -95,20 +95,20 @@ export const SHOP_ITEMS = [
     { id: "weapon_pickaxe", type: "weapon", name: "Кирка", price: 400, league: 1, bonus: 1.15 },
     { id: "weapon_bow", type: "weapon", name: "Лук", price: 500, league: 1, bonus: 1.2 },
     { id: "weapon_ball", type: "weapon", name: "Футбольний м'яч", price: 600, league: 1, bonus: 1.25 },
-    { id: "weapon_pistol", type: "weapon", name: "Пістолет", price: 900, league: 2, bonus: 1.3 },
-    { id: "weapon_rifle", type: "weapon", name: "Автомат", price: 1200, league: 2, bonus: 1.35 },
-    { id: "weapon_flamethrower", type: "weapon", name: "Вогнемет", price: 1500, league: 2, bonus: 1.4 },
-    { id: "weapon_laser", type: "weapon", name: "Лазер", price: 1900, league: 2, bonus: 1.45 },
-    { id: "weapon_saber_green", type: "weapon", name: "Світловий меч (зелений)", price: 2500, league: 3, bonus: 1.5 },
-    { id: "weapon_saber_blue", type: "weapon", name: "Світловий меч (синій)", price: 2500, league: 3, bonus: 1.5 },
-    { id: "weapon_saber_red", type: "weapon", name: "Світловий меч (червоний)", price: 2500, league: 3, bonus: 1.5 },
-    { id: "weapon_rocket", type: "weapon", name: "Ракетниця", price: 3200, league: 3, bonus: 1.6 },
-    { id: "weapon_plasma", type: "weapon", name: "Плазмова гармата", price: 4000, league: 4, bonus: 1.65 },
-    { id: "weapon_shuriken", type: "weapon", name: "Сюрикени", price: 5000, league: 4, bonus: 1.7 },
+    { id: "weapon_pistol", type: "weapon", name: "Пістолет", price: 1350, league: 2, bonus: 1.3 },
+    { id: "weapon_rifle", type: "weapon", name: "Автомат", price: 1800, league: 2, bonus: 1.35 },
+    { id: "weapon_flamethrower", type: "weapon", name: "Вогнемет", price: 2250, league: 2, bonus: 1.4 },
+    { id: "weapon_laser", type: "weapon", name: "Лазер", price: 2850, league: 2, bonus: 1.45 },
+    { id: "weapon_saber_green", type: "weapon", name: "Світловий меч (зелений)", price: 5000, league: 3, bonus: 1.5 },
+    { id: "weapon_saber_blue", type: "weapon", name: "Світловий меч (синій)", price: 5000, league: 3, bonus: 1.5 },
+    { id: "weapon_saber_red", type: "weapon", name: "Світловий меч (червоний)", price: 5000, league: 3, bonus: 1.5 },
+    { id: "weapon_rocket", type: "weapon", name: "Ракетниця", price: 6400, league: 3, bonus: 1.6 },
+    { id: "weapon_plasma", type: "weapon", name: "Плазмова гармата", price: 12000, league: 4, bonus: 1.65 },
+    { id: "weapon_shuriken", type: "weapon", name: "Сюрикени", price: 15000, league: 4, bonus: 1.7 },
     // Легендарна зброя: як легендарні скіни, купується лише після виконання умови
-    { id: "weapon_firesword", type: "weapon", name: "Вогняний меч", price: 4000, bonus: 1.7, legendary: true, requirement: { kind: "clears", target: 15 } },
-    { id: "weapon_thunder", type: "weapon", name: "Громовий молот", price: 5000, bonus: 1.8, legendary: true, requirement: { kind: "gold_count", target: 10 } },
-    { id: "weapon_gravity", type: "weapon", name: "Гравітаційна гармата", price: 6000, bonus: 1.9, legendary: true, requirement: { kind: "gold_count", target: 20 } },
+    { id: "weapon_firesword", type: "weapon", name: "Вогняний меч", price: 8000, bonus: 1.7, legendary: true, requirement: { kind: "clears", target: 15 } },
+    { id: "weapon_thunder", type: "weapon", name: "Громовий молот", price: 10000, bonus: 1.8, legendary: true, requirement: { kind: "gold_count", target: 10 } },
+    { id: "weapon_gravity", type: "weapon", name: "Гравітаційна гармата", price: 12000, bonus: 1.9, legendary: true, requirement: { kind: "gold_count", target: 20 } },
 
     { id: "acc_none", type: "accessory", name: "Без аксесуара", price: 0 },
     { id: "acc_cap", type: "accessory", name: "Кепка", price: 200 },
@@ -119,14 +119,14 @@ export const SHOP_ITEMS = [
     { id: "acc_cowboy", type: "accessory", name: "Ковбойський капелюх", price: 480 },
     { id: "acc_horns", type: "accessory", name: "Ріжки", price: 520 },
     { id: "acc_flower_wreath", type: "accessory", name: "Квітковий вінок", price: 560 },
-    { id: "acc_pirate", type: "accessory", name: "Піратський капелюх", price: 800 },
-    { id: "acc_halo", type: "accessory", name: "Німб", price: 850 },
-    { id: "acc_crown", type: "accessory", name: "Корона", price: 900 },
-    { id: "acc_wings", type: "accessory", name: "Крила", price: 1000 },
-    { id: "acc_ninja_band", type: "accessory", name: "Пов'язка ніндзя", price: 2500, league: 3 },
-    { id: "acc_cyber_visor", type: "accessory", name: "Кібер-візор", price: 2800, league: 3 },
-    { id: "acc_heart_orbit", type: "accessory", name: "Орбіта сердець", price: 4000, league: 4 },
-    { id: "acc_diamond_crown", type: "accessory", name: "Діамантова корона", price: 5000, league: 4 }
+    { id: "acc_pirate", type: "accessory", name: "Піратський капелюх", price: 1200, league: 2 },
+    { id: "acc_halo", type: "accessory", name: "Німб", price: 1275, league: 2 },
+    { id: "acc_crown", type: "accessory", name: "Корона", price: 1350, league: 2 },
+    { id: "acc_wings", type: "accessory", name: "Крила", price: 1500, league: 2 },
+    { id: "acc_ninja_band", type: "accessory", name: "Пов'язка ніндзя", price: 5000, league: 3 },
+    { id: "acc_cyber_visor", type: "accessory", name: "Кібер-візор", price: 5600, league: 3 },
+    { id: "acc_heart_orbit", type: "accessory", name: "Орбіта сердець", price: 12000, league: 4 },
+    { id: "acc_diamond_crown", type: "accessory", name: "Діамантова корона", price: 15000, league: 4 }
 ];
 
 export const SHOP_TYPES = [
@@ -164,6 +164,19 @@ export function getShopSkinByRenderType(renderType) {
 
 // Бонус за фініш і за перше проходження залежить від ліги
 const FINISH_BONUS = { 1: 5, 2: 10, 3: 15, 4: 20, 5: 40 };
+// Коефіцієнт монет за лігу: у старших лігах забіг дає більше, а товари цих ліг
+// коштують пропорційно дорожче (ціна = базова ціна × коефіцієнт ліги товару)
+export const LEAGUE_COIN_MULT = { 1: 1, 2: 1.5, 3: 2, 4: 3, 5: 3 };
+
+// Базова ціна товару (без коефіцієнта ліги) — за нею визначаються вид і сила бонусу
+// скіна, рідкість і межі сундуків, щоб дорожчі за коефіцієнтом товари не «переїхали» в іншу групу
+export function basePrice(item) {
+    if (!item || item.legendary || item.price <= 0) {
+        return item ? item.price : 0;
+    }
+    return item.price / (LEAGUE_COIN_MULT[shopTierLeague(item)] || 1);
+}
+
 export const FIRST_CLEAR_BONUS = { 1: 5, 2: 15, 3: 30, 4: 50, 5: 100 };
 export const SILVER_BONUS = 5;
 export const GOLD_BONUS = 10;
@@ -337,7 +350,7 @@ export function shopSkinPerkValue(renderType) {
     // Найбільша сходинка, до якої дотягує ціна скіна
     let value = skinPerkValue(kind, 2);
     for (const step of SHOP_SKIN_PERK_STEPS[kind] || []) {
-        if (item.price >= step[0]) {
+        if (basePrice(item) >= step[0]) {
             value = step[1];
         }
     }
@@ -365,10 +378,10 @@ export function skinPerk(renderType) {
     if (SKIN_HEART_PERKS[item.id]) {
         return "hearts";
     }
-    if (item.price <= 350) {
+    if (basePrice(item) <= 350) {
         return "series";
     }
-    if (item.price <= 800) {
+    if (basePrice(item) <= 800) {
         return "words";
     }
     return "perfect";
@@ -489,7 +502,8 @@ export function computeReward(run) {
     const settingsMult = rewardMultiplier(run.difficulty, run.speed, run.hitWindow);
     const weaponMult = weaponCoinBonus(run.weaponId);
     const accessoryMult = 1 + (accessoryPerk(run.accessoryId).coins || 0);
-    const mult = settingsMult * weaponMult * accessoryMult;
+    const leagueMult = LEAGUE_COIN_MULT[run.leagueId] || 1;
+    const mult = settingsMult * weaponMult * accessoryMult * leagueMult;
     let base = 0;
     // +1 за кожен подоланий шип і ще +1, якщо це було «Ідеально»
     if (run.hits > 0) {
@@ -516,13 +530,13 @@ export function computeReward(run) {
     if (!run.won) {
         // Вибух: зберігається половина зібраного
         const total = Math.ceil(base * mult / 2);
-        return { lines: lines, mult: settingsMult, weaponMult: weaponMult, accessoryMult: accessoryMult, half: true, total: total };
+        return { lines: lines, mult: settingsMult, weaponMult: weaponMult, accessoryMult: accessoryMult, leagueMult: leagueMult, half: true, total: total };
     }
     const finish = FINISH_BONUS[run.leagueId] || 10;
     lines.push({ label: "Фініш", value: finish });
     base += finish;
     // Разові бонуси рівня (перше проходження, рамки) не множаться:
-    // множники налаштувань, зброї й аксесуара діють лише на монети, зароблені в забігу
+    // множники налаштувань, зброї, аксесуара й ліги діють лише на монети, зароблені в забігу
     let flat = 0;
     if (run.firstClear) {
         const first = FIRST_CLEAR_BONUS[run.leagueId] || 20;
@@ -537,7 +551,7 @@ export function computeReward(run) {
         lines.push({ label: "Золота рамка", value: GOLD_BONUS, flat: true });
         flat += GOLD_BONUS;
     }
-    return { lines: lines, mult: settingsMult, weaponMult: weaponMult, accessoryMult: accessoryMult, half: false, total: Math.ceil(base * mult) + flat };
+    return { lines: lines, mult: settingsMult, weaponMult: weaponMult, accessoryMult: accessoryMult, leagueMult: leagueMult, half: false, total: Math.ceil(base * mult) + flat };
 }
 
 // ---------- Сердечко: запасне життя ----------
@@ -1296,15 +1310,15 @@ export const CHEST_TYPES = {
 export const REPLAY_CHEST_CHANCE = 0.25;
 export const CHEST_PITY_WINS = 5;
 
-// Рідкість предмета за ціною — для підпису під нагородою
+// Рідкість предмета за базовою ціною (без коефіцієнта ліги) — для підпису під нагородою
 export function itemRarity(item) {
     if (item && item.legendary) {
         return { name: "⭐ ЛЕГЕНДАРНИЙ", color: "#ffcc33" };
     }
-    if (!item || item.price < 200) {
+    if (!item || basePrice(item) < 200) {
         return { name: "Звичайний", color: "#c8d0e0" };
     }
-    if (item.price < 600) {
+    if (basePrice(item) < 600) {
         return { name: "Рідкісний", color: "#39c6ff" };
     }
     return { name: "Епічний", color: "#d68bff" };
@@ -1329,7 +1343,7 @@ export function chestsForVictory(win, random) {
 }
 
 // Звичайні товари відкриваються за лігою, до якої дійшов гравець:
-// до 600 — одразу, до 2000 — з Ліги 2, дорожчі — з Ліги 3 (легендарні — за своїми умовами,
+// до 600 — одразу; товари Ліг 2–4 мають поле league (легендарні — за своїми умовами,
 // або за полем league — зброя та товари пізніх ліг)
 export function shopTierLeague(item) {
     if (!item || item.legendary) {
@@ -1357,10 +1371,10 @@ export function chestItemPool(type, isOwned) {
     const chest = CHEST_TYPES[type] || CHEST_TYPES.wood;
     const pool = [];
     for (const item of SHOP_ITEMS) {
-        if (item.price <= 0 || item.legendary || item.price > chest.maxPrice || isOwned(item.id)) {
+        if (item.price <= 0 || item.legendary || basePrice(item) > chest.maxPrice || isOwned(item.id)) {
             continue;
         }
-        pool.push({ item: item, weight: 1 / Math.pow(item.price, chest.rarityPower), keep: item.type === "skin" ? 1 : NON_SKIN_ITEM_KEEP });
+        pool.push({ item: item, weight: 1 / Math.pow(basePrice(item), chest.rarityPower), keep: item.type === "skin" ? 1 : NON_SKIN_ITEM_KEEP });
     }
     const total = pool.reduce(function (s, p) { return s + p.weight; }, 0);
     for (const p of pool) {
