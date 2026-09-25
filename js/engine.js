@@ -36,10 +36,10 @@ export const LEVELS_CONFIG = [
             { id: 6,  leagueId: 1, name: "Нижні сусіди",            letters: ["С","Ч","Б","Ю"], speed: 200, spikeCount: 17, seed: 2006, bgTheme: "digital_forest",     accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_6", name: "Матричний Піксель", renderType: "matrix_pixel" } },
             { id: 7,  leagueId: 1, name: "Краї середнього ряду",    letters: ["Ф","І","Ж","Є"], speed: 207, spikeCount: 18, seed: 2007, bgTheme: "storm_sky",            accentColor: "#9fb4ff", rhythmGroups: false, skin: { id: "skin_1_7", name: "Блискавка", renderType: "slice" } },
             { id: 8,  leagueId: 1, name: "Краї верхнього ряду",     letters: ["Й","Ц","З","Х"], speed: 214, spikeCount: 19, seed: 2008, bgTheme: "crystal_cave",            accentColor: "#b35cff", rhythmGroups: false, skin: { id: "skin_1_8", name: "Сяючий Кристал", renderType: "shining_diamond" } },
-            { id: 9,  leagueId: 1, name: "Далекі кути",             letters: ["Я","Ч","Х","Ї"], speed: 221, spikeCount: 20, seed: 2009, bgTheme: "retro_arcade",         accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_1_9", name: "Джойстик", renderType: "double_frame" } },
+            { id: 9,  leagueId: 1, name: "Далекі кути",             letters: ["Я","Ч","Х","Ї"], speed: 221, spikeCount: 20, seed: 2009, bgTheme: "dino_valley",          accentColor: "#ff9a3d", rhythmGroups: false, skin: { id: "skin_1_9", name: "Джойстик", renderType: "double_frame" } },
             { id: 10, leagueId: 1, name: "Остання літера",          letters: ["А","В","Є","Ґ"], speed: 228, spikeCount: 21, seed: 2010, bgTheme: "pixel_night",             accentColor: "#62c13a", rhythmGroups: false, skin: { id: "skin_1_10", name: "Нічна сова", renderType: "monolith" } },
             { id: 11, leagueId: 1, name: "Середній ряд",            letters: ["В","А","П","Р","О","Л"], speed: 235, spikeCount: 22, seed: 2011, bgTheme: "secret_base",            accentColor: "#39ffd0", rhythmGroups: false, skin: { id: "skin_1_11", name: "Радар", renderType: "radar" } },
-            { id: 12, leagueId: 1, name: "Верхній ряд",             letters: ["У","К","Е","Н","Г","Ш"], speed: 242, spikeCount: 23, seed: 2012, bgTheme: "metro_tunnel",          accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_12", name: "Стріла Швидкості", renderType: "speed_arrow" } },
+            { id: 12, leagueId: 1, name: "Верхній ряд",             letters: ["У","К","Е","Н","Г","Ш"], speed: 242, spikeCount: 23, seed: 2012, bgTheme: "luna_park",             accentColor: "#ff5ad8", rhythmGroups: false, skin: { id: "skin_1_12", name: "Стріла Швидкості", renderType: "speed_arrow" } },
             { id: 13, leagueId: 1, name: "Нижній ряд",              letters: ["С","М","И","Т","Ь","Б"], speed: 249, spikeCount: 24, seed: 2013, bgTheme: "robot_factory",           accentColor: "#ffcc00", rhythmGroups: false, skin: { id: "skin_1_13", name: "Робот", renderType: "neon_cross" } },
             { id: 14, leagueId: 1, name: "Широкий середній ряд",    letters: ["Ф","І","В","Ж","Є","Ґ"], speed: 256, spikeCount: 25, seed: 2014, bgTheme: "twin_sun_planet",      accentColor: "#ff5a8a", rhythmGroups: false, skin: { id: "skin_1_14", name: "Слиз", renderType: "liquid_gradient" } },
             { id: 15, leagueId: 1, name: "Широкий верхній ряд",     letters: ["Й","Ц","У","Щ","З","Х"], speed: 263, spikeCount: 26, seed: 2015, bgTheme: "sky_city",           accentColor: "#bfe0ff", rhythmGroups: false, skin: { id: "skin_1_15", name: "Крилатий", renderType: "winged" } },
@@ -75,7 +75,7 @@ export const LEVELS_CONFIG = [
         name: "Майстер",
         levels: [
             { id: 29, leagueId: 4, name: "Серце клавіатури",        letters: ["Ц","У","К","Е","І","В","А","П","Ч","С","М","И","Н","Г","Ш","Щ","Р","О","Л","Д","Т","Ь","Б","Ю"], speed: 390, spikeCount: 50, seed: 2301, bgTheme: "black_hole", accentColor: "#ffb35c", rhythmGroups: false, skin: { id: "skin_4_1", name: "Галактика", renderType: "galaxy" } },
-            { id: 30, leagueId: 4, name: "Гранд Мастер",            letters: ["Й","Ц","У","К","Е","Ф","І","В","А","П","Я","Ч","С","М","И","Н","Г","Ш","З","Х","Р","О","Л","Д","Ж","Є","Т","Ь","Б","Ю"], speed: 418, spikeCount: 55, seed: 2302, bgTheme: "throne_room", accentColor: "#ffd700", rhythmGroups: false, skin: { id: "skin_4_2", name: "Корона Майстра", renderType: "master_crown" } }
+            { id: 30, leagueId: 4, name: "Гранд Мастер",            letters: ["Й","Ц","У","К","Е","Ф","І","В","А","П","Я","Ч","С","М","И","Н","Г","Ш","З","Х","Р","О","Л","Д","Ж","Є","Т","Ь","Б","Ю"], speed: 418, spikeCount: 55, seed: 2302, bgTheme: "sky_citadel", accentColor: "#ffd700", rhythmGroups: false, skin: { id: "skin_4_2", name: "Корона Майстра", renderType: "master_crown" } }
         ]
     },
     {
@@ -1988,6 +1988,8 @@ const PERFECT_FLASH_TIME = 0.35;
 const EASTER_EGG_DURATION = 5000;
 const SHAKE_TIME = 0.45;
 const TITLE_TIME = 2.6;
+// Рев демона на рівні боса після помилки гравця
+const ROAR_TIME = 0.7;
 const FINISH_OPEN_DISTANCE = 300;
 
 // Реакція світу на приземлення кубика
@@ -1997,6 +1999,9 @@ const LANDING_FX = {
     pirate_bay: { kind: "splash", colors: ["#e8c07a", "#f5d89a"] },
     digital_forest: { kind: "fireflies", colors: ["#c8ff5a", "#fff4a0"] },
     pixel_night: { kind: "fireflies", colors: ["#c8ff5a", "#fff4a0"] },
+    dino_valley: { kind: "splash", colors: ["#2f8a3a", "#4fb55a"] },
+    sky_citadel: { kind: "splash", colors: ["#ffffff", "#ffe8a0"] },
+    luna_park: { kind: "sparks", colors: ["#ff3355", "#ffe14d", "#39c6ff", "#ff5ad8"] },
     pixel_snow: { kind: "splash", colors: ["#ffffff", "#e6f7ff"] },
     pixel_desert: { kind: "splash", colors: ["#e8c07a", "#f5d89a"] },
     stadium: { kind: "splash", colors: ["#2f8a3a", "#4fb55a"] },
@@ -2059,7 +2064,7 @@ const SPIKE_STYLE_BY_THEME = {
     night_harbor: "urchin",
     pirate_bay: "urchin",
     knight_castle: "iron",
-    throne_room: "iron",
+    sky_citadel: "iron",
     treasury: "iron",
     crystal_cave: "crystal",
     pixel_cave: "crystal",
@@ -2068,7 +2073,7 @@ const SPIKE_STYLE_BY_THEME = {
     dragon_lair: "lava",
     pixel_night: "pixel",
     digital_forest: "pixel",
-    retro_arcade: "pixel"
+    dino_valley: "pixel"
 };
 
 // Основні кольори кожного стилю (для уламків, коли шип розсипається)
@@ -2419,6 +2424,7 @@ export class Engine {
         this.eggStart = null;
         this.weather = BackgroundRenderer.pickWeather(this.level.bgTheme);
         this.shakeTime = 0;
+        this.roarTime = 0;
         this.elapsed = 0;
     }
 
@@ -2675,12 +2681,24 @@ export class Engine {
             return { result: "correct", letter: letter };
         }
 
+        this.demonRoar();
         if (this.difficulty === "HARD") {
             this.explode();
             return { result: "exploded", letter: letter };
         }
 
         return { result: "wrong", letter: letter };
+    }
+
+    // На рівні боса демон реве на кожну помилку: очі спалахують, екран ледь здригається
+    demonRoar() {
+        if (this.level.bgTheme !== "pixel_nether") {
+            return;
+        }
+        this.roarTime = ROAR_TIME;
+        if (this.cameraMotion) {
+            this.shakeTime = Math.max(this.shakeTime, SHAKE_TIME * 0.4);
+        }
     }
 
     update(dt) {
@@ -2737,6 +2755,7 @@ export class Engine {
         }
         this.perfectFlash = Math.max(0, this.perfectFlash - dt);
         this.shakeTime = Math.max(0, this.shakeTime - dt);
+        this.roarTime = Math.max(0, this.roarTime - dt);
         this.elapsed += dt;
         for (var si = this.scorePopups.length - 1; si >= 0; si--) {
             var sp = this.scorePopups[si];
@@ -2899,7 +2918,8 @@ export class Engine {
             perfect: this.perfectFlash / PERFECT_FLASH_TIME,
             eggT: eggT !== null && eggT <= 1 ? eggT : null,
             weather: this.weather,
-            camY: this.cameraMotion ? this.player.y * 0.35 : 0
+            camY: this.cameraMotion ? this.player.y * 0.35 : 0,
+            roar: this.roarTime / ROAR_TIME
         });
         if (this.bgCache.shouldUpdate(time)) {
             var self = this;
@@ -2968,7 +2988,14 @@ export class Engine {
         const alpha = Math.min(1, t / 0.35, (TITLE_TIME - t) / 0.6);
         const rise = (1 - Math.min(1, t / 0.35)) * 20;
         const accent = this.level.accentColor || "#00f6ff";
-        const y = H * 0.24 + rise;
+        let y = H * 0.24 + rise;
+        let jitterX = 0;
+        // Заставка боса тремтить, а над нею розплющується око демона
+        const isBoss = this.level.bgTheme === "pixel_nether";
+        if (isBoss) {
+            jitterX = (Math.random() - 0.5) * 6;
+            y += (Math.random() - 0.5) * 6;
+        }
         ctx.save();
         ctx.globalAlpha = Math.max(0, alpha);
         ctx.textAlign = "center";
@@ -2980,9 +3007,20 @@ export class Engine {
             ctx.fillText(name.toUpperCase(), W / 2 + k * 2, y + k * 2);
         }
         ctx.fillStyle = accent;
-        ctx.fillText(name.toUpperCase(), W / 2 + 2, y);
+        ctx.fillText(name.toUpperCase(), W / 2 + 2 + jitterX, y);
         ctx.fillStyle = "#ffffff";
-        ctx.fillText(name.toUpperCase(), W / 2, y - 2);
+        ctx.fillText(name.toUpperCase(), W / 2 + jitterX, y - 2);
+        if (isBoss) {
+            const eyeOpen = Math.min(1, t / 1.2);
+            const eh = Math.max(2, H * 0.03 * eyeOpen);
+            const ey = y - H * 0.1;
+            ctx.fillStyle = "rgba(255, 40, 0, 0.35)";
+            ctx.fillRect(W / 2 - H * 0.09, ey - eh, H * 0.18, eh * 2);
+            ctx.fillStyle = "#ffea00";
+            ctx.fillRect(W / 2 - H * 0.06, ey - eh / 2, H * 0.12, eh);
+            ctx.fillStyle = "#8a0000";
+            ctx.fillRect(W / 2 - H * 0.008, ey - eh / 2, H * 0.016, eh);
+        }
         if (this.leagueInfo) {
             ctx.font = "bold " + Math.round(H * 0.028) + "px 'Segoe UI', Arial, sans-serif";
             ctx.fillStyle = accent;
