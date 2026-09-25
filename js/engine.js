@@ -38,14 +38,17 @@ export const LEVELS_CONFIG = [
             { id: 2,  leagueId: 1, name: "Сусіди центру",           letters: ["В","І","Л","Д"], speed: 172, spikeCount: 13, seed: 2002, bgTheme: "sunset_city",             accentColor: "#ff9ed0", rhythmGroups: false, skin: { id: "skin_1_2", name: "Серфер", renderType: "cyber_eye" } },
             { id: 32, leagueId: 1, name: "Перші слова",             words: ["ЛАПА","ВОДА","ДІД","ПАРА","ВІРА","РАДІО","ЛІРА"], speed: 172, spikeCount: 14, seed: 2017, tuneAs: 2, bgTheme: "pumpkin_pastures", accentColor: "#ff9a3d", rhythmGroups: false, skin: { id: "skin_1_x1", name: "Гарбуз-ліхтар", renderType: "pumpkin_lantern" } },
             { id: 3,  leagueId: 1, name: "Верхній центр",           letters: ["К","Е","Н","Г"], speed: 179, spikeCount: 14, seed: 2003, bgTheme: "cosmodrome",                 accentColor: "#39c6ff", rhythmGroups: false, skin: { id: "skin_1_3", name: "Прибулець", renderType: "retro_gamer" } },
+            { id: 46, leagueId: 1, name: "Склади",                  words: ["НА","КО","ПО","ЛЕ","ДІ","РА","ВО","ГО","КЕ","НІ","ДА","ЛО","ПЕ","РІ","ВА","ГА","НЕ","ДО"], combo: "syllables", speed: 179, spikeCount: 18, seed: 2031, tuneAs: 3, bgTheme: "sponge_reef", accentColor: "#ffe14d", rhythmGroups: false, skin: { id: "skin_1_x9", name: "Губка", renderType: "sponge_cube" } },
             { id: 4,  leagueId: 1, name: "Нижній центр",            letters: ["М","И","Т","Ь"], speed: 186, spikeCount: 15, seed: 2004, bgTheme: "neon_highway",             accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_1_4", name: "Гонщик", renderType: "throne" } },
             { id: 33, leagueId: 1, name: "Дзеркальні пари",         letters: ["А","О","В","Л","П","Р","К","Г"], speed: 186, spikeCount: 16, seed: 2018, tuneAs: 4, bgTheme: "creeper_woods", accentColor: "#6aff5a", rhythmGroups: false, skin: { id: "skin_1_x2", name: "Кубик-гриб", renderType: "mushroom_cube" } },
+            { id: 47, leagueId: 1, name: "Перекати пальцями",       words: ["ВАПР","РОЛД","ІВАП","ДЛОР","РПАВ","АПРО","ОРПА","КЕНГ","ГНЕК","МИТЬ","ЬТИМ"], combo: "rolls", speed: 186, spikeCount: 20, seed: 2032, tuneAs: 4, bgTheme: "ninja_temple", accentColor: "#ff4a3a", rhythmGroups: false, skin: { id: "skin_1_x10", name: "Кубик-ніндзя", renderType: "ninja_cube" } },
             { id: 5,  leagueId: 1, name: "Верхні сусіди",           letters: ["У","Ц","Ш","Щ"], speed: 193, spikeCount: 16, seed: 2005, bgTheme: "jungle_temple",       accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_5", name: "Золотий ідол", renderType: "crosshair" } },
             { id: 6,  leagueId: 1, name: "Нижні сусіди",            letters: ["С","Ч","Б","Ю"], speed: 200, spikeCount: 17, seed: 2006, bgTheme: "digital_forest",     accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_6", name: "Матричний Піксель", renderType: "matrix_pixel" } },
             { id: 34, leagueId: 1, name: "Вказівні пальці",         letters: ["К","Е","А","П","М","И","Н","Г","Р","О","Т","Ь"], speed: 200, spikeCount: 18, seed: 2019, tuneAs: 6, bgTheme: "redstone_mines", accentColor: "#ff4a3a", rhythmGroups: false, skin: { id: "skin_1_x3", name: "Рудокоп", renderType: "redstone_miner" } },
             { id: 7,  leagueId: 1, name: "Краї середнього ряду",    letters: ["Ф","І","Ж","Є"], speed: 207, spikeCount: 18, seed: 2007, bgTheme: "storm_sky",            accentColor: "#9fb4ff", rhythmGroups: false, skin: { id: "skin_1_7", name: "Блискавка", renderType: "slice" } },
             { id: 8,  leagueId: 1, name: "Краї верхнього ряду",     letters: ["Й","Ц","З","Х"], speed: 214, spikeCount: 19, seed: 2008, bgTheme: "crystal_cave",            accentColor: "#b35cff", rhythmGroups: false, skin: { id: "skin_1_8", name: "Сяючий Кристал", renderType: "shining_diamond" } },
             { id: 35, leagueId: 1, name: "Найчастіші літери",       letters: ["О","А","Н","І","И","Т","Е","Р"], speed: 214, spikeCount: 20, seed: 2020, tuneAs: 8, bgTheme: "alien_freighter", accentColor: "#5aff78", rhythmGroups: false, skin: { id: "skin_1_x4", name: "Космодесантник", renderType: "space_marine" } },
+            { id: 48, leagueId: 1, name: "Двічі поспіль",           words: ["ТТ","НН","ЛЛ","СС","ДД","ММ","ВАННА","ТОННА","МАННА","ВІДДІЛ","ПІДДОН","НЕТТО","БРУТТО"], combo: "doubles", speed: 214, spikeCount: 22, seed: 2033, tuneAs: 8, bgTheme: "machine_war", accentColor: "#ff2a3a", rhythmGroups: false, skin: { id: "skin_1_x11", name: "Кіборг", renderType: "endo_skull" } },
             { id: 9,  leagueId: 1, name: "Далекі кути",             letters: ["Я","Ч","Х","Ї"], speed: 221, spikeCount: 20, seed: 2009, bgTheme: "dino_valley",          accentColor: "#ff9a3d", rhythmGroups: false, skin: { id: "skin_1_9", name: "Динозаврик", renderType: "double_frame" } },
             { id: 10, leagueId: 1, name: "Остання літера",          letters: ["А","В","Є","Ґ"], speed: 228, spikeCount: 21, seed: 2010, bgTheme: "pixel_night",             accentColor: "#62c13a", rhythmGroups: false, skin: { id: "skin_1_10", name: "Нічна сова", renderType: "monolith" } },
             { id: 36, leagueId: 1, name: "Слова з верхнім рядом",   words: ["КІНО","НЕБО","ГУСИ","ЗЕБРА","ЛИМОН","КОТИК","ШАПКА","ЦУКОР","МЕТРО","ПІСНЯ"], speed: 228, spikeCount: 22, seed: 2021, tuneAs: 10, bgTheme: "hunter_jungle", accentColor: "#ff3a2a", rhythmGroups: false, skin: { id: "skin_1_x5", name: "Мисливець", renderType: "jungle_hunter" } },
@@ -112,6 +115,14 @@ export const DEFAULT_SKIN = "neon_base";
 
 // Рівень боса (фінал гри)
 export const BOSS_LEVEL_ID = 31;
+
+// Рівні-комбінації: шипи складають не слова, а зв'язки клавіш певного типу
+// (набираються так само, як слова, але бонус і підписи — свої)
+export const COMBO_KINDS = {
+    syllables: { name: "Склади", unit: "Склад" },
+    rolls: { name: "Перекати", unit: "Перекат" },
+    doubles: { name: "Двічі поспіль", unit: "Повтор" }
+};
 
 export const ALL_LEVELS = LEVELS_CONFIG.reduce(function (acc, league) {
     return acc.concat(league.levels);
@@ -1823,12 +1834,14 @@ function generateTrack(level, effectiveSpeed, okPx) {
                     rotationAngle: 0,
                     word: word,
                     wordIdx: wordIdx,
-                    charIdx: c
+                    charIdx: c,
+                    combo: level.combo || null
                 });
                 placed++;
                 x += level.speed * (baseGapTime + rng() * 0.35);
             }
-            x += level.speed * 0.7;
+            // Між словами — пауза; між короткими складами — трохи менша, щоб тримати ритм
+            x += level.speed * (level.combo === "syllables" ? 0.5 : 0.7);
             wordIdx++;
         }
     } else if (level.rhythmGroups) {
@@ -2740,7 +2753,10 @@ const LANDING_FX = {
     hunter_ship: { kind: "sparks", colors: ["#5aff9a", "#ffffff"] },
     obsidian_peak: { kind: "pebbles", colors: ["#2a1a3a", "#b06bff"] },
     hive_queen: { kind: "splash", colors: ["#78ffbe", "#2a443c"] },
-    hangar_bay: { kind: "sparks", colors: ["#ffcc33", "#ffffff"] }
+    hangar_bay: { kind: "sparks", colors: ["#ffcc33", "#ffffff"] },
+    sponge_reef: { kind: "bubbles", colors: ["rgba(220, 245, 255, 0.9)", "rgba(170, 230, 255, 0.8)"] },
+    ninja_temple: { kind: "fireflies", colors: ["#ffb0d0", "#ffe0ec"] },
+    machine_war: { kind: "sparks", colors: ["#ff3a2a", "#ffcc33"] }
 };
 
 function spikeHalfWidth(type) {
@@ -2818,7 +2834,10 @@ const SPIKE_STYLE_BY_THEME = {
     hunter_ship: "crystal",
     obsidian_peak: "crystal",
     hive_queen: "urchin",
-    hangar_bay: "iron"
+    hangar_bay: "iron",
+    sponge_reef: "urchin",
+    ninja_temple: "iron",
+    machine_war: "iron"
 };
 
 // Основні кольори кожного стилю (для уламків, коли шип розсипається)
@@ -2838,6 +2857,8 @@ const SPIKE_CRUMBLE_TIME = 0.35;
 const LETTER_MEMORY = 40;
 // Бонус монет за слово без жодної помилки
 const WORD_BONUS = 2;
+// Бонус за комбінацію (склад, перекат, повтор) без жодної помилки
+const COMBO_BONUS = 1;
 const KEYCAP_SIZE = 34;
 
 function roundedRectPath(ctx, x, y, w, h, r) {
@@ -3190,6 +3211,7 @@ export class Engine {
         // Статистика літер цього забігу (влучання й помилки) — для тренування помилок
         this.letterStats = {};
         this.runWords = 0;
+        this.runCombos = 0;
         this.runHits = 0;
         this.runPerfect = 0;
         this.runSeries = 0;
@@ -3315,6 +3337,7 @@ export class Engine {
             combo: this.combo,
             runHits: this.runHits,
             runWords: this.runWords,
+            runCombos: this.runCombos,
             runPerfect: this.runPerfect,
             runSeries: this.runSeries,
             runMaxCombo: this.runMaxCombo,
@@ -3602,7 +3625,18 @@ export class Engine {
             return;
         }
         const wordSpikes = this.spikes.filter(function (s) { return s.wordIdx === spike.wordIdx; });
-        if (wordSpikes.every(function (s) { return !s.missed; })) {
+        if (spike.combo && wordSpikes.every(function (s) { return !s.missed; })) {
+            this.runCombos++;
+            const kind = COMBO_KINDS[spike.combo];
+            this.scorePopups.push({
+                x: spike.x,
+                y: SPIKE_H + 90,
+                text: (kind ? kind.unit : "Комбо") + " «" + spike.word + "»! +" + COMBO_BONUS,
+                life: 1.3,
+                maxLife: 1.3,
+                crystal: true
+            });
+        } else if (!spike.combo && wordSpikes.every(function (s) { return !s.missed; })) {
             this.runWords++;
             this.scorePopups.push({
                 x: spike.x,
@@ -4772,7 +4806,7 @@ export class Engine {
         // Монети, зібрані в цьому забігу
         drawCoinIcon(ctx, barX + barW + 70, barY + barH / 2, 16);
         ctx.fillStyle = "#ffd84a";
-        ctx.fillText(String(this.runHits + this.runPerfect + this.runSeries + this.runWords * WORD_BONUS), barX + barW + 82, barY + barH / 2);
+        ctx.fillText(String(this.runHits + this.runPerfect + this.runSeries + this.runWords * WORD_BONUS + this.runCombos * COMBO_BONUS), barX + barW + 82, barY + barH / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = "#ffe14d";
         var maxForMode = this.difficulty === "HARD" ? this.maxHard : this.maxEasy;

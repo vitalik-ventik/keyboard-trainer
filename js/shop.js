@@ -173,6 +173,11 @@ export function computeReward(run) {
         lines.push({ label: "Слова без помилок", value: run.words * 2 });
         base += run.words * 2;
     }
+    // Рівні-комбінації: +1 за кожен склад, перекат чи повтор без помилки
+    if (run.combos > 0) {
+        lines.push({ label: "Комбінації без помилок", value: run.combos });
+        base += run.combos;
+    }
     if (!run.won) {
         // Вибух: зберігається половина зібраного
         const total = Math.ceil(base * mult / 2);

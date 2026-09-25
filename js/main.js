@@ -6,7 +6,7 @@
 // ============================================================
 
 import { loadAssets, unlockAudio, playSound, playMusic, audioFileCount } from "./assets.js";
-import { LEVELS_CONFIG, ALL_LEVELS, Engine, save, SKIN_RENDERERS, drawAchievementFrame, DEFAULT_SKIN, BOSS_LEVEL_ID, levelOrderIndex, nextLevelOf } from "./engine.js";
+import { LEVELS_CONFIG, ALL_LEVELS, COMBO_KINDS, Engine, save, SKIN_RENDERERS, drawAchievementFrame, DEFAULT_SKIN, BOSS_LEVEL_ID, levelOrderIndex, nextLevelOf } from "./engine.js";
 import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
@@ -194,6 +194,9 @@ function levelLettersText(level) {
     if (level.adaptive) {
         return "твої найважчі літери";
     }
+    if (level.combo && COMBO_KINDS[level.combo]) {
+        return COMBO_KINDS[level.combo].name.toLowerCase() + " з літер " + level.letters.join(" ");
+    }
     if (Array.isArray(level.words)) {
         return "слова з літер " + level.letters.join(" ");
     }
@@ -261,6 +264,7 @@ function handleGameOver() {
         const reward = computeReward({
             hits: runState.runHits,
             words: runState.runWords,
+            combos: runState.runCombos,
             perfect: runState.runPerfect,
             series: runState.runSeries,
             weapon: runState.weapon,
@@ -301,6 +305,7 @@ function handleVictory() {
         const reward = computeReward({
             hits: runState.runHits,
             words: runState.runWords,
+            combos: runState.runCombos,
             perfect: runState.runPerfect,
             series: runState.runSeries,
             weapon: runState.weapon,
@@ -450,6 +455,8 @@ function buildLevelCards() {
         lettersPreview.className = "level-letters-preview";
         if (level.adaptive) {
             lettersPreview.textContent = "Твої найважчі літери";
+        } else if (level.combo && COMBO_KINDS[level.combo]) {
+            lettersPreview.textContent = COMBO_KINDS[level.combo].name + ": " + level.words.slice(0, 4).join(" ") + "…";
         } else if (Array.isArray(level.words)) {
             lettersPreview.textContent = "Слова: " + level.words.slice(0, 3).join(", ") + "…";
         } else if (level.letters.length === 33) {
