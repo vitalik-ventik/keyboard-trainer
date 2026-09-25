@@ -7,7 +7,7 @@
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
-import { DEFAULT_ITEMS, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
+import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
 import { getWeaponSpec, drawHeldWeapon, drawProjectile, drawBeam, beamTiming, drawStuckArrow, drawSpikeDestruction, DESTRUCTION_TIME, SWING_TIME, SWING_HIT, BOLT_TIME, MELEE_CONTACT, meleeTriggerGap, gravityLiftOffset, gravityGrabTime, GRAVITY_LIFT, getWeaponSound } from "./weapons.js";
 
@@ -1798,7 +1798,10 @@ function defaultSaveData() {
             crystals: 0,
             owned: [],
             equipped: { trail: DEFAULT_ITEMS.trail, explosion: DEFAULT_ITEMS.explosion, accessory: DEFAULT_ITEMS.accessory, weapon: DEFAULT_ITEMS.weapon },
-            paid: {}
+            paid: {},
+            // Ще не відкриті сундуки та скільки перемог поспіль минуло без сундука
+            chests: [],
+            winsWithoutChest: 0
         }
     };
 }
@@ -1878,6 +1881,13 @@ function sanitizeSaveData(raw) {
                     clean.shop.paid[String(level.id)] = { first: entry.first === true, silver: entry.silver === true, gold: entry.gold === true };
                 }
             }
+        }
+        if (Array.isArray(raw.shop.chests)) {
+            clean.shop.chests = raw.shop.chests.filter(function (c) { return typeof c === "string" && CHEST_TYPES[c]; }).slice(0, 50);
+        }
+        const wins = Number(raw.shop.winsWithoutChest);
+        if (Number.isFinite(wins)) {
+            clean.shop.winsWithoutChest = Math.max(0, Math.min(100, Math.floor(wins)));
         }
     }
     return clean;
@@ -2188,6 +2198,63 @@ export const save = {
             gold: current.gold || !!flags.gold
         };
         this.persist();
+    },
+
+    // ---------- Сундуки ----------
+
+    getPendingChests() {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.shop.chests.slice();
+    },
+
+    addChests(types) {
+        if (!saveData) {
+            this.load();
+        }
+        for (const type of types) {
+            if (CHEST_TYPES[type]) {
+                saveData.shop.chests.push(type);
+            }
+        }
+        this.persist();
+    },
+
+    getWinsWithoutChest() {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.shop.winsWithoutChest || 0;
+    },
+
+    setWinsWithoutChest(n) {
+        if (!saveData) {
+            this.load();
+        }
+        saveData.shop.winsWithoutChest = Math.max(0, Math.floor(n) || 0);
+        this.persist();
+    },
+
+    // Відкриває перший сундук у черзі: предмет одразу стає купленим, кристали — на рахунок.
+    // Повертає { type, result: { kind: "item", id } | { kind: "crystals", amount } } або null
+    openNextChest() {
+        if (!saveData) {
+            this.load();
+        }
+        if (saveData.shop.chests.length === 0) {
+            return null;
+        }
+        const type = saveData.shop.chests.shift();
+        const self = this;
+        const result = rollChest(type, function (id) { return self.isOwned(id); });
+        if (result.kind === "item") {
+            saveData.shop.owned.push(result.id);
+        } else {
+            saveData.shop.crystals += result.amount;
+        }
+        this.persist();
+        return { type: type, result: result };
     },
 
     // Умова легендарного товару: { met, current, target, text }.
@@ -2734,6 +2801,7 @@ export class Engine {
         this.oopsTime = 0;
         this.elapsed = 0;
         // Кристали за цей забіг (без множника налаштувань) і ефект вибуху з магазину
+        this.runHits = 0;
         this.runPerfect = 0;
         this.runSeries = 0;
         this.boom = null;
@@ -2853,6 +2921,7 @@ export class Engine {
             progressPct: this.progressPct,
             score: this.score,
             combo: this.combo,
+            runHits: this.runHits,
             runPerfect: this.runPerfect,
             runSeries: this.runSeries,
             weapon: !!this.weaponSpec,
@@ -2897,22 +2966,28 @@ export class Engine {
     // Успішна дія (стрибок або удар зброєю): серія, кристали, «Ідеально», звук
     registerHit(perfect) {
         this.pulse = 1;
+        if (!this.demoMode) {
+            // Кристал за кожен подоланий шип; «Ідеально» — ще +1 і бонус за серію
+            this.runHits++;
+            let gain = 1;
+            let bonus = 0;
+            if (perfect) {
+                this.runPerfect++;
+                bonus = seriesBonus(this.combo + 1);
+                this.runSeries += bonus;
+                gain += 1 + bonus;
+            }
+            this.scorePopups.push({
+                x: this.player.x,
+                y: this.player.y + CUBE_SIZE * 2.4,
+                text: bonus > 0 ? "Серія ×" + (this.combo + 1) + "! +" + gain : "+" + gain,
+                life: bonus > 0 ? 1.4 : 0.8,
+                maxLife: bonus > 0 ? 1.4 : 0.8,
+                crystal: true
+            });
+        }
         if (perfect) {
             this.combo++;
-            if (!this.demoMode) {
-                // Кристал за ідеальний стрибок і бонус за серію
-                this.runPerfect++;
-                const bonus = seriesBonus(this.combo);
-                this.runSeries += bonus;
-                this.scorePopups.push({
-                    x: this.player.x,
-                    y: this.player.y + CUBE_SIZE * 2.4,
-                    text: bonus > 0 ? "Серія ×" + this.combo + "! +" + (1 + bonus) : "+1",
-                    life: bonus > 0 ? 1.4 : 0.8,
-                    maxLife: bonus > 0 ? 1.4 : 0.8,
-                    crystal: true
-                });
-            }
             const count = 8 + Math.floor(Math.random() * 5);
             const isHard = this.difficulty === "HARD";
             const silverColors = ["#f0f4ff", "#c8d0e0", "#e8ecf2", "#d4dce8", "#88aacc"];
@@ -4188,7 +4263,7 @@ export class Engine {
         // Кристали, зібрані в цьому забігу
         drawCrystalIcon(ctx, barX + barW + 70, barY + barH / 2, 16);
         ctx.fillStyle = "#7df9ff";
-        ctx.fillText(String(this.runPerfect + this.runSeries), barX + barW + 82, barY + barH / 2);
+        ctx.fillText(String(this.runHits + this.runPerfect + this.runSeries), barX + barW + 82, barY + barH / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = "#ffe14d";
         var maxForMode = this.difficulty === "HARD" ? this.maxHard : this.maxEasy;
