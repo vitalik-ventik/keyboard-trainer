@@ -9,7 +9,7 @@ import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
 import { DEFAULT_ITEMS, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
-import { getWeaponSpec, drawHeldWeapon, drawProjectile, drawLaserBeam, drawStuckArrow, drawSpikeDestruction, DESTRUCTION_TIME, SWING_TIME, SWING_HIT, BEAM_TIME, BEAM_HIT } from "./weapons.js";
+import { getWeaponSpec, drawHeldWeapon, drawProjectile, drawBeam, beamTiming, drawStuckArrow, drawSpikeDestruction, DESTRUCTION_TIME, SWING_TIME, SWING_HIT } from "./weapons.js";
 
 // ---------- Детермінований PRNG (фіксовані траси) ----------
 
@@ -3105,6 +3105,17 @@ export class Engine {
             if (this.cameraMotion) {
                 this.shakeTime = Math.max(this.shakeTime, SHAKE_TIME * 0.6);
             }
+        } else if (fx === "burn") {
+            this.spawnDebris(14, Object.assign(base, { colors: ["#ffb81a", "#ff5a1a", "#ffe680", "rgba(60, 50, 50, 0.9)"], angleMin: Math.PI * 0.3, angleMax: Math.PI * 0.7, speedMin: 40, speedMax: 120, sizeMin: 2, sizeMax: 4, gravity: -140, life: 1.4, outline: false, spin: 3 }));
+        } else if (fx === "fireslice") {
+            this.spawnDebris(12, Object.assign(base, { colors: ["#ffb81a", "#ff5a1a", "#fff4a0"], angleMin: Math.PI * 0.1, angleMax: Math.PI * 0.8, speedMin: 90, speedMax: 240, sizeMin: 2, sizeMax: 4, gravity: 200, life: 0.8, outline: false }));
+        } else if (fx === "zap") {
+            this.spawnDebris(16, Object.assign(base, { colors: colors.concat(["#bff4ff", "#ffffff"]), angleMin: Math.PI * 0.05, angleMax: Math.PI * 0.95, speedMin: 140, speedMax: 340, sizeMin: 3, sizeMax: 7, gravity: 800, life: 0.8 }));
+            if (this.cameraMotion) {
+                this.shakeTime = Math.max(this.shakeTime, SHAKE_TIME * 0.35);
+            }
+        } else if (fx === "fling") {
+            this.spawnDebris(10, Object.assign(base, { colors: ["#c8a8ff", "#8a6aff", "#ffffff"], angleMin: Math.PI * 0.2, angleMax: Math.PI * 0.8, speedMin: 30, speedMax: 110, sizeMin: 2, sizeMax: 4, gravity: -60, life: 1.0, outline: false, spin: 4 }));
         } else if (fx === "break") {
             this.spawnDebris(12, Object.assign(base, { angleMin: Math.PI * 0.15, angleMax: Math.PI * 0.85, speedMin: 100, speedMax: 240, sizeMin: 5, sizeMax: 9, gravity: 900, life: 0.8, spin: 6 }));
         }
@@ -3137,11 +3148,14 @@ export class Engine {
                 }
             } else {
                 a.t += dt;
-                if (!a.hit && a.t >= BEAM_HIT) {
+                const timing = beamTiming(this.weaponSpec);
+                // Поки діє струмінь чи промінь, зброя лишається «в роботі»
+                this.weaponRecoil = Math.max(this.weaponRecoil, 1 - a.t / timing.time);
+                if (!a.hit && a.t >= timing.hit) {
                     a.hit = true;
                     this.destroySpike(a.spike);
                 }
-                if (a.t >= BEAM_TIME) {
+                if (a.t >= timing.time) {
                     this.attacks.splice(i, 1);
                 }
             }
@@ -3253,7 +3267,7 @@ export class Engine {
                 const y1 = groundY - this.player.y - CUBE_SIZE / 2 - CUBE_SIZE * 0.03;
                 const x2 = anchorX + a.spike.x - camX;
                 const y2 = groundY - SPIKE_H * 0.45;
-                drawLaserBeam(ctx, x1, y1, x2, y2, a.t / BEAM_TIME, time);
+                drawBeam(ctx, this.weaponSpec.beam, x1, y1, x2, y2, a.t / beamTiming(this.weaponSpec).time, time);
             }
         }
         for (const s of this.shots) {

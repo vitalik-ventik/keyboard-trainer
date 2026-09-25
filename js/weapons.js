@@ -11,7 +11,9 @@
 //   axe   — якщо шип близько, рубає одразу; інакше кидає бумеранг
 //   shot  — снаряд летить до шипа (speed — пікселів за секунду, arc — висота дуги)
 //   burst — черга з кількох куль, кожна відколює шматок
-//   beam  — промінь лазера, миттєвий
+//   beam  — дія на відстані без снаряда: промінь лазера, струмінь вогнемета,
+//           блискавка молота, захват гравітаційної гармати (beam — вигляд,
+//           time — тривалість, hit — мить, коли шип знищено)
 // fx — анімація руйнування шипа
 export const WEAPON_SPECS = {
     weapon_sword:   { mode: "melee", reach: 64, fx: "slice" },
@@ -21,8 +23,13 @@ export const WEAPON_SPECS = {
     weapon_ball:    { mode: "shot", projectile: "ball", speed: 620, arc: 46, fx: "goal" },
     weapon_pistol:  { mode: "shot", projectile: "bullet", speed: 1900, arc: 0, fx: "pop" },
     weapon_rifle:   { mode: "burst", projectile: "bullet", speed: 2100, arc: 0, count: 4, gap: 0.07, fx: "crumble" },
-    weapon_laser:   { mode: "beam", fx: "melt" },
-    weapon_rocket:  { mode: "shot", projectile: "rocket", speed: 640, arc: 10, fx: "blast" }
+    weapon_flamethrower: { mode: "beam", beam: "flame", time: 0.6, hit: 0.28, fx: "burn" },
+    weapon_laser:   { mode: "beam", beam: "laser", time: 0.35, hit: 0.12, fx: "melt" },
+    weapon_rocket:  { mode: "shot", projectile: "rocket", speed: 640, arc: 10, fx: "blast" },
+    // Легендарна зброя
+    weapon_firesword: { mode: "melee", reach: 70, fx: "fireslice" },
+    weapon_thunder:   { mode: "beam", beam: "thunder", time: 0.45, hit: 0.1, fx: "zap" },
+    weapon_gravity:   { mode: "beam", beam: "gravity", time: 0.4, hit: 0.3, fx: "fling" }
 };
 
 export function getWeaponSpec(id) {
@@ -39,15 +46,23 @@ export const DESTRUCTION_TIME = {
     pop: 0.3,
     crumble: 0.5,
     melt: 1.0,
-    blast: 2.6
+    blast: 2.6,
+    burn: 1.4,
+    fireslice: 0.9,
+    zap: 0.6,
+    fling: 1.3
 };
 
 // Тривалість удару ближнього бою і момент, коли лезо торкається шипа
 export const SWING_TIME = 0.2;
 export const SWING_HIT = 0.07;
-// Скільки триває промінь лазера й коли він пропалює шип
+// Скільки триває дія на відстані й коли вона знищує шип (типово — як у лазера)
 export const BEAM_TIME = 0.35;
 export const BEAM_HIT = 0.12;
+
+export function beamTiming(spec) {
+    return { time: (spec && spec.time) || BEAM_TIME, hit: (spec && spec.hit) || BEAM_HIT };
+}
 
 // Детермінований «випадок» для анімацій (без мерехтіння між кадрами)
 function hashRand(n) {
@@ -187,6 +202,120 @@ function drawRocketLauncherShape(ctx, s, loaded) {
     }
 }
 
+// Вогняний меч: розпечене лезо, по якому бігають язики полум'я
+function drawFireSwordShape(ctx, s, time) {
+    ctx.fillStyle = "#3a1a0a";
+    ctx.fillRect(-s * 0.05, -s * 0.02, s * 0.1, s * 0.22);
+    ctx.fillStyle = "#ff5a1a";
+    ctx.fillRect(-s * 0.18, -s * 0.07, s * 0.36, s * 0.07);
+    const blade = ctx.createLinearGradient(0, -s * 0.9, 0, 0);
+    blade.addColorStop(0, "#fff4a0");
+    blade.addColorStop(0.5, "#ffb81a");
+    blade.addColorStop(1, "#ff3a1a");
+    ctx.fillStyle = blade;
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.07, -s * 0.07);
+    ctx.lineTo(-s * 0.07, -s * 0.76);
+    ctx.lineTo(0, -s * 0.9);
+    ctx.lineTo(s * 0.07, -s * 0.76);
+    ctx.lineTo(s * 0.07, -s * 0.07);
+    ctx.closePath();
+    ctx.fill();
+    for (let i = 0; i < 4; i++) {
+        const fy = -s * (0.2 + i * 0.17);
+        const flick = Math.sin(time * 0.02 + i * 1.9);
+        drawFlameTongue(ctx, s * (0.08 + flick * 0.02), fy, s * 0.14, time + i * 97);
+    }
+}
+
+// Вогнемет: балон за спиною, шланг і сопло з вогником
+function drawFlamethrowerShape(ctx, s, time) {
+    ctx.fillStyle = "#c8202a";
+    ctx.fillRect(-s * 0.95, -s * 0.34, s * 0.22, s * 0.5);
+    ctx.fillStyle = "#ffcc33";
+    ctx.fillRect(-s * 0.95, -s * 0.22, s * 0.22, s * 0.05);
+    ctx.strokeStyle = "#2a2a30";
+    ctx.lineWidth = Math.max(2, s * 0.06);
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.84, s * 0.16);
+    ctx.quadraticCurveTo(-s * 0.4, s * 0.45, 0, s * 0.08);
+    ctx.stroke();
+    ctx.fillStyle = "#5a606a";
+    ctx.fillRect(0, -s * 0.1, s * 0.52, s * 0.16);
+    ctx.fillStyle = "#3a3f4a";
+    ctx.fillRect(s * 0.1, s * 0.04, s * 0.12, s * 0.22);
+    ctx.fillStyle = "#8a93a3";
+    ctx.fillRect(s * 0.44, -s * 0.13, s * 0.14, s * 0.22);
+    // Черговий вогник біля сопла
+    drawFlameTongue(ctx, s * 0.62, -s * 0.02, s * 0.12, time);
+}
+
+// Громовий молот: масивна голова з блискавкою
+function drawThunderHammerShape(ctx, s, time) {
+    ctx.fillStyle = "#6a4a2a";
+    ctx.fillRect(-s * 0.04, -s * 0.5, s * 0.08, s * 0.72);
+    ctx.fillStyle = "#b8c4d8";
+    ctx.fillRect(-s * 0.26, -s * 0.78, s * 0.52, s * 0.3);
+    ctx.fillStyle = "#8a96ac";
+    ctx.fillRect(-s * 0.26, -s * 0.56, s * 0.52, s * 0.08);
+    ctx.fillStyle = "#eef4ff";
+    ctx.fillRect(-s * 0.26, -s * 0.78, s * 0.52, s * 0.05);
+    const glow = 0.6 + 0.4 * Math.sin(time * 0.012);
+    ctx.fillStyle = "rgba(120, 220, 255, " + glow.toFixed(2) + ")";
+    ctx.beginPath();
+    ctx.moveTo(s * 0.02, -s * 0.75);
+    ctx.lineTo(-s * 0.08, -s * 0.62);
+    ctx.lineTo(0, -s * 0.62);
+    ctx.lineTo(-s * 0.04, -s * 0.51);
+    ctx.lineTo(s * 0.08, -s * 0.65);
+    ctx.lineTo(0, -s * 0.65);
+    ctx.closePath();
+    ctx.fill();
+}
+
+// Гравітаційна гармата: корпус із сяйною сферою-ядром
+function drawGravityGunShape(ctx, s, time) {
+    ctx.fillStyle = "#e6ecf5";
+    ctx.fillRect(-s * 0.06, -s * 0.14, s * 0.46, s * 0.22);
+    ctx.fillStyle = "#ffcc33";
+    ctx.fillRect(-s * 0.06, -s * 0.14, s * 0.46, s * 0.04);
+    ctx.fillStyle = "#3a3f4a";
+    ctx.fillRect(s * 0.02, s * 0.06, s * 0.12, s * 0.2);
+    // Дві «клешні» на кінці
+    ctx.fillStyle = "#9aa4b8";
+    ctx.fillRect(s * 0.4, -s * 0.2, s * 0.2, s * 0.06);
+    ctx.fillRect(s * 0.4, s * 0.08, s * 0.2, s * 0.06);
+    const pulse = 0.5 + 0.5 * Math.sin(time * 0.008);
+    const orb = ctx.createRadialGradient(s * 0.5, -s * 0.03, 0, s * 0.5, -s * 0.03, s * 0.14);
+    orb.addColorStop(0, "rgba(255, 255, 255, 1)");
+    orb.addColorStop(0.5, "rgba(170, 120, 255, " + (0.7 + 0.3 * pulse).toFixed(2) + ")");
+    orb.addColorStop(1, "rgba(90, 60, 255, 0)");
+    ctx.fillStyle = orb;
+    ctx.beginPath();
+    ctx.arc(s * 0.5, -s * 0.03, s * 0.14, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+// Язик полум'я (основа в x, y; size — висота), колір від жовтого до червоного
+export function drawFlameTongue(ctx, x, y, size, time) {
+    const sway = Math.sin(time * 0.017) * size * 0.2;
+    const hgt = size * (0.8 + 0.3 * Math.abs(Math.sin(time * 0.023)));
+    ctx.fillStyle = "rgba(255, 90, 20, 0.85)";
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.35, y);
+    ctx.quadraticCurveTo(x - size * 0.3, y - hgt * 0.6, x + sway, y - hgt);
+    ctx.quadraticCurveTo(x + size * 0.3, y - hgt * 0.6, x + size * 0.35, y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "rgba(255, 220, 90, 0.9)";
+    ctx.beginPath();
+    ctx.moveTo(x - size * 0.16, y);
+    ctx.quadraticCurveTo(x - size * 0.14, y - hgt * 0.4, x + sway * 0.6, y - hgt * 0.62);
+    ctx.quadraticCurveTo(x + size * 0.14, y - hgt * 0.4, x + size * 0.16, y);
+    ctx.closePath();
+    ctx.fill();
+}
+
 // Футбольний м'яч у локальних координатах (центр 0,0), радіус r
 export function drawFootball(ctx, r, rot) {
     ctx.save();
@@ -249,7 +378,7 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
     const swing = pose && pose.swing >= 0 ? pose.swing : -1;
     const recoil = pose ? pose.recoil || 0 : 0;
     ctx.save();
-    if (id === "weapon_sword" || id === "weapon_axe" || id === "weapon_pickaxe") {
+    if (id === "weapon_sword" || id === "weapon_axe" || id === "weapon_pickaxe" || id === "weapon_firesword") {
         if (pose && pose.away) {
             ctx.restore();
             return;
@@ -260,7 +389,9 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
             const k = 1 - Math.pow(1 - swing, 3);
             angle = -1.5 + k * 3.0;
             // Дуга-слід удару
-            ctx.strokeStyle = "rgba(220, 245, 255, " + (0.8 * (1 - swing)).toFixed(2) + ")";
+            ctx.strokeStyle = id === "weapon_firesword"
+                ? "rgba(255, 150, 40, " + (0.85 * (1 - swing)).toFixed(2) + ")"
+                : "rgba(220, 245, 255, " + (0.8 * (1 - swing)).toFixed(2) + ")";
             ctx.lineWidth = s * 0.14;
             ctx.beginPath();
             ctx.arc(s * 0.42, s * 0.12, s * 0.8, -Math.PI / 2 - 1.5, -Math.PI / 2 + angle);
@@ -270,11 +401,18 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
         ctx.rotate(angle);
         if (id === "weapon_sword") {
             drawSwordShape(ctx, s);
+        } else if (id === "weapon_firesword") {
+            drawFireSwordShape(ctx, s, time);
         } else if (id === "weapon_axe") {
             drawAxeShape(ctx, s);
         } else {
             drawPickaxeShape(ctx, s);
         }
+    } else if (id === "weapon_thunder") {
+        // Молот піднімається над головою, коли кличе блискавку
+        ctx.translate(s * 0.42, s * 0.12);
+        ctx.rotate(0.35 - Math.min(1, recoil * 1.6) * 0.9);
+        drawThunderHammerShape(ctx, s, time);
     } else if (id === "weapon_bow") {
         ctx.translate(s * 0.62, 0);
         drawBowShape(ctx, s, recoil > 0 ? 1 - recoil : 0.3);
@@ -295,6 +433,10 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
             drawMuzzleFlash(ctx, s * 0.78, -s * 0.04, s * 0.34, recoil > 0.55 ? (recoil - 0.55) * 2.2 : 0);
         } else if (id === "weapon_laser") {
             drawLaserShape(ctx, s, time);
+        } else if (id === "weapon_flamethrower") {
+            drawFlamethrowerShape(ctx, s, time);
+        } else if (id === "weapon_gravity") {
+            drawGravityGunShape(ctx, s, time);
         } else if (id === "weapon_rocket") {
             drawRocketLauncherShape(ctx, s, recoil <= 0);
         }
@@ -397,6 +539,117 @@ export function drawLaserBeam(ctx, x1, y1, x2, y2, t, time) {
     ctx.arc(x2, y2, 6 + 6 * a, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
+}
+
+// Струмінь вогнемета: хвиля язиків полум'я від сопла до шипа
+function drawFlameStream(ctx, x1, y1, x2, y2, t, time) {
+    const reach = Math.min(1, t / 0.3);
+    const fade = t > 0.75 ? Math.max(0, 1 - (t - 0.75) / 0.25) : 1;
+    const n = 14;
+    ctx.save();
+    for (let i = n - 1; i >= 0; i--) {
+        const k = i / (n - 1);
+        if (k > reach) {
+            continue;
+        }
+        const px = x1 + (x2 - x1) * k;
+        const wob = Math.sin(time * 0.03 + i * 1.7) * (2 + k * 6);
+        const py = y1 + (y2 - y1) * k + wob;
+        const r = 3 + k * 11;
+        const colors = ["255, 240, 150", "255, 180, 40", "255, 90, 20", "200, 40, 10"];
+        const ci = Math.min(3, Math.floor(k * 4));
+        ctx.fillStyle = "rgba(" + colors[ci] + ", " + (0.85 * fade).toFixed(2) + ")";
+        ctx.beginPath();
+        ctx.arc(px, py, r, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    // Дим на кінці струменя
+    ctx.fillStyle = "rgba(80, 70, 70, " + (0.35 * fade * reach).toFixed(2) + ")";
+    ctx.beginPath();
+    ctx.arc(x2 + 6, y2 - 16 - t * 20, 9 + t * 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+}
+
+// Блискавка з неба в шип
+function drawThunderBolt(ctx, x2, y2, t, time) {
+    const a = t < 0.1 ? t / 0.1 : Math.max(0, 1 - (t - 0.1) / 0.9);
+    if (a <= 0) {
+        return;
+    }
+    const top = y2 - 420;
+    const seg = 9;
+    const seed = Math.floor(time / 60);
+    const pts = [];
+    for (let i = 0; i <= seg; i++) {
+        const k = i / seg;
+        const jitter = i === 0 || i === seg ? 0 : (hashRand(seed * 13 + i) - 0.5) * 36;
+        pts.push([x2 + jitter, top + (y2 - top) * k]);
+    }
+    ctx.save();
+    ctx.lineJoin = "round";
+    const passes = [[14, "rgba(120, 200, 255, " + (0.35 * a).toFixed(2) + ")"], [6, "rgba(170, 230, 255, " + (0.8 * a).toFixed(2) + ")"], [2.5, "rgba(255, 255, 255, " + a.toFixed(2) + ")"]];
+    for (const pass of passes) {
+        ctx.strokeStyle = pass[1];
+        ctx.lineWidth = pass[0];
+        ctx.beginPath();
+        ctx.moveTo(pts[0][0], pts[0][1]);
+        for (let i = 1; i < pts.length; i++) {
+            ctx.lineTo(pts[i][0], pts[i][1]);
+        }
+        ctx.stroke();
+    }
+    const flash = ctx.createRadialGradient(x2, y2, 2, x2, y2, 70);
+    flash.addColorStop(0, "rgba(255, 255, 255, " + (0.9 * a).toFixed(2) + ")");
+    flash.addColorStop(1, "rgba(120, 200, 255, 0)");
+    ctx.fillStyle = flash;
+    ctx.fillRect(x2 - 70, y2 - 70, 140, 140);
+    ctx.restore();
+}
+
+// Гравітаційний захват: хвиляста фіолетова «нитка» й кільця
+function drawGravityTether(ctx, x1, y1, x2, y2, t, time) {
+    const a = t < 0.15 ? t / 0.15 : Math.max(0, 1 - (t - 0.75) / 0.25);
+    ctx.save();
+    ctx.strokeStyle = "rgba(170, 120, 255, " + (0.8 * a).toFixed(2) + ")";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    const n = 20;
+    for (let i = 0; i <= n; i++) {
+        const k = i / n;
+        const px = x1 + (x2 - x1) * k;
+        const py = y1 + (y2 - y1) * k + Math.sin(k * 14 - time * 0.03) * 4 * Math.sin(Math.PI * k);
+        if (i === 0) {
+            ctx.moveTo(px, py);
+        } else {
+            ctx.lineTo(px, py);
+        }
+    }
+    ctx.stroke();
+    for (let i = 0; i < 3; i++) {
+        const k = ((time * 0.002) + i / 3) % 1;
+        const px = x1 + (x2 - x1) * k;
+        const py = y1 + (y2 - y1) * k;
+        ctx.strokeStyle = "rgba(210, 180, 255, " + (0.7 * a * (1 - k)).toFixed(2) + ")";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(px, py, 4, 8 + k * 6, 0, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+    ctx.restore();
+}
+
+// Дія зброї на відстані: вигляд залежить від зброї
+export function drawBeam(ctx, kind, x1, y1, x2, y2, t, time) {
+    if (kind === "flame") {
+        drawFlameStream(ctx, x1, y1, x2, y2, t, time);
+    } else if (kind === "thunder") {
+        drawThunderBolt(ctx, x2, y2, t, time);
+    } else if (kind === "gravity") {
+        drawGravityTether(ctx, x1, y1, x2, y2, t, time);
+    } else {
+        drawLaserBeam(ctx, x1, y1, x2, y2, t, time);
+    }
 }
 
 // Стріла, що застрягла в землі й дрижить
@@ -663,6 +916,145 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape)
         ctx.strokeText("ГОЛ!", 0, 0);
         ctx.fillStyle = "#39ff88";
         ctx.fillText("ГОЛ!", 0, 0);
+    } else if (kind === "burn") {
+        // Вогнемет: шип охоплює полум'я, він чорніє, осідає й лишає жарини
+        const char = clamp01(t / 0.6);
+        const sink = clamp01((t - 0.55) / 0.6);
+        if (sink < 1) {
+            ctx.save();
+            ctx.translate(x, groundY);
+            ctx.scale(1, 1 - sink * 0.9);
+            ctx.translate(-x, -groundY);
+            drawShape(ctx);
+            // Обвуглення поверх шипа
+            ctx.fillStyle = "rgba(20, 10, 6, " + (0.85 * char).toFixed(2) + ")";
+            ctx.beginPath();
+            ctx.moveTo(x - hw, groundY);
+            ctx.lineTo(x, groundY - h);
+            ctx.lineTo(x + hw, groundY);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+        // Язики полум'я на шипі
+        const fireA = t < 1.0 ? 1 : Math.max(0, 1 - (t - 1.0) / 0.4);
+        ctx.globalAlpha = fireA;
+        for (let i = 0; i < 5; i++) {
+            const fx = x + (i - 2) * hw * 0.4;
+            const fy = groundY - h * (1 - sink * 0.9) * (0.25 + 0.6 * (1 - Math.abs(i - 2) / 2.5));
+            drawFlameTongue(ctx, fx, Math.min(groundY, fy + h * 0.2), h * (0.45 + 0.2 * hashRand(i)), t * 1000 + i * 131);
+        }
+        ctx.globalAlpha = 1;
+        // Купка жару
+        const pile = clamp01((t - 0.8) / 0.2) * (1 - clamp01((t - 1.1) / 0.3));
+        if (pile > 0) {
+            ctx.fillStyle = "rgba(255, 110, 30, " + (0.8 * pile).toFixed(2) + ")";
+            ctx.beginPath();
+            ctx.ellipse(x, groundY - 2, hw, 5, 0, Math.PI, 0);
+            ctx.fill();
+        }
+    } else if (kind === "fireslice") {
+        // Вогняний меч: розріз навскіс, обидві половинки палають
+        const x1 = x - hw * 1.2;
+        const y1 = groundY - h * 0.25;
+        const x2 = x + hw * 1.2;
+        const y2 = groundY - h * 0.7;
+        const fade = 1 - clamp01((t - 0.45) / 0.45);
+        ctx.globalAlpha = fade;
+        ctx.save();
+        clipHalfPlane(ctx, x1, y1, x2, y2, -1);
+        ctx.translate(0, t * t * 30);
+        drawShape(ctx);
+        ctx.restore();
+        ctx.save();
+        clipHalfPlane(ctx, x1, y1, x2, y2, 1);
+        ctx.translate(t * 80, -t * 50 + t * t * 260);
+        ctx.translate(x, groundY - h * 0.6);
+        ctx.rotate(t * 2.6);
+        ctx.translate(-x, -(groundY - h * 0.6));
+        drawShape(ctx);
+        drawFlameTongue(ctx, x, groundY - h * 0.5, h * 0.5, t * 1000);
+        ctx.restore();
+        drawFlameTongue(ctx, x - hw * 0.4, groundY - h * 0.3, h * 0.45, t * 1000 + 300);
+        drawFlameTongue(ctx, x + hw * 0.3, groundY - h * 0.2, h * 0.35, t * 1000 + 600);
+        ctx.globalAlpha = 1;
+        if (t < 0.25) {
+            const a = 1 - t / 0.25;
+            ctx.strokeStyle = "rgba(255, 200, 60, " + a.toFixed(2) + ")";
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(x1 - 14, y1 + 6);
+            ctx.lineTo(x2 + 14, y2 - 6);
+            ctx.stroke();
+        }
+    } else if (kind === "zap") {
+        // Громовий молот: шип спалахує блакитним, по ньому біжать розряди, і він розлітається
+        const grow = 1 + k * 0.2;
+        ctx.save();
+        ctx.globalAlpha = 1 - k;
+        ctx.translate(x, groundY - h * 0.4);
+        ctx.scale(grow, grow);
+        ctx.translate(-x, -(groundY - h * 0.4));
+        drawShape(ctx);
+        ctx.fillStyle = "rgba(170, 230, 255, 0.6)";
+        ctx.beginPath();
+        ctx.moveTo(x - hw, groundY);
+        ctx.lineTo(x, groundY - h);
+        ctx.lineTo(x + hw, groundY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+        ctx.strokeStyle = "rgba(220, 245, 255, " + (1 - k).toFixed(2) + ")";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+            let px = x;
+            let py = groundY - h * 0.5;
+            ctx.moveTo(px, py);
+            for (let j = 0; j < 3; j++) {
+                px += Math.cos(i * 1.3 + j) * 10 + (hashRand(i * 7 + j + Math.floor(t * 30)) - 0.5) * 12;
+                py += Math.sin(i * 1.3 + j) * 10 + (hashRand(i * 11 + j) - 0.5) * 12;
+                ctx.lineTo(px, py);
+            }
+        }
+        ctx.stroke();
+    } else if (kind === "fling") {
+        // Гравітаційна гармата: шип піднімається, крутиться й відлітає в небо зіркою
+        const lift = clamp01(t / 0.35);
+        let dx = 0;
+        let dy = -lift * 26;
+        let spin = lift * 0.6;
+        let scale = 1;
+        if (t > 0.35) {
+            const f = t - 0.35;
+            dx = f * 420;
+            dy = -26 - f * 520;
+            spin = 0.6 + f * 9;
+            scale = Math.max(0, 1 - f * 1.1);
+        }
+        if (scale > 0.02) {
+            const glow = ctx.createRadialGradient(x + dx, groundY - h * 0.4 + dy, 2, x + dx, groundY - h * 0.4 + dy, h * 0.9 * scale);
+            glow.addColorStop(0, "rgba(190, 150, 255, 0.55)");
+            glow.addColorStop(1, "rgba(120, 80, 255, 0)");
+            ctx.fillStyle = glow;
+            ctx.fillRect(x + dx - h, groundY - h * 1.4 + dy, h * 2, h * 2);
+            ctx.save();
+            ctx.translate(x + dx, groundY - h * 0.4 + dy);
+            ctx.rotate(spin);
+            ctx.scale(scale, scale);
+            ctx.translate(-x, -(groundY - h * 0.4));
+            drawShape(ctx);
+            ctx.restore();
+        }
+        // Зірочка там, де шип зник у небі
+        const star = t > 1.0 ? Math.sin(clamp01((t - 1.0) / 0.3) * Math.PI) : 0;
+        if (star > 0) {
+            const sx = x + 0.65 * 420;
+            const sy = groundY - h * 0.4 - 26 - 0.65 * 520;
+            ctx.fillStyle = "rgba(255, 255, 255, " + star.toFixed(2) + ")";
+            ctx.fillRect(sx - 1.5, sy - 9 * star, 3, 18 * star);
+            ctx.fillRect(sx - 9 * star, sy - 1.5, 18 * star, 3);
+        }
     }
     ctx.restore();
 }
@@ -712,7 +1104,7 @@ export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
             swingAt = Math.max(press, (w + 10 - hw - (cubeX + s / 2) - reach) / spikeSpeed);
             hitAt = swingAt + SWING_HIT;
         } else if (spec.mode === "beam") {
-            hitAt = press + BEAM_HIT;
+            hitAt = press + beamTiming(spec).hit;
         } else {
             const tx = spikeAt(press);
             const dur = Math.max(0.08, (tx - muzzleX) / (spec.speed * 0.45));
@@ -780,9 +1172,12 @@ export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
             drawProjectile(ctx, kind, px, py, 0, ft, s, null);
         }
     }
-    if (spec && spec.mode === "beam" && u >= press && u < press + BEAM_TIME) {
-        drawLaserBeam(ctx, muzzleX + s * 0.08, muzzleY, spikeAt(press), groundY - sh * 0.45, (u - press) / BEAM_TIME, time);
-        recoil = 1 - (u - press) / BEAM_TIME;
+    if (spec && spec.mode === "beam") {
+        const bt = beamTiming(spec).time;
+        if (u >= press && u < press + bt) {
+            drawBeam(ctx, spec.beam, muzzleX + s * 0.08, muzzleY, spikeAt(press), groundY - sh * 0.45, (u - press) / bt, time);
+            recoil = 1 - (u - press) / bt;
+        }
     }
 
     // Кубик зі зброєю
