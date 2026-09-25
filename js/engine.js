@@ -7,7 +7,7 @@
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
-import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
+import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
 import { EXTRA_LEVEL_SKINS } from "./level_skins_extra.js";
 import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, sanitizeAchievementData, localDayKey } from "./achievements.js";
@@ -2319,7 +2319,7 @@ export const save = {
         return !!item && (item.price === 0 || saveData.shop.owned.indexOf(itemId) !== -1);
     },
 
-    // Купівля: true — куплено, false — не вистачає кристалів або товар уже є
+    // Купівля: true — куплено, false — не вистачає монет або товар уже є
     buyItem(itemId) {
         if (!saveData) {
             this.load();
@@ -2420,7 +2420,7 @@ export const save = {
         this.persist();
     },
 
-    // Відкриває перший сундук у черзі: предмет одразу стає купленим, кристали — на рахунок.
+    // Відкриває перший сундук у черзі: предмет одразу стає купленим, монети — на рахунок.
     // Повертає { type, result: { kind: "item", id } | { kind: "crystals", amount } } або null
     openNextChest() {
         if (!saveData) {
@@ -2836,7 +2836,7 @@ const SPIKE_POP_DISTANCE = 140;
 const SPIKE_CRUMBLE_TIME = 0.35;
 // Скільки останніх спроб на літеру пам'ятає статистика помилок
 const LETTER_MEMORY = 40;
-// Бонус кристалів за слово без жодної помилки
+// Бонус монет за слово без жодної помилки
 const WORD_BONUS = 2;
 const KEYCAP_SIZE = 34;
 
@@ -3362,7 +3362,7 @@ export class Engine {
         this.registerHit(perfect);
     }
 
-    // Успішна дія (стрибок або удар зброєю): серія, кристали, «Ідеально», звук
+    // Успішна дія (стрибок або удар зброєю): серія, монети, «Ідеально», звук
     registerHit(perfect) {
         this.pulse = 1;
         if (!this.demoMode) {
@@ -4615,12 +4615,12 @@ export class Engine {
             ctx.lineWidth = 4;
             ctx.strokeStyle = "rgba(5, 5, 20, 0.9)";
             ctx.strokeText(sp.text, x, y);
-            ctx.fillStyle = sp.crystal ? "#7df9ff" : "#ffe14d";
+            ctx.fillStyle = sp.crystal ? "#ffd84a" : "#ffe14d";
             ctx.fillText(sp.text, x, y);
             if (sp.crystal) {
-                // Значок кристала праворуч від напису
+                // Значок монети праворуч від напису
                 const w = ctx.measureText(sp.text).width;
-                drawCrystalIcon(ctx, x + w / 2 + 11, y - 10, 16);
+                drawCoinIcon(ctx, x + w / 2 + 11, y - 10, 16);
             }
         }
         ctx.restore();
@@ -4769,9 +4769,9 @@ export class Engine {
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
         ctx.fillText(Math.floor(this.progressPct) + "%", barX + barW + 12, barY + barH / 2);
-        // Кристали, зібрані в цьому забігу
-        drawCrystalIcon(ctx, barX + barW + 70, barY + barH / 2, 16);
-        ctx.fillStyle = "#7df9ff";
+        // Монети, зібрані в цьому забігу
+        drawCoinIcon(ctx, barX + barW + 70, barY + barH / 2, 16);
+        ctx.fillStyle = "#ffd84a";
         ctx.fillText(String(this.runHits + this.runPerfect + this.runSeries + this.runWords * WORD_BONUS), barX + barW + 82, barY + barH / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = "#ffe14d";

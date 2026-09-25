@@ -1,7 +1,7 @@
 // preview.js — сторінка перегляду всіх фонів і скінів (preview.html)
 import { LEVELS_CONFIG, ALL_LEVELS, SKIN_RENDERERS, drawAchievementFrame } from "./engine.js";
 import { BackgroundRenderer } from "./backgrounds.js";
-import { SHOP_ITEMS, SHOP_TYPES, CHEST_TYPES, REPLAY_CHEST_CHANCE, CHEST_PITY_WINS, chestItemPool, rollChest, getShopItem, itemRarity } from "./shop.js";
+import { SHOP_ITEMS, SHOP_TYPES, CHEST_TYPES, REPLAY_CHEST_CHANCE, CHEST_PITY_WINS, chestItemPool, rollChest, getShopItem, itemRarity, coinsText } from "./shop.js";
 import { drawShopItemScene, drawChestScene, CHEST_SHAKE_MS, CHEST_OPEN_MS } from "./shop_preview.js";
 import { loadAssets, unlockAudio, playSound, SOUND_NAMES, hasSound, soundDuration } from "./assets.js";
 import { WEAPON_SOUNDS, weaponDemoEvents } from "./weapons.js";
@@ -315,7 +315,7 @@ if (shopSectionsEl) {
             name.textContent = (item.legendary ? "⭐ " : "") + item.name;
             const meta = document.createElement("span");
             meta.className = "shop-item-meta";
-            meta.textContent = (item.price > 0 ? "💎 " + item.price : "безкоштовно") + " · " + item.id;
+            meta.textContent = (item.price > 0 ? "🪙 " + item.price : "безкоштовно") + " · " + item.id;
             card.appendChild(canvas);
             card.appendChild(name);
             card.appendChild(meta);
@@ -692,20 +692,20 @@ function pct(x) {
 
 function describeResult(result) {
     if (result.kind === "crystals") {
-        return "💎 +" + result.amount + " кристалів";
+        return "🪙 +" + coinsText(result.amount);
     }
     const item = getShopItem(result.id);
     return item.name + " — " + itemRarity(item).name;
 }
 
-// Опис шансів: скільки предмет/кристали/легендарне й які речі найчастіші та найрідші
+// Опис шансів: скільки предмет/монети/легендарне й які речі найчастіші та найрідші
 function chestInfoHtml(type) {
     const chest = CHEST_TYPES[type];
     const pool = chestItemPool(type, nothingOwned).sort(function (a, b) { return b.chance - a.chance; });
     const itemShare = (1 - chest.legendaryChance) * chest.itemChance;
     const fmt = function (p) { return p.item.name + " " + pct(itemShare * p.chance); };
-    return "<b>Предмет:</b> " + pct(itemShare) + " (ціною до " + chest.maxPrice + " 💎, дешеві частіше) · " +
-        "<b>Кристали:</b> " + pct((1 - chest.legendaryChance) * (1 - chest.itemChance)) + " (" + chest.crystals[0] + "–" + chest.crystals[1] + ") · " +
+    return "<b>Предмет:</b> " + pct(itemShare) + " (ціною до " + chest.maxPrice + " 🪙, дешеві частіше) · " +
+        "<b>Монети:</b> " + pct((1 - chest.legendaryChance) * (1 - chest.itemChance)) + " (" + chest.crystals[0] + "–" + chest.crystals[1] + ") · " +
         "<b>Легендарний:</b> " + pct(chest.legendaryChance) + "<br>" +
         "<b>Найчастіше:</b> " + pool.slice(0, 4).map(fmt).join(", ") + "<br>" +
         "<b>Найрідше:</b> " + pool.slice(-3).map(fmt).join(", ");
