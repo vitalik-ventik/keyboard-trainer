@@ -76,23 +76,23 @@ export const SHOP_ITEMS = [
     { id: "boom_starfall", type: "explosion", name: "Зорепад", price: 120 },
 
     { id: "weapon_none", type: "weapon", name: "Без зброї (стрибки)", price: 0 },
-    { id: "weapon_sword", type: "weapon", name: "Меч", price: 120 },
-    { id: "weapon_axe", type: "weapon", name: "Сокира-бумеранг", price: 150 },
-    { id: "weapon_pickaxe", type: "weapon", name: "Кирка", price: 170 },
-    { id: "weapon_bow", type: "weapon", name: "Лук", price: 180 },
-    { id: "weapon_ball", type: "weapon", name: "Футбольний м'яч", price: 200 },
-    { id: "weapon_pistol", type: "weapon", name: "Пістолет", price: 220 },
-    { id: "weapon_rifle", type: "weapon", name: "Автомат", price: 280 },
-    { id: "weapon_flamethrower", type: "weapon", name: "Вогнемет", price: 320 },
-    { id: "weapon_laser", type: "weapon", name: "Лазер", price: 350 },
-    { id: "weapon_saber_green", type: "weapon", name: "Світловий меч (зелений)", price: 400 },
-    { id: "weapon_saber_blue", type: "weapon", name: "Світловий меч (синій)", price: 400 },
-    { id: "weapon_saber_red", type: "weapon", name: "Світловий меч (червоний)", price: 400 },
-    { id: "weapon_rocket", type: "weapon", name: "Ракетниця", price: 450 },
+    { id: "weapon_sword", type: "weapon", name: "Меч", price: 60, league: 1, bonus: 1.05 },
+    { id: "weapon_axe", type: "weapon", name: "Сокира-бумеранг", price: 100, league: 1, bonus: 1.1 },
+    { id: "weapon_pickaxe", type: "weapon", name: "Кирка", price: 150, league: 1, bonus: 1.15 },
+    { id: "weapon_bow", type: "weapon", name: "Лук", price: 200, league: 1, bonus: 1.2 },
+    { id: "weapon_ball", type: "weapon", name: "Футбольний м'яч", price: 260, league: 1, bonus: 1.25 },
+    { id: "weapon_pistol", type: "weapon", name: "Пістолет", price: 330, league: 2, bonus: 1.3 },
+    { id: "weapon_rifle", type: "weapon", name: "Автомат", price: 400, league: 2, bonus: 1.35 },
+    { id: "weapon_flamethrower", type: "weapon", name: "Вогнемет", price: 480, league: 2, bonus: 1.4 },
+    { id: "weapon_laser", type: "weapon", name: "Лазер", price: 560, league: 2, bonus: 1.45 },
+    { id: "weapon_saber_green", type: "weapon", name: "Світловий меч (зелений)", price: 650, league: 3, bonus: 1.5 },
+    { id: "weapon_saber_blue", type: "weapon", name: "Світловий меч (синій)", price: 650, league: 3, bonus: 1.5 },
+    { id: "weapon_saber_red", type: "weapon", name: "Світловий меч (червоний)", price: 650, league: 3, bonus: 1.5 },
+    { id: "weapon_rocket", type: "weapon", name: "Ракетниця", price: 800, league: 3, bonus: 1.6 },
     // Легендарна зброя: як легендарні скіни, купується лише після виконання умови
-    { id: "weapon_firesword", type: "weapon", name: "Вогняний меч", price: 900, legendary: true, requirement: { kind: "clears", target: 15 } },
-    { id: "weapon_thunder", type: "weapon", name: "Громовий молот", price: 1000, legendary: true, requirement: { kind: "gold_count", target: 10 } },
-    { id: "weapon_gravity", type: "weapon", name: "Гравітаційна гармата", price: 1200, legendary: true, requirement: { kind: "gold_count", target: 20 } },
+    { id: "weapon_firesword", type: "weapon", name: "Вогняний меч", price: 1000, bonus: 1.7, legendary: true, requirement: { kind: "clears", target: 15 } },
+    { id: "weapon_thunder", type: "weapon", name: "Громовий молот", price: 1300, bonus: 1.8, legendary: true, requirement: { kind: "gold_count", target: 10 } },
+    { id: "weapon_gravity", type: "weapon", name: "Гравітаційна гармата", price: 1600, bonus: 1.9, legendary: true, requirement: { kind: "gold_count", target: 20 } },
 
     { id: "acc_none", type: "accessory", name: "Без аксесуара", price: 0 },
     { id: "acc_cap", type: "accessory", name: "Кепка", price: 30 },
@@ -419,17 +419,15 @@ export function itemPerkHint(itemId) {
     return "";
 }
 
-// Бонус монет за зброю: крутіша зброя — монети збираються швидше.
-// Бонус росте з ціною, тож кожна дорожча зброя вигідніша за дешевшу:
-// звичайна — 1 + ціна/1500 (меч ×1.08 … ракетниця ×1.3),
-// легендарна — 1.4 + (ціна − 900)/2000 (вогняний меч ×1.4 … гравітаційна гармата ×1.55)
+// Бонус монет за зброю: кожна наступна зброя — помітна сходинка вгору.
+// Ліга 1: ×1.05 … ×1.25, Ліга 2: ×1.3 … ×1.45, Ліга 3: ×1.5 … ×1.6,
+// легендарна: ×1.7 … ×1.9 (значення — у полі bonus товару)
 export function weaponCoinBonus(weaponId) {
     const item = weaponId ? getShopItem(weaponId) : null;
-    if (!item || item.type !== "weapon" || item.price <= 0) {
+    if (!item || item.type !== "weapon" || typeof item.bonus !== "number") {
         return 1;
     }
-    const bonus = item.legendary ? 1.4 + (item.price - 900) / 2000 : 1 + item.price / 1500;
-    return Math.round(bonus * 100) / 100;
+    return item.bonus;
 }
 
 // Підсумок забігу: рядки для екрана результату та загальна сума.
@@ -963,9 +961,9 @@ export function drawAccessory(ctx, id, size, time) {
 // legendaryChance — окремий крихітний шанс легендарного предмета: він випадає навіть
 // без виконання умови (пройти Боса, золоті рамки) — справжня удача
 export const CHEST_TYPES = {
-    wood: { name: "Дерев'яний сундук", itemChance: 0.35, crystals: [15, 40], maxPrice: 200, rarityPower: 1.2, legendaryChance: 0.003, heartChance: 0.12 },
-    silver: { name: "Срібний сундук", itemChance: 0.55, crystals: [40, 100], maxPrice: 300, rarityPower: 0.8, legendaryChance: 0.01, heartChance: 0.18 },
-    gold: { name: "Золотий сундук", itemChance: 0.8, crystals: [100, 220], maxPrice: 450, rarityPower: 0.4, legendaryChance: 0.03, heartChance: 0.25 }
+    wood: { name: "Дерев'яний сундук", itemChance: 0.35, crystals: [15, 40], maxPrice: 200, maxLeague: 1, rarityPower: 1.2, legendaryChance: 0.003, heartChance: 0.12 },
+    silver: { name: "Срібний сундук", itemChance: 0.55, crystals: [40, 100], maxPrice: 300, maxLeague: 2, rarityPower: 0.8, legendaryChance: 0.01, heartChance: 0.18 },
+    gold: { name: "Золотий сундук", itemChance: 0.8, crystals: [100, 220], maxPrice: 450, maxLeague: 3, rarityPower: 0.4, legendaryChance: 0.03, heartChance: 0.25 }
 };
 
 // Шанс сундука за повторну перемогу й гарантія: не більше 4 перемог поспіль без сундука
@@ -1008,10 +1006,26 @@ export function chestsForVictory(win, random) {
     return { chests: chests, winsWithoutChest: chests.length > 0 ? 0 : (win.winsWithoutChest || 0) + 1 };
 }
 
+// Чи задорогий предмет для сундука: зброя — за лігою, решта — за ціною
+function tooRareForChest(item, chest) {
+    if (item.type === "weapon" && typeof item.league === "number") {
+        return item.league > chest.maxLeague;
+    }
+    return item.price > chest.maxPrice;
+}
+
 // Звичайні товари відкриваються за лігою, до якої дійшов гравець:
-// до 200 — одразу, до 350 — з Ліги 2, дорожчі — з Ліги 3 (легендарні — за своїми умовами)
+// до 200 — одразу, до 350 — з Ліги 2, дорожчі — з Ліги 3 (легендарні — за своїми умовами,
+// зброя — за полем league)
 export function shopTierLeague(item) {
-    if (!item || item.legendary || item.price <= 200) {
+    if (!item || item.legendary) {
+        return 1;
+    }
+    // Зброя має власну лігу — ціни в неї ширші, ніж у скінів
+    if (typeof item.league === "number") {
+        return item.league;
+    }
+    if (item.price <= 200) {
         return 1;
     }
     return item.price <= 350 ? 2 : 3;
@@ -1023,7 +1037,7 @@ export function chestItemPool(type, isOwned) {
     const chest = CHEST_TYPES[type] || CHEST_TYPES.wood;
     const pool = [];
     for (const item of SHOP_ITEMS) {
-        if (item.price <= 0 || item.legendary || item.price > chest.maxPrice || isOwned(item.id)) {
+        if (item.price <= 0 || item.legendary || tooRareForChest(item, chest) || isOwned(item.id)) {
             continue;
         }
         pool.push({ item: item, weight: 1 / Math.pow(item.price, chest.rarityPower) });
