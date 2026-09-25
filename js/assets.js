@@ -7,8 +7,25 @@
 const SOUND_FILES = {
     jump: "sounds/jump.wav",
     explode: "sounds/explode.wav",
-    click: "sounds/click.wav"
+    click: "sounds/click.wav",
+    // Зброя з магазину
+    sword: "sounds/sword.wav",
+    fire_sword: "sounds/fire_sword.wav",
+    axe: "sounds/axe.wav",
+    pickaxe: "sounds/pickaxe.wav",
+    bow: "sounds/bow.wav",
+    soccer: "sounds/soccer.wav",
+    gun: "sounds/gun.wav",
+    machine_gun: "sounds/machine_gun.wav",
+    flamethrower: "sounds/flamethrower.wav",
+    laser_gun: "sounds/laser_gun.wav",
+    missile_boom: "sounds/missile_boom.wav",
+    thunder: "sounds/thunder.wav",
+    gravi_sound: "sounds/gravi_sound.wav"
 };
+
+// Список усіх звукових ефектів (для сторінки перевірки звуків у preview)
+export const SOUND_NAMES = Object.keys(SOUND_FILES);
 
 const MUSIC_FILES = {
     menu: "music/menu.mp3",
@@ -24,7 +41,7 @@ export const audio = {
 
 // Реєстр декодованих буферів: null = файл не завантажився (гра працює далі)
 const registry = {
-    sounds: { jump: null, explode: null, click: null },
+    sounds: {},
     music: { menu: null, game: null, gameover: null, win: null }
 };
 
@@ -75,7 +92,7 @@ async function loadOneBuffer(ctx, path) {
 }
 
 /**
- * Асинхронно вантажить усі 8 аудіофайлів.
+ * Асинхронно вантажить усі аудіофайли (звуки й музику).
  * НІКОЛИ не reject-иться: невдалі файли лишаються null у реєстрі.
  * @param {(loaded:number, total:number) => void} onProgress
  * @returns {Promise<{sounds: Object, music: Object}>}
@@ -140,25 +157,57 @@ export function unlockAudio() {
     }
 }
 
+// Час затухання в кінці обрізаного звуку, щоб не було клацання
+const SOUND_FADE = 0.12;
+
 /**
  * Відтворює звуковий ефект один раз.
  * Тихо ігнорує відсутній буфер або недоступний контекст.
- * @param {"jump"|"explode"|"click"} name
+ * opts (необов'язково): { offset — з якої секунди файлу почати,
+ *   duration — скільки секунд грати (далі плавне затухання), volume — гучність 0..2 }
+ * @param {string} name — ключ із SOUND_FILES
+ * @returns {boolean} true — звук запущено
  */
-export function playSound(name) {
+export function playSound(name, opts) {
     try {
         const ctx = audio.ctx;
         const buffer = registry.sounds[name];
         if (!ctx || !buffer || !sfxGain) {
-            return;
+            return false;
         }
+        const offset = opts && opts.offset ? Math.min(opts.offset, buffer.duration) : 0;
+        const volume = opts && typeof opts.volume === "number" ? opts.volume : 1;
         const source = ctx.createBufferSource();
         source.buffer = buffer;
-        source.connect(sfxGain);
-        source.start(0);
+        const gain = ctx.createGain();
+        gain.gain.value = volume;
+        source.connect(gain);
+        gain.connect(sfxGain);
+        const now = ctx.currentTime;
+        if (opts && opts.duration && offset + opts.duration < buffer.duration) {
+            const fadeStart = now + Math.max(0, opts.duration - SOUND_FADE);
+            gain.gain.setValueAtTime(volume, fadeStart);
+            gain.gain.linearRampToValueAtTime(0, now + opts.duration);
+            source.start(now, offset, opts.duration);
+        } else {
+            source.start(now, offset);
+        }
+        return true;
     } catch (err) {
         console.warn("Не вдалося відтворити звук «" + name + "».", err);
+        return false;
     }
+}
+
+// Чи завантажено звук (для сторінки перевірки)
+export function hasSound(name) {
+    return !!registry.sounds[name];
+}
+
+// Тривалість файлу звуку в секундах або 0
+export function soundDuration(name) {
+    const buffer = registry.sounds[name];
+    return buffer ? buffer.duration : 0;
 }
 
 /**

@@ -3,6 +3,8 @@ import { LEVELS_CONFIG, ALL_LEVELS, SKIN_RENDERERS, drawAchievementFrame } from 
 import { BackgroundRenderer } from "./backgrounds.js";
 import { SHOP_ITEMS, SHOP_TYPES } from "./shop.js";
 import { drawShopItemScene } from "./shop_preview.js";
+import { loadAssets, unlockAudio, playSound, SOUND_NAMES, hasSound, soundDuration } from "./assets.js";
+import { WEAPON_SOUNDS, weaponDemoEvents } from "./weapons.js";
 
 const grid = document.getElementById("grid");
 const errorEl = document.getElementById("error");
@@ -294,7 +296,23 @@ if (shopSectionsEl) {
                 card.appendChild(req);
             }
             list.appendChild(card);
-            const entry = { element: card, ctx: canvas.getContext("2d"), item: item, visible: false };
+            const entry = { element: card, ctx: canvas.getContext("2d"), item: item, visible: false, soundOn: false, lastNow: 0 };
+            if (WEAPON_SOUNDS[item.id]) {
+                // Клік по картці зброї вмикає її звуки синхронно з анімацією
+                card.classList.add("has-sound");
+                const hint = document.createElement("span");
+                hint.className = "shop-item-sound";
+                hint.textContent = "🔊 клацни, щоб чути звук разом з анімацією";
+                card.appendChild(hint);
+                card.addEventListener("click", function () {
+                    enableAudio().then(function () {
+                        entry.soundOn = !entry.soundOn;
+                        entry.lastNow = performance.now();
+                        card.classList.toggle("sound-on", entry.soundOn);
+                        hint.textContent = entry.soundOn ? "🔊 звучить — клацни ще раз, щоб вимкнути" : "🔊 клацни, щоб чути звук разом з анімацією";
+                    });
+                });
+            }
             shopCards.push(entry);
             shopObserver.observe(card);
         }
@@ -313,6 +331,201 @@ function renderShopCard(c, nowMs) {
     }
 }
 
+// ---------- Перевірка звуків ----------
+
+const EVENT_LABELS = { fire: "постріл", swing: "мах", hit: "удар" };
+const soundPanel = document.getElementById("soundPanel");
+let audioReady = false;
+let audioLoading = null;
+let soundStatusEl = null;
+let sequenceTimers = [];
+
+function weaponName(id) {
+    const item = SHOP_ITEMS.find(function (i) { return i.id === id; });
+    return item ? item.name : id;
+}
+
+// Звук вмикається лише після кліку (правило браузера); файли вантажаться один раз
+function enableAudio() {
+    unlockAudio();
+    if (!audioLoading) {
+        if (soundStatusEl) {
+            soundStatusEl.textContent = "Завантаження звуків…";
+        }
+        audioLoading = loadAssets(function (loaded, total) {
+            if (soundStatusEl) {
+                soundStatusEl.textContent = "Завантаження: " + loaded + " / " + total;
+            }
+        }).then(function () {
+            audioReady = true;
+            unlockAudio();
+            refreshSoundRows();
+        });
+    }
+    return audioLoading;
+}
+
+// Звуки, прив'язані до кожного файлу: [{ weapon, event, cue }]
+function cuesForSound(name) {
+    const out = [];
+    for (const id of Object.keys(WEAPON_SOUNDS)) {
+        for (const event of Object.keys(WEAPON_SOUNDS[id])) {
+            if (WEAPON_SOUNDS[id][event].sound === name) {
+                out.push({ weapon: id, event: event, cue: WEAPON_SOUNDS[id][event] });
+            }
+        }
+    }
+    return out;
+}
+
+const soundRows = [];
+
+function refreshSoundRows() {
+    let missing = 0;
+    for (const row of soundRows) {
+        const ok = hasSound(row.name);
+        if (!ok) {
+            missing++;
+        }
+        row.element.classList.toggle("missing", audioReady && !ok);
+        row.meta.textContent = "sounds/" + row.name + ".wav · " +
+            (audioReady ? (ok ? soundDuration(row.name).toFixed(2) + " с" : "НЕ ЗАВАНТАЖИВСЯ") : "—");
+        for (const b of row.buttons) {
+            b.disabled = audioReady && !ok;
+        }
+    }
+    if (soundStatusEl && audioReady) {
+        soundStatusEl.textContent = missing === 0
+            ? "Усі " + soundRows.length + " звуків завантажено ✔"
+            : "Не завантажилось: " + missing + " (червона рамка)";
+    }
+}
+
+function stopSequence() {
+    for (const id of sequenceTimers) {
+        clearTimeout(id);
+    }
+    sequenceTimers = [];
+}
+
+// Уся зброя по черзі: спершу стрибок для порівняння гучності, далі кожна зброя
+// з тими самими паузами між подіями, що в анімації
+function playSequence() {
+    stopSequence();
+    const steps = [{ at: 0, label: "Стрибок (для порівняння гучності)", sound: "jump", cue: null }];
+    let clock = 1.2;
+    for (const id of Object.keys(WEAPON_SOUNDS)) {
+        const plan = weaponDemoEvents(id, 0);
+        const first = plan.events.length > 0 ? plan.events[0].at : 0;
+        let last = 0;
+        for (const e of plan.events) {
+            const cue = WEAPON_SOUNDS[id][e.event];
+            if (!cue) {
+                continue;
+            }
+            const rel = e.at - first;
+            steps.push({ at: clock + rel, label: weaponName(id) + " — " + EVENT_LABELS[e.event], sound: cue.sound, cue: cue });
+            last = Math.max(last, rel + (cue.duration || Math.min(1.5, soundDuration(cue.sound) || 1)));
+        }
+        clock += last + 0.6;
+    }
+    for (const step of steps) {
+        sequenceTimers.push(setTimeout(function () {
+            playSound(step.sound, step.cue || undefined);
+            if (soundStatusEl) {
+                soundStatusEl.textContent = "▶ " + step.label;
+            }
+        }, step.at * 1000));
+    }
+    sequenceTimers.push(setTimeout(function () {
+        refreshSoundRows();
+    }, (clock + 0.5) * 1000));
+}
+
+function makeButton(text, onClick, primary) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = text;
+    if (primary) {
+        b.className = "primary";
+    }
+    b.addEventListener("click", function () {
+        enableAudio().then(onClick);
+    });
+    return b;
+}
+
+if (soundPanel) {
+    const help = document.createElement("p");
+    help.className = "sound-help";
+    help.innerHTML =
+        "1) Натисни «Увімкнути звук» (браузер дозволяє звук лише після кліку).<br>" +
+        "2) «▶ файл» — увесь файл цілком; «▶ Меч — мах» тощо — саме той шматок і з тією гучністю, що звучить у грі.<br>" +
+        "3) «Уся зброя по черзі» — спершу звук стрибка для порівняння, далі кожна зброя з паузами, як в анімації: зручно порівнювати гучність.<br>" +
+        "4) Нижче в магазині клацни картку зброї — зелена рамка, і звук іде синхронно з її анімацією. Ще клік — вимкнути.";
+    soundPanel.appendChild(help);
+
+    const bar = document.createElement("div");
+    bar.className = "sound-toolbar";
+    bar.appendChild(makeButton("🔊 Увімкнути звук", function () {}, true));
+    bar.appendChild(makeButton("▶ Уся зброя по черзі", playSequence));
+    bar.appendChild(makeButton("■ Зупинити", stopSequence));
+    soundStatusEl = document.createElement("span");
+    soundStatusEl.textContent = "Звук вимкнено";
+    bar.appendChild(soundStatusEl);
+    soundPanel.appendChild(bar);
+
+    const table = document.createElement("div");
+    table.className = "sound-table";
+    for (const name of SOUND_NAMES) {
+        const row = document.createElement("div");
+        row.className = "sound-row";
+        const info = document.createElement("div");
+        info.className = "sound-name";
+        const title = document.createElement("b");
+        title.textContent = name;
+        const meta = document.createElement("div");
+        meta.className = "sound-meta";
+        info.appendChild(title);
+        info.appendChild(meta);
+        row.appendChild(info);
+        const buttons = [makeButton("▶ файл", function () { playSound(name); })];
+        for (const c of cuesForSound(name)) {
+            buttons.push(makeButton("▶ " + weaponName(c.weapon) + " — " + EVENT_LABELS[c.event], function () {
+                playSound(c.cue.sound, c.cue);
+            }));
+        }
+        for (const b of buttons) {
+            row.appendChild(b);
+        }
+        table.appendChild(row);
+        soundRows.push({ name: name, element: row, meta: meta, buttons: buttons });
+    }
+    soundPanel.appendChild(table);
+    refreshSoundRows();
+}
+
+// Звук картки зброї синхронно з її анімацією: граємо події, час яких
+// припав між попереднім і поточним кадром
+function syncCardSound(c, nowMs) {
+    const cur = weaponDemoEvents(c.item.id, nowMs);
+    const cycleMs = cur.cycle * 1000;
+    for (let k = cur.cycleIndex - 1; k <= cur.cycleIndex; k++) {
+        if (k < 0) {
+            continue;
+        }
+        const plan = weaponDemoEvents(c.item.id, k * cycleMs + 1);
+        for (const e of plan.events) {
+            const abs = k * cycleMs + e.at * 1000;
+            const cue = WEAPON_SOUNDS[c.item.id][e.event];
+            if (cue && abs > c.lastNow && abs <= nowMs) {
+                playSound(cue.sound, cue);
+            }
+        }
+    }
+    c.lastNow = nowMs;
+}
+
 const fpsEl = document.getElementById("fps");
 let fpsFrames = 0;
 let fpsStart = null;
@@ -328,6 +541,9 @@ function frame(now) {
         for (const c of shopCards) {
             if (c.visible) {
                 renderShopCard(c, now);
+            }
+            if (c.soundOn && audioReady) {
+                syncCardSound(c, now);
             }
         }
     }
