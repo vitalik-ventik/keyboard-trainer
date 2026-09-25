@@ -7,7 +7,7 @@
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
-import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, drawHeartLife, accessoryPerk, trailSlowdown, explosionWindowBonus, skinPerk, skinPerkValue, shopSkinPerkValue, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
+import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, shopTierLeague, drawHeartLife, accessoryPerk, trailSlowdown, explosionWindowBonus, skinPerk, skinPerkValue, shopSkinPerkValue, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
 import { EXTRA_LEVEL_SKINS } from "./level_skins_extra.js";
 import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, sanitizeAchievementData, localDayKey } from "./achievements.js";
@@ -2489,7 +2489,15 @@ export const save = {
         const itemBonus = accPerk.item || 0;
         const skin = activeSkinPerk(this.getActiveSkin());
         const heartBonus = (accPerk.hearts || 0) + (skin && skin.kind === "hearts" ? skin.value : 0);
-        const result = rollChest(type, function (id) { return self.isOwned(id); }, undefined, itemBonus, heartBonus);
+        // Звичайні товари, ще не відкриті за лігою, із сундука не випадають
+        const unavailable = function (id) {
+            if (self.isOwned(id)) {
+                return true;
+            }
+            const it = getShopItem(id);
+            return !!it && !it.legendary && !self.getRequirementProgress(it).met;
+        };
+        const result = rollChest(type, unavailable, undefined, itemBonus, heartBonus);
         if (result.kind === "item") {
             saveData.shop.owned.push(result.id);
         } else if (result.kind === "heart") {
@@ -2539,6 +2547,12 @@ export const save = {
         }
         const req = item && item.requirement;
         if (!req) {
+            // Дорожчі звичайні товари відкриваються в наступних лігах
+            const needLeague = shopTierLeague(item);
+            const reached = (getLevelById(saveData.progress.unlocked) || { leagueId: 1 }).leagueId;
+            if (reached < needLeague) {
+                return { met: false, current: 0, target: 1, text: "Відкриється в Лізі " + needLeague };
+            }
             return { met: true, current: 0, target: 0, text: "" };
         }
         const levels = saveData.progress.levels;
