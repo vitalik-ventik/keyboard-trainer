@@ -10,6 +10,7 @@ import { LEVELS_CONFIG, ALL_LEVELS, Engine, save, SKIN_RENDERERS, drawAchievemen
 import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
+import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
 
 // ---------- Полотно та адаптивність ----------
 
@@ -606,6 +607,19 @@ function handleEscape() {
         setState("MENU");
     }
 }
+
+// ---------- Автоматичне оновлення гри ----------
+
+// Підпис версії в налаштуваннях
+const versionLineEl = document.getElementById("versionLine");
+if (versionLineEl) {
+    versionLineEl.textContent = "Версія: " + formatVersion(APP_VERSION);
+}
+
+// Нова версія підхоплюється лише в меню, щоб не перервати рівень чи екран результату
+startUpdateWatcher(function () {
+    return state === "MENU" || state === "LEVEL_SELECT" || state === "SETTINGS";
+});
 
 // ---------- Пауза при прихованій вкладці ----------
 

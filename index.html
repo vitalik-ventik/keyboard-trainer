@@ -4,7 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keyboard Trainer — Клавіатурний тренажер</title>
-    <link rel="stylesheet" href="css/style.css">
+    <!-- Завантажувач: читає version.json без кешу й підключає файли з міткою версії,
+         щоб після оновлення гри не доводилося натискати Ctrl+F5 -->
+    <style id="bootHide">body { visibility: hidden; }</style>
+    <script>
+        (function () {
+            var MODULES = ["js/main.js", "js/engine.js", "js/backgrounds.js", "js/cache.js", "js/keyboard.js", "js/assets.js", "js/version.js"];
+            function start(version) {
+                window.APP_VERSION = version || "";
+                var tag = version ? "?v=" + encodeURIComponent(version) : "";
+                var map = { imports: {} };
+                MODULES.forEach(function (file) {
+                    map.imports["./" + file] = "./" + file + tag;
+                });
+                var importMap = document.createElement("script");
+                importMap.type = "importmap";
+                importMap.textContent = JSON.stringify(map);
+                document.head.appendChild(importMap);
+                var css = document.createElement("link");
+                css.rel = "stylesheet";
+                css.href = "css/style.css" + tag;
+                css.onload = css.onerror = function () {
+                    var hide = document.getElementById("bootHide");
+                    if (hide) hide.remove();
+                };
+                document.head.appendChild(css);
+
+                var entry = document.createElement("script");
+                entry.type = "module";
+                entry.src = "js/main.js" + tag;
+                document.head.appendChild(entry);
+            }
+            try {
+                fetch("version.json?t=" + Date.now(), { cache: "no-store" })
+                    .then(function (r) { return r.ok ? r.json() : {}; })
+                    .then(function (d) { start(d && typeof d.version === "string" ? d.version : ""); })
+                    .catch(function () { start(""); });
+            } catch (err) {
+                start("");
+            }
+        })();
+    </script>
 </head>
 <body>
     <!-- Ігрове полотно: кубик, шипи, фони, клавіатура, смуга прогресу -->
@@ -69,6 +109,7 @@
                 <button id="btnCamOff" class="option-btn" type="button">ВИМК</button>
             </div>
             <p class="option-hint" id="cameraHint">Камера стежить за стрибком, екран струшується при вибуху</p>
+            <p class="version-line" id="versionLine"></p>
             <button id="btnCloseSettings" class="text-btn" type="button">ЗАКРИТИ</button>
         </div>
     </div>
@@ -113,7 +154,5 @@
         </div>
     </div>
 
-    <script type="module" src="js/backgrounds.js"></script>
-    <script type="module" src="js/main.js"></script>
 </body>
 </html>

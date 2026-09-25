@@ -442,6 +442,13 @@ body {
     margin: 0;
 }
 
+.version-line {
+    font-size: 1.5vmin;
+    color: #5f7196;
+    letter-spacing: 0.1em;
+    margin: 0;
+}
+
 .diff-hint {
     font-size: 1.9vmin;
     color: #9fb4d8;
