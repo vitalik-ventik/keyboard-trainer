@@ -1425,6 +1425,30 @@ body {
 /* Найскладніші літери гравця в налаштуваннях */
 .option-hint.weak-letters {
     color: #ffcc88;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8vmin;
+}
+
+.weak-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8vmin;
+}
+
+.weak-chip {
+    padding: 0.3vmin 1vmin;
+    border: 0.2vmin solid rgba(255, 204, 136, 0.6);
+    border-radius: 0.8vmin;
+    background: rgba(255, 204, 136, 0.08);
+    white-space: nowrap;
+}
+
+.weak-chip b {
+    color: #ffffff;
+    font-size: 2.2vmin;
 }
 
 /* ---------- Спливаючі плашки досягнень ---------- */
@@ -1754,6 +1778,12 @@ body {
     gap: 1.5vmin;
     width: 100%;
     padding: 0 1vmin;
+}
+
+/* Блоки не стискаються, коли висоти мало: довгий текст (найважчі літери)
+   не налазить на сусідів, а вікно просто прокручується */
+.settings-scroll > * {
+    flex-shrink: 0;
 }
 
 /* Вікно «Друге життя?» (сердечко) */
