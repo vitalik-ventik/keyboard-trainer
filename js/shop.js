@@ -206,6 +206,48 @@ export function accessoryPerkText(accessoryId) {
     return "";
 }
 
+// Бонуси шлейфів: траса рухається повільніше (slow — частка, на яку падає швидкість),
+// щоб на старших рівнях було більше часу помітити літеру
+export const TRAIL_PERKS = {
+    trail_neon: { slow: 0.03 },
+    trail_bubbles: { slow: 0.04 },
+    trail_rainbow: { slow: 0.05 },
+    trail_blocks: { slow: 0.06 },
+    trail_stars: { slow: 0.08 },
+    trail_fire: { slow: 0.1 }
+};
+
+// Бонуси вибухів: ширша зона стрибка (window — на скільки частка зон «ОК» та «Ідеально» більша)
+export const EXPLOSION_PERKS = {
+    boom_confetti: { window: 0.05 },
+    boom_pixels: { window: 0.06 },
+    boom_bubbles: { window: 0.08 },
+    boom_watermelon: { window: 0.1 },
+    boom_fireworks: { window: 0.12 },
+    boom_starfall: { window: 0.15 }
+};
+
+// Наскільки шлейф сповільнює трасу (0…1)
+export function trailSlowdown(trailId) {
+    return (TRAIL_PERKS[trailId] && TRAIL_PERKS[trailId].slow) || 0;
+}
+
+// Наскільки вибух розширює зону стрибка (0…1)
+export function explosionWindowBonus(explosionId) {
+    return (EXPLOSION_PERKS[explosionId] && EXPLOSION_PERKS[explosionId].window) || 0;
+}
+
+// Підпис бонусу будь-якого товару (аксесуар, шлейф, вибух) для магазину, або ""
+export function itemPerkText(itemId) {
+    if (TRAIL_PERKS[itemId]) {
+        return "🐢 траса на " + Math.round(TRAIL_PERKS[itemId].slow * 100) + "% повільніша";
+    }
+    if (EXPLOSION_PERKS[itemId]) {
+        return "🎯 зона стрибка +" + Math.round(EXPLOSION_PERKS[itemId].window * 100) + "%";
+    }
+    return accessoryPerkText(itemId);
+}
+
 // Бонус монет за зброю: крутіша зброя — монети збираються швидше.
 // Без зброї ×1, до 200 — ×1.1, до 350 — ×1.2, дорожча — ×1.3, легендарна — ×1.5
 export function weaponCoinBonus(weaponId) {
