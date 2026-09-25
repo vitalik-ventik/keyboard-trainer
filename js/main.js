@@ -832,7 +832,8 @@ function buildSkinGrid() {
 
         var nameSpan = document.createElement("span");
         nameSpan.className = "skin-card-name";
-        nameSpan.textContent = skin.name;
+        // Назву закритого скіна не показуємо — нехай буде сюрприз
+        nameSpan.textContent = isUnlocked ? skin.name : "???";
         card.appendChild(nameSpan);
 
         if (!isUnlocked) {
