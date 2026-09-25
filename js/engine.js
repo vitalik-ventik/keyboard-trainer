@@ -7,6 +7,7 @@
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
+import { DEFAULT_ITEMS, getShopItem, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
 
 // ---------- Детермінований PRNG (фіксовані траси) ----------
 
@@ -1786,7 +1787,14 @@ function defaultSaveData() {
     return {
         version: 1,
         settings: { difficulty: "EASY", hitWindow: "normal", speed: "normal", activeSkin: null, cameraMotion: true },
-        progress: { unlocked: 1, unlockedSkins: [], levels: levels }
+        progress: { unlocked: 1, unlockedSkins: [], levels: levels },
+        // Кристали, куплені товари, надіте та вже виплачені разові бонуси рівнів
+        shop: {
+            crystals: 0,
+            owned: [],
+            equipped: { trail: DEFAULT_ITEMS.trail, explosion: DEFAULT_ITEMS.explosion, accessory: DEFAULT_ITEMS.accessory },
+            paid: {}
+        }
     };
 }
 
@@ -1834,6 +1842,35 @@ function sanitizeSaveData(raw) {
                     if (entry.perfect === "easy" || entry.perfect === "hard") {
                         clean.progress.levels[key].perfect = entry.perfect;
                     }
+                }
+            }
+        }
+    }
+    if (raw.shop && typeof raw.shop === "object") {
+        const crystals = Number(raw.shop.crystals);
+        if (Number.isFinite(crystals)) {
+            clean.shop.crystals = Math.max(0, Math.floor(crystals));
+        }
+        if (Array.isArray(raw.shop.owned)) {
+            clean.shop.owned = raw.shop.owned.filter(function (id, idx, arr) {
+                const item = typeof id === "string" ? getShopItem(id) : null;
+                return item && item.price > 0 && arr.indexOf(id) === idx;
+            });
+        }
+        if (raw.shop.equipped && typeof raw.shop.equipped === "object") {
+            for (const type of Object.keys(DEFAULT_ITEMS)) {
+                const id = raw.shop.equipped[type];
+                const item = typeof id === "string" ? getShopItem(id) : null;
+                if (item && item.type === type && (item.price === 0 || clean.shop.owned.indexOf(id) !== -1)) {
+                    clean.shop.equipped[type] = id;
+                }
+            }
+        }
+        if (raw.shop.paid && typeof raw.shop.paid === "object") {
+            for (const level of ALL_LEVELS) {
+                const entry = raw.shop.paid[String(level.id)];
+                if (entry && typeof entry === "object") {
+                    clean.shop.paid[String(level.id)] = { first: entry.first === true, silver: entry.silver === true, gold: entry.gold === true };
                 }
             }
         }
@@ -2049,6 +2086,89 @@ export const save = {
         }
         const entry = saveData.progress.levels[String(levelId)];
         return (entry && entry.perfect) || null;
+    },
+
+    // ---------- Кристали й магазин ----------
+
+    getCrystals() {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.shop.crystals;
+    },
+
+    addCrystals(amount) {
+        if (!saveData) {
+            this.load();
+        }
+        const n = Math.max(0, Math.floor(Number(amount) || 0));
+        saveData.shop.crystals += n;
+        this.persist();
+        return saveData.shop.crystals;
+    },
+
+    isOwned(itemId) {
+        if (!saveData) {
+            this.load();
+        }
+        const item = getShopItem(itemId);
+        return !!item && (item.price === 0 || saveData.shop.owned.indexOf(itemId) !== -1);
+    },
+
+    // Купівля: true — куплено, false — не вистачає кристалів або товар уже є
+    buyItem(itemId) {
+        if (!saveData) {
+            this.load();
+        }
+        const item = getShopItem(itemId);
+        if (!item || this.isOwned(itemId) || saveData.shop.crystals < item.price) {
+            return false;
+        }
+        saveData.shop.crystals -= item.price;
+        saveData.shop.owned.push(itemId);
+        this.persist();
+        return true;
+    },
+
+    getEquipped(type) {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.shop.equipped[type] || DEFAULT_ITEMS[type];
+    },
+
+    equipItem(itemId) {
+        if (!saveData) {
+            this.load();
+        }
+        const item = getShopItem(itemId);
+        if (!item || !this.isOwned(itemId)) {
+            return false;
+        }
+        saveData.shop.equipped[item.type] = itemId;
+        this.persist();
+        return true;
+    },
+
+    // Разові бонуси рівня: перше проходження, срібна й золота рамки
+    getPaid(levelId) {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.shop.paid[String(levelId)] || { first: false, silver: false, gold: false };
+    },
+
+    markPaid(levelId, flags) {
+        if (!saveData) {
+            this.load();
+        }
+        const current = this.getPaid(levelId);
+        saveData.shop.paid[String(levelId)] = {
+            first: current.first || !!flags.first,
+            silver: current.silver || !!flags.silver,
+            gold: current.gold || !!flags.gold
+        };
+        this.persist();
     }
 };
 
@@ -2510,6 +2630,10 @@ export class Engine {
         this.shakeTime = 0;
         this.oopsTime = 0;
         this.elapsed = 0;
+        // Кристали за цей забіг (без множника налаштувань) і ефект вибуху з магазину
+        this.runPerfect = 0;
+        this.runSeries = 0;
+        this.boom = null;
     }
 
     // Тип скіна, яким зараз малюється кубик (вибраний гравцем або скін рівня)
@@ -2619,6 +2743,8 @@ export class Engine {
             progressPct: this.progressPct,
             score: this.score,
             combo: this.combo,
+            runPerfect: this.runPerfect,
+            runSeries: this.runSeries,
             alive: this.player.alive,
             maxEasy: this.maxEasy,
             maxHard: this.maxHard,
@@ -2657,6 +2783,20 @@ export class Engine {
         this.pulse = 1;
         if (perfect) {
             this.combo++;
+            if (!this.demoMode) {
+                // Кристал за ідеальний стрибок і бонус за серію
+                this.runPerfect++;
+                const bonus = seriesBonus(this.combo);
+                this.runSeries += bonus;
+                this.scorePopups.push({
+                    x: this.player.x,
+                    y: this.player.y + CUBE_SIZE * 2.4,
+                    text: bonus > 0 ? "Серія ×" + this.combo + "! +" + (1 + bonus) : "+1",
+                    life: bonus > 0 ? 1.4 : 0.8,
+                    maxLife: bonus > 0 ? 1.4 : 0.8,
+                    crystal: true
+                });
+            }
             const count = 8 + Math.floor(Math.random() * 5);
             const isHard = this.difficulty === "HARD";
             const silverColors = ["#f0f4ff", "#c8d0e0", "#e8ecf2", "#d4dce8", "#88aacc"];
@@ -2710,6 +2850,8 @@ export class Engine {
         const count = isDemon ? 20 : 8;
         const gameX = this.player.x;
         const gameY = this.player.y + CUBE_SIZE / 2;
+        // Ефект вибуху, куплений у магазині
+        this.boom = { id: save.getEquipped("explosion"), t: 0, x: gameX, y: gameY };
         BackgroundRenderer.createParticles(gameX, gameY, count, palette);
         // Кубик розлітається на квадратні уламки кольорів свого скіна
         this.spawnDebris(22, {
@@ -2836,6 +2978,12 @@ export class Engine {
             }
         }
         this.perfectFlash = Math.max(0, this.perfectFlash - dt);
+        if (this.boom) {
+            this.boom.t += dt;
+            if (this.boom.t > EXPLOSION_DURATION) {
+                this.boom = null;
+            }
+        }
         this.shakeTime = Math.max(0, this.shakeTime - dt);
         this.oopsTime = Math.max(0, this.oopsTime - dt);
         this.elapsed += dt;
@@ -3025,6 +3173,9 @@ export class Engine {
         this.renderPlayer(ctx, groundY, anchorX);
         BackgroundRenderer.renderParticles(ctx, groundY, anchorX, camX);
         this.renderDebris(ctx, groundY, anchorX, camX);
+        if (this.boom) {
+            drawExplosion(ctx, this.boom.id, this.boom.t, anchorX + this.boom.x - camX, groundY - this.boom.y, CUBE_SIZE);
+        }
         this.renderPerfectParticles(ctx, groundY, anchorX, camX);
         this.renderPerfectPopups(ctx, groundY, anchorX, camX);
         this.renderScorePopups(ctx, groundY, anchorX, camX);
@@ -3429,8 +3580,13 @@ export class Engine {
             ctx.lineWidth = 4;
             ctx.strokeStyle = "rgba(5, 5, 20, 0.9)";
             ctx.strokeText(sp.text, x, y);
-            ctx.fillStyle = "#ffe14d";
+            ctx.fillStyle = sp.crystal ? "#7df9ff" : "#ffe14d";
             ctx.fillText(sp.text, x, y);
+            if (sp.crystal) {
+                // Значок кристала праворуч від напису
+                const w = ctx.measureText(sp.text).width;
+                drawCrystalIcon(ctx, x + w / 2 + 11, y - 10, 16);
+            }
         }
         ctx.restore();
     }
@@ -3441,17 +3597,21 @@ export class Engine {
         if (!this.player.alive) {
             return;
         }
-        for (const point of this.player.trail) {
-            const dx = point.x - this.player.x;
-            const size = CUBE_SIZE * 0.55;
-            ctx.fillStyle = "rgba(0, 246, 255, " + Math.max(0, point.alpha * 0.35).toFixed(3) + ")";
-            ctx.fillRect(
-                anchorX + dx - size / 2,
-                groundY - point.y - CUBE_SIZE / 2 - size / 2,
-                size,
-                size
-            );
+        // Шлейф (звичайний або куплений у магазині)
+        const trailPoints = [];
+        for (let ti = 0; ti < this.player.trail.length; ti++) {
+            const point = this.player.trail[ti];
+            if (point.seq === undefined) {
+                point.seq = this.trailSeq = (this.trailSeq || 0) + 1;
+            }
+            trailPoints.push({
+                sx: anchorX + point.x - this.player.x,
+                sy: groundY - point.y - CUBE_SIZE / 2,
+                alpha: point.alpha,
+                i: point.seq
+            });
         }
+        drawTrail(ctx, save.getEquipped("trail"), trailPoints, CUBE_SIZE, this.currentTime);
 
         // Gold trail for perfectHard
         var achievementLevelId = this.level.id;
@@ -3511,6 +3671,7 @@ export class Engine {
         }
 
         drawAchievementFrame(ctx, CUBE_SIZE, achievement, this.currentTime);
+        drawAccessory(ctx, save.getEquipped("accessory"), CUBE_SIZE, this.currentTime);
 
         // Спалах рамки після «Ідеально»
         if (this.perfectFlash > 0) {
@@ -3532,7 +3693,7 @@ export class Engine {
 
         // Темна підкладка, щоб написи читалися й на світлому денному небі
         var panelX = Math.max(4, barX - 150);
-        var panelR = Math.min(W - 4, barX + barW + 64);
+        var panelR = Math.min(W - 4, barX + barW + 128);
         ctx.fillStyle = "rgba(5, 8, 20, 0.55)";
         ctx.beginPath();
         if (ctx.roundRect) {
@@ -3570,6 +3731,10 @@ export class Engine {
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
         ctx.fillText(Math.floor(this.progressPct) + "%", barX + barW + 12, barY + barH / 2);
+        // Кристали, зібрані в цьому забігу
+        drawCrystalIcon(ctx, barX + barW + 70, barY + barH / 2, 16);
+        ctx.fillStyle = "#7df9ff";
+        ctx.fillText(String(this.runPerfect + this.runSeries), barX + barW + 82, barY + barH / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = "#ffe14d";
         var maxForMode = this.difficulty === "HARD" ? this.maxHard : this.maxEasy;

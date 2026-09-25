@@ -61,9 +61,16 @@
     <div id="mainMenu" class="overlay hidden">
         <h1 class="neon-title game-title">KEYBOARD TRAINER</h1>
         <p class="subtitle">Клавіатурний тренажер у стилі Geometry Dash</p>
-        <div id="skin-selector-trigger" class="skin-trigger">
-            <canvas id="active-skin-canvas" width="52" height="52" class="active-skin-canvas"></canvas>
-            <span class="skin-trigger-label">СКІН</span>
+        <div class="menu-top-row">
+            <div id="skin-selector-trigger" class="skin-trigger">
+                <canvas id="active-skin-canvas" width="52" height="52" class="active-skin-canvas"></canvas>
+                <span class="skin-trigger-label">СКІН</span>
+            </div>
+            <div id="shop-trigger" class="skin-trigger shop-trigger">
+                <span class="shop-trigger-icon" aria-hidden="true"></span>
+                <span class="skin-trigger-label">МАГАЗИН</span>
+                <span class="shop-balance-badge"><span class="crystal-ico" aria-hidden="true"></span><span id="menuCrystals">0</span></span>
+            </div>
         </div>
         <div class="menu-buttons">
             <button id="btnLevels" class="round-btn side-btn" type="button" aria-label="Вибір рівня">
@@ -126,6 +133,19 @@
         </div>
     </div>
 
+    <!-- Магазин: шлейфи, вибухи, аксесуари за кристали -->
+    <div id="shop-modal" class="overlay modal-backdrop hidden">
+        <div class="modal list-modal">
+            <h2 class="neon-title">МАГАЗИН</h2>
+            <p class="shop-balance"><span class="crystal-ico" aria-hidden="true"></span><span id="shopBalance">0</span></p>
+            <div id="shopTabs" class="league-tabs"></div>
+            <div class="list-modal-scroll">
+                <div id="shopGrid" class="shop-grid"></div>
+            </div>
+            <button id="btnCloseShop" class="text-btn" type="button">ЗАКРИТИ</button>
+        </div>
+    </div>
+
     <!-- Вікно вибору рівня (поверх меню, як налаштування) -->
     <div id="levelSelect" class="overlay modal-backdrop hidden">
         <div class="modal list-modal">
@@ -143,6 +163,7 @@
         <h2 class="neon-title danger-title">ВИБУХ!</h2>
         <p class="result-line">Пройдено: <span id="gameoverPct">0%</span></p>
         <p class="result-line">Очки: <span id="gameoverScore">0</span></p>
+        <div id="gameoverCrystals" class="crystal-breakdown"></div>
         <div class="result-buttons">
             <button id="btnRetry" class="action-btn" type="button">СПРОБУВАТИ ЩЕ</button>
             <button id="btnGoMenu" class="action-btn secondary" type="button">ДО МЕНЮ</button>
@@ -154,6 +175,7 @@
         <h2 class="neon-title victory-title">ПЕРЕМОГА! 100%</h2>
         <p class="result-line">Очки: <span id="victoryScore">0</span></p>
         <p class="result-line" id="victoryUnlock"></p>
+        <div id="victoryCrystals" class="crystal-breakdown"></div>
         <div class="result-buttons">
             <button id="btnNext" class="action-btn" type="button">НАСТУПНИЙ РІВЕНЬ</button>
             <button id="btnRetryWin" class="action-btn secondary" type="button">ЩЕ РАЗ</button>

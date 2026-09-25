@@ -1,0 +1,488 @@
+// ============================================================
+// shop.js — кристали та магазин
+// Каталог товарів (шлейфи, вибухи, аксесуари), правила нарахування
+// кристалів за забіг і малювання всіх товарів на Canvas.
+// Модуль нічого не імпортує: його використовують і рушій, і меню.
+// ============================================================
+
+// ---------- Каталог ----------
+
+// Перший товар кожного типу безкоштовний і відкритий завжди — це «без прикрас»
+export const SHOP_ITEMS = [
+    { id: "trail_default", type: "trail", name: "Звичайний", price: 0 },
+    { id: "trail_neon", type: "trail", name: "Неонова лінія", price: 80 },
+    { id: "trail_bubbles", type: "trail", name: "Бульбашки", price: 100 },
+    { id: "trail_rainbow", type: "trail", name: "Райдуга", price: 120 },
+    { id: "trail_blocks", type: "trail", name: "Кубічні пікселі", price: 150 },
+    { id: "trail_stars", type: "trail", name: "Зірочки", price: 180 },
+    { id: "trail_fire", type: "trail", name: "Вогонь", price: 200 },
+
+    { id: "boom_default", type: "explosion", name: "Звичайний", price: 0 },
+    { id: "boom_confetti", type: "explosion", name: "Конфеті", price: 80 },
+    { id: "boom_pixels", type: "explosion", name: "Пікселі-кубики", price: 120 },
+    { id: "boom_bubbles", type: "explosion", name: "Мильні бульбашки", price: 150 },
+    { id: "boom_watermelon", type: "explosion", name: "Кавун", price: 180 },
+    { id: "boom_fireworks", type: "explosion", name: "Феєрверк", price: 200 },
+    { id: "boom_starfall", type: "explosion", name: "Зорепад", price: 250 },
+
+    { id: "acc_none", type: "accessory", name: "Без аксесуара", price: 0 },
+    { id: "acc_cap", type: "accessory", name: "Кепка", price: 60 },
+    { id: "acc_bow", type: "accessory", name: "Бант", price: 70 },
+    { id: "acc_glasses", type: "accessory", name: "Сонцезахисні окуляри", price: 90 },
+    { id: "acc_headphones", type: "accessory", name: "Навушники", price: 120 },
+    { id: "acc_cowboy", type: "accessory", name: "Ковбойський капелюх", price: 150 },
+    { id: "acc_horns", type: "accessory", name: "Ріжки", price: 200 },
+    { id: "acc_pirate", type: "accessory", name: "Піратський капелюх", price: 250 },
+    { id: "acc_halo", type: "accessory", name: "Німб", price: 300 },
+    { id: "acc_crown", type: "accessory", name: "Корона", price: 400 }
+];
+
+export const SHOP_TYPES = [
+    { type: "trail", name: "Шлейфи" },
+    { type: "explosion", name: "Вибухи" },
+    { type: "accessory", name: "Аксесуари" }
+];
+
+// Безкоштовний товар кожного типу (надітий за замовчуванням)
+export const DEFAULT_ITEMS = { trail: "trail_default", explosion: "boom_default", accessory: "acc_none" };
+
+export function getShopItem(id) {
+    for (const item of SHOP_ITEMS) {
+        if (item.id === id) {
+            return item;
+        }
+    }
+    return null;
+}
+
+// ---------- Нарахування кристалів ----------
+
+// Бонус за фініш і за перше проходження залежить від ліги
+const FINISH_BONUS = { 1: 10, 2: 15, 3: 20, 4: 30, 5: 50 };
+const FIRST_CLEAR_BONUS = { 1: 20, 2: 30, 3: 40, 4: 60, 5: 100 };
+export const SILVER_BONUS = 30;
+export const GOLD_BONUS = 60;
+
+// Бонус за серію ідеальних стрибків: на 5, 10, 20 і далі кожні +10
+export function seriesBonus(streak) {
+    if (streak === 5) {
+        return 2;
+    }
+    if (streak === 10) {
+        return 4;
+    }
+    if (streak >= 20 && streak % 10 === 0) {
+        return 8;
+    }
+    return 0;
+}
+
+// Множник від налаштувань: складніше грати — більше кристалів
+export function rewardMultiplier(difficulty, speed, hitWindow) {
+    let mult = 1;
+    if (difficulty === "HARD") {
+        mult *= 1.5;
+    }
+    if (speed === "slow") {
+        mult *= 0.8;
+    } else if (speed === "fast") {
+        mult *= 1.25;
+    }
+    if (hitWindow === "large") {
+        mult *= 0.8;
+    }
+    return Math.round(mult * 100) / 100;
+}
+
+// Підсумок забігу: рядки для екрана результату та загальна сума.
+// run: { perfect, series, won, leagueId, firstClear, newSilver, newGold, difficulty, speed, hitWindow }
+export function computeReward(run) {
+    const lines = [];
+    const mult = rewardMultiplier(run.difficulty, run.speed, run.hitWindow);
+    let base = 0;
+    lines.push({ label: "Ідеальні стрибки", value: run.perfect });
+    base += run.perfect;
+    if (run.series > 0) {
+        lines.push({ label: "Серії", value: run.series });
+        base += run.series;
+    }
+    if (!run.won) {
+        // Вибух: зберігається половина зібраного
+        const total = Math.ceil(base * mult / 2);
+        return { lines: lines, mult: mult, half: true, total: total };
+    }
+    const finish = FINISH_BONUS[run.leagueId] || 10;
+    const finishValue = run.firstClear ? finish : Math.ceil(finish / 2);
+    lines.push({ label: run.firstClear ? "Фініш" : "Фініш (повтор)", value: finishValue });
+    base += finishValue;
+    if (run.firstClear) {
+        const first = FIRST_CLEAR_BONUS[run.leagueId] || 20;
+        lines.push({ label: "Перше проходження", value: first });
+        base += first;
+    }
+    if (run.newSilver) {
+        lines.push({ label: "Срібна рамка", value: SILVER_BONUS });
+        base += SILVER_BONUS;
+    }
+    if (run.newGold) {
+        lines.push({ label: "Золота рамка", value: GOLD_BONUS });
+        base += GOLD_BONUS;
+    }
+    return { lines: lines, mult: mult, half: false, total: Math.ceil(base * mult) };
+}
+
+// ---------- Значок кристала ----------
+
+export function drawCrystalIcon(ctx, x, y, s) {
+    const h = s / 2;
+    ctx.fillStyle = "#39c6ff";
+    ctx.beginPath();
+    ctx.moveTo(x, y - h);
+    ctx.lineTo(x + h * 0.8, y - h * 0.2);
+    ctx.lineTo(x, y + h);
+    ctx.lineTo(x - h * 0.8, y - h * 0.2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#bff0ff";
+    ctx.beginPath();
+    ctx.moveTo(x, y - h);
+    ctx.lineTo(x + h * 0.8, y - h * 0.2);
+    ctx.lineTo(x, y - h * 0.05);
+    ctx.lineTo(x - h * 0.8, y - h * 0.2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(Math.round(x - h * 0.35), Math.round(y - h * 0.55), Math.max(1, Math.round(s * 0.12)), Math.max(1, Math.round(s * 0.12)));
+}
+
+// ---------- Детерміновані випадкові числа для ефектів ----------
+
+function hashRand(n) {
+    const v = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+    return v - Math.floor(v);
+}
+
+// ---------- Шлейфи ----------
+
+// points — точки шлейфу { sx, sy, alpha, i }: екранні координати, яскравість (0…0.55) і номер
+export function drawTrail(ctx, id, points, cube, time) {
+    if (id === "trail_default" || !id) {
+        for (const p of points) {
+            const size = cube * 0.55;
+            ctx.fillStyle = "rgba(0, 246, 255, " + Math.max(0, p.alpha * 0.35).toFixed(3) + ")";
+            ctx.fillRect(p.sx - size / 2, p.sy - size / 2, size, size);
+        }
+        return;
+    }
+    if (id === "trail_neon") {
+        if (points.length < 2) {
+            return;
+        }
+        for (let pass = 0; pass < 2; pass++) {
+            ctx.strokeStyle = pass === 0 ? "rgba(255, 46, 166, 0.45)" : "rgba(0, 246, 255, 0.9)";
+            ctx.lineWidth = pass === 0 ? cube * 0.35 : cube * 0.12;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(points[0].sx, points[0].sy);
+            for (let k = 1; k < points.length; k++) {
+                ctx.lineTo(points[k].sx, points[k].sy);
+            }
+            ctx.stroke();
+        }
+        ctx.lineCap = "butt";
+        return;
+    }
+    for (const p of points) {
+        const a = Math.max(0, Math.min(1, p.alpha / 0.55));
+        const age = 1 - a;
+        const r = hashRand(p.i);
+        if (id === "trail_bubbles") {
+            const rad = cube * (0.1 + age * 0.22 + r * 0.08);
+            ctx.globalAlpha = a * 0.8;
+            ctx.strokeStyle = "#bff0ff";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(p.sx + (r - 0.5) * cube * 0.6, p.sy - age * cube * 0.8, rad, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(p.sx + (r - 0.5) * cube * 0.6 - rad * 0.4, p.sy - age * cube * 0.8 - rad * 0.5, 2, 2);
+        } else if (id === "trail_rainbow") {
+            const colors = ["#ff3355", "#ff9a3d", "#ffe14d", "#39ff88", "#39c6ff", "#b35cff"];
+            const band = cube / colors.length;
+            ctx.globalAlpha = a * 0.85;
+            for (let c = 0; c < colors.length; c++) {
+                ctx.fillStyle = colors[c];
+                ctx.fillRect(p.sx - cube * 0.25, p.sy - cube / 2 + c * band, cube * 0.5, band);
+            }
+        } else if (id === "trail_blocks") {
+            const colors = ["#5ab84a", "#8a6a3a", "#8a8a8a", "#6a4a2a"];
+            const s = cube * (0.18 + r * 0.14);
+            ctx.globalAlpha = a;
+            ctx.fillStyle = colors[Math.floor(r * colors.length)];
+            ctx.fillRect(p.sx + (r - 0.5) * cube * 0.7 - s / 2, p.sy + age * cube * 0.6 + (hashRand(p.i + 9) - 0.5) * cube * 0.5, s, s);
+            ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+            ctx.fillRect(p.sx + (r - 0.5) * cube * 0.7 - s / 2, p.sy + age * cube * 0.6 + (hashRand(p.i + 9) - 0.5) * cube * 0.5 + s * 0.7, s, s * 0.3);
+        } else if (id === "trail_stars") {
+            if (p.i % 2 !== 0) {
+                continue;
+            }
+            const s = cube * (0.08 + r * 0.08) * (0.6 + 0.4 * Math.sin(time * 0.02 + p.i));
+            const x = p.sx + (r - 0.5) * cube * 0.8;
+            const y = p.sy + (hashRand(p.i + 3) - 0.5) * cube * 0.8;
+            ctx.globalAlpha = a;
+            ctx.fillStyle = r < 0.5 ? "#ffe14d" : "#ffffff";
+            ctx.fillRect(x - s / 2, y - s * 1.5, s, s * 3);
+            ctx.fillRect(x - s * 1.5, y - s / 2, s * 3, s);
+        } else if (id === "trail_fire") {
+            const s = cube * (0.35 - age * 0.25) * (0.8 + r * 0.4);
+            ctx.globalAlpha = a;
+            ctx.fillStyle = age < 0.3 ? "#fff4a0" : age < 0.6 ? "#ffaa22" : "#ff4a1a";
+            ctx.fillRect(p.sx - s / 2 + (r - 0.5) * cube * 0.3, p.sy - s / 2 - age * cube * 0.7, s, s);
+        }
+    }
+    ctx.globalAlpha = 1;
+}
+
+// ---------- Ефекти вибуху ----------
+
+export const EXPLOSION_DURATION = 1.4;
+
+// t — секунди від вибуху; (x, y) — центр кубика на екрані; cube — розмір кубика
+export function drawExplosion(ctx, id, t, x, y, cube) {
+    if (!id || id === "boom_default" || t > EXPLOSION_DURATION) {
+        return;
+    }
+    const k = t / EXPLOSION_DURATION;
+    const fade = Math.max(0, 1 - k);
+    ctx.save();
+    if (id === "boom_confetti") {
+        const colors = ["#ff3355", "#ffe14d", "#39c6ff", "#39ff88", "#ff5ad8", "#ff9a3d"];
+        for (let i = 0; i < 40; i++) {
+            const ang = hashRand(i) * Math.PI * 2;
+            const sp = cube * (2 + hashRand(i + 50) * 4);
+            const px = x + Math.cos(ang) * sp * t * 1.4;
+            const py = y + Math.sin(ang) * sp * t * 1.4 - cube * 3 * t + cube * 6 * t * t;
+            ctx.globalAlpha = fade;
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.rotate(t * 10 + i);
+            ctx.fillRect(-cube * 0.1, -cube * 0.05, cube * 0.2, cube * 0.1);
+            ctx.restore();
+        }
+    } else if (id === "boom_pixels") {
+        const colors = ["#5ab84a", "#8a6a3a", "#8a8a8a", "#6a4a2a", "#3a8a2a"];
+        for (let i = 0; i < 24; i++) {
+            const ang = hashRand(i) * Math.PI * 2;
+            const sp = cube * (2 + hashRand(i + 20) * 3);
+            const px = x + Math.cos(ang) * sp * t;
+            const py = y + Math.sin(ang) * sp * t - cube * 4 * t + cube * 9 * t * t;
+            const s = cube * (0.18 + hashRand(i + 40) * 0.16);
+            ctx.globalAlpha = fade;
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.fillRect(px - s / 2, py - s / 2, s, s);
+            ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+            ctx.fillRect(px - s / 2, py - s / 2, s, s * 0.25);
+        }
+    } else if (id === "boom_bubbles") {
+        for (let i = 0; i < 18; i++) {
+            const ang = hashRand(i) * Math.PI * 2;
+            const dist = cube * (0.6 + hashRand(i + 7) * 2.2) * Math.min(1, t * 2.5);
+            const px = x + Math.cos(ang) * dist;
+            const py = y + Math.sin(ang) * dist - cube * 1.5 * t;
+            const pop = hashRand(i + 30) * 0.6 + 0.5;
+            if (t > pop) {
+                if (t < pop + 0.12) {
+                    ctx.globalAlpha = 1;
+                    ctx.fillStyle = "#ffffff";
+                    for (let d = 0; d < 4; d++) {
+                        ctx.fillRect(px + Math.cos(d * 1.57) * cube * 0.25, py + Math.sin(d * 1.57) * cube * 0.25, 3, 3);
+                    }
+                }
+                continue;
+            }
+            const rad = cube * (0.15 + hashRand(i + 60) * 0.25);
+            ctx.globalAlpha = 0.9;
+            ctx.strokeStyle = ["#bff0ff", "#ffc8f0", "#e0ffd0"][i % 3];
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(px, py, rad, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+            ctx.fillRect(px - rad * 0.45, py - rad * 0.5, 3, 3);
+        }
+    } else if (id === "boom_watermelon") {
+        for (let i = 0; i < 16; i++) {
+            const ang = hashRand(i) * Math.PI * 2;
+            const sp = cube * (2 + hashRand(i + 11) * 3);
+            const px = x + Math.cos(ang) * sp * t;
+            const py = y + Math.sin(ang) * sp * t - cube * 3 * t + cube * 8 * t * t;
+            const s = cube * (0.3 + hashRand(i + 5) * 0.2);
+            ctx.globalAlpha = fade;
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.rotate(t * 6 + i);
+            ctx.fillStyle = "#2f8a3a";
+            ctx.fillRect(-s / 2, s * 0.3, s, s * 0.2);
+            ctx.fillStyle = "#ff4a5a";
+            ctx.fillRect(-s / 2, -s / 2, s, s * 0.8);
+            ctx.fillStyle = "#1a1a1a";
+            ctx.fillRect(-s * 0.2, -s * 0.2, s * 0.12, s * 0.16);
+            ctx.fillRect(s * 0.15, -s * 0.05, s * 0.12, s * 0.16);
+            ctx.restore();
+        }
+        // Бризки соку
+        ctx.globalAlpha = fade * 0.7;
+        ctx.fillStyle = "#ff6a7a";
+        for (let i = 0; i < 12; i++) {
+            const ang = hashRand(i + 90) * Math.PI * 2;
+            ctx.fillRect(x + Math.cos(ang) * cube * 3 * t, y + Math.sin(ang) * cube * 3 * t + cube * 3 * t * t, 3, 3);
+        }
+    } else if (id === "boom_fireworks") {
+        const colors = ["#ff3355", "#ffe14d", "#39c6ff", "#39ff88", "#ff5ad8"];
+        for (let b = 0; b < 3; b++) {
+            const start = b * 0.25;
+            const tb = t - start;
+            if (tb < 0) {
+                continue;
+            }
+            const bx = x + (b - 1) * cube * 1.6;
+            const by = y - cube * (1.2 + b % 2);
+            const kb = Math.min(1, tb / 0.9);
+            for (let r = 0; r < 14; r++) {
+                const ang = r * Math.PI * 2 / 14;
+                const rad = cube * 1.8 * Math.sqrt(kb);
+                ctx.globalAlpha = Math.max(0, 1 - kb);
+                ctx.fillStyle = colors[(b + r) % colors.length];
+                ctx.fillRect(bx + Math.cos(ang) * rad - 2, by + Math.sin(ang) * rad + kb * kb * cube * 0.8 - 2, 4, 4);
+                ctx.fillRect(bx + Math.cos(ang) * rad * 0.7 - 1, by + Math.sin(ang) * rad * 0.7 + kb * kb * cube * 0.6 - 1, 2, 2);
+            }
+        }
+    } else if (id === "boom_starfall") {
+        for (let i = 0; i < 20; i++) {
+            const ang = -Math.PI / 2 + (hashRand(i) - 0.5) * 2.2;
+            const sp = cube * (3 + hashRand(i + 3) * 3);
+            const px = x + Math.cos(ang) * sp * t;
+            const py = y + Math.sin(ang) * sp * t + cube * 7 * t * t;
+            const s = cube * (0.08 + hashRand(i + 8) * 0.08);
+            ctx.globalAlpha = fade;
+            ctx.fillStyle = i % 3 === 0 ? "#ffffff" : "#ffe14d";
+            ctx.fillRect(px - s / 2, py - s * 1.5, s, s * 3);
+            ctx.fillRect(px - s * 1.5, py - s / 2, s * 3, s);
+        }
+    }
+    ctx.restore();
+}
+
+// ---------- Аксесуари ----------
+
+// Малюються в системі координат кубика (центр 0,0, повернута разом із ним)
+export function drawAccessory(ctx, id, size, time) {
+    if (!id || id === "acc_none") {
+        return;
+    }
+    const h = size / 2;
+    if (id === "acc_cap") {
+        ctx.fillStyle = "#e8202a";
+        ctx.fillRect(-h * 0.8, -h - size * 0.22, size * 0.8, size * 0.24);
+        ctx.fillRect(-h * 0.6, -h - size * 0.3, size * 0.6, size * 0.1);
+        ctx.fillRect(-h * 0.8 + size * 0.8, -h - size * 0.04, size * 0.4, size * 0.07);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(-size * 0.06, -h - size * 0.18, size * 0.12, size * 0.1);
+    } else if (id === "acc_bow") {
+        const wiggle = Math.sin(time * 0.004) * size * 0.02;
+        ctx.fillStyle = "#ff5ad8";
+        ctx.fillRect(-h - size * 0.08, -h - size * 0.12 + wiggle, size * 0.22, size * 0.2);
+        ctx.fillRect(-h + size * 0.2, -h - size * 0.12 - wiggle, size * 0.22, size * 0.2);
+        ctx.fillStyle = "#ff9ae8";
+        ctx.fillRect(-h + size * 0.12, -h - size * 0.07, size * 0.1, size * 0.12);
+    } else if (id === "acc_glasses") {
+        ctx.fillStyle = "#111111";
+        ctx.fillRect(-h * 0.85, -size * 0.14, size * 0.36, size * 0.18);
+        ctx.fillRect(size * 0.07, -size * 0.14, size * 0.36, size * 0.18);
+        ctx.fillRect(-size * 0.07, -size * 0.1, size * 0.14, size * 0.05);
+        ctx.fillRect(-h, -size * 0.12, size * 0.1, size * 0.04);
+        ctx.fillRect(h - size * 0.1, -size * 0.12, size * 0.1, size * 0.04);
+        ctx.fillStyle = "rgba(120, 200, 255, 0.8)";
+        ctx.fillRect(-h * 0.85 + size * 0.04, -size * 0.12, size * 0.08, size * 0.04);
+        ctx.fillRect(size * 0.11, -size * 0.12, size * 0.08, size * 0.04);
+    } else if (id === "acc_headphones") {
+        ctx.fillStyle = "#2a2a3a";
+        ctx.fillRect(-h - size * 0.04, -h - size * 0.14, size + size * 0.08, size * 0.1);
+        ctx.fillRect(-h - size * 0.1, -h - size * 0.06, size * 0.1, size * 0.3);
+        ctx.fillRect(h, -h - size * 0.06, size * 0.1, size * 0.3);
+        ctx.fillStyle = "#39c6ff";
+        ctx.fillRect(-h - size * 0.16, -size * 0.2, size * 0.18, size * 0.32);
+        ctx.fillRect(h - size * 0.02, -size * 0.2, size * 0.18, size * 0.32);
+        ctx.fillStyle = Math.sin(time * 0.01) > 0 ? "#39ff88" : "#1a6a3a";
+        ctx.fillRect(h + size * 0.04, -size * 0.12, size * 0.06, size * 0.06);
+    } else if (id === "acc_cowboy") {
+        ctx.fillStyle = "#8a5a2a";
+        ctx.fillRect(-h - size * 0.2, -h - size * 0.08, size * 1.4, size * 0.1);
+        ctx.fillRect(-h * 0.6, -h - size * 0.38, size * 0.6, size * 0.32);
+        ctx.fillStyle = "#6a4018";
+        ctx.fillRect(-h * 0.6, -h - size * 0.14, size * 0.6, size * 0.06);
+        ctx.fillStyle = "#ffcc33";
+        ctx.fillRect(-size * 0.04, -h - size * 0.14, size * 0.08, size * 0.06);
+    } else if (id === "acc_horns") {
+        ctx.fillStyle = "#e8202a";
+        for (const side of [-1, 1]) {
+            ctx.beginPath();
+            ctx.moveTo(side * h * 0.75, -h + size * 0.02);
+            ctx.lineTo(side * h * 0.95, -h - size * 0.32);
+            ctx.lineTo(side * h * 0.35, -h + size * 0.02);
+            ctx.closePath();
+            ctx.fill();
+        }
+        ctx.fillStyle = "#ff8a8a";
+        ctx.fillRect(-h * 0.9, -h - size * 0.2, size * 0.04, size * 0.08);
+        ctx.fillRect(h * 0.8, -h - size * 0.2, size * 0.04, size * 0.08);
+    } else if (id === "acc_pirate") {
+        ctx.fillStyle = "#1a1a1a";
+        ctx.beginPath();
+        ctx.moveTo(-h - size * 0.12, -h + size * 0.02);
+        ctx.lineTo(h + size * 0.12, -h + size * 0.02);
+        ctx.lineTo(h * 0.5, -h - size * 0.36);
+        ctx.lineTo(-h * 0.5, -h - size * 0.36);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "#ffcc33";
+        ctx.fillRect(-h - size * 0.1, -h - size * 0.02, size * 1.2, size * 0.04);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(-size * 0.08, -h - size * 0.26, size * 0.16, size * 0.12);
+        ctx.fillStyle = "#1a1a1a";
+        ctx.fillRect(-size * 0.05, -h - size * 0.22, size * 0.03, size * 0.03);
+        ctx.fillRect(size * 0.02, -h - size * 0.22, size * 0.03, size * 0.03);
+    } else if (id === "acc_halo") {
+        const bob = Math.sin(time * 0.004) * size * 0.04;
+        ctx.strokeStyle = "rgba(255, 225, 77, 0.35)";
+        ctx.lineWidth = size * 0.14;
+        ctx.beginPath();
+        ctx.ellipse(0, -h - size * 0.2 + bob, size * 0.34, size * 0.1, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = "#ffe14d";
+        ctx.lineWidth = size * 0.06;
+        ctx.stroke();
+    } else if (id === "acc_crown") {
+        ctx.fillStyle = "#ffcc33";
+        ctx.fillRect(-h * 0.8, -h - size * 0.12, size * 0.8, size * 0.14);
+        for (let k = 0; k < 3; k++) {
+            ctx.beginPath();
+            ctx.moveTo(-h * 0.8 + k * size * 0.27, -h - size * 0.12);
+            ctx.lineTo(-h * 0.8 + k * size * 0.27 + size * 0.13, -h - size * 0.34);
+            ctx.lineTo(-h * 0.8 + k * size * 0.27 + size * 0.26, -h - size * 0.12);
+            ctx.closePath();
+            ctx.fill();
+        }
+        const gems = ["#ff3355", "#39c6ff", "#39ff88"];
+        for (let k = 0; k < 3; k++) {
+            ctx.fillStyle = gems[k];
+            ctx.fillRect(-h * 0.8 + k * size * 0.27 + size * 0.09, -h - size * 0.09, size * 0.08, size * 0.08);
+        }
+        const glint = (time * 0.001) % 2;
+        if (glint < 0.2) {
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(-h * 0.8 + glint * size * 3.5, -h - size * 0.1, size * 0.04, size * 0.1);
+        }
+    }
+}
