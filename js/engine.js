@@ -2485,7 +2485,7 @@ export const save = {
     // ---------- Досягнення ----------
 
     // Підсумок забігу для лічильників досягнень.
-    // run: { hits, words, maxCombo, weaponHits, won, flawless, eggTheme, exploded }
+    // run: { hits, words, maxCombo, weaponHits, won, flawless, leagueId, eggTheme, exploded }
     recordRunForAchievements(run) {
         if (!saveData) {
             this.load();
@@ -2495,8 +2495,9 @@ export const save = {
         st.words += Math.max(0, Math.floor(run.words) || 0);
         st.bestCombo = Math.max(st.bestCombo, Math.floor(run.maxCombo) || 0);
         st.weaponHits += Math.max(0, Math.floor(run.weaponHits) || 0);
-        if (run.won && run.flawless) {
-            st.flawless++;
+        const league = Math.floor(run.leagueId) || 0;
+        if (run.won && run.flawless && league >= 1 && league <= 9 && st.flawlessLeagues.indexOf(league) === -1) {
+            st.flawlessLeagues.push(league);
         }
         if (run.exploded) {
             st.explosions++;
@@ -2587,7 +2588,7 @@ export const save = {
             silvers: silvers,
             golds: golds,
             totalLevels: ALL_LEVELS.length,
-            flawless: st.flawless,
+            flawlessLeagues: st.flawlessLeagues.reduce(function (acc, id) { acc[id] = true; return acc; }, {}),
             bestCombo: st.bestCombo,
             letters: st.letters,
             words: st.words,

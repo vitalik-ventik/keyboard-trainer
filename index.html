@@ -71,6 +71,11 @@
                 <span class="skin-trigger-label">МАГАЗИН</span>
                 <span class="shop-balance-badge"><span class="crystal-ico" aria-hidden="true"></span><span id="menuCrystals">0</span></span>
             </div>
+            <div id="ach-trigger" class="skin-trigger ach-trigger">
+                <span class="ach-trigger-icon" aria-hidden="true">🏆</span>
+                <span class="skin-trigger-label">ДОСЯГНЕННЯ</span>
+                <span class="shop-balance-badge ach-badge" id="menuAchCount">0 / 0</span>
+            </div>
         </div>
         <div id="retroNotice" class="retro-notice hidden" role="status"></div>
         <button id="btnMenuChests" class="chest-btn hidden" type="button">🎁 СУНДУКИ</button>
@@ -146,6 +151,18 @@
                 <div id="shopGrid" class="shop-grid"></div>
             </div>
             <button id="btnCloseShop" class="text-btn" type="button">ЗАКРИТИ</button>
+        </div>
+    </div>
+
+    <!-- Досягнення: список із прогресом і сундуками-нагородами -->
+    <div id="ach-modal" class="overlay modal-backdrop hidden">
+        <div class="modal list-modal ach-modal-box">
+            <h2 class="neon-title">ДОСЯГНЕННЯ</h2>
+            <p class="ach-summary" id="achSummary"></p>
+            <div class="list-modal-scroll">
+                <div id="achList"></div>
+            </div>
+            <button id="btnCloseAch" class="text-btn" type="button">ЗАКРИТИ</button>
         </div>
     </div>
 

@@ -225,6 +225,206 @@
             padding: 40px;
             font-size: 1.1rem;
         }
+
+        /* ---------- Досягнення (ті самі стилі, що й у грі, з css/style.css) ---------- */
+        .ach-controls { display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; padding: 0 16px 12px; font-size: 0.85rem; }
+        .ach-controls select, .ach-controls button { background: #141432; color: #cfe; border: 1px solid #335; border-radius: 6px; padding: 4px 8px; cursor: pointer; }
+        #achSection { max-width: 1200px; margin: 0 auto; padding: 0 16px 24px; }
+        #achSection .ach-card { cursor: pointer; }
+        .ach-group-title { margin: 14px 0 8px; font-size: 1rem; color: #7df9ff; letter-spacing: 0.08em; }
+        /* ---------- Спливаючі плашки досягнень ---------- */
+
+        .ach-toasts {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+            width: min(92vw, 560px);
+        }
+
+        .ach-toast {
+            pointer-events: auto;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12.8px;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 11.2px 16px;
+            border-radius: 11.2px;
+            border: 2px solid #ffd84a;
+            background: linear-gradient(135deg, rgba(40, 20, 70, 0.95), rgba(10, 14, 40, 0.95));
+            box-shadow: 0 0 19.2px rgba(255, 216, 74, 0.55), inset 0 0 9.6px rgba(255, 216, 74, 0.2);
+            color: #ffffff;
+            animation: ach-in 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
+        }
+
+        .ach-toast.ach-wood {
+            border-color: #c8884a;
+            box-shadow: 0 0 19.2px rgba(200, 136, 74, 0.5);
+        }
+
+        .ach-toast.ach-silver {
+            border-color: #d8e4f4;
+            box-shadow: 0 0 19.2px rgba(216, 228, 244, 0.5);
+        }
+
+        .ach-toast.leaving {
+            animation: ach-out 0.35s ease-in forwards;
+        }
+
+        .ach-toast-icon {
+            flex: 0 0 auto;
+            font-size: 40px;
+            line-height: 1;
+            animation: ach-spin 0.8s ease-out;
+        }
+
+        .ach-toast-body {
+            display: flex;
+            flex-direction: column;
+            gap: 2.4px;
+            min-width: 0;
+        }
+
+        .ach-toast-title {
+            font-size: 17.6px;
+            font-weight: 800;
+            color: #ffd84a;
+            letter-spacing: 0.05em;
+        }
+
+        .ach-toast-desc {
+            font-size: 14.4px;
+            color: #d8e0f0;
+        }
+
+        .ach-toast-reward {
+            font-size: 14.4px;
+            font-weight: 700;
+            color: #7df9ff;
+        }
+
+        @keyframes ach-in {
+            from { transform: translateY(-120%) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes ach-out {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(-120%); opacity: 0; }
+        }
+
+        @keyframes ach-spin {
+            from { transform: rotate(-30deg) scale(0.3); }
+            60% { transform: rotate(10deg) scale(1.25); }
+            to { transform: rotate(0) scale(1); }
+        }
+
+        .ach-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+            gap: 8px;
+        }
+
+        .ach-card {
+            display: flex;
+            align-items: center;
+            gap: 11.2px;
+            padding: 9.6px 11.2px;
+            border-radius: 9.6px;
+            border: 2px solid rgba(140, 150, 180, 0.35);
+            background: rgba(12, 16, 36, 0.85);
+            color: #c8d0e0;
+            text-align: left;
+        }
+
+        .ach-card .ach-card-icon {
+            flex: 0 0 auto;
+            font-size: 33.6px;
+            line-height: 1;
+            filter: grayscale(1) brightness(0.7);
+            opacity: 0.7;
+        }
+
+        .ach-card.done {
+            border-color: #ffd84a;
+            background: linear-gradient(135deg, rgba(60, 40, 10, 0.85), rgba(20, 16, 40, 0.9));
+            box-shadow: 0 0 11.2px rgba(255, 216, 74, 0.35);
+            color: #ffffff;
+        }
+
+        .ach-card.done .ach-card-icon {
+            filter: drop-shadow(0 0 6.4px rgba(255, 216, 74, 0.8));
+            opacity: 1;
+        }
+
+        .ach-card-body {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 3.2px;
+        }
+
+        .ach-card-name {
+            font-size: 15.2px;
+            font-weight: 800;
+        }
+
+        .ach-card.done .ach-card-name {
+            color: #ffd84a;
+        }
+
+        .ach-card-desc {
+            font-size: 12.8px;
+            color: #9aa4bc;
+        }
+
+        .ach-card-bar {
+            height: 6.4px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .ach-card-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #00c8ff, #7df9ff);
+        }
+
+        .ach-card.done .ach-card-fill {
+            background: linear-gradient(90deg, #ffaa00, #ffd84a);
+        }
+
+        .ach-card-foot {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            white-space: nowrap;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .ach-card-reward {
+            color: #c8884a;
+            white-space: nowrap;
+        }
+
+        .ach-card.ach-silver .ach-card-reward {
+            color: #d8e4f4;
+        }
+
+        .ach-card.ach-gold .ach-card-reward {
+            color: #ffd84a;
+        }
     </style>
 </head>
 <body>
@@ -258,6 +458,7 @@
         <a href="#sounds">До звуків ↓</a>
         <a href="#chests">До сундуків ↓</a>
         <a href="#shop">До магазину ↓</a>
+        <a href="#achievements">До досягнень ↓</a>
     </div>
     <div class="grid" id="grid"></div>
     <h1 id="sounds">ЗВУКИ</h1>
@@ -267,6 +468,11 @@
     <h1 id="shop">МАГАЗИН — УСІ ТОВАРИ</h1>
     <p class="subtitle">Тут усі товари анімовані, навіть ті, що в грі ще не куплені (у грі до покупки вони сірі й нерухомі). Кубик — стандартний неоновий.</p>
     <div id="shopSections"></div>
+    <h1 id="achievements">ДОСЯГНЕННЯ</h1>
+    <p class="subtitle">Усі досягнення гри з нагородами. Клацни на картку — з'явиться плашка, як у грі, і прозвучить фанфара.</p>
+    <div class="ach-controls" id="achControls"></div>
+    <div id="achSection"></div>
+    <div id="achievementToasts" class="ach-toasts" aria-live="polite"></div>
     <div class="error-msg" id="error">Помилка завантаження модулів. Переконайтеся, що файли js/engine.js та js/backgrounds.js існують.</div>
 
     <!-- Завантажувач: читає version.json без кешу й підключає файли з міткою версії,
