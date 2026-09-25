@@ -9,6 +9,7 @@ import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
 import { DEFAULT_ITEMS, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
+import { getWeaponSpec, drawHeldWeapon, drawProjectile, drawLaserBeam, drawStuckArrow, drawSpikeDestruction, DESTRUCTION_TIME, SWING_TIME, SWING_HIT, BEAM_TIME, BEAM_HIT } from "./weapons.js";
 
 // ---------- Детермінований PRNG (фіксовані траси) ----------
 
@@ -1796,7 +1797,7 @@ function defaultSaveData() {
         shop: {
             crystals: 0,
             owned: [],
-            equipped: { trail: DEFAULT_ITEMS.trail, explosion: DEFAULT_ITEMS.explosion, accessory: DEFAULT_ITEMS.accessory },
+            equipped: { trail: DEFAULT_ITEMS.trail, explosion: DEFAULT_ITEMS.explosion, accessory: DEFAULT_ITEMS.accessory, weapon: DEFAULT_ITEMS.weapon },
             paid: {}
         }
     };
@@ -2734,6 +2735,13 @@ export class Engine {
         this.runPerfect = 0;
         this.runSeries = 0;
         this.boom = null;
+        // Зброя з магазину: замість стрибка кубик знищує шип
+        this.weaponId = save.getEquipped("weapon");
+        this.weaponSpec = getWeaponSpec(this.weaponId);
+        this.attacks = [];
+        this.shots = [];
+        this.stuckArrows = [];
+        this.weaponRecoil = 0;
     }
 
     // Тип скіна, яким зараз малюється кубик (вибраний гравцем або скін рівня)
@@ -2845,6 +2853,7 @@ export class Engine {
             combo: this.combo,
             runPerfect: this.runPerfect,
             runSeries: this.runSeries,
+            weapon: !!this.weaponSpec,
             alive: this.player.alive,
             maxEasy: this.maxEasy,
             maxHard: this.maxHard,
@@ -2880,6 +2889,11 @@ export class Engine {
         const computedVy = GRAVITY * distance / (2 * this.effectiveSpeed);
         this.player.vy = computedVy > MIN_JUMP_VELOCITY ? computedVy : MIN_JUMP_VELOCITY;
         this.player.onGround = false;
+        this.registerHit(perfect);
+    }
+
+    // Успішна дія (стрибок або удар зброєю): серія, кристали, «Ідеально», звук
+    registerHit(perfect) {
         this.pulse = 1;
         if (perfect) {
             this.combo++;
@@ -3001,6 +3015,10 @@ export class Engine {
             const perfect = gap <= this.perfectPx + this.okPx * 0.35;
             const points = calculateHitScore(true, this.scoreConfig, perfect);
             this.score += points;
+            if (this.weaponSpec) {
+                this.strike(spike, gap, perfect, points);
+                return { result: "correct", letter: letter };
+            }
             this.markSpikeCleared(spike, points);
             const distance = gap + 2 * spikeHalfWidth(spike.type) + SAFE_MARGIN;
             this.jump(distance, perfect);
@@ -3014,6 +3032,240 @@ export class Engine {
         }
 
         return { result: "wrong", letter: letter };
+    }
+
+    // ---------- Зброя ----------
+
+    // Правильна літера зі зброєю: шип «приречений» (більше не може зачепити кубик
+    // і не є ціллю), а сама атака добігає своїм ходом — удар, снаряд або промінь
+    strike(spike, gap, perfect, points) {
+        spike.state = "doomed";
+        spike.points = points;
+        spike.chunks = 0;
+        this.registerHit(perfect);
+        const spec = this.weaponSpec;
+        const muzzleX = this.player.x + CUBE_SIZE * 0.6;
+        const muzzleY = CUBE_SIZE * 0.55;
+        const targetY = spike.type === "saw" ? SPIKE_H * 0.6 : SPIKE_H * 0.4;
+        if (spec.mode === "melee" || (spec.mode === "axe" && gap <= spec.reach)) {
+            // Замах одразу; удар — коли шип підійде на відстань руки
+            this.attacks.push({ kind: "melee", spike: spike, stage: "wait", t: 0, hit: false });
+        } else if (spec.mode === "beam") {
+            this.attacks.push({ kind: "beam", spike: spike, stage: "beam", t: 0, hit: false });
+            this.weaponRecoil = 1;
+        } else {
+            const count = spec.mode === "burst" ? spec.count : 1;
+            for (let i = 0; i < count; i++) {
+                this.shots.push({
+                    kind: spec.mode === "axe" ? "axe" : spec.projectile,
+                    spike: spike,
+                    t: -(spec.gap || 0) * i,
+                    index: i,
+                    last: i === count - 1,
+                    fromX: muzzleX,
+                    fromY: muzzleY,
+                    toX: spike.x,
+                    toY: targetY,
+                    arc: spec.arc || 0,
+                    dur: Math.max(0.06, (spike.x - muzzleX) / spec.speed),
+                    returning: false,
+                    prev: []
+                });
+            }
+            this.weaponRecoil = 1;
+        }
+    }
+
+    // Шип знищено: запускаємо анімацію руйнування й уламки під конкретну зброю
+    destroySpike(spike) {
+        if (spike.state === "cleared") {
+            return;
+        }
+        const fx = this.weaponSpec ? this.weaponSpec.fx : "shatter";
+        spike.state = "cleared";
+        spike.clearedAt = this.currentTime;
+        spike.fx = { kind: fx, t0: this.currentTime };
+        const colors = SPIKE_STYLE_COLORS[this.spikeStyle] || [this.level.accentColor || "#ff2ea6", "#ffffff"];
+        const base = { x: spike.x, y: SPIKE_H * 0.4, spread: SPIKE_W * 0.6, spin: 10, colors: colors, outline: true };
+        if (fx === "shatter" || fx === "pop") {
+            this.spawnDebris(fx === "shatter" ? 16 : 10, Object.assign(base, { angleMin: Math.PI * 0.05, angleMax: Math.PI * 0.95, speedMin: 120, speedMax: 300, sizeMin: 3, sizeMax: 7, gravity: 800, life: 0.8 }));
+            if (fx === "shatter") {
+                this.stuckArrows.push({ x: spike.x + SPIKE_W * 0.3, t: 0 });
+            }
+        } else if (fx === "split") {
+            this.spawnDebris(8, Object.assign(base, { colors: ["#c8883a", "#8a5a2a", colors[0]], angleMin: Math.PI * 0.2, angleMax: Math.PI * 0.8, speedMin: 90, speedMax: 200, sizeMin: 3, sizeMax: 5, gravity: 700, life: 0.7 }));
+        } else if (fx === "slice") {
+            this.spawnDebris(6, Object.assign(base, { colors: ["#ffffff", "#8ad8ff"], angleMin: Math.PI * 0.1, angleMax: Math.PI * 0.6, speedMin: 120, speedMax: 260, sizeMin: 2, sizeMax: 4, gravity: 600, life: 0.5, outline: false }));
+        } else if (fx === "crumble") {
+            this.spawnDebris(8, Object.assign(base, { y: SPIKE_H * 0.15, angleMin: Math.PI * 0.2, angleMax: Math.PI * 0.8, speedMin: 60, speedMax: 150, sizeMin: 3, sizeMax: 6, gravity: 700, life: 0.6 }));
+        } else if (fx === "melt") {
+            this.spawnDebris(12, Object.assign(base, { colors: ["rgba(80, 80, 90, 0.9)", "rgba(140, 140, 150, 0.8)", "#ff8a2a"], angleMin: Math.PI * 0.35, angleMax: Math.PI * 0.65, speedMin: 30, speedMax: 90, sizeMin: 2, sizeMax: 5, gravity: -120, life: 1.2, outline: false, spin: 3 }));
+        } else if (fx === "blast") {
+            this.spawnDebris(22, Object.assign(base, { colors: colors.concat(["#ffb81a", "#3a2a1a"]), angleMin: Math.PI * 0.05, angleMax: Math.PI * 0.95, speedMin: 200, speedMax: 480, sizeMin: 4, sizeMax: 9, gravity: 900, life: 1.1, spin: 16 }));
+            if (this.cameraMotion) {
+                this.shakeTime = Math.max(this.shakeTime, SHAKE_TIME * 0.6);
+            }
+        } else if (fx === "break") {
+            this.spawnDebris(12, Object.assign(base, { angleMin: Math.PI * 0.15, angleMax: Math.PI * 0.85, speedMin: 100, speedMax: 240, sizeMin: 5, sizeMax: 9, gravity: 900, life: 0.8, spin: 6 }));
+        }
+        if (spike.points > 0) {
+            this.scorePopups.push({ x: spike.x, y: SPIKE_H + 50, text: "+" + spike.points, life: 0.9, maxLife: 0.9 });
+        }
+    }
+
+    // Політ снарядів, удари ближнього бою й промінь лазера
+    updateWeapons(dt) {
+        this.weaponRecoil = Math.max(0, this.weaponRecoil - dt * 3.2);
+        for (let i = this.attacks.length - 1; i >= 0; i--) {
+            const a = this.attacks[i];
+            if (a.kind === "melee") {
+                if (a.stage === "wait") {
+                    const gap = a.spike.x - spikeHalfWidth(a.spike.type) - this.player.x;
+                    if (gap <= this.weaponSpec.reach) {
+                        a.stage = "swing";
+                        a.t = 0;
+                    }
+                    continue;
+                }
+                a.t += dt;
+                if (!a.hit && a.t >= SWING_HIT) {
+                    a.hit = true;
+                    this.destroySpike(a.spike);
+                }
+                if (a.t >= SWING_TIME) {
+                    this.attacks.splice(i, 1);
+                }
+            } else {
+                a.t += dt;
+                if (!a.hit && a.t >= BEAM_HIT) {
+                    a.hit = true;
+                    this.destroySpike(a.spike);
+                }
+                if (a.t >= BEAM_TIME) {
+                    this.attacks.splice(i, 1);
+                }
+            }
+        }
+        for (let i = this.shots.length - 1; i >= 0; i--) {
+            const s = this.shots[i];
+            s.t += dt;
+            if (s.t < 0) {
+                continue;
+            }
+            if (s.index > 0 && s.t - dt < 0) {
+                // Наступна куля черги вилітає з дула — рухаємо старт разом із кубиком
+                s.fromX = this.player.x + CUBE_SIZE * 0.6;
+                s.dur = Math.max(0.05, (s.toX - s.fromX) / this.weaponSpec.speed);
+                this.weaponRecoil = 1;
+            }
+            const pos = this.shotPosition(s);
+            s.prev.unshift({ x: pos.x, y: pos.y });
+            if (s.prev.length > 8) {
+                s.prev.pop();
+            }
+            if (!s.returning && s.t >= s.dur) {
+                if (s.kind === "bullet" && !s.last) {
+                    // Куля черги відколює шматок зверху
+                    s.spike.chunks = Math.max(s.spike.chunks || 0, s.index + 1);
+                    this.spawnDebris(4, { x: s.spike.x, y: SPIKE_H * (1 - (s.index + 1) * 0.22), spread: SPIKE_W * 0.4, angleMin: Math.PI * 0.2, angleMax: Math.PI * 0.8, speedMin: 80, speedMax: 180, sizeMin: 3, sizeMax: 5, spin: 8, colors: SPIKE_STYLE_COLORS[this.spikeStyle] || [this.level.accentColor || "#ff2ea6"], gravity: 700, life: 0.5, outline: true });
+                } else {
+                    this.destroySpike(s.spike);
+                }
+                if (s.kind === "axe") {
+                    // Сокира-бумеранг повертається в руку
+                    s.returning = true;
+                    s.t = 0;
+                    s.dur = 0.32;
+                    s.fromX = s.toX;
+                    s.fromY = s.toY;
+                } else {
+                    this.shots.splice(i, 1);
+                }
+                continue;
+            }
+            if (s.returning && s.t >= s.dur) {
+                this.shots.splice(i, 1);
+            }
+        }
+        for (let i = this.stuckArrows.length - 1; i >= 0; i--) {
+            this.stuckArrows[i].t += dt;
+            if (this.stuckArrows[i].t > 2) {
+                this.stuckArrows.splice(i, 1);
+            }
+        }
+    }
+
+    // Позиція снаряда в ігрових координатах (y — вгору від землі)
+    shotPosition(s) {
+        const u = Math.min(1, Math.max(0, s.t / s.dur));
+        if (s.returning) {
+            // Назад — до руки кубика, що біжить уперед
+            const hx = this.player.x + CUBE_SIZE * 0.5;
+            const hy = CUBE_SIZE * 0.6;
+            return {
+                x: s.fromX + (hx - s.fromX) * u,
+                y: s.fromY + (hy - s.fromY) * u + Math.sin(Math.PI * u) * 30,
+                u: u
+            };
+        }
+        return {
+            x: s.fromX + (s.toX - s.fromX) * u,
+            y: s.fromY + (s.toY - s.fromY) * u + Math.sin(Math.PI * u) * s.arc,
+            u: u
+        };
+    }
+
+    // Поза зброї в руці: замах, фаза удару, віддача, чи кинуто сокиру
+    weaponPose() {
+        let raise = 0;
+        let swing = -1;
+        for (const a of this.attacks) {
+            if (a.kind !== "melee") {
+                continue;
+            }
+            if (a.stage === "wait") {
+                raise = 1;
+            } else {
+                swing = Math.max(swing, a.t / SWING_TIME);
+            }
+        }
+        let away = false;
+        for (const s of this.shots) {
+            if (s.kind === "axe") {
+                away = true;
+            }
+        }
+        return { raise: raise, swing: swing, recoil: this.weaponRecoil, away: away };
+    }
+
+    // Снаряди, промінь лазера й стріли в землі
+    renderWeapons(ctx, groundY, anchorX, camX) {
+        if (!this.weaponSpec) {
+            return;
+        }
+        const time = this.currentTime;
+        for (const arrow of this.stuckArrows) {
+            drawStuckArrow(ctx, anchorX + arrow.x - camX, groundY, arrow.t, CUBE_SIZE);
+        }
+        for (const a of this.attacks) {
+            if (a.kind === "beam") {
+                const x1 = anchorX + CUBE_SIZE * 0.6 + CUBE_SIZE * 0.08;
+                const y1 = groundY - this.player.y - CUBE_SIZE / 2 - CUBE_SIZE * 0.03;
+                const x2 = anchorX + a.spike.x - camX;
+                const y2 = groundY - SPIKE_H * 0.45;
+                drawLaserBeam(ctx, x1, y1, x2, y2, a.t / BEAM_TIME, time);
+            }
+        }
+        for (const s of this.shots) {
+            if (s.t < 0) {
+                continue;
+            }
+            const pos = this.shotPosition(s);
+            const prev = s.prev.length > 1 ? s.prev[1] : { x: s.fromX, y: s.fromY };
+            const angle = Math.atan2(-(pos.y - prev.y), pos.x - prev.x);
+            const trail = s.prev.map(function (p) { return { x: anchorX + p.x - camX, y: groundY - p.y }; });
+            drawProjectile(ctx, s.kind, anchorX + pos.x - camX, groundY - pos.y, angle, s.t, CUBE_SIZE, trail);
+        }
     }
 
     // Світ реагує на кожну помилку: гуркіт грому, гудіння трибун, спалах очей дракона…
@@ -3096,6 +3348,10 @@ export class Engine {
             }
         }
 
+        if (this.weaponSpec) {
+            this.updateWeapons(dt);
+        }
+
         if (!this.player.alive) {
             this.deathTimer += dt;
             if (this.demoMode) {
@@ -3171,7 +3427,10 @@ export class Engine {
             const target = this.nearestAheadSpike();
             if (target && this.player.onGround) {
                 const gap = target.x - spikeHalfWidth(target.type) - this.player.x;
-                if (gap > 0 && gap <= this.okPx * 0.5) {
+                if (gap > 0 && gap <= this.okPx * 0.5 && this.weaponSpec) {
+                    // Демо в меню показує куплену зброю
+                    this.strike(target, gap, true, 0);
+                } else if (gap > 0 && gap <= this.okPx * 0.5) {
                     this.markSpikeCleared(target, 0);
                     const distance = gap + 2 * spikeHalfWidth(target.type) + SAFE_MARGIN;
                     this.jump(distance, true);
@@ -3271,6 +3530,7 @@ export class Engine {
         this.renderFinish(ctx, W, groundY, anchorX, camX);
         this.renderObstacles(ctx, W, groundY, anchorX, camX);
         this.renderPlayer(ctx, groundY, anchorX);
+        this.renderWeapons(ctx, groundY, anchorX, camX);
         BackgroundRenderer.renderParticles(ctx, groundY, anchorX, camX);
         this.renderDebris(ctx, groundY, anchorX, camX);
         if (this.boom) {
@@ -3567,6 +3827,39 @@ export class Engine {
         ctx.restore();
     }
 
+    // Тіло перешкоди (шип, подвійний шип або пилка) у стилі світу
+    drawObstacleBody(ctx, spike, screenX, groundY, accentColor, cleared) {
+        if (spike.type === "saw") {
+            this.drawSaw(ctx, screenX, groundY, SPIKE_H * 0.6, spike.rotationAngle || 0, accentColor, cleared);
+        } else if (this.spikeStyle === "neon") {
+            if (spike.type === "double_spike") {
+                this.drawDoubleSpike(ctx, screenX, groundY, accentColor, cleared);
+            } else {
+                this.drawSpike(ctx, screenX, groundY, accentColor, cleared);
+            }
+        } else {
+            const offsets = spike.type === "double_spike" ? [-SPIKE_W * 0.45, SPIKE_W * 0.45] : [0];
+            // «Небезпечна» аура: перешкоду завжди видно на тлі схожих декорацій світу
+            if (!cleared) {
+                const auraW = spike.type === "double_spike" ? SPIKE_W * 1.6 : SPIKE_W;
+                const aura = ctx.createRadialGradient(screenX, groundY - SPIKE_H * 0.35, 4, screenX, groundY - SPIKE_H * 0.35, auraW);
+                aura.addColorStop(0, "rgba(255, 40, 80, 0.45)");
+                aura.addColorStop(1, "rgba(255, 40, 80, 0)");
+                ctx.fillStyle = aura;
+                ctx.fillRect(screenX - auraW, groundY - SPIKE_H * 1.3, auraW * 2, SPIKE_H * 1.3);
+            }
+            for (const off of offsets) {
+                ctx.save();
+                ctx.translate(screenX + off, groundY);
+                drawStyledSpikeShape(ctx, this.spikeStyle, accentColor, this.currentTime);
+                // Червона «лінія небезпеки» біля основи
+                ctx.fillStyle = "rgba(255, 40, 80, 0.85)";
+                ctx.fillRect(-SPIKE_W / 2, -3, SPIKE_W, 3);
+                ctx.restore();
+            }
+        }
+    }
+
     renderObstacles(ctx, W, groundY, anchorX, camX) {
         ctx.save();
         ctx.textAlign = "center";
@@ -3582,6 +3875,24 @@ export class Engine {
                 continue;
             }
             const cleared = spike.state === "cleared";
+            // Шип, знищений зброєю, показує свою анімацію руйнування
+            if (cleared && spike.fx) {
+                const ft = (this.currentTime - spike.fx.t0) / 1000;
+                if (ft <= (DESTRUCTION_TIME[spike.fx.kind] || 0.5)) {
+                    const self = this;
+                    const spikeTop = spike.type === "saw" ? SPIKE_H * 1.2 : SPIKE_H;
+                    // Уламки не провалюються під землю (там клавіатура)
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.rect(screenX - 400, 0, 800, groundY + 8);
+                    ctx.clip();
+                    drawSpikeDestruction(ctx, spike.fx.kind, ft, screenX, groundY, spikeHalfWidth(spike.type), spikeTop, function (c) {
+                        self.drawObstacleBody(c, spike, screenX, groundY, accentColor, false);
+                    });
+                    ctx.restore();
+                }
+                continue;
+            }
             // Подоланий шип за мить «осідає» в землю
             let crumble = 1;
             if (cleared) {
@@ -3621,41 +3932,21 @@ export class Engine {
             ctx.translate(screenX, groundY);
             ctx.scale(1, grow);
             ctx.translate(-screenX, -groundY);
-            if (spike.type === "saw") {
-                this.drawSaw(ctx, screenX, groundY, SPIKE_H * 0.6, spike.rotationAngle || 0, accentColor, cleared);
-            } else if (this.spikeStyle === "neon") {
-                if (spike.type === "double_spike") {
-                    this.drawDoubleSpike(ctx, screenX, groundY, accentColor, cleared);
-                } else {
-                    this.drawSpike(ctx, screenX, groundY, accentColor, cleared);
-                }
-            } else {
-                const offsets = spike.type === "double_spike" ? [-SPIKE_W * 0.45, SPIKE_W * 0.45] : [0];
-                // «Небезпечна» аура: перешкоду завжди видно на тлі схожих декорацій світу
-                if (!cleared) {
-                    const auraW = spike.type === "double_spike" ? SPIKE_W * 1.6 : SPIKE_W;
-                    const aura = ctx.createRadialGradient(screenX, groundY - SPIKE_H * 0.35, 4, screenX, groundY - SPIKE_H * 0.35, auraW);
-                    aura.addColorStop(0, "rgba(255, 40, 80, 0.45)");
-                    aura.addColorStop(1, "rgba(255, 40, 80, 0)");
-                    ctx.fillStyle = aura;
-                    ctx.fillRect(screenX - auraW, groundY - SPIKE_H * 1.3, auraW * 2, SPIKE_H * 1.3);
-                }
-                for (const off of offsets) {
-                    ctx.save();
-                    ctx.translate(screenX + off, groundY);
-                    drawStyledSpikeShape(ctx, this.spikeStyle, accentColor, this.currentTime);
-                    // Червона «лінія небезпеки» біля основи
-                    ctx.fillStyle = "rgba(255, 40, 80, 0.85)";
-                    ctx.fillRect(-SPIKE_W / 2, -3, SPIKE_W, 3);
-                    ctx.restore();
-                }
+            if (spike.chunks > 0) {
+                // Кулі автомата вже відкололи верхні шматки
+                const spikeTop = spike.type === "saw" ? SPIKE_H * 1.2 : SPIKE_H;
+                ctx.beginPath();
+                ctx.rect(screenX - 200, groundY - spikeTop * (1 - spike.chunks * 0.22), 400, spikeTop * 2);
+                ctx.clip();
             }
+            this.drawObstacleBody(ctx, spike, screenX, groundY, accentColor, cleared);
             ctx.restore();
 
             // Клавіша з літерою над перешкодою
             if (!cleared) {
                 const topY = spike.type === "saw" ? groundY - SPIKE_H * 1.2 : groundY - SPIKE_H;
-                const state = zone ? zone : spike === target ? "target" : "idle";
+                // Шип, по якому вже вдарила зброя, світиться зеленим до руйнування
+                const state = spike.state === "doomed" ? "perfect" : zone ? zone : spike === target ? "target" : "idle";
                 ctx.globalAlpha = grow;
                 drawKeycap(ctx, screenX, topY - 12, spike.letter, state);
                 ctx.globalAlpha = 1;
@@ -3772,6 +4063,9 @@ export class Engine {
 
         drawAchievementFrame(ctx, CUBE_SIZE, achievement, this.currentTime);
         drawAccessory(ctx, save.getEquipped("accessory"), CUBE_SIZE, this.currentTime);
+        if (this.weaponSpec) {
+            drawHeldWeapon(ctx, this.weaponId, CUBE_SIZE, this.weaponPose(), this.currentTime);
+        }
 
         // Спалах рамки після «Ідеально»
         if (this.perfectFlash > 0) {
