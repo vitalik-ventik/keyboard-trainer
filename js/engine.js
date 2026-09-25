@@ -30,8 +30,8 @@ export const LEVELS_CONFIG = [
         levels: [
             { id: 1,  leagueId: 1, name: "Перші кроки",             letters: ["А","П","Р","О"], speed: 165, spikeCount: 12, seed: 2001, bgTheme: "cyber_grid",              accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_1_1", name: "Стандартний Неон", renderType: "neon_base" } },
             { id: 2,  leagueId: 1, name: "Сусіди центру",           letters: ["В","І","Л","Д"], speed: 172, spikeCount: 13, seed: 2002, bgTheme: "parallax_city",             accentColor: "#aa44ff", rhythmGroups: false, skin: { id: "skin_1_2", name: "Кібер-Око", renderType: "cyber_eye" } },
-            { id: 3,  leagueId: 1, name: "Верхній центр",           letters: ["К","Е","Н","Г"], speed: 179, spikeCount: 14, seed: 2003, bgTheme: "starfield",                 accentColor: "#00d4aa", rhythmGroups: false, skin: { id: "skin_1_3", name: "Ретро-Геймер", renderType: "retro_gamer" } },
-            { id: 4,  leagueId: 1, name: "Нижній центр",            letters: ["М","И","Т","Ь"], speed: 186, spikeCount: 15, seed: 2004, bgTheme: "energy_grid",             accentColor: "#6a5acd", rhythmGroups: false, skin: { id: "skin_1_4", name: "Ніндзя", renderType: "throne" } },
+            { id: 3,  leagueId: 1, name: "Верхній центр",           letters: ["К","Е","Н","Г"], speed: 179, spikeCount: 14, seed: 2003, bgTheme: "starfield",                 accentColor: "#00d4aa", rhythmGroups: false, skin: { id: "skin_1_3", name: "Прибулець", renderType: "retro_gamer" } },
+            { id: 4,  leagueId: 1, name: "Нижній центр",            letters: ["М","И","Т","Ь"], speed: 186, spikeCount: 15, seed: 2004, bgTheme: "neon_highway",             accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_1_4", name: "Ніндзя", renderType: "throne" } },
             { id: 5,  leagueId: 1, name: "Верхні сусіди",           letters: ["У","Ц","Ш","Щ"], speed: 193, spikeCount: 16, seed: 2005, bgTheme: "cyber_columns",         accentColor: "#0066ff", rhythmGroups: false, skin: { id: "skin_1_5", name: "Приціл", renderType: "crosshair" } },
             { id: 6,  leagueId: 1, name: "Нижні сусіди",            letters: ["С","Ч","Б","Ю"], speed: 200, spikeCount: 17, seed: 2006, bgTheme: "geo_landscape",     accentColor: "#00ff41", rhythmGroups: false, skin: { id: "skin_1_6", name: "Матричний Піксель", renderType: "matrix_pixel" } },
             { id: 7,  leagueId: 1, name: "Краї середнього ряду",    letters: ["Ф","І","Ж","Є"], speed: 207, spikeCount: 18, seed: 2007, bgTheme: "pulsar_core",            accentColor: "#ff8855", rhythmGroups: false, skin: { id: "skin_1_7", name: "Блискавка", renderType: "slice" } },
@@ -51,11 +51,11 @@ export const LEVELS_CONFIG = [
         name: "Середня",
         levels: [
             { id: 17, leagueId: 2, name: "Зигзаг: верх і середина",  letters: ["Ц","В","К","П","Р","Г","Л","Щ"], speed: 240, spikeCount: 26, seed: 2101, bgTheme: "midnight_skyline", accentColor: "#bb55ff", rhythmGroups: false, skin: { id: "skin_2_1", name: "Ретро-сонце", renderType: "synthwave_sun" } },
-            { id: 18, leagueId: 2, name: "Зигзаг: середина і низ",   letters: ["І","С","А","И","Т","О","Б","Д"], speed: 250, spikeCount: 28, seed: 2102, bgTheme: "rooftop_grid", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_2", name: "Кіберпанк Горизонт", renderType: "cyberpunk_horizon" } },
+            { id: 18, leagueId: 2, name: "Зигзаг: середина і низ",   letters: ["І","С","А","И","Т","О","Б","Д"], speed: 250, spikeCount: 28, seed: 2102, bgTheme: "neon_rooftops", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_2", name: "Кіберпанк Горизонт", renderType: "cyberpunk_horizon" } },
             { id: 19, leagueId: 2, name: "Зигзаг: верх і низ",       letters: ["Ч","У","М","Е","Н","Ь","Ш","Ю"], speed: 255, spikeCount: 30, seed: 2103, bgTheme: "deep_abyss", accentColor: "#00ff41", rhythmGroups: false, skin: { id: "skin_2_3", name: "Глітч-Куб", renderType: "glitch_cube" } },
             { id: 20, leagueId: 2, name: "Перші краї",               letters: ["Й","І","С","К","Д","З","Є","Ґ"], speed: 260, spikeCount: 32, seed: 2104, bgTheme: "matrix_flow", accentColor: "#ff8c00", rhythmGroups: false, skin: { id: "skin_2_4", name: "Золотий Злиток", renderType: "gold_ingot" } },
-            { id: 21, leagueId: 2, name: "П'ять на п'ять",           letters: ["Ф","Ч","У","А","И","Н","О","Б","Ж","Х"], speed: 268, spikeCount: 34, seed: 2105, bgTheme: "equator_beam", accentColor: "#7b68ee", rhythmGroups: false, skin: { id: "skin_2_5", name: "Орбіта", renderType: "orbit" } },
-            { id: 22, leagueId: 2, name: "Усі стовпці",              letters: ["Я","Ц","В","М","Е","Р","Ь","Ш","Ю","Ї"], speed: 275, spikeCount: 36, seed: 2106, bgTheme: "spore_field", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_6", name: "Сталагміт", renderType: "stalagmite" } },
+            { id: 21, leagueId: 2, name: "П'ять на п'ять",           letters: ["Ф","Ч","У","А","И","Н","О","Б","Ж","Х"], speed: 268, spikeCount: 34, seed: 2105, bgTheme: "hyperspace_tunnel", accentColor: "#7b68ee", rhythmGroups: false, skin: { id: "skin_2_5", name: "Орбіта", renderType: "orbit" } },
+            { id: 22, leagueId: 2, name: "Усі стовпці",              letters: ["Я","Ц","В","М","Е","Р","Ь","Ш","Ю","Ї"], speed: 275, spikeCount: 36, seed: 2106, bgTheme: "spore_field", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_6", name: "Дракон", renderType: "stalagmite" } },
             { id: 23, leagueId: 2, name: "Далекі сусіди",            letters: ["Й","І","С","К","П","Т","Г","Л","Щ","Є"], speed: 282, spikeCount: 38, seed: 2107, bgTheme: "pixel_cave", accentColor: "#33d6d0", rhythmGroups: false, skin: { id: "skin_2_7", name: "Алмазна руда", renderType: "equalizer" } },
             { id: 24, leagueId: 2, name: "Фінал ліги",               letters: ["Ф","Ц","С","А","Е","О","Ш","Ю","З","Ґ"], speed: 295, spikeCount: 40, seed: 2108, bgTheme: "diamond_matrix", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_8", name: "Щит", renderType: "shield" } }
         ]
@@ -64,10 +64,10 @@ export const LEVELS_CONFIG = [
         id: 3,
         name: "Складна",
         levels: [
-            { id: 25, leagueId: 3, name: "Верхній штурм",           letters: ["Ц","У","К","Ф","В","П","Н","Ш","З","О","Д","Є"], speed: 310, spikeCount: 38, seed: 2201, bgTheme: "equalizer", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_3_1", name: "Плазма", renderType: "plasma" } },
-            { id: 26, leagueId: 3, name: "Великий спуск",           letters: ["І","А","Я","С","И","М","Р","Л","Ж","Ь","Ю","Ґ"], speed: 325, spikeCount: 42, seed: 2202, bgTheme: "waterfall_cascade", accentColor: "#6644ff", rhythmGroups: false, skin: { id: "skin_3_2", name: "Вортекс", renderType: "vortex" } },
-            { id: 27, leagueId: 3, name: "Три поверхи",             letters: ["Й","У","Е","Ф","А","Ч","М","Г","Щ","Х","Ї","Р","Т","Б"], speed: 340, spikeCount: 46, seed: 2203, bgTheme: "barrier_wall", accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_3_3", name: "Квантовий Бар'єр", renderType: "quantum_barrier" } },
-            { id: 28, leagueId: 3, name: "Хаотичний мікс",          letters: ["Ц","К","В","П","Я","С","И","Й","Н","Ш","З","Ї","О","Д","Є","Б"], speed: 360, spikeCount: 50, seed: 2204, bgTheme: "glitch_field", accentColor: "#7fff00", rhythmGroups: false, skin: { id: "skin_3_4", name: "Метеор", renderType: "meteor" } }
+            { id: 25, leagueId: 3, name: "Верхній штурм",           letters: ["Ц","У","К","Ф","В","П","Н","Ш","З","О","Д","Є"], speed: 310, spikeCount: 38, seed: 2201, bgTheme: "pixel_snow", accentColor: "#bff4ff", rhythmGroups: false, skin: { id: "skin_3_1", name: "Льодовий блок", renderType: "plasma" } },
+            { id: 26, leagueId: 3, name: "Великий спуск",           letters: ["І","А","Я","С","И","М","Р","Л","Ж","Ь","Ю","Ґ"], speed: 325, spikeCount: 42, seed: 2202, bgTheme: "pixel_ocean", accentColor: "#39ffd0", rhythmGroups: false, skin: { id: "skin_3_2", name: "Батискаф", renderType: "vortex" } },
+            { id: 27, leagueId: 3, name: "Три поверхи",             letters: ["Й","У","Е","Ф","А","Ч","М","Г","Щ","Х","Ї","Р","Т","Б"], speed: 340, spikeCount: 46, seed: 2203, bgTheme: "pixel_desert", accentColor: "#ffb35c", rhythmGroups: false, skin: { id: "skin_3_3", name: "Скриня зі скарбом", renderType: "quantum_barrier" } },
+            { id: 28, leagueId: 3, name: "Хаотичний мікс",          letters: ["Ц","К","В","П","Я","С","И","Й","Н","Ш","З","Ї","О","Д","Є","Б"], speed: 360, spikeCount: 50, seed: 2204, bgTheme: "pixel_islands", accentColor: "#d68bff", rhythmGroups: false, skin: { id: "skin_3_4", name: "Метеор", renderType: "meteor" } }
         ]
     },
     {
@@ -82,7 +82,7 @@ export const LEVELS_CONFIG = [
         id: 5,
         name: "Бос",
         levels: [
-            { id: 31, leagueId: 5, name: "ФІНАЛЬНИЙ ДЕМОН",        letters: ["А","Б","В","Г","Д","Е","Ж","З","И","І","Ї","Й","К","Л","М","Н","О","П","Р","С","Т","У","Ф","Х","Ц","Ч","Ш","Щ","Ь","Ю","Я","Є","Ґ"], speed: 450, spikeCount: 60, seed: 2401, bgTheme: "inferno_core", accentColor: "#ff1111", rhythmGroups: true, skin: { id: "skin_5_1", name: "ЛОРД ДЕМОНІВ", renderType: "demon_lord" } }
+            { id: 31, leagueId: 5, name: "ФІНАЛЬНИЙ ДЕМОН",        letters: ["А","Б","В","Г","Д","Е","Ж","З","И","І","Ї","Й","К","Л","М","Н","О","П","Р","С","Т","У","Ф","Х","Ц","Ч","Ш","Щ","Ь","Ю","Я","Є","Ґ"], speed: 450, spikeCount: 60, seed: 2401, bgTheme: "pixel_nether", accentColor: "#ff1111", rhythmGroups: true, skin: { id: "skin_5_1", name: "ЛОРД ДЕМОНІВ", renderType: "demon_lord" } }
         ]
     }
 ];
@@ -142,50 +142,73 @@ export const SKIN_RENDERERS = {
 
     // === ГРУПА 1: БАЗОВА ЛІГА ===
 
+    // Стандартний Неон: класичний кубик GD — неоновий корпус, темна вставка й обличчя
     neon_base: function (ctx, size, time) {
-        renderSkinGlow(ctx, size, "#00f6ff", 18);
-        var gradient = ctx.createLinearGradient(-size / 2, -size / 2, size / 2, size / 2);
-        gradient.addColorStop(0, "#00f6ff");
-        gradient.addColorStop(1, "#0077ff");
-        ctx.fillStyle = gradient;
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.strokeStyle = "#bffcff";
-        ctx.lineWidth = 3;
-        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        var h = size / 2;
+        renderSkinGlow(ctx, size, "#00f6ff", 14);
+        var body = ctx.createLinearGradient(-h, -h, h, h);
+        body.addColorStop(0, "#00f6ff");
+        body.addColorStop(1, "#0077ff");
+        ctx.fillStyle = body;
+        ctx.fillRect(-h, -h, size, size);
+        var inset = size * 0.2;
+        ctx.fillStyle = "#06284a";
+        ctx.fillRect(-h + inset, -h + inset, size - inset * 2, size - inset * 2);
+        ctx.fillStyle = "#00f6ff";
+        ctx.fillRect(-size * 0.2, -size * 0.14, size * 0.12, size * 0.14);
+        ctx.fillRect(size * 0.08, -size * 0.14, size * 0.12, size * 0.14);
+        ctx.fillRect(-size * 0.16, size * 0.08, size * 0.32, size * 0.07);
+        drawSkinFrame(ctx, size, "#bffcff");
     },
 
+    // Кібер-Око: механічне око, зіниця роззирається, повіка іноді кліпає
     cyber_eye: function (ctx, size, time) {
-        ctx.fillStyle = "#0a0a20";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        renderSkinGlow(ctx, size, "#00ffcc", 16);
+        var h = size / 2;
+        ctx.fillStyle = "#101828";
+        ctx.fillRect(-h, -h, size, size);
+        ctx.fillStyle = "#1c2a40";
+        ctx.fillRect(-h, -h, size, size * 0.14);
+        ctx.fillRect(-h, h - size * 0.14, size, size * 0.14);
+        ctx.fillStyle = "#e8f6ff";
+        ctx.beginPath();
+        ctx.arc(0, 0, size * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        var lookX = Math.sin(time * 0.0017) * size * 0.1;
+        var lookY = Math.sin(time * 0.0011 + 1) * size * 0.05;
         ctx.fillStyle = "#00ffcc";
         ctx.beginPath();
-        ctx.arc(size * 0.18, 0, size * 0.18, 0, Math.PI * 2);
+        ctx.arc(lookX, lookY, size * 0.15, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = "#001010";
+        ctx.fillStyle = "#001a14";
         ctx.beginPath();
-        ctx.arc(size * 0.22, 0, size * 0.08, 0, Math.PI * 2);
+        ctx.arc(lookX, lookY, size * 0.07, 0, Math.PI * 2);
         ctx.fill();
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(lookX - size * 0.09, lookY - size * 0.09, size * 0.05, size * 0.05);
+        // Кліпання: повіка на мить закриває око
+        if ((time % 4000) < 150) {
+            ctx.fillStyle = "#1c2a40";
+            ctx.fillRect(-size * 0.32, -size * 0.32, size * 0.64, size * 0.64);
+            ctx.fillStyle = "#00ffcc";
+            ctx.fillRect(-size * 0.3, -size * 0.02, size * 0.6, size * 0.04);
+        }
+        drawSkinFrame(ctx, size, "#00ffcc");
     },
 
+    // Прибулець: піксельний зелений інопланетянин, ніжки перебирають
     retro_gamer: function (ctx, size, time) {
-        ctx.fillStyle = "#0a0a20";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        renderSkinGlow(ctx, size, "#00ff41", 8);
-        ctx.strokeStyle = "#00ff41";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(-size * 0.3, -size * 0.3);
-        ctx.lineTo(-size * 0.3, size * 0.2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(size * 0.3, -size * 0.3);
-        ctx.lineTo(size * 0.3, size * 0.2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(-size * 0.15, size * 0.25);
-        ctx.lineTo(size * 0.15, size * 0.25);
-        ctx.stroke();
+        var step = Math.floor(time / 300) % 2 === 0;
+        drawPixelArt(ctx, size, [
+            "kgkkkkgk",
+            "kkgkkgkk",
+            "kggggggk",
+            "ggwgggwg",
+            "ggpgggpg",
+            "gggggggg",
+            step ? "kggkkggk" : "kgkggkgk",
+            step ? "kgkkkkgk" : "gkkkkkkg"
+        ], { k: "#0a0a20", g: "#39ff14", w: "#ffffff", p: "#003300" });
+        drawSkinFrame(ctx, size, "#00ff41");
     },
 
     // Ніндзя: фіолетовий кубик із червоною пов'язкою та злими білими очима в прорізі маски
@@ -254,18 +277,26 @@ export const SKIN_RENDERERS = {
         ctx.stroke();
     },
 
+    // Матричний Піксель: по кубику біжать зелені стовпчики «коду»
     matrix_pixel: function (ctx, size, time) {
-        ctx.fillStyle = "#003300";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        renderSkinGlow(ctx, size, "#00ff41", 4);
-        ctx.fillStyle = "#00ff41";
-        var px1x = -size * 0.25, px1y = -size * 0.20;
-        var px2x = size * 0.08, px2y = size * 0.12;
-        var px3x = -size * 0.08, px3y = size * 0.28;
-        var pxSize = size * 0.14;
-        ctx.fillRect(px1x, px1y, pxSize, pxSize);
-        ctx.fillRect(px2x, px2y, pxSize, pxSize);
-        ctx.fillRect(px3x, px3y, pxSize, pxSize);
+        var h = size / 2;
+        ctx.fillStyle = "#001a06";
+        ctx.fillRect(-h, -h, size, size);
+        var cols = 6;
+        var cell = size / cols;
+        for (var c = 0; c < cols; c++) {
+            var speed = 0.0025 + (c * 37 % 5) * 0.0006;
+            var head = ((time * speed + c * 1.7) % 1.6) * cols - 2;
+            for (var k = 0; k < 4; k++) {
+                var row = Math.floor(head) - k;
+                if (row < 0 || row >= cols) {
+                    continue;
+                }
+                ctx.fillStyle = k === 0 ? "#d8ffe0" : "rgba(0, 255, 65, " + (0.9 - k * 0.22).toFixed(2) + ")";
+                ctx.fillRect(-h + c * cell + cell * 0.2, -h + row * cell + cell * 0.2, cell * 0.6, cell * 0.6);
+            }
+        }
+        drawSkinFrame(ctx, size, "#00ff41");
     },
 
     // Блискавка: помаранчевий кубик із темною вставкою та яскравою блискавкою
@@ -347,40 +378,76 @@ export const SKIN_RENDERERS = {
         drawSkinFrame(ctx, size, "#9be86f");
     },
 
+    // Радар: промінь обертається й підсвічує цілі
     radar: function (ctx, size, time) {
-        ctx.fillStyle = "#0a0a20";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.strokeStyle = "rgba(200,200,220,0.5)";
-        ctx.lineWidth = 1;
-        for (var r = size * 0.12; r <= size * 0.55; r += size * 0.13) {
-            ctx.beginPath();
-            ctx.arc(0, 0, r, 0, Math.PI * 2);
-            ctx.stroke();
-        }
-        ctx.fillStyle = "#00ff88";
+        var h = size / 2;
+        ctx.fillStyle = "#03140c";
+        ctx.fillRect(-h, -h, size, size);
+        ctx.strokeStyle = "rgba(0, 255, 136, 0.35)";
+        ctx.lineWidth = Math.max(1, size * 0.02);
         ctx.beginPath();
-        ctx.arc(0, 0, size * 0.08, 0, Math.PI * 2);
+        for (var r = size * 0.13; r < size * 0.45; r += size * 0.13) {
+            ctx.moveTo(r, 0);
+            ctx.arc(0, 0, r, 0, Math.PI * 2);
+        }
+        ctx.moveTo(-size * 0.4, 0);
+        ctx.lineTo(size * 0.4, 0);
+        ctx.moveTo(0, -size * 0.4);
+        ctx.lineTo(0, size * 0.4);
+        ctx.stroke();
+        var sweep = (time * 0.003) % (Math.PI * 2);
+        ctx.fillStyle = "rgba(0, 255, 136, 0.3)";
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, size * 0.42, sweep - 0.7, sweep);
+        ctx.closePath();
         ctx.fill();
+        ctx.strokeStyle = "#7dffc0";
+        ctx.lineWidth = Math.max(1, size * 0.03);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(sweep) * size * 0.42, Math.sin(sweep) * size * 0.42);
+        ctx.stroke();
+        var blips = [[0.25, 0.8], [0.32, 2.6], [0.18, 4.4]];
+        for (var i = 0; i < blips.length; i++) {
+            var ang = blips[i][1];
+            var diff = (sweep - ang + Math.PI * 4) % (Math.PI * 2);
+            var bright = Math.max(0, 1 - diff / 2.5);
+            if (bright <= 0) {
+                continue;
+            }
+            ctx.fillStyle = "rgba(180, 255, 210, " + bright.toFixed(2) + ")";
+            var br = size * 0.05;
+            ctx.fillRect(Math.cos(ang) * size * blips[i][0] - br / 2, Math.sin(ang) * size * blips[i][0] - br / 2, br, br);
+        }
+        drawSkinFrame(ctx, size, "#00ff88");
     },
 
+    // Стріла Швидкості: жирні подвійні шеврони, що мчать уперед
     speed_arrow: function (ctx, size, time) {
-        ctx.fillStyle = "#0a0a20";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        renderSkinGlow(ctx, size, "#ffff00", 12);
-        ctx.strokeStyle = "#ffff00";
-        ctx.lineWidth = 2.5;
-        var ay = -size * 0.12;
+        var h = size / 2;
+        ctx.fillStyle = "#1f1a00";
+        ctx.fillRect(-h, -h, size, size);
+        ctx.save();
         ctx.beginPath();
-        ctx.moveTo(-size * 0.15, ay - size * 0.16);
-        ctx.lineTo(size * 0.08, ay);
-        ctx.lineTo(-size * 0.15, ay + size * 0.16);
-        ctx.stroke();
-        ay = size * 0.15;
-        ctx.beginPath();
-        ctx.moveTo(-size * 0.28, ay - size * 0.16);
-        ctx.lineTo(-size * 0.05, ay);
-        ctx.lineTo(-size * 0.28, ay + size * 0.16);
-        ctx.stroke();
+        ctx.rect(-h, -h, size, size);
+        ctx.clip();
+        var shift = ((time * 0.0012) % 1) * size * 0.34;
+        for (var i = -1; i < 3; i++) {
+            var x = -size * 0.42 + i * size * 0.34 + shift;
+            ctx.fillStyle = i % 2 === 0 ? "#ffff00" : "#ffb800";
+            ctx.beginPath();
+            ctx.moveTo(x, -size * 0.32);
+            ctx.lineTo(x + size * 0.14, -size * 0.32);
+            ctx.lineTo(x + size * 0.32, 0);
+            ctx.lineTo(x + size * 0.14, size * 0.32);
+            ctx.lineTo(x, size * 0.32);
+            ctx.lineTo(x + size * 0.18, 0);
+            ctx.closePath();
+            ctx.fill();
+        }
+        ctx.restore();
+        drawSkinFrame(ctx, size, "#ffff00");
     },
 
     // Робот: металевий кубик із візором, світними очима (кліпають) і LED-ротом
@@ -588,43 +655,127 @@ export const SKIN_RENDERERS = {
         ctx.fill();
     },
 
+    // Орбіта: планета з кільцем, навколо літає супутник
     orbit: function (ctx, size, time) {
-        ctx.fillStyle = "#0a0a20";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        renderSkinGlow(ctx, size, "#ff8c00", 10);
-        ctx.fillStyle = "#ff8c00";
-        ctx.beginPath();
-        ctx.arc(0, 0, size * 0.18, 0, Math.PI * 2);
-        ctx.fill();
+        var h = size / 2;
+        ctx.fillStyle = "#08081c";
+        ctx.fillRect(-h, -h, size, size);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(-size * 0.36, -size * 0.34, size * 0.03, size * 0.03);
+        ctx.fillRect(size * 0.3, size * 0.3, size * 0.03, size * 0.03);
+        ctx.fillRect(size * 0.28, -size * 0.38, size * 0.02, size * 0.02);
+        var moonAngle = time * 0.002;
+        var moonX = Math.cos(moonAngle) * size * 0.36;
+        var moonY = Math.sin(moonAngle) * size * 0.14;
+        var moonBehind = Math.sin(moonAngle) < 0;
+        function drawMoon() {
+            ctx.fillStyle = "#cfd8ff";
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, size * 0.06, 0, Math.PI * 2);
+            ctx.fill();
+        }
         ctx.save();
-        ctx.rotate(Math.PI / 4);
+        ctx.rotate(-0.35);
         ctx.strokeStyle = "#ffcc44";
-        ctx.lineWidth = 2;
+        ctx.lineWidth = Math.max(1.5, size * 0.05);
+        // Задня половина кільця
         ctx.beginPath();
-        ctx.ellipse(0, 0, size * 0.35, size * 0.18, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, size * 0.38, size * 0.11, 0, Math.PI, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
+        if (moonBehind) {
+            drawMoon();
+        }
+        var planet = ctx.createRadialGradient(-size * 0.06, -size * 0.06, size * 0.02, 0, 0, size * 0.22);
+        planet.addColorStop(0, "#ffd08a");
+        planet.addColorStop(1, "#ff6a00");
+        ctx.fillStyle = planet;
+        ctx.beginPath();
+        ctx.arc(0, 0, size * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.save();
+        ctx.rotate(-0.35);
+        ctx.strokeStyle = "#ffcc44";
+        ctx.lineWidth = Math.max(1.5, size * 0.05);
+        // Передня половина кільця
+        ctx.beginPath();
+        ctx.ellipse(0, 0, size * 0.38, size * 0.11, 0, 0, Math.PI);
+        ctx.stroke();
+        ctx.restore();
+        if (!moonBehind) {
+            drawMoon();
+        }
+        drawSkinFrame(ctx, size, "#ff8c00");
     },
 
+    // Дракон: лускатий зелений кубик із вогняними очима-щілинами та іклами
     stalagmite: function (ctx, size, time) {
-        ctx.fillStyle = "#2a2040";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.fillStyle = "#5522aa";
+        var h = size / 2;
+        var body = ctx.createLinearGradient(0, -h, 0, h);
+        body.addColorStop(0, "#2fa84f");
+        body.addColorStop(1, "#0d3b1c");
+        ctx.fillStyle = body;
+        ctx.fillRect(-h, -h, size, size);
+        // Луска (обрізана межами кубика)
+        ctx.save();
         ctx.beginPath();
-        ctx.moveTo(-size / 2, size / 2);
-        var teeth = 4;
-        for (var i = 0; i <= teeth; i++) {
-            var tx = -size / 2 + (size / teeth) * i;
-            ctx.lineTo(tx - size * 0.06, size * 0.05);
-            ctx.lineTo(tx, -size * 0.1);
-            ctx.lineTo(tx + size * 0.06, size * 0.05);
+        ctx.rect(-h, -h, size, size);
+        ctx.clip();
+        ctx.strokeStyle = "rgba(10, 40, 18, 0.55)";
+        ctx.lineWidth = Math.max(1, size * 0.02);
+        ctx.beginPath();
+        var sc = size * 0.14;
+        for (var ry = 0; ry < 3; ry++) {
+            for (var rx = 0; rx < 4; rx++) {
+                var cx = -h + sc / 2 + rx * sc * 2 + (ry % 2) * sc;
+                var cy = -h + size * 0.12 + ry * sc;
+                ctx.moveTo(cx + sc, cy);
+                ctx.arc(cx, cy, sc, 0, Math.PI);
+            }
         }
-        ctx.lineTo(size / 2, size / 2);
+        ctx.stroke();
+        ctx.restore();
+        // Роги
+        ctx.fillStyle = "#e8e0c0";
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.4, -h);
+        ctx.lineTo(-size * 0.3, -h + size * 0.2);
+        ctx.lineTo(-size * 0.2, -h);
+        ctx.moveTo(size * 0.4, -h);
+        ctx.lineTo(size * 0.3, -h + size * 0.2);
+        ctx.lineTo(size * 0.2, -h);
+        ctx.fill();
+        // Очі з вертикальною зіницею
+        var glow = 0.75 + 0.25 * Math.sin(time * 0.005);
+        ctx.fillStyle = "rgba(255, 210, 0, " + glow.toFixed(2) + ")";
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.34, -size * 0.02);
+        ctx.lineTo(-size * 0.08, size * 0.02);
+        ctx.lineTo(-size * 0.1, size * 0.12);
+        ctx.lineTo(-size * 0.32, size * 0.08);
+        ctx.closePath();
+        ctx.moveTo(size * 0.34, -size * 0.02);
+        ctx.lineTo(size * 0.08, size * 0.02);
+        ctx.lineTo(size * 0.1, size * 0.12);
+        ctx.lineTo(size * 0.32, size * 0.08);
         ctx.closePath();
         ctx.fill();
-        ctx.strokeStyle = "#8844ff";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
+        ctx.fillStyle = "#1a0a00";
+        ctx.fillRect(-size * 0.22, -size * 0.01, size * 0.04, size * 0.12);
+        ctx.fillRect(size * 0.18, -size * 0.01, size * 0.04, size * 0.12);
+        // Ніздрі та ікла
+        ctx.fillRect(-size * 0.1, size * 0.2, size * 0.05, size * 0.04);
+        ctx.fillRect(size * 0.05, size * 0.2, size * 0.05, size * 0.04);
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.3, size * 0.32);
+        ctx.lineTo(-size * 0.22, size * 0.44);
+        ctx.lineTo(-size * 0.14, size * 0.32);
+        ctx.moveTo(size * 0.14, size * 0.32);
+        ctx.lineTo(size * 0.22, size * 0.44);
+        ctx.lineTo(size * 0.3, size * 0.32);
+        ctx.fill();
+        drawSkinFrame(ctx, size, "#7dff5a");
     },
 
     // Алмазна руда: піксельний кам'яний блок з алмазами, що виблискують
@@ -677,51 +828,121 @@ export const SKIN_RENDERERS = {
 
     // === ГРУПА 3: СКЛАДНА ЛІГА ===
 
+    // Льодовий блок: піксельний лід із відблиском, що пробігає по діагоналі
     plasma: function (ctx, size, time) {
-        var pulseR = size / 2 + Math.sin(time * 0.003) * 8;
-        var gradient = ctx.createRadialGradient(0, 0, size * 0.05, 0, 0, pulseR);
-        gradient.addColorStop(0, "#ffffff");
-        gradient.addColorStop(0.3, "#ff2ea6");
-        gradient.addColorStop(0.6, "#6644ff");
-        gradient.addColorStop(1, "#0a0a30");
-        ctx.fillStyle = gradient;
-        ctx.fillRect(-size / 2, -size / 2, size, size);
+        drawPixelArt(ctx, size, [
+            "LlLLlLLL",
+            "lLLwLLlL",
+            "LLwLLLLl",
+            "LlLLLlLL",
+            "LLLlLLwL",
+            "lLLLLwLL",
+            "LLlLLLLl",
+            "LLLLlLLL"
+        ], { L: "#8fd3ff", l: "#6ab8f0", w: "#e6f7ff" });
+        var h = size / 2;
+        var t = ((time * 0.0005) % 1.6) - 0.3;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(-h, -h, size, size);
+        ctx.clip();
+        ctx.fillStyle = "rgba(255, 255, 255, 0.45)";
+        ctx.beginPath();
+        var x = -h + t * size * 1.4;
+        ctx.moveTo(x, -h);
+        ctx.lineTo(x + size * 0.18, -h);
+        ctx.lineTo(x - size * 0.6, h);
+        ctx.lineTo(x - size * 0.78, h);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+        drawSkinFrame(ctx, size, "#e6f7ff");
     },
 
+    // Батискаф: жовтий підводний кубик з ілюмінатором і бульбашками
     vortex: function (ctx, size, time) {
-        ctx.fillStyle = "#0a0a20";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        renderSkinGlow(ctx, size, "#00ffcc", 8);
-        ctx.strokeStyle = "#00ffcc";
-        ctx.lineWidth = 1.5;
+        var h = size / 2;
+        var hull = ctx.createLinearGradient(0, -h, 0, h);
+        hull.addColorStop(0, "#ffd84a");
+        hull.addColorStop(1, "#e59a00");
+        ctx.fillStyle = hull;
+        ctx.fillRect(-h, -h, size, size);
+        ctx.fillStyle = "#2b2b2b";
+        ctx.fillRect(-h, size * 0.3, size, size * 0.08);
+        // Заклепки
+        ctx.fillStyle = "#a36a00";
+        var rv = size * 0.05;
+        var positions = [[-0.38, -0.38], [0.33, -0.38], [-0.38, 0.18], [0.33, 0.18]];
+        for (var i = 0; i < positions.length; i++) {
+            ctx.fillRect(positions[i][0] * size, positions[i][1] * size, rv, rv);
+        }
+        // Ілюмінатор
+        ctx.fillStyle = "#5c5c5c";
         ctx.beginPath();
-        var turns = 3;
-        var steps = 20;
-        var maxR = size * 0.48;
-        for (var i = 0; i <= steps; i++) {
-            var t = i / steps;
-            var angle = t * turns * Math.PI * 2;
-            var r = t * maxR;
-            var sx = Math.cos(angle) * r;
-            var sy = Math.sin(angle) * r;
-            if (i === 0) { ctx.moveTo(sx, sy); }
-            else { ctx.lineTo(sx, sy); }
+        ctx.arc(0, -size * 0.04, size * 0.26, 0, Math.PI * 2);
+        ctx.fill();
+        var glass = ctx.createRadialGradient(-size * 0.06, -size * 0.1, size * 0.02, 0, -size * 0.04, size * 0.2);
+        glass.addColorStop(0, "#9ff6ff");
+        glass.addColorStop(1, "#0a6f8a");
+        ctx.fillStyle = glass;
+        ctx.beginPath();
+        ctx.arc(0, -size * 0.04, size * 0.19, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+        ctx.fillRect(-size * 0.11, -size * 0.16, size * 0.06, size * 0.06);
+        // Бульбашки піднімаються
+        ctx.strokeStyle = "rgba(220, 250, 255, 0.85)";
+        ctx.lineWidth = Math.max(1, size * 0.025);
+        ctx.beginPath();
+        for (var b = 0; b < 3; b++) {
+            var phase = ((time * 0.0008) + b * 0.33) % 1;
+            var bx = size * (0.28 + 0.06 * Math.sin(phase * 8 + b));
+            var by = h * 0.6 - phase * size * 0.9;
+            var br = size * (0.03 + b * 0.012);
+            ctx.moveTo(bx + br, by);
+            ctx.arc(bx, by, br, 0, Math.PI * 2);
         }
         ctx.stroke();
+        drawSkinFrame(ctx, size, "#fff0a0");
     },
 
+    // Скриня зі скарбом: дерев'яна скриня із золотими оковами й замком, що виблискує
     quantum_barrier: function (ctx, size, time) {
-        ctx.globalAlpha = 0.15;
-        ctx.fillStyle = "#00f6ff";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.globalAlpha = 1;
-        renderSkinGlow(ctx, size, "#ffffff", 25);
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 4;
-        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        var h = size / 2;
+        ctx.fillStyle = "#8a4b1c";
+        ctx.fillRect(-h, -h, size, size);
+        ctx.fillStyle = "#6b3812";
+        for (var i = 0; i < 4; i++) {
+            ctx.fillRect(-h, -h + size * 0.08 + i * size * 0.25, size, size * 0.04);
+        }
+        // Кришка
+        ctx.fillStyle = "#a35d25";
+        ctx.fillRect(-h, -h, size, size * 0.36);
+        ctx.fillStyle = "#5a2e0e";
+        ctx.fillRect(-h, -h + size * 0.34, size, size * 0.05);
+        // Золоті окови
+        ctx.fillStyle = "#ffcc33";
+        ctx.fillRect(-h + size * 0.1, -h, size * 0.1, size);
+        ctx.fillRect(h - size * 0.2, -h, size * 0.1, size);
+        // Замок
+        ctx.fillStyle = "#ffd84a";
+        ctx.fillRect(-size * 0.1, -size * 0.2, size * 0.2, size * 0.24);
+        ctx.fillStyle = "#3a2000";
+        ctx.fillRect(-size * 0.025, -size * 0.12, size * 0.05, size * 0.1);
+        // Відблиск
+        var glint = Math.max(0, Math.sin(time * 0.004));
+        if (glint > 0.2) {
+            ctx.fillStyle = "rgba(255, 255, 255, " + glint.toFixed(2) + ")";
+            var gs = size * 0.04;
+            ctx.fillRect(size * 0.05 - gs / 2, -size * 0.24 - gs * 1.5, gs, gs * 3);
+            ctx.fillRect(size * 0.05 - gs * 1.5, -size * 0.24 - gs / 2, gs * 3, gs);
+        }
+        drawSkinFrame(ctx, size, "#ffcc33");
     },
 
+    // Метеор: розпечений камінь із тріщинами лави та вогняним хвостом
     meteor: function (ctx, size, time, player) {
+        var h = size / 2;
         if (player && player.meteorTrail) {
             for (var t = player.meteorTrail.length - 1; t >= 0; t--) {
                 var pt = player.meteorTrail[t];
@@ -733,40 +954,74 @@ export const SKIN_RENDERERS = {
                 ctx.globalAlpha = 1;
             }
         }
-        ctx.fillStyle = "#1a0a00";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        renderSkinGlow(ctx, size, "#ff6600", 14);
-        ctx.fillStyle = "#ff4400";
-        ctx.fillRect(-size * 0.35, -size * 0.35, size * 0.7, size * 0.7);
-        ctx.strokeStyle = "#ffaa44";
-        ctx.lineWidth = 2.5;
-        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        // Вогняний хвіст ліворуч (напрям руху — праворуч)
+        for (var f = 0; f < 4; f++) {
+            var flick = Math.sin(time * 0.02 + f * 1.7) * size * 0.05;
+            ctx.fillStyle = f % 2 === 0 ? "rgba(255, 120, 0, 0.8)" : "rgba(255, 220, 60, 0.8)";
+            ctx.beginPath();
+            var fy = -h + size * 0.15 + f * size * 0.22;
+            ctx.moveTo(-h, fy - size * 0.08);
+            ctx.lineTo(-h - size * (0.25 + (f % 2) * 0.12) + flick, fy);
+            ctx.lineTo(-h, fy + size * 0.08);
+            ctx.fill();
+        }
+        ctx.fillStyle = "#3a1a0a";
+        ctx.fillRect(-h, -h, size, size);
+        ctx.fillStyle = "#26100a";
+        ctx.beginPath();
+        ctx.arc(-size * 0.2, -size * 0.18, size * 0.1, 0, Math.PI * 2);
+        ctx.arc(size * 0.22, size * 0.2, size * 0.08, 0, Math.PI * 2);
+        ctx.fill();
+        var heat = 0.7 + 0.3 * Math.sin(time * 0.008);
+        ctx.strokeStyle = "rgba(255, " + Math.round(120 + 80 * heat) + ", 0, " + heat.toFixed(2) + ")";
+        ctx.lineWidth = Math.max(1.5, size * 0.05);
+        ctx.beginPath();
+        ctx.moveTo(-h, size * 0.05);
+        ctx.lineTo(-size * 0.15, size * 0.02);
+        ctx.lineTo(0, -size * 0.2);
+        ctx.lineTo(size * 0.18, -size * 0.12);
+        ctx.lineTo(h, -size * 0.3);
+        ctx.moveTo(0, -size * 0.2);
+        ctx.lineTo(size * 0.05, size * 0.2);
+        ctx.lineTo(-size * 0.12, h);
+        ctx.stroke();
+        drawSkinFrame(ctx, size, "#ffaa44");
     },
 
     // === ГРУПА 4: ЛІГА МАЙСТРІВ ===
 
+    // Галактика: спіральна галактика обертається, зорі мерехтять
     galaxy: function (ctx, size, time) {
-        var gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.7);
-        gradient.addColorStop(0, "#220055");
-        gradient.addColorStop(0.5, "#110033");
-        gradient.addColorStop(1, "#080820");
-        ctx.fillStyle = gradient;
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.fillStyle = "#ffffff";
-        var stars = [
-            { x: -size * 0.3, y: -size * 0.25, r: size * 0.04 },
-            { x: size * 0.2, y: -size * 0.35, r: size * 0.025 },
-            { x: -size * 0.15, y: size * 0.15, r: size * 0.03 },
-            { x: size * 0.3, y: size * 0.25, r: size * 0.035 },
-            { x: size * 0.05, y: -size * 0.4, r: size * 0.02 },
-            { x: -size * 0.38, y: size * 0.3, r: size * 0.028 }
-        ];
-        for (var i = 0; i < stars.length; i++) {
-            var s = stars[i];
-            ctx.beginPath();
-            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-            ctx.fill();
+        var h = size / 2;
+        var bg = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.7);
+        bg.addColorStop(0, "#2a0a5e");
+        bg.addColorStop(1, "#06061a");
+        ctx.fillStyle = bg;
+        ctx.fillRect(-h, -h, size, size);
+        var rot = time * 0.0008;
+        for (var arm = 0; arm < 2; arm++) {
+            for (var i = 1; i <= 10; i++) {
+                var t = i / 10;
+                var ang = rot + arm * Math.PI + t * Math.PI * 1.4;
+                var r = t * size * 0.4;
+                var ds = size * (0.07 - t * 0.04);
+                ctx.fillStyle = i % 3 === 0 ? "#ff9ef5" : "#b9a6ff";
+                ctx.globalAlpha = 1 - t * 0.6;
+                ctx.fillRect(Math.cos(ang) * r - ds / 2, Math.sin(ang) * r * 0.75 - ds / 2, ds, ds);
+            }
         }
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(0, 0, size * 0.07, 0, Math.PI * 2);
+        ctx.fill();
+        var stars = [[-0.36, -0.32, 0], [0.3, -0.36, 1.5], [0.34, 0.3, 3], [-0.32, 0.34, 4.5]];
+        for (var s = 0; s < stars.length; s++) {
+            ctx.globalAlpha = 0.4 + 0.6 * (Math.sin(time * 0.004 + stars[s][2]) * 0.5 + 0.5);
+            ctx.fillRect(stars[s][0] * size, stars[s][1] * size, size * 0.035, size * 0.035);
+        }
+        ctx.globalAlpha = 1;
+        drawSkinFrame(ctx, size, "#aa66ff");
     },
 
     // Корона Майстра: королівський оксамитовий кубик із золотою короною всередині
@@ -832,58 +1087,77 @@ export const SKIN_RENDERERS = {
 
     // === ГРУПА 5: ЛІГА БОСА ===
 
+    // Лорд Демонів: магмовий демон — базальт із тріщинами лави, палаючі очі, ікла й роги
     demon_lord: function (ctx, size, time) {
-        ctx.fillStyle = "#0a0a08";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        renderSkinGlow(ctx, size, "#ff1111", 25);
-        ctx.fillStyle = "#ff1111";
+        var h = size / 2;
+        var pulse = 0.6 + 0.4 * Math.sin(time * 0.006);
+        renderSkinGlow(ctx, size, "#ff2200", 10 + pulse * 10);
+        // Роги з вогняним градієнтом
+        var hornGrad = ctx.createLinearGradient(0, -h - size * 0.3, 0, -h);
+        hornGrad.addColorStop(0, "#ffe14d");
+        hornGrad.addColorStop(1, "#b30000");
+        ctx.fillStyle = hornGrad;
         ctx.beginPath();
-        ctx.moveTo(-size * 0.2, -size * 0.12);
-        ctx.lineTo(-size * 0.08, size * 0.12);
-        ctx.lineTo(-size * 0.32, size * 0.12);
+        ctx.moveTo(-size * 0.4, -h);
+        ctx.lineTo(-size * 0.42, -h - size * 0.3);
+        ctx.lineTo(-size * 0.18, -h);
+        ctx.moveTo(size * 0.4, -h);
+        ctx.lineTo(size * 0.42, -h - size * 0.3);
+        ctx.lineTo(size * 0.18, -h);
+        ctx.fill();
+        ctx.fillStyle = "#1a0d0a";
+        ctx.fillRect(-h, -h, size, size);
+        // Тріщини лави
+        ctx.strokeStyle = "rgba(255, " + Math.round(80 + 100 * pulse) + ", 0, " + (0.5 + 0.5 * pulse).toFixed(2) + ")";
+        ctx.lineWidth = Math.max(1, size * 0.035);
+        ctx.beginPath();
+        ctx.moveTo(-h, -size * 0.3);
+        ctx.lineTo(-size * 0.3, -size * 0.22);
+        ctx.lineTo(-size * 0.36, -size * 0.36);
+        ctx.moveTo(h, size * 0.1);
+        ctx.lineTo(size * 0.32, size * 0.18);
+        ctx.lineTo(size * 0.4, h);
+        ctx.moveTo(-size * 0.2, h);
+        ctx.lineTo(-size * 0.28, size * 0.3);
+        ctx.stroke();
+        // Злі палаючі очі
+        ctx.fillStyle = "#ffea00";
+        ctx.beginPath();
+        ctx.moveTo(-size * 0.36, -size * 0.12);
+        ctx.lineTo(-size * 0.06, -size * 0.02);
+        ctx.lineTo(-size * 0.1, size * 0.08);
+        ctx.lineTo(-size * 0.34, size * 0.02);
+        ctx.closePath();
+        ctx.moveTo(size * 0.36, -size * 0.12);
+        ctx.lineTo(size * 0.06, -size * 0.02);
+        ctx.lineTo(size * 0.1, size * 0.08);
+        ctx.lineTo(size * 0.34, size * 0.02);
         ctx.closePath();
         ctx.fill();
+        ctx.fillStyle = "#ff2200";
+        ctx.fillRect(-size * 0.2, -size * 0.04, size * 0.07, size * 0.08);
+        ctx.fillRect(size * 0.13, -size * 0.04, size * 0.07, size * 0.08);
+        // Паща з іклами
+        ctx.fillStyle = "#4a0000";
+        ctx.fillRect(-size * 0.26, size * 0.18, size * 0.52, size * 0.16);
+        ctx.fillStyle = "#ffffff";
         ctx.beginPath();
-        ctx.moveTo(size * 0.2, -size * 0.12);
-        ctx.lineTo(size * 0.08, size * 0.12);
-        ctx.lineTo(size * 0.32, size * 0.12);
-        ctx.closePath();
+        ctx.moveTo(-size * 0.24, size * 0.18);
+        ctx.lineTo(-size * 0.17, size * 0.32);
+        ctx.lineTo(-size * 0.1, size * 0.18);
+        ctx.moveTo(size * 0.1, size * 0.18);
+        ctx.lineTo(size * 0.17, size * 0.32);
+        ctx.lineTo(size * 0.24, size * 0.18);
         ctx.fill();
-        var hornY = -size / 2;
-        ctx.beginPath();
-        ctx.moveTo(-size * 0.25, hornY);
-        ctx.lineTo(-size * 0.3, hornY - size * 0.28);
-        ctx.lineTo(-size * 0.1, hornY);
-        ctx.closePath();
-        ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(size * 0.25, hornY);
-        ctx.lineTo(size * 0.3, hornY - size * 0.28);
-        ctx.lineTo(size * 0.1, hornY);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = "#440000";
-        ctx.lineWidth = 1;
-        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        drawSkinFrame(ctx, size, "#ff1111");
     }
 };
 
 // Скіни, які малюються на темному тлі без власної рамки й зливаються з фоном:
 // обгортаємо їх, додаючи неонову рамку в кольорі скіна
 const FRAMELESS_SKIN_COLORS = {
-    cyber_eye: "#00ffcc",
-    retro_gamer: "#00ff41",
     crosshair: "#ff3333",
-    matrix_pixel: "#00ff41",
-    radar: "#00ff88",
-    speed_arrow: "#ffff00",
-    cyberpunk_horizon: "#00ddff",
-    orbit: "#ff8c00",
-    stalagmite: "#8844ff",
-    plasma: "#ff2ea6",
-    vortex: "#00ffcc",
-    galaxy: "#aa66ff",
-    demon_lord: "#ff1111"
+    cyberpunk_horizon: "#00ddff"
 };
 
 for (const skinKey of Object.keys(FRAMELESS_SKIN_COLORS)) {
@@ -1347,6 +1621,7 @@ const PLAYER_ANCHOR = 0.28;
 const TRAIL_MAX = 20;
 const DEATH_DELAY = 1.2;
 const DEMO_RESTART_DELAY = 1.4;
+const PERFECT_FLASH_TIME = 0.35;
 
 function spikeHalfWidth(type) {
     if (type === "double_spike") {
@@ -1386,6 +1661,56 @@ function calculateMaxScores(spikeCount, hitWindow, speed) {
         maxEasy: spikeCount * Math.max(0, easyPerHit),
         maxHard: spikeCount * Math.max(0, hardPerHit)
     };
+}
+
+// ---------- Кольори скіна для уламків вибуху ----------
+
+// Скін малюється в крихітне полотно, звідти беруться кілька характерних кольорів.
+// Результат кешується для кожного типу скіна.
+const skinColorCache = {};
+
+function sampleSkinColors(renderType) {
+    if (skinColorCache[renderType]) {
+        return skinColorCache[renderType];
+    }
+    const fallback = ["#00f6ff", "#ff2ea6", "#ffe14d", "#00ff88"];
+    const renderFn = SKIN_RENDERERS[renderType];
+    if (!renderFn || typeof document === "undefined") {
+        return fallback;
+    }
+    try {
+        const size = 24;
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const sctx = canvas.getContext("2d", { willReadFrequently: true });
+        sctx.translate(size / 2, size / 2);
+        renderFn(sctx, size, 0, {});
+        const data = sctx.getImageData(0, 0, size, size).data;
+        const counts = {};
+        for (let y = 2; y < size - 2; y += 2) {
+            for (let x = 2; x < size - 2; x += 2) {
+                const i = (y * size + x) * 4;
+                if (data[i + 3] < 200) {
+                    continue;
+                }
+                // Квантування, щоб схожі відтінки злилися в один колір
+                const r = data[i] & 0xe0;
+                const g = data[i + 1] & 0xe0;
+                const b = data[i + 2] & 0xe0;
+                if (r + g + b < 96) {
+                    continue;
+                }
+                const key = "rgb(" + (r + 16) + "," + (g + 16) + "," + (b + 16) + ")";
+                counts[key] = (counts[key] || 0) + 1;
+            }
+        }
+        const colors = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; }).slice(0, 5);
+        skinColorCache[renderType] = colors.length > 0 ? colors : fallback;
+    } catch (e) {
+        skinColorCache[renderType] = fallback;
+    }
+    return skinColorCache[renderType];
 }
 
 // ---------- Клас Engine ----------
@@ -1459,6 +1784,45 @@ export class Engine {
         this.outcome = "running";
         this.trailTick = 0;
         this.jumpBuffer = null;
+        // Уламки вибуху та пил приземлення (квадратні «блоки»)
+        this.debris = [];
+        this.perfectFlash = 0;
+    }
+
+    // Тип скіна, яким зараз малюється кубик (вибраний гравцем або скін рівня)
+    getSkinRenderType() {
+        var activeSkinId = save.getActiveSkin ? save.getActiveSkin() : null;
+        if (activeSkinId && SKIN_RENDERERS[activeSkinId]) {
+            return activeSkinId;
+        }
+        if (this.level.skin && SKIN_RENDERERS[this.level.skin.renderType]) {
+            return this.level.skin.renderType;
+        }
+        return "neon_base";
+    }
+
+    spawnDebris(count, options) {
+        for (var i = 0; i < count; i++) {
+            var angle = options.angleMin + Math.random() * (options.angleMax - options.angleMin);
+            var speed = options.speedMin + Math.random() * (options.speedMax - options.speedMin);
+            this.debris.push({
+                x: options.x + (Math.random() - 0.5) * options.spread,
+                y: options.y + (Math.random() - 0.5) * options.spread,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                rot: Math.random() * Math.PI,
+                vr: (Math.random() - 0.5) * options.spin,
+                size: options.sizeMin + Math.random() * (options.sizeMax - options.sizeMin),
+                color: options.colors[Math.floor(Math.random() * options.colors.length)],
+                gravity: options.gravity,
+                life: options.life,
+                maxLife: options.life,
+                outline: options.outline
+            });
+        }
+        if (this.debris.length > 80) {
+            this.debris.splice(0, this.debris.length - 80);
+        }
     }
 
     nearestAheadSpike() {
@@ -1548,6 +1912,7 @@ export class Engine {
                 life: 1.5,
                 maxLife: 1.5
             });
+            this.perfectFlash = PERFECT_FLASH_TIME;
         } else {
             this.combo = 0;
         }
@@ -1569,10 +1934,27 @@ export class Engine {
         const palette = isDemon
             ? ["#ff1111", "#ff4400", "#ffe14d"]
             : ["#00f6ff", "#ff2ea6", "#ffe14d", "#00ff88"];
-        const count = isDemon ? 35 : 17;
+        const count = isDemon ? 20 : 8;
         const gameX = this.player.x;
         const gameY = this.player.y + CUBE_SIZE / 2;
         BackgroundRenderer.createParticles(gameX, gameY, count, palette);
+        // Кубик розлітається на квадратні уламки кольорів свого скіна
+        this.spawnDebris(22, {
+            x: gameX,
+            y: gameY,
+            spread: CUBE_SIZE * 0.6,
+            angleMin: 0,
+            angleMax: Math.PI * 2,
+            speedMin: 120,
+            speedMax: 380,
+            sizeMin: CUBE_SIZE * 0.14,
+            sizeMax: CUBE_SIZE * 0.3,
+            spin: 14,
+            colors: sampleSkinColors(this.getSkinRenderType()),
+            gravity: 900,
+            life: 1.1,
+            outline: true
+        });
         if (typeof this.onExplode === "function") {
             this.onExplode();
         }
@@ -1652,6 +2034,24 @@ export class Engine {
             }
             po.y += 80 * dt;
         }
+        for (var di = this.debris.length - 1; di >= 0; di--) {
+            var db = this.debris[di];
+            db.life -= dt;
+            if (db.life <= 0) {
+                this.debris.splice(di, 1);
+                continue;
+            }
+            db.x += db.vx * dt;
+            db.y += db.vy * dt;
+            db.vy -= db.gravity * dt;
+            db.rot += db.vr * dt;
+            if (db.y < db.size / 2) {
+                db.y = db.size / 2;
+                db.vy = -db.vy * 0.35;
+                db.vx *= 0.7;
+            }
+        }
+        this.perfectFlash = Math.max(0, this.perfectFlash - dt);
 
         if (!this.player.alive) {
             this.deathTimer += dt;
@@ -1677,6 +2077,23 @@ export class Engine {
                 this.player.vy = 0;
                 this.player.onGround = true;
                 this.player.rotation = 0;
+                // Пил із-під кубика при приземленні
+                this.spawnDebris(8, {
+                    x: this.player.x,
+                    y: 2,
+                    spread: CUBE_SIZE * 0.8,
+                    angleMin: Math.PI * 0.05,
+                    angleMax: Math.PI * 0.95,
+                    speedMin: 40,
+                    speedMax: 130,
+                    sizeMin: 3,
+                    sizeMax: 6,
+                    spin: 4,
+                    colors: ["rgba(200, 210, 230, 0.9)", this.level.accentColor || "#00f6ff"],
+                    gravity: 260,
+                    life: 0.45,
+                    outline: false
+                });
                 this.consumeJumpBuffer();
             }
         }
@@ -1788,6 +2205,7 @@ export class Engine {
         this.renderObstacles(ctx, W, groundY, anchorX, camX);
         this.renderPlayer(ctx, groundY, anchorX);
         BackgroundRenderer.renderParticles(ctx, groundY, anchorX, camX);
+        this.renderDebris(ctx, groundY, anchorX, camX);
         this.renderPerfectParticles(ctx, groundY, anchorX, camX);
         this.renderPerfectPopups(ctx, groundY, anchorX, camX);
         if (!this.demoMode) {
@@ -2010,8 +2428,13 @@ export class Engine {
             }
 
             if (!cleared) {
-                ctx.fillStyle = "#ffe14d";
                 var letterY = spike.type === "saw" ? groundY - SPIKE_H * 0.6 - 20 : groundY - SPIKE_H - 12;
+                // Темна обводка — літеру добре видно на будь-якому фоні (пісок, сніг, небо)
+                ctx.lineJoin = "round";
+                ctx.lineWidth = 5;
+                ctx.strokeStyle = "rgba(5, 5, 20, 0.9)";
+                ctx.strokeText(spike.letter, screenX, letterY);
+                ctx.fillStyle = "#ffe14d";
                 ctx.fillText(spike.letter, screenX, letterY);
             }
         }
@@ -2110,6 +2533,15 @@ export class Engine {
             ctx.strokeRect(-CUBE_SIZE / 2, -CUBE_SIZE / 2, CUBE_SIZE, CUBE_SIZE);
         }
 
+        // Спалах рамки після «Ідеально»
+        if (this.perfectFlash > 0) {
+            var flashT = this.perfectFlash / PERFECT_FLASH_TIME;
+            var grow = (1 - flashT) * 8;
+            ctx.strokeStyle = "rgba(255, 255, 255, " + (flashT * 0.9).toFixed(3) + ")";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(-CUBE_SIZE / 2 - grow, -CUBE_SIZE / 2 - grow, CUBE_SIZE + grow * 2, CUBE_SIZE + grow * 2);
+        }
+
         ctx.restore();
     }
 
@@ -2159,13 +2591,33 @@ export class Engine {
             var alpha = pp.life / pp.maxLife;
             var sx = pp.x - camX + anchorX;
             var sy = groundY - pp.y;
+            // Піксельна зірочка «плюсом»
+            var ps = Math.max(1.5, pp.size * (0.5 + alpha * 0.5));
             ctx.fillStyle = pp.color;
-            ctx.globalAlpha = alpha * 0.8;
-            ctx.beginPath();
-            ctx.arc(sx, sy, pp.size * alpha, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.globalAlpha = alpha * 0.9;
+            ctx.fillRect(sx - ps / 2, sy - ps * 1.5, ps, ps * 3);
+            ctx.fillRect(sx - ps * 1.5, sy - ps / 2, ps * 3, ps);
         }
         ctx.globalAlpha = 1;
+    }
+
+    renderDebris(ctx, groundY, anchorX, camX) {
+        for (var i = 0; i < this.debris.length; i++) {
+            var db = this.debris[i];
+            var alpha = Math.min(1, db.life / db.maxLife * 1.5);
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.translate(db.x - camX + anchorX, groundY - db.y);
+            ctx.rotate(db.rot);
+            ctx.fillStyle = db.color;
+            ctx.fillRect(-db.size / 2, -db.size / 2, db.size, db.size);
+            if (db.outline) {
+                ctx.strokeStyle = "rgba(0, 0, 0, 0.6)";
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(-db.size / 2, -db.size / 2, db.size, db.size);
+            }
+            ctx.restore();
+        }
     }
 
     renderPerfectPopups(ctx, groundY, anchorX, camX) {
