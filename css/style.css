@@ -187,27 +187,67 @@ body {
 }
 
 .round-btn {
+    --c: 0, 246, 255;
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.6vmin;
     border-radius: 50%;
-    border: 0.45vmin solid var(--neon-cyan);
-    background: radial-gradient(circle at 32% 28%, #14355c, #071228 70%);
+    border: 0.45vmin solid rgb(var(--c));
+    background:
+        radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.14), transparent 38%),
+        radial-gradient(circle at 50% 60%, rgba(var(--c), 0.16), #071228 72%),
+        #071228;
     color: #ffffff;
     cursor: pointer;
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
     box-shadow:
-        0 0 12px rgba(0, 246, 255, 0.55),
-        inset 0 0 18px rgba(0, 246, 255, 0.25);
+        0 0 0.6vmin rgb(var(--c)),
+        0 0 2.4vmin rgba(var(--c), 0.55),
+        inset 0 0 2vmin rgba(var(--c), 0.3);
+}
+
+/* Неонова дуга, що обертається навколо кнопки */
+.round-btn::before {
+    content: "";
+    position: absolute;
+    inset: -1.3vmin;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg,
+        transparent 0 12%, rgba(var(--c), 0.95) 22%, transparent 32% 62%,
+        rgba(var(--c), 0.95) 72%, transparent 82% 100%);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 0.45vmin), #000 calc(100% - 0.4vmin));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 0.45vmin), #000 calc(100% - 0.4vmin));
+    opacity: 0.55;
+    animation: neon-ring-spin 7s linear infinite;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+}
+
+/* М'який ореол (анімується лише прозорість — дешево для відеокарти) */
+.round-btn::after {
+    content: "";
+    position: absolute;
+    inset: -0.4vmin;
+    border-radius: 50%;
+    box-shadow: 0 0 4vmin rgba(var(--c), 0.7);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
 }
 
 .round-btn:hover {
     transform: scale(1.07);
-    box-shadow:
-        0 0 26px rgba(0, 246, 255, 0.9),
-        inset 0 0 24px rgba(0, 246, 255, 0.35);
+}
+
+.round-btn:hover::before {
+    opacity: 1;
+}
+
+.round-btn:hover::after {
+    opacity: 1;
 }
 
 .round-btn:active {
@@ -215,24 +255,25 @@ body {
 }
 
 .start-btn {
+    --c: 57, 255, 136;
     width: 26vmin;
     height: 26vmin;
-    border-color: var(--neon-green);
-    box-shadow:
-        0 0 18px rgba(57, 255, 136, 0.65),
-        inset 0 0 26px rgba(57, 255, 136, 0.3);
 }
 
-.start-btn:hover {
-    box-shadow:
-        0 0 34px rgba(57, 255, 136, 0.95),
-        inset 0 0 30px rgba(57, 255, 136, 0.4);
+/* «СТАРТ» постійно ледь пульсує, щоб притягувати погляд */
+.start-btn::after {
+    animation: neon-pulse 2.2s ease-in-out infinite;
+}
+
+.start-btn:hover::after {
+    animation: none;
+    opacity: 1;
 }
 
 .start-btn .btn-icon {
     font-size: 9vmin;
-    color: var(--neon-green);
-    text-shadow: 0 0 14px var(--neon-green);
+    color: rgb(var(--c));
+    text-shadow: 0 0 0.6vmin #ffffff, 0 0 1.6vmin rgb(var(--c)), 0 0 3.2vmin rgb(var(--c));
 }
 
 .side-btn {
@@ -242,14 +283,30 @@ body {
 
 .side-btn .btn-icon {
     font-size: 5.4vmin;
-    color: var(--neon-cyan);
-    text-shadow: 0 0 12px var(--neon-cyan);
+    color: rgb(var(--c));
+    text-shadow: 0 0 0.5vmin #ffffff, 0 0 1.4vmin rgb(var(--c));
+}
+
+@keyframes neon-ring-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes neon-pulse {
+    0%, 100% {
+        opacity: 0.2;
+    }
+    50% {
+        opacity: 0.85;
+    }
 }
 
 .btn-label {
     font-size: 1.55vmin;
     font-weight: 700;
     letter-spacing: 0.14vmin;
+    text-shadow: 0 0 0.8vmin rgba(var(--c), 0.9);
 }
 
 .start-btn .btn-label {
@@ -295,63 +352,71 @@ body {
     gap: 3vmin;
 }
 
-.diff-btn {
+
+
+/* ---------- Неонові кнопки налаштувань ---------- */
+
+/* Кожна кнопка має свій колір (--c): вимкнена — тьмяна неонова трубка,
+   наведення — підсвічується, вибрана — яскраво горить */
+.diff-btn,
+.option-btn,
+.speed-btn {
+    --c: 0, 246, 255;
+    position: relative;
     padding: 1.6vmin 4.6vmin;
     font-size: 2.8vmin;
     font-weight: 800;
     letter-spacing: 0.3vmin;
-    color: #8b93ad;
-    background: #10142b;
-    border: 0.3vmin solid #2a3050;
+    color: rgba(var(--c), 0.55);
+    background: linear-gradient(180deg, rgba(var(--c), 0.06), rgba(8, 10, 26, 0.9));
+    border: 0.3vmin solid rgba(var(--c), 0.35);
     border-radius: 1.2vmin;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, transform 0.12s ease;
 }
 
-.option-btn {
-    padding: 1.6vmin 4.6vmin;
-    font-size: 2.8vmin;
-    font-weight: 800;
-    letter-spacing: 0.3vmin;
-    color: #8b93ad;
-    background: #10142b;
-    border: 0.3vmin solid #2a3050;
-    border-radius: 1.2vmin;
-    cursor: pointer;
-    transition: all 0.15s ease;
+.diff-btn:hover,
+.option-btn:hover,
+.speed-btn:hover {
+    color: rgba(var(--c), 0.9);
+    border-color: rgba(var(--c), 0.75);
+    box-shadow: 0 0 1.2vmin rgba(var(--c), 0.45);
 }
+
+.diff-btn:active,
+.option-btn:active,
+.speed-btn:active {
+    transform: scale(0.96);
+}
+
+.diff-btn.active-easy,
+.diff-btn.active-hard,
+.option-btn.active-normal,
+.option-btn.active-large,
+.speed-btn.active-slow,
+.speed-btn.active-normal,
+.speed-btn.active-fast {
+    color: #ffffff;
+    background: linear-gradient(180deg, rgba(var(--c), 0.3), rgba(var(--c), 0.1));
+    border-color: rgb(var(--c));
+    text-shadow: 0 0 0.6vmin rgb(var(--c)), 0 0 1.6vmin rgb(var(--c));
+    box-shadow:
+        0 0 0.6vmin rgb(var(--c)),
+        0 0 2.4vmin rgba(var(--c), 0.6),
+        inset 0 0 1.4vmin rgba(var(--c), 0.35);
+}
+
+#btnEasy { --c: 57, 255, 136; }
+#btnHard { --c: 255, 56, 96; }
+#btnNormal { --c: 57, 255, 136; }
+#btnLarge { --c: 255, 225, 77; }
+#btnSpeedSlow { --c: 0, 246, 255; }
+#btnSpeedNormal { --c: 57, 255, 136; }
+#btnSpeedFast { --c: 255, 46, 166; }
 
 .option-row {
     display: flex;
     gap: 3vmin;
-}
-
-.diff-btn.active-easy {
-    color: #05060f;
-    background: var(--neon-green);
-    border-color: var(--neon-green);
-    box-shadow: 0 0 20px rgba(57, 255, 136, 0.8);
-}
-
-.diff-btn.active-hard {
-    color: #05060f;
-    background: var(--neon-red);
-    border-color: var(--neon-red);
-    box-shadow: 0 0 20px rgba(255, 56, 96, 0.8);
-}
-
-.option-btn.active-normal {
-    color: #05060f;
-    background: var(--neon-green);
-    border-color: var(--neon-green);
-    box-shadow: 0 0 20px rgba(57, 255, 136, 0.8);
-}
-
-.option-btn.active-large {
-    color: #05060f;
-    background: var(--neon-yellow);
-    border-color: var(--neon-yellow);
-    box-shadow: 0 0 20px rgba(255, 225, 77, 0.8);
 }
 
 .option-hint {
@@ -375,39 +440,6 @@ body {
     gap: 3vmin;
 }
 
-.speed-btn {
-    padding: 1.6vmin 4.6vmin;
-    font-size: 2.8vmin;
-    font-weight: 800;
-    letter-spacing: 0.3vmin;
-    color: #8b93ad;
-    background: #10142b;
-    border: 0.3vmin solid #2a3050;
-    border-radius: 1.2vmin;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.speed-btn.active-slow {
-    color: #05060f;
-    background: var(--neon-cyan);
-    border-color: var(--neon-cyan);
-    box-shadow: 0 0 20px rgba(0, 246, 255, 0.8);
-}
-
-.speed-btn.active-normal {
-    color: #05060f;
-    background: var(--neon-green);
-    border-color: var(--neon-green);
-    box-shadow: 0 0 20px rgba(57, 255, 136, 0.8);
-}
-
-.speed-btn.active-fast {
-    color: #05060f;
-    background: var(--neon-pink);
-    border-color: var(--neon-pink);
-    box-shadow: 0 0 20px rgba(255, 46, 166, 0.8);
-}
 
 .speed-hint {
     font-size: 1.9vmin;
@@ -420,22 +452,35 @@ body {
 /* ---------- Текстові кнопки ---------- */
 
 .text-btn {
+    --c: 0, 246, 255;
     padding: 1.2vmin 3.6vmin;
     font-size: 2.2vmin;
     font-weight: 700;
     letter-spacing: 0.25vmin;
-    color: var(--neon-cyan);
-    background: transparent;
-    border: 0.25vmin solid var(--neon-cyan);
+    color: #ffffff;
+    background: linear-gradient(180deg, rgba(var(--c), 0.14), rgba(var(--c), 0.04)), rgb(8, 10, 26);
+    border: 0.25vmin solid rgb(var(--c));
     border-radius: 1vmin;
     cursor: pointer;
-    transition: all 0.15s ease;
-    text-shadow: 0 0 8px rgba(0, 246, 255, 0.6);
+    transition: box-shadow 0.15s ease, background 0.15s ease, transform 0.12s ease;
+    text-shadow: 0 0 0.6vmin rgb(var(--c)), 0 0 1.4vmin rgba(var(--c), 0.8);
+    box-shadow:
+        0 0 0.5vmin rgba(var(--c), 0.8),
+        0 0 1.6vmin rgba(var(--c), 0.35),
+        inset 0 0 1vmin rgba(var(--c), 0.2);
 }
 
 .text-btn:hover {
-    background: rgba(0, 246, 255, 0.12);
-    box-shadow: 0 0 16px rgba(0, 246, 255, 0.6);
+    background: linear-gradient(180deg, rgba(var(--c), 0.28), rgba(var(--c), 0.1)), rgb(8, 10, 26);
+    box-shadow:
+        0 0 0.6vmin rgb(var(--c)),
+        0 0 2.6vmin rgba(var(--c), 0.65),
+        inset 0 0 1.4vmin rgba(var(--c), 0.3);
+    transform: scale(1.04);
+}
+
+.text-btn:active {
+    transform: scale(0.97);
 }
 
 /* ---------- Вкладки ліг ---------- */
@@ -449,31 +494,34 @@ body {
 }
 
 .league-tab {
+    --c: 0, 246, 255;
     padding: 1vmin 2.4vmin;
     font-size: 2.4vmin;
     font-weight: 700;
     letter-spacing: 0.2vmin;
-    color: #555;
-    background: rgba(10, 14, 32, 0.8);
-    border: 0.25vmin solid #333;
+    color: rgba(var(--c), 0.45);
+    background: rgba(10, 14, 32, 0.85);
+    border: 0.25vmin solid rgba(var(--c), 0.25);
     border-radius: 1vmin;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .league-tab:hover {
-    color: #88ddff;
-    border-color: rgba(0, 246, 255, 0.4);
+    color: rgba(var(--c), 0.9);
+    border-color: rgba(var(--c), 0.7);
+    box-shadow: 0 0 1.2vmin rgba(var(--c), 0.4);
 }
 
 .league-tab.active {
     color: #ffffff;
-    border-color: var(--neon-cyan);
-    background: rgba(0, 246, 255, 0.12);
+    border-color: rgb(var(--c));
+    background: linear-gradient(180deg, rgba(var(--c), 0.25), rgba(var(--c), 0.08));
     box-shadow:
-        0 0 12px rgba(0, 246, 255, 0.5),
-        inset 0 0 8px rgba(0, 246, 255, 0.15);
-    text-shadow: 0 0 8px var(--neon-cyan);
+        0 0 0.6vmin rgb(var(--c)),
+        0 0 2vmin rgba(var(--c), 0.55),
+        inset 0 0 1vmin rgba(var(--c), 0.3);
+    text-shadow: 0 0 0.6vmin rgb(var(--c)), 0 0 1.4vmin rgb(var(--c));
 }
 
 /* ---------- Сітка вибору рівня ---------- */
@@ -628,35 +676,69 @@ body {
 }
 
 .action-btn {
+    --c: 57, 255, 136;
+    position: relative;
+    overflow: hidden;
     padding: 1.8vmin 4.4vmin;
     font-size: 2.5vmin;
     font-weight: 800;
     letter-spacing: 0.25vmin;
-    color: #05060f;
-    background: var(--neon-green);
-    border: none;
+    color: #ffffff;
+    background: linear-gradient(180deg, rgba(var(--c), 0.32), rgba(var(--c), 0.1)), rgb(8, 10, 26);
+    border: 0.35vmin solid rgb(var(--c));
     border-radius: 1.2vmin;
     cursor: pointer;
-    box-shadow: 0 0 18px rgba(57, 255, 136, 0.7);
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    text-shadow: 0 0 0.6vmin rgb(var(--c)), 0 0 1.6vmin rgb(var(--c));
+    box-shadow:
+        0 0 0.6vmin rgb(var(--c)),
+        0 0 2.4vmin rgba(var(--c), 0.6),
+        inset 0 0 1.6vmin rgba(var(--c), 0.35);
+    transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+/* Відблиск, що пробігає по кнопці при наведенні */
+.action-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -60%;
+    width: 40%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    opacity: 0;
+    pointer-events: none;
 }
 
 .action-btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 28px rgba(57, 255, 136, 0.95);
+    background: linear-gradient(180deg, rgba(var(--c), 0.45), rgba(var(--c), 0.18)), rgb(8, 10, 26);
+    box-shadow:
+        0 0 0.8vmin rgb(var(--c)),
+        0 0 3.6vmin rgba(var(--c), 0.8),
+        inset 0 0 2vmin rgba(var(--c), 0.45);
+}
+
+.action-btn:hover::before {
+    opacity: 1;
+    animation: neon-shine 0.8s ease-out;
+}
+
+.action-btn:active {
+    transform: scale(0.97);
 }
 
 .action-btn.secondary {
-    color: #05060f;
-    background: var(--neon-pink);
-    border: none;
-    box-shadow: 0 0 18px rgba(255, 46, 166, 0.7);
+    --c: 255, 46, 166;
 }
 
-.action-btn.secondary:hover {
-    background: var(--neon-pink);
-    box-shadow: 0 0 28px rgba(255, 46, 166, 0.95);
-    transform: scale(1.05);
+@keyframes neon-shine {
+    from {
+        left: -60%;
+    }
+    to {
+        left: 130%;
+    }
 }
 
 .action-btn.hidden {
@@ -862,4 +944,14 @@ body {
     border-color: #ffd700;
     box-shadow: 0 0 16px rgba(255, 215, 0, 0.6), 0 0 28px rgba(255, 180, 0, 0.3);
     animation: goldPulse 2s ease-in-out infinite;
+}
+
+/* ---------- Менше руху для тих, хто цього просить у системі ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .round-btn::before,
+    .start-btn::after,
+    .action-btn:hover::before {
+        animation: none;
+    }
 }
