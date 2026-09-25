@@ -11,8 +11,8 @@ import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js"
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
-import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, drawCrystalIcon, CHEST_TYPES, chestsForVictory, drawChest, itemRarity } from "./shop.js";
-import { drawShopItemScene, drawShopSkinScene } from "./shop_preview.js";
+import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity } from "./shop.js";
+import { drawShopItemScene, drawShopSkinScene, drawChestScene, CHEST_SHAKE_MS, CHEST_OPEN_MS } from "./shop_preview.js";
 
 // ---------- Полотно та адаптивність ----------
 
@@ -1466,8 +1466,6 @@ const btnMenuChests = document.getElementById("btnMenuChests");
 
 const CHEST_W = 380;
 const CHEST_H = 260;
-const CHEST_SHAKE_MS = 900;
-const CHEST_OPEN_MS = 450;
 
 // Стан вікна: який сундук показано, коли почали відкривати й що випало
 let chestView = null;
@@ -1597,85 +1595,20 @@ function animateChest(now) {
         chestAnimating = false;
         return;
     }
+    // Перемикання фаз (звуки й підпис нагороди); малює сценку спільна функція
+    if (chestView.phase === "shaking" && now - chestView.start >= CHEST_SHAKE_MS) {
+        chestView.phase = "opening";
+        playSound("chest_open");
+    } else if (chestView.phase === "opening" && now - chestView.start >= CHEST_SHAKE_MS + CHEST_OPEN_MS) {
+        chestView.phase = "reveal";
+        showChestResult();
+    }
     const dpr = window.devicePixelRatio || 1;
     const c = chestCanvas.getContext("2d");
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
-    c.clearRect(0, 0, CHEST_W, CHEST_H);
-    const cx = CHEST_W / 2;
-    const bottom = CHEST_H - 24;
-    const size = 130;
-    let shake = 0;
-    let open = 0;
-    let glow = 0;
-    let bob = Math.sin(now * 0.004) * 3;
-    if (chestView.phase === "shaking") {
-        const k = (now - chestView.start) / CHEST_SHAKE_MS;
-        shake = Math.sin(now * 0.08) * (2 + k * 9);
-        glow = k * 0.4;
-        bob = 0;
-        if (k >= 1) {
-            chestView.phase = "opening";
-            chestView.start = now;
-            playSound("chest_open");
-        }
-    } else if (chestView.phase === "opening") {
-        const k = Math.min(1, (now - chestView.start) / CHEST_OPEN_MS);
-        open = k;
-        glow = 0.4 + k * 0.6;
-        bob = 0;
-        if (k >= 1) {
-            chestView.phase = "reveal";
-            chestView.start = now;
-            showChestResult();
-        }
-    } else if (chestView.phase === "reveal") {
-        open = 1;
-        glow = 0.8 + 0.2 * Math.sin(now * 0.004);
-        bob = 0;
-    }
-    drawChest(c, chestView.type, cx, bottom + bob, size, shake, open, glow);
-
-    // Нагорода вилітає з сундука й зависає над ним
-    if (chestView.phase === "reveal" && chestView.opened) {
-        const k = Math.min(1, (now - chestView.start) / 500);
-        const ease = 1 - Math.pow(1 - k, 3);
-        const result = chestView.opened.result;
-        c.save();
-        c.globalAlpha = Math.min(1, k * 1.5);
-        if (result.kind === "crystals") {
-            const y = bottom - 90 - ease * 70;
-            drawCrystalIcon(c, cx - 30, y, 46 + ease * 10);
-            c.font = "900 30px 'Segoe UI', Arial";
-            c.textAlign = "left";
-            c.textBaseline = "middle";
-            c.lineWidth = 5;
-            c.strokeStyle = "#070b1c";
-            c.strokeText("+" + result.amount, cx - 2, y);
-            c.fillStyle = "#7df9ff";
-            c.fillText("+" + result.amount, cx - 2, y);
-        } else {
-            // Жива сценка предмета (як у магазині після покупки), у рамці кольору рідкості
-            const item = getShopItem(result.id);
-            const rarity = itemRarity(item);
-            const scale = 0.4 + ease * 0.75;
-            const w = 150 * scale;
-            const h = 100 * scale;
-            const x = cx - w / 2;
-            const y = bottom - 95 - ease * 60 - h / 2;
-            c.translate(x, y);
-            c.scale(scale, scale);
-            c.save();
-            c.beginPath();
-            c.rect(0, 0, 150, 100);
-            c.clip();
-            drawShopItemScene(c, item, now, { skinType: save.getActiveSkin(), accessory: save.getEquipped("accessory") });
-            c.restore();
-            c.strokeStyle = rarity.color;
-            c.lineWidth = 3 / scale;
-            c.strokeRect(0, 0, 150, 100);
-        }
-        c.restore();
-    }
+    const openT = chestView.phase === "closed" ? null : now - chestView.start;
+    drawChestScene(c, CHEST_W, CHEST_H, chestView.type, openT, chestView.opened ? chestView.opened.result : null, now,
+        { skinType: save.getActiveSkin(), accessory: save.getEquipped("accessory") });
     requestAnimationFrame(animateChest);
 }
 

@@ -1,8 +1,8 @@
 // preview.js — сторінка перегляду всіх фонів і скінів (preview.html)
 import { LEVELS_CONFIG, ALL_LEVELS, SKIN_RENDERERS, drawAchievementFrame } from "./engine.js";
 import { BackgroundRenderer } from "./backgrounds.js";
-import { SHOP_ITEMS, SHOP_TYPES } from "./shop.js";
-import { drawShopItemScene } from "./shop_preview.js";
+import { SHOP_ITEMS, SHOP_TYPES, CHEST_TYPES, REPLAY_CHEST_CHANCE, CHEST_PITY_WINS, chestItemPool, rollChest, getShopItem, itemRarity } from "./shop.js";
+import { drawShopItemScene, drawChestScene, CHEST_SHAKE_MS, CHEST_OPEN_MS } from "./shop_preview.js";
 import { loadAssets, unlockAudio, playSound, SOUND_NAMES, hasSound, soundDuration } from "./assets.js";
 import { WEAPON_SOUNDS, weaponDemoEvents } from "./weapons.js";
 
@@ -253,7 +253,8 @@ const shopSectionsEl = document.getElementById("shopSections");
 
 const shopObserver = new IntersectionObserver(function (entries) {
     for (const entry of entries) {
-        const card = shopCards.find(function (c) { return c.element === entry.target; });
+        const card = shopCards.find(function (c) { return c.element === entry.target; }) ||
+            chestCards.find(function (c) { return c.element === entry.target; });
         if (card) {
             card.visible = entry.isIntersecting;
         }
@@ -526,6 +527,135 @@ function syncCardSound(c, nowMs) {
     c.lastNow = nowMs;
 }
 
+// ---------- Сундуки: зациклене відкривання з випадковою нагородою ----------
+
+const CHEST_W = 380;
+const CHEST_H = 260;
+// Цикл: 1 с закритий, трусіння й відкривання, 2.6 с показ нагороди
+const CHEST_IDLE_MS = 1000;
+const CHEST_LOOP_MS = CHEST_IDLE_MS + CHEST_SHAKE_MS + CHEST_OPEN_MS + 2600;
+const chestSectionEl = document.getElementById("chestSection");
+const chestCards = [];
+// У preview нічого не куплено — сундук може дати будь-що зі свого пулу
+const nothingOwned = function () { return false; };
+
+function pct(x) {
+    const v = x * 100;
+    return (v >= 1 ? v.toFixed(1) : v.toFixed(2)).replace(/\.0+$/, "") + "%";
+}
+
+function describeResult(result) {
+    if (result.kind === "crystals") {
+        return "💎 +" + result.amount + " кристалів";
+    }
+    const item = getShopItem(result.id);
+    return item.name + " — " + itemRarity(item).name;
+}
+
+// Опис шансів: скільки предмет/кристали/легендарне й які речі найчастіші та найрідші
+function chestInfoHtml(type) {
+    const chest = CHEST_TYPES[type];
+    const pool = chestItemPool(type, nothingOwned).sort(function (a, b) { return b.chance - a.chance; });
+    const itemShare = (1 - chest.legendaryChance) * chest.itemChance;
+    const fmt = function (p) { return p.item.name + " " + pct(itemShare * p.chance); };
+    return "<b>Предмет:</b> " + pct(itemShare) + " (ціною до " + chest.maxPrice + " 💎, дешеві частіше) · " +
+        "<b>Кристали:</b> " + pct((1 - chest.legendaryChance) * (1 - chest.itemChance)) + " (" + chest.crystals[0] + "–" + chest.crystals[1] + ") · " +
+        "<b>Легендарний:</b> " + pct(chest.legendaryChance) + "<br>" +
+        "<b>Найчастіше:</b> " + pool.slice(0, 4).map(fmt).join(", ") + "<br>" +
+        "<b>Найрідше:</b> " + pool.slice(-3).map(fmt).join(", ");
+}
+
+if (chestSectionEl) {
+    const help = document.createElement("p");
+    help.className = "chest-help";
+    help.innerHTML =
+        "<b>Коли випадає:</b> перше проходження рівня — дерев'яний (Ліга 1), срібний (Ліги 2–3), золотий (Ліги 4–5); " +
+        "нова срібна рамка — срібний, золота — золотий; повторна перемога — " + pct(REPLAY_CHEST_CHANCE) + " дерев'яний, " +
+        "а на " + CHEST_PITY_WINS + "-ту перемогу поспіль без сундука — гарантовано.<br>" +
+        "Кожен сундук тут відкривається по колу з новою випадковою нагородою (у preview нічого не куплено, тож може випасти будь-що). " +
+        "«Відкрити ще» — одразу нова спроба. Клік по картці вмикає звуки сундука (спершу «Увімкнути звук» у розділі «Звуки»).";
+    chestSectionEl.appendChild(help);
+    const list = document.createElement("div");
+    list.className = "chest-cards";
+    chestSectionEl.appendChild(list);
+    for (const type of Object.keys(CHEST_TYPES)) {
+        const card = document.createElement("div");
+        card.className = "chest-card";
+        const title = document.createElement("span");
+        title.className = "chest-card-title";
+        title.textContent = CHEST_TYPES[type].name;
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(CHEST_W * DPR);
+        canvas.height = Math.round(CHEST_H * DPR);
+        canvas.style.width = CHEST_W + "px";
+        canvas.style.height = CHEST_H + "px";
+        const result = document.createElement("span");
+        result.className = "chest-card-result";
+        const again = document.createElement("button");
+        again.type = "button";
+        again.textContent = "Відкрити ще";
+        const info = document.createElement("div");
+        info.className = "chest-card-info";
+        info.innerHTML = chestInfoHtml(type);
+        card.appendChild(title);
+        card.appendChild(canvas);
+        card.appendChild(result);
+        card.appendChild(again);
+        card.appendChild(info);
+        list.appendChild(card);
+        const entry = {
+            element: card, ctx: canvas.getContext("2d"), type: type, resultEl: result,
+            loopStart: performance.now(), roll: rollChest(type, nothingOwned), stage: -1, soundOn: false, visible: false
+        };
+        again.addEventListener("click", function (e) {
+            e.stopPropagation();
+            // Одразу до трусіння з новою нагородою
+            entry.loopStart = performance.now() - CHEST_IDLE_MS;
+            entry.roll = rollChest(type, nothingOwned);
+            entry.stage = -1;
+        });
+        card.addEventListener("click", function () {
+            enableAudio().then(function () {
+                entry.soundOn = !entry.soundOn;
+                card.classList.toggle("sound-on", entry.soundOn);
+            });
+        });
+        chestCards.push(entry);
+        shopObserver.observe(card);
+    }
+}
+
+// Кадр сундука: фаза циклу, звуки на переходах, новий результат у кожному циклі
+function renderChestCard(c, nowMs) {
+    let t = nowMs - c.loopStart;
+    if (t >= CHEST_LOOP_MS) {
+        c.loopStart = nowMs;
+        c.roll = rollChest(c.type, nothingOwned);
+        c.stage = -1;
+        t = 0;
+    }
+    const openT = t < CHEST_IDLE_MS ? null : t - CHEST_IDLE_MS;
+    let stage = 0;
+    if (openT !== null) {
+        stage = openT < CHEST_SHAKE_MS ? 1 : openT < CHEST_SHAKE_MS + CHEST_OPEN_MS ? 2 : 3;
+    }
+    if (stage !== c.stage) {
+        c.stage = stage;
+        c.resultEl.textContent = stage === 3 ? describeResult(c.roll) : " ";
+        if (c.soundOn && audioReady) {
+            if (stage === 1) {
+                playSound("chest_shake");
+            } else if (stage === 2) {
+                playSound("chest_open");
+            } else if (stage === 3) {
+                playSound(c.roll.kind === "item" ? "chest_item" : "chest_coins");
+            }
+        }
+    }
+    c.ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    drawChestScene(c.ctx, CHEST_W, CHEST_H, c.type, openT, c.roll, nowMs, { skinType: "neon_base", accessory: null });
+}
+
 const fpsEl = document.getElementById("fps");
 let fpsFrames = 0;
 let fpsStart = null;
@@ -536,6 +666,11 @@ function frame(now) {
         for (const c of cards) {
             if (c.visible) {
                 renderCard(c, time, now);
+            }
+        }
+        for (const c of chestCards) {
+            if (c.visible || c.soundOn) {
+                renderChestCard(c, now);
             }
         }
         for (const c of shopCards) {
