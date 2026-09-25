@@ -1,6 +1,8 @@
 // preview.js — сторінка перегляду всіх фонів і скінів (preview.html)
 import { LEVELS_CONFIG, ALL_LEVELS, SKIN_RENDERERS, drawAchievementFrame } from "./engine.js";
 import { BackgroundRenderer } from "./backgrounds.js";
+import { SHOP_ITEMS, SHOP_TYPES } from "./shop.js";
+import { drawShopItemScene } from "./shop_preview.js";
 
 const grid = document.getElementById("grid");
 const errorEl = document.getElementById("error");
@@ -234,6 +236,83 @@ function renderCard(c, time, nowMs) {
     }
 }
 
+// ---------- Магазин: усі товари з увімкненими анімаціями ----------
+
+const SHOP_SCALE = 1.5;
+const SHOP_W = 150;
+const SHOP_H = 100;
+const REQUIREMENT_TEXT = {
+    boss: function () { return "Умова: пройти Боса (5-1)"; },
+    gold_count: function (req) { return "Умова: " + req.target + " золотих рамок"; },
+    gold_league: function (req) { return "Умова: золото на всіх рівнях Ліги " + req.league; }
+};
+const shopCards = [];
+const shopSectionsEl = document.getElementById("shopSections");
+
+const shopObserver = new IntersectionObserver(function (entries) {
+    for (const entry of entries) {
+        const card = shopCards.find(function (c) { return c.element === entry.target; });
+        if (card) {
+            card.visible = entry.isIntersecting;
+        }
+    }
+}, { rootMargin: "100px 0px" });
+
+if (shopSectionsEl) {
+    for (const type of SHOP_TYPES) {
+        const title = document.createElement("h2");
+        title.className = "shop-type-title";
+        title.textContent = type.name;
+        shopSectionsEl.appendChild(title);
+        const list = document.createElement("div");
+        list.className = "shop-items";
+        shopSectionsEl.appendChild(list);
+        for (const item of SHOP_ITEMS) {
+            if (item.type !== type.type) {
+                continue;
+            }
+            const card = document.createElement("div");
+            card.className = "shop-item" + (item.legendary ? " legendary" : "");
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.round(SHOP_W * SHOP_SCALE * DPR);
+            canvas.height = Math.round(SHOP_H * SHOP_SCALE * DPR);
+            canvas.style.width = SHOP_W * SHOP_SCALE + "px";
+            canvas.style.height = SHOP_H * SHOP_SCALE + "px";
+            const name = document.createElement("span");
+            name.className = "shop-item-name";
+            name.textContent = (item.legendary ? "⭐ " : "") + item.name;
+            const meta = document.createElement("span");
+            meta.className = "shop-item-meta";
+            meta.textContent = (item.price > 0 ? "💎 " + item.price : "безкоштовно") + " · " + item.id;
+            card.appendChild(canvas);
+            card.appendChild(name);
+            card.appendChild(meta);
+            if (item.requirement && REQUIREMENT_TEXT[item.requirement.kind]) {
+                const req = document.createElement("span");
+                req.className = "shop-item-req";
+                req.textContent = REQUIREMENT_TEXT[item.requirement.kind](item.requirement);
+                card.appendChild(req);
+            }
+            list.appendChild(card);
+            const entry = { element: card, ctx: canvas.getContext("2d"), item: item, visible: false };
+            shopCards.push(entry);
+            shopObserver.observe(card);
+        }
+    }
+}
+
+function renderShopCard(c, nowMs) {
+    c.ctx.setTransform(DPR * SHOP_SCALE, 0, 0, DPR * SHOP_SCALE, 0, 0);
+    try {
+        drawShopItemScene(c.ctx, c.item, nowMs, { skinType: "neon_base", accessory: null });
+    } catch (err) {
+        if (!c.errorShown) {
+            c.errorShown = true;
+            console.warn("Помилка прев'ю товару " + c.item.id + ":", err);
+        }
+    }
+}
+
 const fpsEl = document.getElementById("fps");
 let fpsFrames = 0;
 let fpsStart = null;
@@ -244,6 +323,11 @@ function frame(now) {
         for (const c of cards) {
             if (c.visible) {
                 renderCard(c, time, now);
+            }
+        }
+        for (const c of shopCards) {
+            if (c.visible) {
+                renderShopCard(c, now);
             }
         }
     }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='1' y='1' width='14' height='14' rx='2' fill='%2300f6ff'/%3E%3Crect x='3' y='3' width='10' height='10' fill='%23071a2a'/%3E%3Crect x='5' y='6' width='2' height='2' fill='%2300f6ff'/%3E%3Crect x='9' y='6' width='2' height='2' fill='%2300f6ff'/%3E%3Crect x='5' y='10' width='6' height='1' fill='%2300f6ff'/%3E%3C/svg%3E">
-    <title>Preview — Фони та скіни рівнів</title>
+    <title>Preview — Фони, скіни та магазин</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -106,6 +106,43 @@
         }
         .toolbar button:disabled { opacity: 0.5; cursor: default; }
         #fps { font-variant-numeric: tabular-nums; }
+        .toolbar a { color: #ffcc33; font-weight: 600; text-decoration: none; }
+        /* ---------- Магазин: усі товари з увімкненими анімаціями ---------- */
+        .shop-type-title {
+            width: 90vw;
+            margin: 18px auto 8px;
+            font-size: 1rem;
+            color: #ffcc33;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255, 204, 51, 0.3);
+            padding-bottom: 4px;
+        }
+        .shop-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(236px, 1fr));
+            gap: 10px;
+            width: 90vw;
+            margin: 0 auto;
+        }
+        .shop-item {
+            background: #0c0c24;
+            border: 1px solid #1a1a40;
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .shop-item.legendary {
+            border-color: rgba(255, 196, 40, 0.75);
+            background: linear-gradient(180deg, rgba(255, 170, 30, 0.18), #0c0c24);
+        }
+        .shop-item canvas { display: block; border-radius: 6px; }
+        .shop-item-name { color: #fff; font-weight: 600; font-size: 0.8rem; text-align: center; }
+        .shop-item-meta { color: #7df9ff; font-size: 0.7rem; text-align: center; }
+        .shop-item-req { color: #ffcc33; font-size: 0.68rem; text-align: center; }
         .error-msg {
             display: none;
             text-align: center;
@@ -122,15 +159,19 @@
         <span id="fps">FPS: —</span>
         <button type="button" id="btnBench">Заміряти всі фони</button>
         <span id="benchStatus"></span>
+        <a href="#shop">До магазину ↓</a>
     </div>
     <div class="grid" id="grid"></div>
+    <h1 id="shop">МАГАЗИН — УСІ ТОВАРИ</h1>
+    <p class="subtitle">Тут усі товари анімовані, навіть ті, що в грі ще не куплені (у грі до покупки вони сірі й нерухомі). Кубик — стандартний неоновий.</p>
+    <div id="shopSections"></div>
     <div class="error-msg" id="error">Помилка завантаження модулів. Переконайтеся, що файли js/engine.js та js/backgrounds.js існують.</div>
 
     <!-- Завантажувач: читає version.json без кешу й підключає файли з міткою версії,
          щоб після оновлення гри не доводилося натискати Ctrl+F5 -->
     <script>
         (function () {
-            var MODULES = ["js/main.js", "js/engine.js", "js/backgrounds.js", "js/cache.js", "js/keyboard.js", "js/assets.js", "js/version.js", "js/shop.js", "js/shop_skins.js", "js/weapons.js", "js/preview.js"];
+            var MODULES = ["js/main.js", "js/engine.js", "js/backgrounds.js", "js/cache.js", "js/keyboard.js", "js/assets.js", "js/version.js", "js/shop.js", "js/shop_skins.js", "js/weapons.js", "js/shop_preview.js", "js/preview.js"];
             function start(version) {
                 window.APP_VERSION = version || "";
                 var tag = version ? "?v=" + encodeURIComponent(version) : "";
