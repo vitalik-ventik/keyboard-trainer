@@ -90,7 +90,7 @@ export const SHOP_ITEMS = [
     { id: "weapon_saber_red", type: "weapon", name: "Світловий меч (червоний)", price: 400 },
     { id: "weapon_rocket", type: "weapon", name: "Ракетниця", price: 450 },
     // Легендарна зброя: як легендарні скіни, купується лише після виконання умови
-    { id: "weapon_firesword", type: "weapon", name: "Вогняний меч", price: 900, legendary: true, requirement: { kind: "boss" } },
+    { id: "weapon_firesword", type: "weapon", name: "Вогняний меч", price: 900, legendary: true, requirement: { kind: "clears", target: 15 } },
     { id: "weapon_thunder", type: "weapon", name: "Громовий молот", price: 1000, legendary: true, requirement: { kind: "gold_count", target: 10 } },
     { id: "weapon_gravity", type: "weapon", name: "Гравітаційна гармата", price: 1200, legendary: true, requirement: { kind: "gold_league", league: 1 } },
 

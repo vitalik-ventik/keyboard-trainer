@@ -2497,6 +2497,17 @@ export const save = {
             }
             return { met: golds >= leagueLevels.length, current: golds, target: leagueLevels.length, text: "Золото на всіх рівнях Ліги " + req.league };
         }
+        if (req.kind === "clears") {
+            // Скільки будь-яких рівнів пройдено до кінця
+            let cleared = 0;
+            for (const level of ALL_LEVELS) {
+                const entry = levels[String(level.id)];
+                if (entry && entry.bestPct === 100) {
+                    cleared++;
+                }
+            }
+            return { met: cleared >= req.target, current: Math.min(cleared, req.target), target: req.target, text: "Пройдені рівні" };
+        }
         if (req.kind === "combo_levels") {
             // Усі рівні-комбінації (склади, перекати, печатки…)
             const comboLevels = ALL_LEVELS.filter(function (l) { return !!l.combo; });
