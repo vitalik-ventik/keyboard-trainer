@@ -7,7 +7,7 @@
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
-import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, accessoryPerk, trailSlowdown, explosionWindowBonus, skinPerk, SKIN_SERIES_MULT, SKIN_WORDS_MULT, SKIN_PERFECT_BONUS, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
+import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, accessoryPerk, trailSlowdown, explosionWindowBonus, skinPerk, skinPerkValue, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
 import { EXTRA_LEVEL_SKINS } from "./level_skins_extra.js";
 import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, sanitizeAchievementData, localDayKey } from "./achievements.js";
@@ -173,6 +173,33 @@ function drawSkinFrame(ctx, size, color) {
     ctx.strokeStyle = color;
     ctx.lineWidth = w;
     ctx.strokeRect(-size / 2 + w / 2, -size / 2 + w / 2, size - w, size - w);
+}
+
+// ---------- Бонуси скінів ----------
+
+// Бонус скіна рівня: вид — за лігою (Ліга 1 — серії, Ліга 2 — слова, Ліги 3–4 — «Ідеально»,
+// Бос — щит), сила — за рамкою на цьому рівні. Повертає { kind, value } або null
+export function levelSkinPerk(level) {
+    if (!level || !level.skin) {
+        return null;
+    }
+    const kind = level.leagueId >= 5 ? "shield" : level.leagueId >= 3 ? "perfect" : level.leagueId === 2 ? "words" : "series";
+    if (kind === "shield") {
+        return { kind: kind, value: 1 };
+    }
+    const frame = save.getLevelAchievement(level.id);
+    const tier = frame === "hard" ? 2 : frame === "easy" ? 1 : 0;
+    return { kind: kind, value: skinPerkValue(kind, tier) };
+}
+
+// Бонус скіна, який зараз надягнуто: скін із магазину або скін рівня
+export function activeSkinPerk(renderType) {
+    const shopKind = skinPerk(renderType);
+    if (shopKind) {
+        return { kind: shopKind, value: shopKind === "shield" ? 1 : skinPerkValue(shopKind, 2) };
+    }
+    const level = ALL_LEVELS.find(function (l) { return l.skin && l.skin.renderType === renderType; });
+    return levelSkinPerk(level);
 }
 
 // ---------- Рамка досягнення скіна (срібло — EASY, золото — HARD) ----------
@@ -3191,9 +3218,11 @@ export class Engine {
         this.okPx = this.effectiveSpeed * windows.okTime * multiplier;
         this.perfectPx = this.effectiveSpeed * windows.perfectTime * multiplier;
         // Бонус скіна з магазину: серії, слова, ширша зона «Ідеально» або щит
-        this.skinPerk = demoMode ? null : skinPerk(save.getActiveSkin());
+        const perkInfo = demoMode ? null : activeSkinPerk(save.getActiveSkin());
+        this.skinPerk = perkInfo ? perkInfo.kind : null;
+        this.skinPerkValue = perkInfo ? perkInfo.value : 0;
         if (this.skinPerk === "perfect") {
-            this.perfectPx = Math.min(this.okPx * 0.9, this.perfectPx * (1 + SKIN_PERFECT_BONUS));
+            this.perfectPx = Math.min(this.okPx * 0.9, this.perfectPx * (1 + this.skinPerkValue));
         }
         this.shieldReady = this.skinPerk === "shield";
         this.shieldFlash = 0;
@@ -3455,7 +3484,7 @@ export class Engine {
                 this.runPerfect++;
                 bonus = seriesBonus(this.combo + 1);
                 if (bonus > 0 && this.skinPerk === "series") {
-                    bonus = Math.round(bonus * SKIN_SERIES_MULT);
+                    bonus = Math.round(bonus * this.skinPerkValue);
                 }
                 this.runSeries += bonus;
                 gain += 1 + bonus;
@@ -3512,7 +3541,7 @@ export class Engine {
 
     // Множник монет за слова й комбінації (бонус скіна)
     wordsMult() {
-        return this.skinPerk === "words" ? SKIN_WORDS_MULT : 1;
+        return this.skinPerk === "words" ? this.skinPerkValue : 1;
     }
 
     // Щит легендарного скіна: пробачає одну помилку чи зіткнення за рівень.

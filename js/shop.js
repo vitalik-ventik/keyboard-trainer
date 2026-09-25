@@ -261,6 +261,20 @@ export const SKIN_SERIES_MULT = 1.5;
 export const SKIN_WORDS_MULT = 2;
 export const SKIN_PERFECT_BONUS = 0.2;
 
+// Сила бонусу скіна рівня залежить від рамки на цьому рівні:
+// [без рамки, срібна, золота]; золота = як у скінів із магазину
+export const SKIN_PERK_TIERS = {
+    series: [1.2, 1.35, SKIN_SERIES_MULT],
+    words: [1.5, 1.75, SKIN_WORDS_MULT],
+    perfect: [0.1, 0.15, SKIN_PERFECT_BONUS]
+};
+
+// Значення бонусу за видом і рівнем рамки (0 — без рамки, 1 — срібна, 2 — золота)
+export function skinPerkValue(kind, tier) {
+    const tiers = SKIN_PERK_TIERS[kind];
+    return tiers ? tiers[Math.max(0, Math.min(2, tier))] : 0;
+}
+
 export function skinPerk(renderType) {
     const item = renderType ? getShopSkinByRenderType(renderType) : null;
     if (!item || item.price <= 0) {
@@ -278,15 +292,17 @@ export function skinPerk(renderType) {
     return "perfect";
 }
 
-export function skinPerkText(perk) {
+// Підпис бонусу скіна; value — сила (за замовчуванням — як у скіна з магазину)
+export function skinPerkText(perk, value) {
+    const v = typeof value === "number" ? value : skinPerkValue(perk, 2);
     if (perk === "series") {
-        return "🔥 Серії ×" + SKIN_SERIES_MULT;
+        return "🔥 Серії ×" + v;
     }
     if (perk === "words") {
-        return "📝 Слова ×" + SKIN_WORDS_MULT;
+        return "📝 Слова ×" + v;
     }
     if (perk === "perfect") {
-        return "💠 Ідеально +" + Math.round(SKIN_PERFECT_BONUS * 100) + "%";
+        return "💠 Ідеально +" + Math.round(v * 100) + "%";
     }
     if (perk === "shield") {
         return "🛡 Щит на 1 помилку";
@@ -296,7 +312,7 @@ export function skinPerkText(perk) {
 
 // Пояснення бонусів (для підказки на картці й рядка внизу магазину)
 const PERK_HINTS = {
-    series: "🔥 Серії — за кілька «Ідеально» поспіль (3, 5, 10…) даються бонусні монети; цей скін дає їх у 1,5 раза більше",
+    series: "🔥 Серії — за кілька «Ідеально» поспіль (3, 5, 10…) даються бонусні монети; цей скін їх збільшує",
     words: "📝 Слова — монети за слова й комбінації, набрані без жодної помилки, подвоюються",
     perfect: "💠 Ідеально — зона «Ідеально» ширша: легше робити ідеальні стрибки й серії",
     shield: "🛡 Щит — одна помилка чи зіткнення за рівень пробачається: кубик не вибухає, а їде далі",
@@ -316,6 +332,19 @@ const TAB_HINTS = {
     accessory: ["coins", "chest", "item"],
     weapon: ["weapon"]
 };
+
+// Пояснення бонусу скіна рівня: вид бонусу й як його посилити рамкою
+export function levelSkinPerkHint(kind) {
+    const base = PERK_HINTS[kind] || "";
+    if (!base || kind === "shield") {
+        return base;
+    }
+    const t = SKIN_PERK_TIERS[kind];
+    const fmt = kind === "perfect"
+        ? function (v) { return "+" + Math.round(v * 100) + "%"; }
+        : function (v) { return "×" + v; };
+    return base + ". Рамка на рівні посилює бонус: без рамки " + fmt(t[0]) + ", срібна " + fmt(t[1]) + ", золота " + fmt(t[2]);
+}
 
 export function shopTabHints(type) {
     return (TAB_HINTS[type] || []).map(function (k) { return PERK_HINTS[k]; });

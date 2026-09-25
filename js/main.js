@@ -6,12 +6,12 @@
 // ============================================================
 
 import { loadAssets, unlockAudio, playSound, playMusic, audioFileCount } from "./assets.js";
-import { LEVELS_CONFIG, ALL_LEVELS, COMBO_KINDS, Engine, save, SKIN_RENDERERS, drawAchievementFrame, DEFAULT_SKIN, BOSS_LEVEL_ID, levelOrderIndex, nextLevelOf } from "./engine.js";
+import { LEVELS_CONFIG, ALL_LEVELS, COMBO_KINDS, Engine, save, levelSkinPerk, SKIN_RENDERERS, drawAchievementFrame, DEFAULT_SKIN, BOSS_LEVEL_ID, levelOrderIndex, nextLevelOf } from "./engine.js";
 import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
-import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity, coinsText, weaponCoinBonus, accessoryPerk, itemPerkText, itemPerkHint, shopTabHints } from "./shop.js";
+import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity, coinsText, weaponCoinBonus, accessoryPerk, itemPerkText, itemPerkHint, shopTabHints, skinPerkText, levelSkinPerkHint } from "./shop.js";
 import { drawShopItemScene, drawShopSkinScene, drawChestScene, CHEST_SHAKE_MS, CHEST_OPEN_MS } from "./shop_preview.js";
 import { ACHIEVEMENTS, ACHIEVEMENT_GROUPS, achievementProgress, buildAchievementCard, buildAchievementToast } from "./achievements.js";
 
@@ -1006,6 +1006,16 @@ function buildSkinGrid() {
         // Назву закритого скіна не показуємо — нехай буде сюрприз
         nameSpan.textContent = isUnlocked ? skin.name : "???";
         card.appendChild(nameSpan);
+
+        // Бонус скіна рівня (сила залежить від рамки на рівні)
+        var levelPerk = levelSkinPerk(level);
+        if (levelPerk) {
+            var perkLabel = document.createElement("span");
+            perkLabel.className = "weapon-coin-bonus";
+            perkLabel.textContent = skinPerkText(levelPerk.kind, levelPerk.value);
+            perkLabel.dataset.tip = levelSkinPerkHint(levelPerk.kind);
+            card.appendChild(perkLabel);
+        }
 
         if (!isUnlocked) {
             var hint = document.createElement("span");
