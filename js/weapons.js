@@ -7,8 +7,8 @@
 // ============================================================
 
 // mode:
-//   melee — замах одразу, удар, коли шип підʼїде на відстань reach
-//   axe   — якщо шип близько, рубає одразу; інакше кидає бумеранг
+//   melee — замах одразу, удар, коли шип підʼїде майже впритул (bolt — ще й блискавка з неба)
+//   axe   — якщо шип ближче за reach, рубає впритул, як меч; інакше кидає бумеранг
 //   shot  — снаряд летить до шипа (speed — пікселів за секунду, arc — висота дуги)
 //   burst — черга з кількох куль, кожна відколює шматок
 //   beam  — дія на відстані без снаряда: промінь лазера, струмінь вогнемета,
@@ -16,10 +16,10 @@
 //           time — тривалість, hit — мить, коли шип знищено)
 // fx — анімація руйнування шипа
 export const WEAPON_SPECS = {
-    weapon_sword:   { mode: "melee", reach: 64, fx: "slice" },
+    weapon_sword:   { mode: "melee", fx: "slice" },
     weapon_axe:     { mode: "axe", reach: 64, speed: 760, arc: 26, fx: "split" },
     weapon_bow:     { mode: "shot", projectile: "arrow", speed: 720, arc: 34, fx: "shatter" },
-    weapon_pickaxe: { mode: "melee", reach: 60, fx: "break" },
+    weapon_pickaxe: { mode: "melee", fx: "break" },
     weapon_ball:    { mode: "shot", projectile: "ball", speed: 620, arc: 46, fx: "goal" },
     weapon_pistol:  { mode: "shot", projectile: "bullet", speed: 1900, arc: 0, fx: "pop" },
     weapon_rifle:   { mode: "burst", projectile: "bullet", speed: 2100, arc: 0, count: 4, gap: 0.07, fx: "crumble" },
@@ -27,8 +27,8 @@ export const WEAPON_SPECS = {
     weapon_laser:   { mode: "beam", beam: "laser", time: 0.35, hit: 0.12, fx: "melt" },
     weapon_rocket:  { mode: "shot", projectile: "rocket", speed: 640, arc: 10, fx: "blast" },
     // Легендарна зброя
-    weapon_firesword: { mode: "melee", reach: 70, fx: "fireslice" },
-    weapon_thunder:   { mode: "beam", beam: "thunder", time: 0.45, hit: 0.1, fx: "zap" },
+    weapon_firesword: { mode: "melee", fx: "fireslice" },
+    weapon_thunder:   { mode: "melee", bolt: true, fx: "zap" },
     weapon_gravity:   { mode: "beam", beam: "gravity", time: 0.4, hit: 0.3, fx: "fling" }
 };
 
@@ -56,6 +56,16 @@ export const DESTRUCTION_TIME = {
 // Тривалість удару ближнього бою і момент, коли лезо торкається шипа
 export const SWING_TIME = 0.2;
 export const SWING_HIT = 0.07;
+// Проміжок між гранню кубика й шипом у мить, коли лезо його торкається
+export const MELEE_CONTACT = 5;
+// Тривалість блискавки громового молота
+export const BOLT_TIME = 0.45;
+
+// Відстань від центру кубика до ближнього краю шипа, на якій треба почати мах,
+// щоб лезо влучило майже впритул: шип устигає під'їхати за час до удару
+export function meleeTriggerGap(cubeSize, speed) {
+    return cubeSize / 2 + MELEE_CONTACT + speed * SWING_HIT;
+}
 // Скільки триває дія на відстані й коли вона знищує шип (типово — як у лазера)
 export const BEAM_TIME = 0.35;
 export const BEAM_HIT = 0.12;
@@ -378,23 +388,23 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
     const swing = pose && pose.swing >= 0 ? pose.swing : -1;
     const recoil = pose ? pose.recoil || 0 : 0;
     ctx.save();
-    if (id === "weapon_sword" || id === "weapon_axe" || id === "weapon_pickaxe" || id === "weapon_firesword") {
+    if (id === "weapon_sword" || id === "weapon_axe" || id === "weapon_pickaxe" || id === "weapon_firesword" || id === "weapon_thunder") {
         if (pose && pose.away) {
             ctx.restore();
             return;
         }
         // Кут: у спокої злегка вперед, у замаху — назад за голову, удар — різкий мах уперед
-        let angle = 0.35 - raise * 1.85;
+        let angle = 0.35 - raise * 1.05;
         if (swing >= 0) {
             const k = 1 - Math.pow(1 - swing, 3);
-            angle = -1.5 + k * 3.0;
+            angle = -0.9 + k * 2.6;
             // Дуга-слід удару
             ctx.strokeStyle = id === "weapon_firesword"
                 ? "rgba(255, 150, 40, " + (0.85 * (1 - swing)).toFixed(2) + ")"
                 : "rgba(220, 245, 255, " + (0.8 * (1 - swing)).toFixed(2) + ")";
             ctx.lineWidth = s * 0.14;
             ctx.beginPath();
-            ctx.arc(s * 0.42, s * 0.12, s * 0.8, -Math.PI / 2 - 1.5, -Math.PI / 2 + angle);
+            ctx.arc(s * 0.42, s * 0.12, s * 0.8, -Math.PI / 2 - 0.9, -Math.PI / 2 + angle);
             ctx.stroke();
         }
         ctx.translate(s * 0.42, s * 0.12);
@@ -403,16 +413,13 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
             drawSwordShape(ctx, s);
         } else if (id === "weapon_firesword") {
             drawFireSwordShape(ctx, s, time);
+        } else if (id === "weapon_thunder") {
+            drawThunderHammerShape(ctx, s, time);
         } else if (id === "weapon_axe") {
             drawAxeShape(ctx, s);
         } else {
             drawPickaxeShape(ctx, s);
         }
-    } else if (id === "weapon_thunder") {
-        // Молот піднімається над головою, коли кличе блискавку
-        ctx.translate(s * 0.42, s * 0.12);
-        ctx.rotate(0.35 - Math.min(1, recoil * 1.6) * 0.9);
-        drawThunderHammerShape(ctx, s, time);
     } else if (id === "weapon_bow") {
         ctx.translate(s * 0.62, 0);
         drawBowShape(ctx, s, recoil > 0 ? 1 - recoil : 0.3);
@@ -1087,9 +1094,13 @@ export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
     const sh = 28;
     const cycle = 2.8;
     const u = (time / 1000) % cycle;
-    const press = 0.7;
     const spikeSpeed = 45;
     const spikeAt = function (tt) { return w + 10 - spikeSpeed * tt; };
+    let press = 0.7;
+    // Сокира через раз показує обидва прийоми: кидок здалеку й удар зблизька
+    if (spec && spec.mode === "axe" && Math.floor(time / 1000 / cycle) % 2 === 1) {
+        press = (w + 10 - hw - cubeX - spec.reach * scale * 0.7) / spikeSpeed;
+    }
     const muzzleX = cubeX + s * 0.6;
     const muzzleY = groundY - s * 0.55;
 
@@ -1099,9 +1110,10 @@ export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
     let flight = null;
     if (spec) {
         const reach = spec.reach ? spec.reach * scale : 0;
-        const gapAtPress = spikeAt(press) - hw - (cubeX + s / 2);
+        // Відстані рахуються від центру кубика до ближнього краю шипа, як у грі
+        const gapAtPress = spikeAt(press) - hw - cubeX;
         if (spec.mode === "melee" || (spec.mode === "axe" && gapAtPress <= reach)) {
-            swingAt = Math.max(press, (w + 10 - hw - (cubeX + s / 2) - reach) / spikeSpeed);
+            swingAt = Math.max(press, (w + 10 - hw - cubeX - meleeTriggerGap(s, spikeSpeed)) / spikeSpeed);
             hitAt = swingAt + SWING_HIT;
         } else if (spec.mode === "beam") {
             hitAt = press + beamTiming(spec).hit;
@@ -1171,6 +1183,9 @@ export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
             }
             drawProjectile(ctx, kind, px, py, 0, ft, s, null);
         }
+    }
+    if (spec && spec.bolt && u >= hitAt && u < hitAt + BOLT_TIME) {
+        drawBeam(ctx, "thunder", spikeX, groundY - sh * 0.45, spikeX, groundY - sh * 0.45, (u - hitAt) / BOLT_TIME, time);
     }
     if (spec && spec.mode === "beam") {
         const bt = beamTiming(spec).time;
