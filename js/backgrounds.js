@@ -138,16 +138,20 @@ const BackgroundRenderer = {
             this.init(W, H, groundY);
         }
         const method = THEME_RENDERERS[bgTheme] || "renderBlockVillage";
-        const saveFill = ctx.fillStyle;
-        const saveStroke = ctx.strokeStyle;
-        const saveAlpha = ctx.globalAlpha;
+        // Стан полотна повністю ізольовано: сцена не може «протекти» прозорістю,
+        // пунктиром чи зсувом у те, що малюється після неї. Якщо в сцені трапиться
+        // помилка, кадр фону просто пропускається, а гра малює далі.
+        ctx.save();
         try {
             this[method](ctx, W, H, groundY, time, speed, accentColor);
             this.renderSceneEffects(ctx, bgTheme, W, H, groundY, time, accentColor);
+        } catch (err) {
+            if (!this._renderErrorShown) {
+                this._renderErrorShown = true;
+                console.warn("Помилка малювання фону «" + bgTheme + "»:", err);
+            }
         } finally {
-            ctx.fillStyle = saveFill;
-            ctx.strokeStyle = saveStroke;
-            ctx.globalAlpha = saveAlpha;
+            ctx.restore();
         }
     }
 };
@@ -7225,7 +7229,9 @@ const STORY_BY_THEME = {
                 ctx.lineWidth = Math.max(2, B / 4);
                 ctx.beginPath();
                 const rot = time * (2 + k) * (k % 2 === 0 ? 1 : -1);
-                ctx.ellipse(cx, cy, r - k * B * 0.6, (r - k * B * 0.6) * 1.3, 0, rot, rot + Math.PI * 1.4);
+                // Поки портал лише розкривається, внутрішні кільця ще не мають розміру
+                const rk = Math.max(1, r - k * B * 0.6);
+                ctx.ellipse(cx, cy, rk, rk * 1.3, 0, rot, rot + Math.PI * 1.4);
                 ctx.stroke();
             }
         }
@@ -7373,7 +7379,8 @@ BackgroundRenderer.renderFinishGate = function (ctx, theme, x, gY, open, time) {
             ctx.lineWidth = 4;
             ctx.beginPath();
             const rot = time * (2 + k * 0.7) * (k % 2 === 0 ? 1 : -1);
-            ctx.ellipse(x, gY - 70, r - k * 6, (r - k * 6) * 1.6, 0, rot, rot + Math.PI * 1.3);
+            const rk = Math.max(1, r - k * 6);
+            ctx.ellipse(x, gY - 70, rk, rk * 1.6, 0, rot, rot + Math.PI * 1.3);
             ctx.stroke();
         }
         ctx.fillStyle = "rgba(180, 120, 255, " + (0.2 + 0.4 * open).toFixed(3) + ")";

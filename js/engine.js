@@ -3049,8 +3049,11 @@ export class Engine {
         }
         if (this.leagueInfo) {
             ctx.font = "bold " + Math.round(H * 0.028) + "px 'Segoe UI', Arial, sans-serif";
+            // Темна тінь під підписом — щоб читався й на світлому тлі
+            ctx.fillStyle = "rgba(5, 5, 20, 0.85)";
+            ctx.fillText("Рівень " + this.leagueInfo.levelNumber + " · " + (this.leagueInfo.lettersText || ""), W / 2 + 2, y + H * 0.065 + 2);
             ctx.fillStyle = accent;
-            ctx.fillText(this.leagueInfo.levelNumber + " · " + this.leagueInfo.levelName, W / 2, y + H * 0.065);
+            ctx.fillText("Рівень " + this.leagueInfo.levelNumber + " · " + (this.leagueInfo.lettersText || ""), W / 2, y + H * 0.065);
         }
         ctx.restore();
     }
@@ -3470,6 +3473,18 @@ export class Engine {
         var barX = (W - barW) / 2;
         var barY = 30;
         var barH = 14;
+
+        // Темна підкладка, щоб написи читалися й на світлому денному небі
+        var panelX = Math.max(4, barX - 150);
+        var panelR = Math.min(W - 4, barX + barW + 64);
+        ctx.fillStyle = "rgba(5, 8, 20, 0.55)";
+        ctx.beginPath();
+        if (ctx.roundRect) {
+            ctx.roundRect(panelX, 2, panelR - panelX, barY + barH + 8, 8);
+        } else {
+            ctx.rect(panelX, 2, panelR - panelX, barY + barH + 8);
+        }
+        ctx.fill();
 
         if (this.leagueInfo !== null) {
             ctx.font = "bold 14px 'Segoe UI', Arial, sans-serif";

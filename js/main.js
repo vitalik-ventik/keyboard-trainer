@@ -182,8 +182,15 @@ function getLevelLeagueInfo(levelId) {
     return {
         leagueName: league.name,
         levelNumber: levelNumber,
-        levelName: level.name
+        levelName: BackgroundRenderer.worldName(level.bgTheme) || level.name,
+        lettersText: level.letters.length === 33 ? "усі 33 літери" : "літери " + level.letters.join(" ")
     };
+}
+
+// Підпис рівня для екранів: «1-3: Космодром»
+function levelLabel(level) {
+    const info = getLevelLeagueInfo(level.id);
+    return info ? info.levelNumber + ": " + info.levelName : level.name;
 }
 
 function startLevel(levelId) {
@@ -272,8 +279,8 @@ function handleVictory() {
         // «Відкрито» — лише якщо наступний рівень відкрився саме цією перемогою
         const justUnlocked = nextLevel.id > unlockedBefore;
         const nextText = justUnlocked
-            ? "Відкрито: " + nextLevel.name + "!"
-            : "Наступний рівень: " + nextLevel.name;
+            ? "Відкрито: " + levelLabel(nextLevel) + "!"
+            : "Наступний рівень: " + levelLabel(nextLevel);
         victoryUnlockEl.textContent = skinUnlockText || nextText;
         btnNext.classList.remove("hidden");
     } else {
