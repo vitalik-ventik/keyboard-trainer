@@ -1718,3 +1718,32 @@ body {
 .shop-legend.hidden {
     display: none;
 }
+
+/* Магазин: баланс у правому куті в один рядок із заголовком — більше місця товарам */
+.list-modal.shop-modal-box {
+    position: relative;
+}
+
+.shop-modal-box .shop-balance {
+    position: absolute;
+    top: 3vmin;
+    right: 4vmin;
+    height: 6vmin;
+}
+
+/* Налаштування: середина прокручується, заголовок і «Закрити» завжди видно */
+.modal.settings-modal {
+    overflow: hidden;
+}
+
+.settings-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5vmin;
+    width: 100%;
+    padding: 0 1vmin;
+}

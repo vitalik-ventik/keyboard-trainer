@@ -97,8 +97,10 @@
 
     <!-- Модальне вікно налаштувань -->
     <div id="settingsModal" class="overlay modal-backdrop hidden">
-        <div class="modal">
+        <div class="modal settings-modal">
             <h2 class="neon-title">НАЛАШТУВАННЯ</h2>
+            <!-- Налаштування прокручуються, а заголовок і кнопка «Закрити» лишаються на місці -->
+            <div class="settings-scroll">
             <p class="modal-caption">Складність</p>
             <div class="difficulty-row">
                 <button id="btnEasy" class="diff-btn" type="button">EASY</button>
@@ -126,6 +128,7 @@
             <p class="option-hint" id="cameraHint">Камера стежить за стрибком, екран струшується при вибуху</p>
             <p class="option-hint weak-letters" id="weakLettersLine"></p>
             <p class="version-line" id="versionLine"></p>
+            </div>
             <button id="btnCloseSettings" class="text-btn" type="button">ЗАКРИТИ</button>
         </div>
     </div>
