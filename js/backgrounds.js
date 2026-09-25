@@ -6,7 +6,7 @@ function rand(min,max){return min+Math.random()*(max-min)}function randInt(min,m
 const SKY_WINDOW_COLORS=[[255,204,68],[255,102,34],[255,136,204],[136,221,255],[255,153,102],[170,204,255]];const SKY_ALPHA_LEVELS=19;let _skyStyles=null;const _skyBuckets=[];for(let i=0;i<SKY_WINDOW_COLORS.length*SKY_ALPHA_LEVELS;i++)_skyBuckets.push([]);
 function _skyWindowStyles(){if(_skyStyles)return _skyStyles;_skyStyles=[];for(const c of SKY_WINDOW_COLORS){for(let lv=0;lv<SKY_ALPHA_LEVELS;lv++){const a=Math.min(0.5,0.15+lv*0.02);_skyStyles.push("rgba("+c[0]+","+c[1]+","+c[2]+","+a.toFixed(2)+")")}}return _skyStyles}
 const BackgroundRenderer = {
-    init(W,H,groundY){_W=W;_H=H;_groundY=groundY;/* Дані, що залежать від розміру екрана, будуються заново */this._skyData=null;this._toxicTop=null;this._abyssBubs=null;this._sporeCells=null;this._triStars=null;this._waterMist=null;this._infernoEmbers=null;this._infernoSmoke=null;this._skyBg=null;this._pixelNight=null;this._pixelCave=null;this._pixelSnow=null;this._pixelOcean=null;this._pixelDesert=null;this._pixelIslands=null;this._pixelNether=null;this._neonHighway=null;this._neonRooftops=null;this._neonStart=null;this._sunsetCity=null;this._cosmodrome=null;this._laserRange=null;this._digitalForest=null;this._stormSky=null;this._crystalCave=null;this._retroArcade=null;this._secretBase=null;this._metroTunnel=null;this._robotFactory=null;this._twinSun=null;this._skyCity=null;this._stadium=null;this._nightHarbor=null;this._glitchWorld=null;this._treasury=null;this._dragonLair=null;this._knightCastle=null;this._blackHole=null;this._throneRoom=null;this._pulsarHex=null;_particles=[];_raindrops=[];_matrixColumns=[];_sparks=[];_starsInitialized=!1;_matrixInitialized=!1;_cityBuildings=null;_landscapeSeed=Math.random()*1000},
+    init(W,H,groundY){_W=W;_H=H;_groundY=groundY;/* Дані, що залежать від розміру екрана, будуються заново */this._skyData=null;this._toxicTop=null;this._abyssBubs=null;this._sporeCells=null;this._triStars=null;this._waterMist=null;this._infernoEmbers=null;this._infernoSmoke=null;this._skyBg=null;this._pixelNight=null;this._pixelCave=null;this._pixelSnow=null;this._pixelOcean=null;this._pixelDesert=null;this._pixelIslands=null;this._pixelNether=null;this._neonHighway=null;this._neonRooftops=null;this._neonStart=null;this._sunsetCity=null;this._cosmodrome=null;this._laserRange=null;this._digitalForest=null;this._stormSky=null;this._crystalCave=null;this._retroArcade=null;this._secretBase=null;this._metroTunnel=null;this._robotFactory=null;this._twinSun=null;this._skyCity=null;this._stadium=null;this._nightHarbor=null;this._glitchWorld=null;this._treasury=null;this._dragonLair=null;this._knightCastle=null;this._blackHole=null;this._throneRoom=null;this._pirateBay=null;this._orbitView=null;this._pulsarHex=null;_particles=[];_raindrops=[];_matrixColumns=[];_sparks=[];_starsInitialized=!1;_matrixInitialized=!1;_cityBuildings=null;_landscapeSeed=Math.random()*1000},
     reset(){_particles=[];_raindrops=[];_matrixColumns=[];_sparks=[];_starsInitialized=!1;_matrixInitialized=!1;_cityBuildings=null;_rainTimer=0;_landscapeSeed=Math.random()*1000},
     getDimensions(){return{W:_W,H:_H,groundY:_groundY}},
     createParticles(x,y,count,palette){const colors=palette||NEON_PALETTE;for(let i=0;i<count;i++){if(_particles.length>=MAX_PARTICLES){let min=Infinity,mi=-1;for(let j=0;j<_particles.length;j++){if(_particles[j].life<min){min=_particles[j].life;mi=j}}if(mi>=0)_particles.splice(mi,1)}const a=rand(0,Math.PI*2),s=rand(80,200);_particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-rand(40,100),size:rand(2,4),life:rand(0.4,0.6),maxLife:0,color:colors[randInt(0,colors.length-1)],gravity:rand(300,500)})}for(let j=0;j<_particles.length;j++)if(_particles[j].maxLife===0)_particles[j].maxLife=_particles[j].life},
@@ -30,7 +30,7 @@ case"spore_field":this.renderSporeField(ctx,W,H,groundY,time,speed,hueShift);bre
 case"diamond_matrix":this.renderDiamondMatrix(ctx,W,H,groundY,time,speed,hueShift);break;case"waterfall_cascade":this.renderWaterfallCascade(ctx,W,H,groundY,time,speed,hueShift);break;
 case"barrier_wall":this.renderBarrierWall(ctx,W,H,groundY,time,speed,hueShift);break;case"glitch_field":this.renderGlitchField(ctx,W,H,groundY,time,speed,hueShift);break;
 case"nebula_drift":this.renderNebulaDrift(ctx,W,H,groundY,time,speed,hueShift);break;case"grand_hex":this.renderGrandHex(ctx,W,H,groundY,time,speed,hueShift);break;
-case"neon_start":this.renderNeonStart(ctx,W,H,groundY,time,speed,accentColor);break;case"sunset_city":this.renderSunsetCity(ctx,W,H,groundY,time,speed);break;case"cosmodrome":this.renderCosmodrome(ctx,W,H,groundY,time,speed);break;case"laser_range":this.renderLaserRange(ctx,W,H,groundY,time,speed);break;case"digital_forest":this.renderDigitalForest(ctx,W,H,groundY,time,speed);break;case"storm_sky":this.renderStormSky(ctx,W,H,groundY,time,speed);break;case"crystal_cave":this.renderCrystalCave(ctx,W,H,groundY,time,speed);break;case"retro_arcade":this.renderRetroArcade(ctx,W,H,groundY,time,speed);break;case"secret_base":this.renderSecretBase(ctx,W,H,groundY,time,speed);break;case"metro_tunnel":this.renderMetroTunnel(ctx,W,H,groundY,time,speed);break;case"robot_factory":this.renderRobotFactory(ctx,W,H,groundY,time,speed);break;case"twin_sun_planet":this.renderTwinSunPlanet(ctx,W,H,groundY,time,speed);break;case"sky_city":this.renderSkyCity(ctx,W,H,groundY,time,speed);break;case"stadium":this.renderStadium(ctx,W,H,groundY,time,speed);break;case"night_harbor":this.renderNightHarbor(ctx,W,H,groundY,time,speed);break;case"glitch_world":this.renderGlitchWorld(ctx,W,H,groundY,time,speed);break;case"treasury":this.renderTreasury(ctx,W,H,groundY,time,speed);break;case"dragon_lair":this.renderDragonLair(ctx,W,H,groundY,time,speed);break;case"knight_castle":this.renderKnightCastle(ctx,W,H,groundY,time,speed);break;case"black_hole":this.renderBlackHole(ctx,W,H,groundY,time,speed);break;case"throne_room":this.renderThroneRoom(ctx,W,H,groundY,time,speed);break;case"pixel_snow":this.renderPixelSnow(ctx,W,H,groundY,time,speed);break;case"pixel_ocean":this.renderPixelOcean(ctx,W,H,groundY,time,speed);break;case"pixel_desert":this.renderPixelDesert(ctx,W,H,groundY,time,speed);break;case"pixel_islands":this.renderPixelIslands(ctx,W,H,groundY,time,speed);break;case"pixel_nether":this.renderPixelNether(ctx,W,H,groundY,time,speed);break;case"neon_highway":this.renderNeonHighway(ctx,W,H,groundY,time,speed);break;case"neon_rooftops":this.renderNeonRooftops(ctx,W,H,groundY,time,speed);break;case"pixel_night":this.renderPixelNight(ctx,W,H,groundY,time,speed);break;case"pixel_cave":this.renderPixelCave(ctx,W,H,groundY,time,speed);break;default:this.renderCyberGrid(ctx,W,H,groundY,time,speed,"#00f6ff");break;}}finally{ctx.fillStyle=saveFill;ctx.strokeStyle=saveStroke;ctx.globalAlpha=saveAlpha}},
+case"neon_start":this.renderNeonStart(ctx,W,H,groundY,time,speed,accentColor);break;case"sunset_city":this.renderSunsetCity(ctx,W,H,groundY,time,speed);break;case"cosmodrome":this.renderCosmodrome(ctx,W,H,groundY,time,speed);break;case"laser_range":this.renderLaserRange(ctx,W,H,groundY,time,speed);break;case"digital_forest":this.renderDigitalForest(ctx,W,H,groundY,time,speed);break;case"storm_sky":this.renderStormSky(ctx,W,H,groundY,time,speed);break;case"crystal_cave":this.renderCrystalCave(ctx,W,H,groundY,time,speed);break;case"retro_arcade":this.renderRetroArcade(ctx,W,H,groundY,time,speed);break;case"secret_base":this.renderSecretBase(ctx,W,H,groundY,time,speed);break;case"metro_tunnel":this.renderMetroTunnel(ctx,W,H,groundY,time,speed);break;case"robot_factory":this.renderRobotFactory(ctx,W,H,groundY,time,speed);break;case"twin_sun_planet":this.renderTwinSunPlanet(ctx,W,H,groundY,time,speed);break;case"sky_city":this.renderSkyCity(ctx,W,H,groundY,time,speed);break;case"stadium":this.renderStadium(ctx,W,H,groundY,time,speed);break;case"night_harbor":this.renderNightHarbor(ctx,W,H,groundY,time,speed);break;case"glitch_world":this.renderGlitchWorld(ctx,W,H,groundY,time,speed);break;case"treasury":this.renderTreasury(ctx,W,H,groundY,time,speed);break;case"dragon_lair":this.renderDragonLair(ctx,W,H,groundY,time,speed);break;case"knight_castle":this.renderKnightCastle(ctx,W,H,groundY,time,speed);break;case"black_hole":this.renderBlackHole(ctx,W,H,groundY,time,speed);break;case"throne_room":this.renderThroneRoom(ctx,W,H,groundY,time,speed);break;case"pirate_bay":this.renderPirateBay(ctx,W,H,groundY,time,speed);break;case"orbit_view":this.renderOrbitView(ctx,W,H,groundY,time,speed);break;case"pixel_snow":this.renderPixelSnow(ctx,W,H,groundY,time,speed);break;case"pixel_ocean":this.renderPixelOcean(ctx,W,H,groundY,time,speed);break;case"pixel_desert":this.renderPixelDesert(ctx,W,H,groundY,time,speed);break;case"pixel_islands":this.renderPixelIslands(ctx,W,H,groundY,time,speed);break;case"pixel_nether":this.renderPixelNether(ctx,W,H,groundY,time,speed);break;case"neon_highway":this.renderNeonHighway(ctx,W,H,groundY,time,speed);break;case"neon_rooftops":this.renderNeonRooftops(ctx,W,H,groundY,time,speed);break;case"pixel_night":this.renderPixelNight(ctx,W,H,groundY,time,speed);break;case"pixel_cave":this.renderPixelCave(ctx,W,H,groundY,time,speed);break;default:this.renderCyberGrid(ctx,W,H,groundY,time,speed,"#00f6ff");break;}}finally{ctx.fillStyle=saveFill;ctx.strokeStyle=saveStroke;ctx.globalAlpha=saveAlpha}},
     renderStarfield(ctx, W, H, time, speed, hueShift) {ctx.fillStyle="#020412";ctx.fillRect(0,0,W,H);if(!_starsInitialized){_stars=[];for(var i=0;i<130;i++){var layer=Math.random();var z=layer<0.4?0.3:(layer<0.75?0.6:1.0);_stars.push({x:Math.random()*W,y:Math.random()*H*0.7,z:z,size:z*2.5,twinklePhase:Math.random()*Math.PI*2,twinkleSpeed:0.5+Math.random()*2,brightness:0.3+Math.random()*0.7})}_starsInitialized=true}for(var si=0;si<_stars.length;si++){var s=_stars[si];s.x-=speed*s.z*0.15*_step;if(s.x<-s.size){s.x=W+s.size;s.y=Math.random()*H*0.7}var alpha=s.brightness*(0.4+0.6*(Math.sin(time*s.twinkleSpeed+s.twinklePhase)*0.5+0.5));ctx.globalAlpha=alpha;ctx.fillStyle=s.z>0.7?"#cceeff":(s.z>0.4?"#88bbff":"#6699cc");ctx.fillRect(s.x-s.size/2,s.y-s.size/2,s.size,s.size)}ctx.globalAlpha=1},
     renderEnergyGrid(ctx, W, H, time, hueShift) {ctx.fillStyle="#040618";ctx.fillRect(0,0,W,H);var cx=W/2;var cy=H/2;for(var i=0;i<6;i++){var r=Math.min(W,H)*0.07+i*Math.min(W,H)*0.1+Math.min(W,H)*0.04*Math.sin(time*1.8+i*0.9);var hue=(time*50+i*40)%360;applyGlow(ctx,"hsl("+hue.toFixed(0)+",80%,55%)",10);ctx.strokeStyle="hsl("+hue.toFixed(0)+",80%,55%)";ctx.lineWidth=1.5;ctx.globalAlpha=0.5;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();clearGlow(ctx)}for(var i=0;i<10;i++){var angle=(i/10)*Math.PI*2+time*0.3;ctx.strokeStyle="hsl("+((time*40+i*30)%360).toFixed(0)+",70%,40%)";ctx.lineWidth=1;ctx.globalAlpha=0.25;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(angle)*Math.min(W,H)*0.65,cy+Math.sin(angle)*Math.min(W,H)*0.65);ctx.stroke()}ctx.globalAlpha=1},
     renderCyberColumns(ctx,W,H,groundY,time,speed,hueShift){var grad=ctx.createLinearGradient(0,0,W*0.15,0);grad.addColorStop(0,"#0a0a30");grad.addColorStop(0.3,"#050520");grad.addColorStop(0.7,"#050520");grad.addColorStop(1,"#0a0a30");ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);ctx.fillStyle="#020615";ctx.fillRect(0,0,W,H);var colW=W*0.06;var gap=W*0.04;var cols=Math.ceil(W/(colW+gap))+2;var offset=(time*speed*0.35)%(colW+gap);for(var i=0;i<cols;i++){var x=-colW+i*(colW+gap)+offset;var h=H*0.4+Math.sin(i*1.7+time*0.8)*H*0.15;var alpha=0.2+0.3*Math.abs(Math.sin(i*0.6+time*0.5));applyGlow(ctx,"#4466ff",8);var colGrad=ctx.createLinearGradient(x,groundY-h,x,groundY);colGrad.addColorStop(0,"rgba(30,60,200,0)");colGrad.addColorStop(0.3,"rgba(50,100,255,"+alpha.toFixed(2)+")");colGrad.addColorStop(1,"rgba(20,40,150,"+(alpha*0.4).toFixed(2)+")");ctx.fillStyle=colGrad;ctx.fillRect(x,groundY-h,colW,h);clearGlow(ctx)}},
@@ -2958,6 +2958,273 @@ BackgroundRenderer.renderThroneRoom = function (ctx, W, H, groundY, time, speed)
             ctx.fillStyle = fl > 0.9 ? "#ffffff" : "#ffaa33";
             ctx.fillRect(fx - B / 10, cy - B * 0.75, B / 5, B / 4);
         }
+    }
+};
+
+// ---------- 19. Піратська бухта ----------
+
+function buildPirateBay(W, H, groundY, B) {
+    const rng = pixelRng(1920);
+    const gY = Math.round(groundY);
+    const horizon = Math.round(gY * 0.58);
+    const sky = makeSky(W, H, [[0, "#2a1450"], [0.35, "#8a2a6a"], [0.58, "#ff8a4a"], [1, "#0a3a5a"]]);
+    const sx = sky.getContext("2d");
+    // Сонце, що сідає в море
+    const sunR = Math.round(H * 0.09);
+    const sunX = Math.round(W * 0.3);
+    sx.save();
+    sx.beginPath();
+    sx.rect(0, 0, W, horizon);
+    sx.clip();
+    sx.fillStyle = "#ffd36b";
+    for (let y = -sunR; y < sunR; y += B / 2) {
+        const half = Math.sqrt(Math.max(0, sunR * sunR - y * y));
+        sx.fillRect(Math.round(sunX - half), horizon - sunR * 0.3 + y, Math.round(half * 2), B / 2);
+    }
+    sx.restore();
+    // Море
+    const sea = sx.createLinearGradient(0, horizon, 0, gY);
+    sea.addColorStop(0, "#1f6a9a");
+    sea.addColorStop(1, "#0a2f4f");
+    sx.fillStyle = sea;
+    sx.fillRect(0, horizon, W, gY - horizon);
+    // Сонячна доріжка на воді
+    sx.fillStyle = "rgba(255, 210, 120, 0.35)";
+    for (let y = horizon + 4; y < gY; y += 8) {
+        const w = sunR * (0.6 + (y - horizon) / (gY - horizon) * 1.4) * (0.6 + rng() * 0.4);
+        sx.fillRect(Math.round(sunX - w / 2), y, Math.round(w), 3);
+    }
+    // Далекий острів
+    sx.fillStyle = "#1a3a2a";
+    const islX = Math.round(W * 0.78);
+    sx.fillRect(islX - B * 4, horizon - B, B * 8, B);
+    sx.fillRect(islX - B * 2, horizon - B * 2, B * 4, B);
+
+    // Пляж з пальмами та скринями в ближній смузі
+    const stripW = Math.ceil(W * 1.3 / B) * B;
+    const beach = makeCanvas(stripW, B * 7);
+    const bx = beach.getContext("2d");
+    const top = beach.height - B;
+    for (let x = 0; x < stripW; x += B) {
+        bx.fillStyle = (x / B) % 2 === 0 ? "#e8c07a" : "#dab06a";
+        bx.fillRect(x, top, B, B);
+        bx.fillStyle = "#f5d89a";
+        bx.fillRect(x, top, B, B / 5);
+    }
+    for (let x = B * 3; x < stripW - B * 5; x += B * (10 + Math.floor(rng() * 5))) {
+        // Пальма з вигнутим стовбуром
+        for (let k = 0; k < 5; k++) {
+            bx.fillStyle = k % 2 === 0 ? "#8a5a2a" : "#7a4a1e";
+            bx.fillRect(x + Math.round(k * k * 0.12) * B / 2, top - (k + 1) * B, B * 0.7, B);
+        }
+        const cx = x + B;
+        const cy = top - B * 5.5;
+        bx.fillStyle = "#2f9a3a";
+        bx.fillRect(cx - B * 2.5, cy, B * 2.5, B / 2);
+        bx.fillRect(cx, cy, B * 2.5, B / 2);
+        bx.fillRect(cx - B * 3, cy + B / 2, B, B / 2);
+        bx.fillRect(cx + B * 2, cy + B / 2, B, B / 2);
+        bx.fillRect(cx - B / 2, cy - B, B * 1.5, B);
+        bx.fillStyle = "#6a3a1a";
+        bx.fillRect(cx, cy + B / 2, B / 2, B / 2);
+        // Скриня біля деяких пальм
+        if (rng() < 0.5) {
+            bx.fillStyle = "#8a4b1c";
+            bx.fillRect(x + B * 3, top - B, B * 1.4, B);
+            bx.fillStyle = "#ffcc33";
+            bx.fillRect(x + B * 3.55, top - B * 0.7, B * 0.3, B * 0.3);
+        }
+    }
+    return { W: W, H: H, sky: sky, beach: beach, horizon: horizon };
+}
+
+// Піратський корабель із вітрилами та прапором (малюється щокадру — гойдається на хвилях)
+function drawPirateShip(ctx, x, y, B, time) {
+    const bob = Math.round(Math.sin(time * 1.4) * B * 0.25);
+    const yy = y + bob;
+    // Корпус
+    ctx.fillStyle = "#4a2a14";
+    ctx.fillRect(x, yy, B * 9, B * 1.5);
+    ctx.fillRect(x + B * 0.5, yy + B * 1.5, B * 8, B * 0.6);
+    ctx.fillRect(x + B * 7.5, yy - B, B * 2, B);
+    ctx.fillStyle = "#ffcc33";
+    ctx.fillRect(x, yy + B * 0.4, B * 9, B / 6);
+    ctx.fillStyle = "#1a0e06";
+    for (let k = 0; k < 3; k++) {
+        ctx.fillRect(x + B * (1.5 + k * 2), yy + B * 0.8, B / 3, B / 3);
+    }
+    // Щогли та вітрила
+    ctx.fillStyle = "#3a2010";
+    ctx.fillRect(x + B * 3, yy - B * 6, B / 4, B * 6);
+    ctx.fillRect(x + B * 6, yy - B * 5, B / 4, B * 5);
+    const puff = Math.round(Math.sin(time * 1.1) * B * 0.15);
+    ctx.fillStyle = "#f0e6d0";
+    ctx.fillRect(x + B * 1.8, yy - B * 5.5, B * 2.6 + puff, B * 2.2);
+    ctx.fillRect(x + B * 1.8, yy - B * 3, B * 2.6 + puff, B * 1.8);
+    ctx.fillRect(x + B * 4.9, yy - B * 4.5, B * 2.4 + puff, B * 2);
+    // Прапор із черепом
+    const wave = Math.round(Math.sin(time * 6) * B * 0.1);
+    ctx.fillStyle = "#111111";
+    ctx.fillRect(x + B * 3.25, yy - B * 6 + wave, B * 1.4, B * 0.9);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(x + B * 3.7, yy - B * 5.85 + wave, B * 0.5, B * 0.4);
+    ctx.fillRect(x + B * 3.6, yy - B * 5.35 + wave, B * 0.7, B * 0.12);
+}
+
+BackgroundRenderer.renderPirateBay = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._pirateBay;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildPirateBay(W, H, groundY, B);
+        this._pirateBay = st;
+    }
+    const gY = Math.round(groundY);
+    const hz = st.horizon;
+    ctx.drawImage(st.sky, 0, 0);
+    // Хвилі на морі
+    ctx.fillStyle = "rgba(200, 235, 255, 0.25)";
+    const wo = (time * 25) % (B * 3);
+    for (let y = hz + 6, row = 0; y < gY - B; y += B * 0.8, row++) {
+        for (let x = -wo + (row % 2) * B * 1.5; x < W; x += B * 3) {
+            ctx.fillRect(Math.round(x), Math.round(y), B, 2);
+        }
+    }
+    // Корабель повільно пливе по горизонту
+    const span = W + B * 20;
+    const shipX = Math.round(W - ((time * 22) % span));
+    drawPirateShip(ctx, shipX, hz - B * 0.8, B, time);
+    // Чайки
+    for (let i = 0; i < 4; i++) {
+        const x = Math.round(((i * 413 + time * (35 + i * 8)) % (W + B * 6)) - B * 3);
+        const y = Math.round(hz * (0.2 + i * 0.1) + Math.sin(time * 1.3 + i) * B * 0.6);
+        const flap = Math.sin(time * 9 + i) > 0;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(x, y, B / 3, B / 5);
+        ctx.fillRect(x - B / 3, y + (flap ? -B / 5 : B / 8), B / 3, B / 6);
+        ctx.fillRect(x + B / 3, y + (flap ? -B / 5 : B / 8), B / 3, B / 6);
+    }
+    drawScrollingStrip(ctx, st.beach, W, gY, time, speed, 0.3);
+};
+
+// ---------- 21. Орбіта: вид на планету з космічної станції ----------
+
+function buildOrbitView(W, H, groundY, B) {
+    const rng = pixelRng(2121);
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#010104"], [1, "#050818"]]);
+    const sx = sky.getContext("2d");
+    drawStarsInto(sx, W, gY, 150, rng, B);
+    // Місяць
+    sx.fillStyle = "#c8ccd8";
+    const mx = Math.round(W * 0.85);
+    const my = Math.round(gY * 0.15);
+    const mr = B * 1.5;
+    for (let y = -mr; y < mr; y += B / 3) {
+        const half = Math.sqrt(Math.max(0, mr * mr - y * y));
+        sx.fillRect(Math.round(mx - half), my + y, Math.round(half * 2), B / 3);
+    }
+    sx.fillStyle = "#a0a4b0";
+    sx.fillRect(mx - B / 2, my - B / 3, B / 2, B / 2);
+    sx.fillRect(mx + B / 3, my + B / 3, B / 3, B / 3);
+    // Поверхня планети: континенти та хмари в смузі, що прокручується (планета обертається)
+    const texW = Math.ceil(W * 1.6 / B) * B;
+    const texH = Math.round(gY * 0.6);
+    const tex = makeCanvas(texW, texH);
+    const tx = tex.getContext("2d");
+    tx.fillStyle = "#1a4a9a";
+    tx.fillRect(0, 0, texW, texH);
+    const cellW = B;
+    const cols = texW / cellW;
+    for (let c = 0; c < cols; c++) {
+        for (let r = 0; r < texH / cellW; r++) {
+            const n = Math.sin(c * 0.35) + Math.sin(c * 0.13 + r * 0.4) + Math.sin(r * 0.5 + c * 0.07) * 0.8;
+            if (n > 0.9) {
+                tx.fillStyle = n > 1.8 ? "#e8e0c0" : n > 1.3 ? "#3f8a3a" : "#5aa84a";
+                tx.fillRect(c * cellW, r * cellW, cellW, cellW);
+            }
+        }
+    }
+    // Хмари
+    tx.fillStyle = "rgba(255, 255, 255, 0.55)";
+    for (let i = 0; i < 25; i++) {
+        const cx = Math.round(rng() * cols) * cellW;
+        const cy = Math.round(rng() * texH / cellW) * cellW;
+        const len = 2 + Math.floor(rng() * 5);
+        tx.fillRect(cx, cy, len * cellW, cellW / 2);
+        tx.fillRect(cx + cellW, cy - cellW / 2, (len - 2) * cellW, cellW / 2);
+    }
+    return { W: W, H: H, sky: sky, tex: tex, planetR: W * 1.1, planetCx: W * 0.5, planetCy: gY + W * 1.1 - texH * 0.55 };
+}
+
+BackgroundRenderer.renderOrbitView = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._orbitView;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildOrbitView(W, H, groundY, B);
+        this._orbitView = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.sky, 0, 0);
+    // Атмосфера — світне кільце над краєм планети
+    ctx.strokeStyle = "rgba(90, 170, 255, 0.35)";
+    ctx.lineWidth = B;
+    ctx.beginPath();
+    ctx.arc(st.planetCx, st.planetCy, st.planetR + B * 0.6, Math.PI * 1.2, Math.PI * 1.8);
+    ctx.stroke();
+    // Планета: поверхня обрізана колом і прокручується
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(st.planetCx, st.planetCy, st.planetR, 0, Math.PI * 2);
+    ctx.clip();
+    const texW = st.tex.width;
+    const offset = Math.round(time * speed * 0.05) % texW;
+    const texTop = gY - st.tex.height;
+    for (let x = -offset; x < W; x += texW) {
+        ctx.drawImage(st.tex, x, texTop);
+    }
+    // Нічна тінь з одного боку
+    const shade = ctx.createLinearGradient(0, 0, W, 0);
+    shade.addColorStop(0, "rgba(0, 0, 20, 0)");
+    shade.addColorStop(0.7, "rgba(0, 0, 20, 0.1)");
+    shade.addColorStop(1, "rgba(0, 0, 20, 0.6)");
+    ctx.fillStyle = shade;
+    ctx.fillRect(0, texTop, W, st.tex.height);
+    ctx.restore();
+
+    // Космічна станція: модулі, сонячні панелі, вогники
+    const stX = Math.round(W * 0.22);
+    const stY = Math.round(gY * 0.22 + Math.sin(time * 0.5) * B * 0.3);
+    ctx.fillStyle = "#2a4a8a";
+    for (const side of [-1, 1]) {
+        for (let k = 0; k < 3; k++) {
+            ctx.fillRect(stX + side * (B * 2 + k * B * 1.1) - (side < 0 ? B : 0), stY - B * 1.2, B, B * 2.4);
+        }
+    }
+    ctx.fillStyle = "#6a7a9a";
+    ctx.fillRect(stX - B * 2, stY - B / 6, B * 4, B / 3);
+    ctx.fillStyle = "#e8ecf2";
+    ctx.fillRect(stX - B, stY - B / 2, B * 2, B);
+    ctx.fillRect(stX - B / 3, stY - B * 1.3, B * 0.66, B * 0.8);
+    ctx.fillStyle = "#39c6ff";
+    ctx.fillRect(stX - B * 0.6, stY - B / 4, B / 3, B / 3);
+    ctx.fillRect(stX + B * 0.3, stY - B / 4, B / 3, B / 3);
+    ctx.fillStyle = Math.sin(time * 4) > 0 ? "#ff3355" : "#551122";
+    ctx.fillRect(stX - B / 8, stY - B * 1.5, B / 4, B / 4);
+    ctx.fillStyle = Math.sin(time * 4 + 2) > 0 ? "#39ff88" : "#114422";
+    ctx.fillRect(stX + B * 5.4, stY - B / 8, B / 4, B / 4);
+    // Супутники пролітають
+    for (let i = 0; i < 2; i++) {
+        const period = 9 + i * 4;
+        const t = ((time + i * 5) % period) / period;
+        const x = Math.round(-B * 3 + t * (W + B * 6));
+        const y = Math.round(gY * (0.35 + i * 0.12) - Math.sin(t * Math.PI) * B * 2);
+        ctx.fillStyle = "#c8ccd8";
+        ctx.fillRect(x, y, B * 0.6, B * 0.6);
+        ctx.fillStyle = "#2a4a8a";
+        ctx.fillRect(x - B, y + B * 0.1, B * 0.9, B * 0.4);
+        ctx.fillRect(x + B * 0.7, y + B * 0.1, B * 0.9, B * 0.4);
+        ctx.fillStyle = Math.sin(time * 6 + i) > 0 ? "#ffffff" : "#888888";
+        ctx.fillRect(x + B * 0.2, y - B * 0.3, B / 5, B / 5);
     }
 };
 
