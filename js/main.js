@@ -6,7 +6,7 @@
 // ============================================================
 
 import { loadAssets, unlockAudio, playSound, playMusic } from "./assets.js";
-import { LEVELS_CONFIG, ALL_LEVELS, Engine, save, SKIN_RENDERERS } from "./engine.js";
+import { LEVELS_CONFIG, ALL_LEVELS, Engine, save, SKIN_RENDERERS, drawAchievementFrame } from "./engine.js";
 import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
@@ -700,23 +700,9 @@ function renderCurrentSkinIcon() {
     var miniSize = size * 0.8;
     skinCtx.save();
     skinCtx.translate(size / 2, size / 2);
-    SKIN_RENDERERS[renderType](skinCtx, miniSize, performance.now());
-    if (achievement === "hard") {
-        skinCtx.shadowBlur = 18;
-        skinCtx.shadowColor = "#ffaa00";
-        skinCtx.strokeStyle = "rgba(255, 170, 0, 0.9)";
-        skinCtx.lineWidth = 3;
-        skinCtx.strokeRect(-miniSize / 2, -miniSize / 2, miniSize, miniSize);
-        skinCtx.shadowBlur = 0;
-    }
-    if (achievement === "easy") {
-        skinCtx.strokeStyle = "#d4dce8";
-        skinCtx.lineWidth = 1.8;
-        skinCtx.shadowBlur = 6;
-        skinCtx.shadowColor = "rgba(200, 210, 225, 0.6)";
-        skinCtx.strokeRect(-miniSize / 2, -miniSize / 2, miniSize, miniSize);
-        skinCtx.shadowBlur = 0;
-    }
+    var nowMs = performance.now();
+    SKIN_RENDERERS[renderType](skinCtx, miniSize, nowMs);
+    drawAchievementFrame(skinCtx, miniSize, achievement, nowMs);
     skinCtx.restore();
     activeSkinCache = activeSkinId;
 }
@@ -795,23 +781,9 @@ function buildSkinGrid() {
                     pctx.save();
                     pctx.translate(psize / 2, psize / 2);
                     var previewSize = psize * 0.75;
-                    SKIN_RENDERERS[renderType](pctx, previewSize, performance.now());
-                    if (achv === "hard") {
-                        pctx.shadowBlur = 18;
-                        pctx.shadowColor = "#ffaa00";
-                        pctx.strokeStyle = "rgba(255, 170, 0, 0.9)";
-                        pctx.lineWidth = 3;
-                        pctx.strokeRect(-previewSize / 2, -previewSize / 2, previewSize, previewSize);
-                        pctx.shadowBlur = 0;
-                    }
-                    if (achv === "easy") {
-                        pctx.strokeStyle = "#d4dce8";
-                        pctx.lineWidth = 1.8;
-                        pctx.shadowBlur = 6;
-                        pctx.shadowColor = "rgba(200, 210, 225, 0.6)";
-                        pctx.strokeRect(-previewSize / 2, -previewSize / 2, previewSize, previewSize);
-                        pctx.shadowBlur = 0;
-                    }
+                    var nowMs = performance.now();
+                    SKIN_RENDERERS[renderType](pctx, previewSize, nowMs);
+                    drawAchievementFrame(pctx, previewSize, achv, nowMs);
                     pctx.restore();
                 });
             })(previewCanvas, skin.renderType, achievement);

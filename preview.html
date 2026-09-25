@@ -66,10 +66,22 @@
         .perf-ok { color: #39ff88; }
         .perf-mid { color: #ffe14d; }
         .perf-slow { color: #ff4444; }
+        .skin-thumbs {
+            display: flex;
+            gap: 8px;
+            flex: none;
+        }
+        .skin-thumb-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-size: 0.6rem;
+            color: #888;
+        }
         .skin-thumb {
             width: 56px;
             height: 56px;
-            flex: none;
             background: #070b1c;
             border: 1px solid #1a1a40;
             border-radius: 6px;
@@ -114,7 +126,7 @@
     <div class="error-msg" id="error">Помилка завантаження модулів. Переконайтеся, що файли js/engine.js та js/backgrounds.js існують.</div>
 
     <script type="module">
-        import { LEVELS_CONFIG, ALL_LEVELS, SKIN_RENDERERS } from "./js/engine.js";
+        import { LEVELS_CONFIG, ALL_LEVELS, SKIN_RENDERERS, drawAchievementFrame } from "./js/engine.js";
         import { BackgroundRenderer } from "./js/backgrounds.js";
 
         const grid = document.getElementById("grid");
@@ -131,6 +143,11 @@
         const GROUND_RATIO = 0.64;
         const PLAYER_ANCHOR = 0.28;
         const THUMB_SIZE = 56;
+        const THUMB_VARIANTS = [
+            { label: "Звичайний", achievement: null },
+            { label: "Срібло", achievement: "easy" },
+            { label: "Золото", achievement: "hard" }
+        ];
         // Розмір кубика в грі (CUBE_SIZE) відносно висоти екрана ~900 px
         const GAME_CUBE_SIZE = 42;
         const GAME_REFERENCE_HEIGHT = 900;
@@ -174,12 +191,26 @@
             const info = document.createElement("div");
             info.className = "card-info";
 
-            const thumb = document.createElement("canvas");
-            thumb.className = "skin-thumb";
-            thumb.width = Math.round(THUMB_SIZE * DPR);
-            thumb.height = Math.round(THUMB_SIZE * DPR);
-            const thumbCtx = thumb.getContext("2d");
-            thumbCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
+            // Три мініатюри скіна: без досягнення, срібна (EASY) та золота (HARD) рамка
+            const thumbs = document.createElement("div");
+            thumbs.className = "skin-thumbs";
+            const thumbCtxs = [];
+            for (const variant of THUMB_VARIANTS) {
+                const wrap = document.createElement("div");
+                wrap.className = "skin-thumb-wrap";
+                const thumb = document.createElement("canvas");
+                thumb.className = "skin-thumb";
+                thumb.width = Math.round(THUMB_SIZE * DPR);
+                thumb.height = Math.round(THUMB_SIZE * DPR);
+                const tctx = thumb.getContext("2d");
+                tctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+                const caption = document.createElement("span");
+                caption.textContent = variant.label;
+                wrap.appendChild(thumb);
+                wrap.appendChild(caption);
+                thumbs.appendChild(wrap);
+                thumbCtxs.push({ ctx: tctx, achievement: variant.achievement });
+            }
 
             const text = document.createElement("div");
             text.className = "card-text";
@@ -193,7 +224,7 @@
             perf.className = "card-perf";
             perf.textContent = "";
 
-            info.appendChild(thumb);
+            info.appendChild(thumbs);
             info.appendChild(text);
             info.appendChild(perf);
             card.appendChild(canvas);
@@ -204,7 +235,7 @@
                 element: card,
                 canvas: canvas,
                 ctx: canvas.getContext("2d"),
-                thumbCtx: thumbCtx,
+                thumbCtxs: thumbCtxs,
                 perfEl: perf,
                 level: level,
                 w: 0,
@@ -320,8 +351,14 @@
             const cubeSize = Math.max(24, GAME_CUBE_SIZE * h / GAME_REFERENCE_HEIGHT);
             drawSkin(c.ctx, renderFn, w * PLAYER_ANCHOR, groundY - cubeSize / 2, cubeSize, nowMs);
 
-            c.thumbCtx.clearRect(0, 0, THUMB_SIZE, THUMB_SIZE);
-            drawSkin(c.thumbCtx, renderFn, THUMB_SIZE / 2, THUMB_SIZE / 2, THUMB_SIZE * 0.6, nowMs);
+            for (const t of c.thumbCtxs) {
+                t.ctx.clearRect(0, 0, THUMB_SIZE, THUMB_SIZE);
+                t.ctx.save();
+                t.ctx.translate(THUMB_SIZE / 2, THUMB_SIZE / 2);
+                renderFn(t.ctx, THUMB_SIZE * 0.6, nowMs, { onGround: true, vy: 0, rotation: 0 });
+                drawAchievementFrame(t.ctx, THUMB_SIZE * 0.6, t.achievement, nowMs);
+                t.ctx.restore();
+            }
         }
 
         const fpsEl = document.getElementById("fps");
