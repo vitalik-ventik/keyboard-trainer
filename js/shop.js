@@ -98,11 +98,14 @@ export const SHOP_ITEMS = [
     { id: "acc_cap", type: "accessory", name: "Кепка", price: 30 },
     { id: "acc_bow", type: "accessory", name: "Бант", price: 35 },
     { id: "acc_glasses", type: "accessory", name: "Сонцезахисні окуляри", price: 45 },
+    { id: "acc_heart_pendant", type: "accessory", name: "Кулон-сердечко", price: 50 },
     { id: "acc_headphones", type: "accessory", name: "Навушники", price: 60 },
     { id: "acc_cowboy", type: "accessory", name: "Ковбойський капелюх", price: 75 },
     { id: "acc_horns", type: "accessory", name: "Ріжки", price: 100 },
+    { id: "acc_flower_wreath", type: "accessory", name: "Квітковий вінок", price: 110 },
     { id: "acc_pirate", type: "accessory", name: "Піратський капелюх", price: 120 },
     { id: "acc_halo", type: "accessory", name: "Німб", price: 150 },
+    { id: "acc_wings", type: "accessory", name: "Крила", price: 180 },
     { id: "acc_crown", type: "accessory", name: "Корона", price: 200 }
 ];
 
@@ -184,7 +187,11 @@ export const ACCESSORY_PERKS = {
     acc_horns: { item: 0.1 },
     acc_pirate: { chest: 0.15 },
     acc_halo: { item: 0.15 },
-    acc_crown: { coins: 0.15 }
+    acc_crown: { coins: 0.15 },
+    // Шанс сердечка в сундуку
+    acc_heart_pendant: { hearts: 0.05 },
+    acc_flower_wreath: { hearts: 0.1 },
+    acc_wings: { hearts: 0.15 }
 };
 
 export function accessoryPerk(accessoryId) {
@@ -202,6 +209,9 @@ export function accessoryPerkText(accessoryId) {
     }
     if (perk.item) {
         return "✨ Речі +" + Math.round(perk.item * 100) + "%";
+    }
+    if (perk.hearts) {
+        return "❤ Сердечка +" + Math.round(perk.hearts * 100) + "%";
     }
     return "";
 }
@@ -247,7 +257,7 @@ export function itemPerkText(itemId) {
     }
     const item = getShopItem(itemId);
     if (item && item.type === "skin") {
-        return skinPerkText(skinPerk(item.renderType));
+        return skinPerkText(skinPerk(item.renderType), shopSkinPerkValue(item.renderType));
     }
     return accessoryPerkText(itemId);
 }
@@ -269,11 +279,28 @@ export const SKIN_PERK_TIERS = {
     perfect: [0.1, 0.15, SKIN_PERFECT_BONUS]
 };
 
+// Сила бонусу скіна з магазину (для «сердечок» — своя в кожного скіна)
+export function shopSkinPerkValue(renderType) {
+    const item = renderType ? getShopSkinByRenderType(renderType) : null;
+    const kind = skinPerk(renderType);
+    if (!kind) {
+        return 0;
+    }
+    if (kind === "hearts") {
+        return SKIN_HEART_PERKS[item.id];
+    }
+    return kind === "shield" ? 1 : skinPerkValue(kind, 2);
+}
+
 // Значення бонусу за видом і рівнем рамки (0 — без рамки, 1 — срібна, 2 — золота)
 export function skinPerkValue(kind, tier) {
     const tiers = SKIN_PERK_TIERS[kind];
     return tiers ? tiers[Math.max(0, Math.min(2, tier))] : 0;
 }
+
+// Скіни з бонусом «сердечка» (шанс сердечка в сундуку): аксолотль лікує,
+// у вартового б'ється серце, водолазу потрібен запас повітря
+export const SKIN_HEART_PERKS = { shop_axolotl: 0.05, shop_diver: 0.1, shop_warden: 0.15 };
 
 export function skinPerk(renderType) {
     const item = renderType ? getShopSkinByRenderType(renderType) : null;
@@ -282,6 +309,9 @@ export function skinPerk(renderType) {
     }
     if (item.legendary) {
         return "shield";
+    }
+    if (SKIN_HEART_PERKS[item.id]) {
+        return "hearts";
     }
     if (item.price <= 150) {
         return "series";
@@ -307,6 +337,9 @@ export function skinPerkText(perk, value) {
     if (perk === "shield") {
         return "🛡 Щит на 1 помилку";
     }
+    if (perk === "hearts") {
+        return "❤ Сердечка +" + Math.round(v * 100) + "%";
+    }
     return "";
 }
 
@@ -321,15 +354,16 @@ const PERK_HINTS = {
     coins: "🪙 Монети — усі монети за забіг більші",
     chest: "🎁 Сундуки — вищий шанс отримати сундук за повторну перемогу рівня",
     item: "✨ Речі — у сундуку частіше випадає предмет замість монет (діє аксесуар, надягнутий, коли відкриваєш сундук)",
+    hearts: "❤ Сердечка — у сундуку частіше випадає сердечко, запасне життя (діють скін і аксесуар, надягнуті, коли відкриваєш сундук)",
     weapon: "🪙 Монети — з цією зброєю всі монети за забіг множаться: крутіша зброя — більше монет"
 };
 
 // Які пояснення показати внизу вкладки магазину
 const TAB_HINTS = {
-    skin: ["series", "words", "perfect", "shield"],
+    skin: ["series", "words", "perfect", "hearts", "shield"],
     trail: ["slow"],
     explosion: ["zone"],
-    accessory: ["coins", "chest", "item"],
+    accessory: ["coins", "chest", "item", "hearts"],
     weapon: ["weapon"]
 };
 
@@ -378,6 +412,9 @@ export function itemPerkHint(itemId) {
     }
     if (perk.item) {
         return PERK_HINTS.item;
+    }
+    if (perk.hearts) {
+        return PERK_HINTS.hearts;
     }
     return "";
 }
@@ -857,6 +894,46 @@ export function drawAccessory(ctx, id, size, time) {
         ctx.strokeStyle = "#ffe14d";
         ctx.lineWidth = size * 0.06;
         ctx.stroke();
+    } else if (id === "acc_heart_pendant") {
+        // Ланцюжок на шиї й кулон-сердечко, що погойдується
+        const sway = Math.sin(time * 0.003) * size * 0.02;
+        ctx.strokeStyle = "#e8d8a0";
+        ctx.lineWidth = Math.max(1, size * 0.03);
+        ctx.beginPath();
+        ctx.moveTo(-h * 0.7, h * 0.15);
+        ctx.lineTo(sway, h * 0.55);
+        ctx.lineTo(h * 0.7, h * 0.15);
+        ctx.stroke();
+        drawHeartLife(ctx, sway, h * 0.72, size * 0.26, time);
+    } else if (id === "acc_flower_wreath") {
+        // Зелений вінок із кольоровими квіточками
+        ctx.fillStyle = "#3aa83a";
+        ctx.fillRect(-h * 0.95, -h - size * 0.06, size * 0.95, size * 0.1);
+        const flowers = ["#ff5ad8", "#ffe14d", "#ffffff", "#ff8a3a", "#8ad0ff"];
+        for (let k = 0; k < 5; k++) {
+            const fx = -h * 0.85 + k * size * 0.2;
+            const fy = -h - size * 0.07 + Math.sin(time * 0.003 + k) * size * 0.01;
+            ctx.fillStyle = flowers[k];
+            ctx.fillRect(fx - size * 0.05, fy - size * 0.05, size * 0.1, size * 0.1);
+            ctx.fillStyle = "#ffcc33";
+            ctx.fillRect(fx - size * 0.02, fy - size * 0.02, size * 0.04, size * 0.04);
+        }
+    } else if (id === "acc_wings") {
+        // Білі крила по боках повільно змахують
+        const flap = Math.sin(time * 0.005) * size * 0.08;
+        for (const side of [-1, 1]) {
+            ctx.fillStyle = "#f4f6ff";
+            ctx.beginPath();
+            ctx.moveTo(side * h * 0.9, -size * 0.1);
+            ctx.lineTo(side * (h + size * 0.42), -size * 0.36 - flap);
+            ctx.lineTo(side * (h + size * 0.36), size * 0.02 - flap * 0.5);
+            ctx.lineTo(side * (h + size * 0.22), size * 0.14);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = "#c8d4f0";
+            ctx.fillRect(side > 0 ? h + size * 0.08 : -h - size * 0.2, -size * 0.12 - flap * 0.5, size * 0.12, size * 0.04);
+            ctx.fillRect(side > 0 ? h + size * 0.12 : -h - size * 0.24, -size * 0.02 - flap * 0.3, size * 0.12, size * 0.04);
+        }
     } else if (id === "acc_crown") {
         ctx.fillStyle = "#ffcc33";
         ctx.fillRect(-h * 0.8, -h - size * 0.12, size * 0.8, size * 0.14);
@@ -956,7 +1033,8 @@ export function chestItemPool(type, isOwned) {
 // Вміст сундука: { kind: "item", id } або { kind: "crystals", amount }.
 // Якщо купувати вже нічого (усе з пулу є) — завжди монети.
 // itemBonus — добавка до шансу речі від аксесуара (0…1)
-export function rollChest(type, isOwned, random, itemBonus) {
+// heartBonus — добавка до шансу сердечка від скіна й аксесуара (0…1)
+export function rollChest(type, isOwned, random, itemBonus, heartBonus) {
     const rnd = random || Math.random;
     const chest = CHEST_TYPES[type] || CHEST_TYPES.wood;
     // Спершу — крихітний шанс легендарного предмета (будь-якого ще не купленого)
@@ -965,7 +1043,7 @@ export function rollChest(type, isOwned, random, itemBonus) {
         return { kind: "item", id: legendaries[Math.floor(rnd() * legendaries.length) % legendaries.length].id };
     }
     // Сердечко — запасне життя (із золотого сундука іноді два)
-    if (rnd() < (chest.heartChance || 0)) {
+    if (rnd() < Math.min(0.6, (chest.heartChance || 0) + (heartBonus || 0))) {
         return { kind: "heart", amount: type === "gold" && rnd() < 0.3 ? 2 : 1 };
     }
     const pool = chestItemPool(type, isOwned);
