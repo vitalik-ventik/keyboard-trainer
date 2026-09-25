@@ -95,7 +95,8 @@ for (const level of ALL_LEVELS) {
         '<span class="card-name">' + level.leagueId + "-" + levelIdx + ": " + level.name + '</span><br>' +
         '<span class="card-league">Ліга: ' + (league ? league.name : "?") + '  |  Lv.' + level.id + '</span><br>' +
         '<span class="card-theme">Фон: ' + level.bgTheme + '</span>  ' +
-        '<span class="card-skin">Скін: ' + (level.skin ? level.skin.name + " (" + level.skin.renderType + ")" : "—") + '</span>';
+        '<span class="card-skin">Скін: ' + (level.skin ? level.skin.name + " (" + level.skin.renderType + ")" : "—") + '</span>  ' +
+        '<span class="card-egg">Пасхалка: ' + BackgroundRenderer.easterEggType(level.bgTheme) + '</span>';
 
     const perf = document.createElement("div");
     perf.className = "card-perf";
@@ -216,10 +217,37 @@ btnBench.addEventListener("click", function () {
     requestAnimationFrame(step);
 });
 
+// Стан рівня для фону: прогрес (сюжет світу), пасхалка й погода — як у грі
+const progressModeEl = document.getElementById("progressMode");
+const eggToggleEl = document.getElementById("eggToggle");
+const weatherModeEl = document.getElementById("weatherMode");
+const progressLabelEl = document.getElementById("progressLabel");
+const PREVIEW_PROGRESS_LOOP = 20;
+// Пасхалка триває 5 с (як у грі) і повторюється кожні 9 с
+const PREVIEW_EGG_PERIOD = 9;
+const PREVIEW_EGG_TIME = 5;
+
+function previewEffects(time) {
+    const mode = progressModeEl ? progressModeEl.value : "auto";
+    const progress = mode === "auto" ? (time % PREVIEW_PROGRESS_LOOP) / PREVIEW_PROGRESS_LOOP : Number(mode);
+    const eggPhase = time % PREVIEW_EGG_PERIOD;
+    const eggOn = !eggToggleEl || eggToggleEl.checked;
+    return {
+        progress: progress,
+        combo: 0,
+        perfect: 0,
+        eggT: eggOn && eggPhase < PREVIEW_EGG_TIME ? eggPhase / PREVIEW_EGG_TIME : null,
+        weather: weatherModeEl ? weatherModeEl.value : "clear",
+        camY: 0,
+        oops: 0
+    };
+}
+
 function renderCard(c, time, nowMs) {
     const w = c.w;
     const h = c.h;
     const groundY = h * GROUND_RATIO;
+    BackgroundRenderer.setEffects(previewEffects(time));
     const previewSpeed = c.level.speed * 0.35;
     BackgroundRenderer.render(c.ctx, c.level.bgTheme, w, h, groundY, time, previewSpeed, c.level.accentColor, c.level.id);
 
@@ -681,6 +709,9 @@ function frame(now) {
                 syncCardSound(c, now);
             }
         }
+    }
+    if (progressLabelEl) {
+        progressLabelEl.textContent = "Зараз: " + Math.round(previewEffects(time).progress * 100) + "%";
     }
     fpsFrames++;
     if (fpsStart === null) {
