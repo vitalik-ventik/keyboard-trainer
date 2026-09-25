@@ -26,7 +26,9 @@ const SOUND_FILES = {
     chest_shake: "sounds/chest_shake.wav",
     chest_open: "sounds/chest_open.wav",
     chest_item: "sounds/chest_item.wav",
-    chest_coins: "sounds/chest_coins.wav"
+    chest_coins: "sounds/chest_coins.wav",
+    // Фанфара нового досягнення
+    achievement: "sounds/achievement.mp3"
 };
 
 // Звуки, яких може ще не бути в папці sounds/ — їх відсутність не вважається помилкою
