@@ -7,7 +7,7 @@
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
-import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
+import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, accessoryPerk, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
 import { EXTRA_LEVEL_SKINS } from "./level_skins_extra.js";
 import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, sanitizeAchievementData, localDayKey } from "./achievements.js";
@@ -2450,7 +2450,9 @@ export const save = {
         const type = saveData.shop.chests.shift();
         saveData.achievements.stats.chestsOpened++;
         const self = this;
-        const result = rollChest(type, function (id) { return self.isOwned(id); });
+        // Аксесуар може підвищити шанс, що з сундука випаде річ
+        const itemBonus = accessoryPerk(this.getEquipped("accessory")).item || 0;
+        const result = rollChest(type, function (id) { return self.isOwned(id); }, undefined, itemBonus);
         if (result.kind === "item") {
             saveData.shop.owned.push(result.id);
         } else {

@@ -11,7 +11,7 @@ import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js"
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
-import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity, coinsText, weaponCoinBonus } from "./shop.js";
+import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity, coinsText, weaponCoinBonus, accessoryPerk, accessoryPerkText } from "./shop.js";
 import { drawShopItemScene, drawShopSkinScene, drawChestScene, CHEST_SHAKE_MS, CHEST_OPEN_MS } from "./shop_preview.js";
 import { ACHIEVEMENTS, ACHIEVEMENT_GROUPS, achievementProgress, buildAchievementCard, buildAchievementToast } from "./achievements.js";
 
@@ -269,6 +269,7 @@ function handleGameOver() {
             series: runState.runSeries,
             weapon: runState.weapon,
             weaponId: runState.weaponId,
+            accessoryId: save.getEquipped("accessory"),
             won: false,
             difficulty: save.getDifficulty(),
             speed: save.getSpeed(),
@@ -311,6 +312,7 @@ function handleVictory() {
             series: runState.runSeries,
             weapon: runState.weapon,
             weaponId: runState.weaponId,
+            accessoryId: save.getEquipped("accessory"),
             won: true,
             leagueId: wonLevel ? wonLevel.leagueId : 1,
             firstClear: !paidBefore.first,
@@ -333,7 +335,8 @@ function handleVictory() {
             leagueId: wonLevel ? wonLevel.leagueId : 1,
             newSilver: !!achievementNow && !paidBefore.silver,
             newGold: achievementNow === "hard" && !paidBefore.gold,
-            winsWithoutChest: save.getWinsWithoutChest()
+            winsWithoutChest: save.getWinsWithoutChest(),
+            chestBonus: accessoryPerk(save.getEquipped("accessory")).chest || 0
         });
         save.setWinsWithoutChest(drop.winsWithoutChest);
         save.addChests(drop.chests);
@@ -1384,6 +1387,9 @@ function renderRewardBreakdown(el, reward, balanceBefore) {
     if (reward.weaponMult && reward.weaponMult !== 1) {
         addBreakdownRow(el, "Бонус зброї", "×" + reward.weaponMult);
     }
+    if (reward.accessoryMult && reward.accessoryMult !== 1) {
+        addBreakdownRow(el, "Бонус аксесуара", "×" + Math.round(reward.accessoryMult * 100) / 100);
+    }
     if (reward.half) {
         addBreakdownRow(el, "Вибух — лишається половина", "÷2");
     }
@@ -1469,6 +1475,13 @@ function buildShop() {
             bonus.className = "weapon-coin-bonus";
             bonus.textContent = "🪙 монети ×" + weaponCoinBonus(item.id);
             card.appendChild(bonus);
+        }
+        // Аксесуари дають бонус: монети, шанс сундука або шанс речі
+        if (item.type === "accessory" && accessoryPerkText(item.id)) {
+            const perk = document.createElement("span");
+            perk.className = "weapon-coin-bonus";
+            perk.textContent = accessoryPerkText(item.id);
+            card.appendChild(perk);
         }
 
         const btn = document.createElement("button");
