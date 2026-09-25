@@ -63,13 +63,19 @@ export const LEVELS_CONFIG = [
         name: "Середня",
         levels: [
             { id: 17, leagueId: 2, name: "Зигзаг: верх і середина",  letters: ["Ц","В","К","П","Р","Г","Л","Щ"], speed: 240, spikeCount: 26, seed: 2101, bgTheme: "neon_rooftops", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_2_1", name: "Ретро-сонце", renderType: "synthwave_sun" } },
+            { id: 40, leagueId: 2, name: "Руки по черзі",            letters: ["В","А","К","У","С","М","Е","П","О","Л","Н","Г","Т","Ь","Р","Д"], handSwitch: 1, speed: 245, spikeCount: 27, seed: 2025, tuneAs: 17, bgTheme: "desert_temple", accentColor: "#ffcc5a", rhythmGroups: false, skin: { id: "skin_2_x1", name: "Скарабей", renderType: "scarab_cube" } },
             { id: 18, leagueId: 2, name: "Зигзаг: середина і низ",   letters: ["І","С","А","И","Т","О","Б","Д"], speed: 250, spikeCount: 28, seed: 2102, bgTheme: "night_harbor", accentColor: "#66e0ff", rhythmGroups: false, skin: { id: "skin_2_2", name: "Капітан порту", renderType: "cyberpunk_horizon" } },
+            { id: 41, leagueId: 2, name: "Стрибки між рядами",       letters: ["У","В","С","К","А","М","Н","Р","Т"], columnJumps: true, speed: 252, spikeCount: 29, seed: 2026, tuneAs: 18, bgTheme: "fiery_forge", accentColor: "#ff7a2a", rhythmGroups: false, skin: { id: "skin_2_x2", name: "Коваль", renderType: "blacksmith" } },
             { id: 19, leagueId: 2, name: "Зигзаг: верх і низ",       letters: ["Ч","У","М","Е","Н","Ь","Ш","Ю"], speed: 255, spikeCount: 30, seed: 2103, bgTheme: "pirate_bay", accentColor: "#ffb35c", rhythmGroups: false, skin: { id: "skin_2_3", name: "Пірат", renderType: "glitch_cube" } },
             { id: 20, leagueId: 2, name: "Перші краї",               letters: ["Й","І","С","К","Д","З","Є","Ґ"], speed: 260, spikeCount: 32, seed: 2104, bgTheme: "treasury", accentColor: "#ffcc33", rhythmGroups: false, skin: { id: "skin_2_4", name: "Золотий Злиток", renderType: "gold_ingot" } },
+            { id: 42, leagueId: 2, name: "Довгі слова",              words: ["ДЕСАНТ","АНТЕНА","МОДУЛЬ","ШОЛОМ","РАДАР","КАПСУЛА","КРАТЕР","ПЕЧЕРА","ЛІХТАР","ПЛАНЕТА"], speed: 262, spikeCount: 33, seed: 2027, tuneAs: 20, bgTheme: "planet_colony", accentColor: "#ffa24a", rhythmGroups: false, skin: { id: "skin_2_x3", name: "Робот-вантажник", renderType: "power_loader" } },
             { id: 21, leagueId: 2, name: "П'ять на п'ять",           letters: ["Ф","Ч","У","А","И","Н","О","Б","Ж","Х"], speed: 268, spikeCount: 34, seed: 2105, bgTheme: "orbit_view", accentColor: "#39c6ff", rhythmGroups: false, skin: { id: "skin_2_5", name: "Орбіта", renderType: "orbit" } },
+            { id: 43, leagueId: 2, name: "Рідкісні літери",          letters: ["Ґ","Є","Ї","Щ","Ю","Я","Ь","Ж","Ф","Х"], speed: 270, spikeCount: 34, seed: 2028, tuneAs: 21, bgTheme: "hunter_ship", accentColor: "#5aff9a", rhythmGroups: false, skin: { id: "skin_2_x4", name: "Інопланетний артефакт", renderType: "alien_artifact" } },
             { id: 22, leagueId: 2, name: "Усі стовпці",              letters: ["Я","Ц","В","М","Е","Р","Ь","Ш","Ю","Ї"], speed: 275, spikeCount: 36, seed: 2106, bgTheme: "dragon_lair", accentColor: "#ff7a3d", rhythmGroups: false, skin: { id: "skin_2_6", name: "Дракон", renderType: "stalagmite" } },
             { id: 23, leagueId: 2, name: "Далекі сусіди",            letters: ["Й","І","С","К","П","Т","Г","Л","Щ","Є"], speed: 282, spikeCount: 38, seed: 2107, bgTheme: "pixel_cave", accentColor: "#33d6d0", rhythmGroups: false, skin: { id: "skin_2_7", name: "Алмазна руда", renderType: "equalizer" } },
-            { id: 24, leagueId: 2, name: "Фінал ліги",               letters: ["Ф","Ц","С","А","Е","О","Ш","Ю","З","Ґ"], speed: 295, spikeCount: 40, seed: 2108, bgTheme: "knight_castle", accentColor: "#8fa3ff", rhythmGroups: false, skin: { id: "skin_2_8", name: "Лицарський щит", renderType: "shield" } }
+            { id: 44, leagueId: 2, name: "Тренування помилок: вершина", letters: ["Ж","Є","Х","Ї","Щ","Ґ","Ю","Ф"], adaptive: { pool: ["Й","Ц","У","К","Е","Н","Г","Ш","Щ","З","Х","Ї","Ф","І","В","А","П","Р","О","Л","Д","Ж","Є","Ґ","Я","Ч","С","М","И","Т","Ь","Б","Ю"], count: 8 }, speed: 285, spikeCount: 38, seed: 2029, tuneAs: 23, bgTheme: "obsidian_peak", accentColor: "#b06bff", rhythmGroups: false, skin: { id: "skin_2_x5", name: "Обсидіановий голем", renderType: "obsidian_golem" } },
+            { id: 24, leagueId: 2, name: "Фінал ліги",               letters: ["Ф","Ц","С","А","Е","О","Ш","Ю","З","Ґ"], speed: 295, spikeCount: 40, seed: 2108, bgTheme: "knight_castle", accentColor: "#8fa3ff", rhythmGroups: false, skin: { id: "skin_2_8", name: "Лицарський щит", renderType: "shield" } },
+            { id: 45, leagueId: 2, name: "Королева вулика",          words: ["КОРОЛЕВА","ВУЛИК","ЩУПАЛЬЦЕ","ЇЖАК","ҐАНОК","ЄДНІСТЬ","ЮНГА","ЯХТА","ФІНІШ","ХВИЛЯ","ЧЕРВОНИЙ","БУРШТИН","ЖОЛУДЬ","ЦЕГЛА","ЗОРЕЛІТ","ПІЙМАЙ"], speed: 300, spikeCount: 42, seed: 2030, tuneAs: 24, bgTheme: "hive_queen", accentColor: "#78ffbe", rhythmGroups: false, skin: { id: "skin_2_x6", name: "Корона вулика", renderType: "hive_crown" } }
         ]
     },
     {
@@ -1723,7 +1729,8 @@ function generateTrack(level, effectiveSpeed, okPx) {
             return level.letters;
         }
         const lastWasLeft = LEFT_HAND_LETTERS.has(lastLetter1);
-        const switchHand = rng() < HAND_SWITCH_CHANCE;
+        // handSwitch у рівні: 1 — руки строго по черзі
+        const switchHand = rng() < (typeof level.handSwitch === "number" ? level.handSwitch : HAND_SWITCH_CHANCE);
         if (lastWasLeft === switchHand) {
             return rightPool;
         }
@@ -1744,6 +1751,18 @@ function generateTrack(level, effectiveSpeed, okPx) {
         // потім — будь-яка інша літера, і лише в крайньому разі — та сама
         const lastColumn = lastLetter1 === null ? null : LETTER_COLUMN[lastLetter1];
         let candidates = [];
+        // Рівень «стрибки між рядами»: наступна літера — з того самого стовпця, але з іншого ряду
+        if (level.columnJumps && lastColumn !== null) {
+            for (let i = 0; i < bag.length; i++) {
+                if (bag[i] !== lastLetter1 && LETTER_COLUMN[bag[i]] === lastColumn) {
+                    candidates.push(i);
+                }
+            }
+            if (candidates.length > 0) {
+                const pick = candidates[Math.floor(rng() * candidates.length)];
+                return bag.splice(pick, 1)[0];
+            }
+        }
         for (let i = 0; i < bag.length; i++) {
             if (bag[i] !== lastLetter1 && LETTER_COLUMN[bag[i]] !== lastColumn) {
                 candidates.push(i);
@@ -2550,7 +2569,13 @@ const LANDING_FX = {
     hunter_jungle: { kind: "splash", colors: ["#2a7a22", "#4a3a1a"] },
     soggy_swamp: { kind: "splash", colors: ["#3a5a2a", "#8ad86a"] },
     dungeon_depths: { kind: "pebbles", colors: ["#4a4852", "#2a2830"] },
-    alien_hive: { kind: "splash", colors: ["#78ffbe", "#2a443c"] }
+    alien_hive: { kind: "splash", colors: ["#78ffbe", "#2a443c"] },
+    desert_temple: { kind: "splash", colors: ["#e8c07a", "#f5d89a"] },
+    fiery_forge: { kind: "sparks", colors: ["#ff7a2a", "#ffcc33"] },
+    planet_colony: { kind: "splash", colors: ["#b8703a", "#8a5a2a"] },
+    hunter_ship: { kind: "sparks", colors: ["#5aff9a", "#ffffff"] },
+    obsidian_peak: { kind: "pebbles", colors: ["#2a1a3a", "#b06bff"] },
+    hive_queen: { kind: "splash", colors: ["#78ffbe", "#2a443c"] }
 };
 
 function spikeHalfWidth(type) {
@@ -2621,7 +2646,13 @@ const SPIKE_STYLE_BY_THEME = {
     alien_freighter: "iron",
     dungeon_depths: "iron",
     soggy_swamp: "urchin",
-    alien_hive: "urchin"
+    alien_hive: "urchin",
+    desert_temple: "cactus",
+    fiery_forge: "lava",
+    planet_colony: "iron",
+    hunter_ship: "crystal",
+    obsidian_peak: "crystal",
+    hive_queen: "urchin"
 };
 
 // Основні кольори кожного стилю (для уламків, коли шип розсипається)
