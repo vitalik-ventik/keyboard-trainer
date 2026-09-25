@@ -11,7 +11,7 @@ import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js"
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
-import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity, coinsText, weaponCoinBonus, accessoryPerk, itemPerkText } from "./shop.js";
+import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity, coinsText, weaponCoinBonus, accessoryPerk, itemPerkText, itemPerkHint, shopTabHints } from "./shop.js";
 import { drawShopItemScene, drawShopSkinScene, drawChestScene, CHEST_SHAKE_MS, CHEST_OPEN_MS } from "./shop_preview.js";
 import { ACHIEVEMENTS, ACHIEVEMENT_GROUPS, achievementProgress, buildAchievementCard, buildAchievementToast } from "./achievements.js";
 
@@ -1096,6 +1096,7 @@ function buildShopSkinSection(grid, activeSkinId) {
             const perkSpan = document.createElement("span");
             perkSpan.className = "weapon-coin-bonus";
             perkSpan.textContent = itemPerkText(item.id);
+            perkSpan.dataset.tip = itemPerkHint(item.id);
             card.appendChild(perkSpan);
         }
         if (owned) {
@@ -1441,9 +1442,46 @@ function buildShopTabs() {
     }
 }
 
+// Спливаюча підказка для підписів бонусів (data-tip): з'являється при наведенні
+const perkTipEl = document.createElement("div");
+perkTipEl.className = "perk-tip hidden";
+document.body.appendChild(perkTipEl);
+
+document.addEventListener("mouseover", function (e) {
+    const target = e.target && e.target.closest ? e.target.closest("[data-tip]") : null;
+    if (!target || !target.dataset.tip) {
+        perkTipEl.classList.add("hidden");
+        return;
+    }
+    perkTipEl.textContent = target.dataset.tip;
+    perkTipEl.classList.remove("hidden");
+    const r = target.getBoundingClientRect();
+    const tipW = Math.min(320, window.innerWidth - 20);
+    perkTipEl.style.maxWidth = tipW + "px";
+    const left = Math.max(10, Math.min(window.innerWidth - tipW - 10, r.left + r.width / 2 - tipW / 2));
+    perkTipEl.style.left = left + "px";
+    perkTipEl.style.top = Math.max(10, r.top - perkTipEl.offsetHeight - 8) + "px";
+});
+
+// Пояснення бонусів поточної вкладки внизу магазину
+function buildShopLegend() {
+    const el = document.getElementById("shopLegend");
+    if (!el) {
+        return;
+    }
+    el.innerHTML = "";
+    for (const line of shopTabHints(activeShopType)) {
+        const row = document.createElement("div");
+        row.textContent = line;
+        el.appendChild(row);
+    }
+    el.classList.toggle("hidden", el.childElementCount === 0);
+}
+
 function buildShop() {
     refreshCrystalDisplays();
     buildShopTabs();
+    buildShopLegend();
     shopGridEl.innerHTML = "";
     shopPreviews = [];
     const balance = save.getCrystals();
@@ -1483,6 +1521,7 @@ function buildShop() {
             const bonus = document.createElement("span");
             bonus.className = "weapon-coin-bonus";
             bonus.textContent = "🪙 Монети ×" + weaponCoinBonus(item.id);
+            bonus.dataset.tip = itemPerkHint(item.id);
             card.appendChild(bonus);
         }
         // Аксесуари, шлейфи й вибухи дають бонус: монети, сундуки, повільніша траса, ширша зона
@@ -1490,6 +1529,7 @@ function buildShop() {
             const perk = document.createElement("span");
             perk.className = "weapon-coin-bonus";
             perk.textContent = itemPerkText(item.id);
+            perk.dataset.tip = itemPerkHint(item.id);
             card.appendChild(perk);
         }
 

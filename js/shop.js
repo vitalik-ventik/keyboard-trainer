@@ -294,6 +294,65 @@ export function skinPerkText(perk) {
     return "";
 }
 
+// Пояснення бонусів (для підказки на картці й рядка внизу магазину)
+const PERK_HINTS = {
+    series: "🔥 Серії — за кілька «Ідеально» поспіль (3, 5, 10…) даються бонусні монети; цей скін дає їх у 1,5 раза більше",
+    words: "📝 Слова — монети за слова й комбінації, набрані без жодної помилки, подвоюються",
+    perfect: "💠 Ідеально — зона «Ідеально» ширша: легше робити ідеальні стрибки й серії",
+    shield: "🛡 Щит — одна помилка чи зіткнення за рівень пробачається: кубик не вибухає, а їде далі",
+    slow: "🐢 Швидкість — шипи рухаються повільніше, тож більше часу знайти потрібну клавішу (монет не менше)",
+    zone: "🎯 Зона — зона, де можна натиснути літеру («ОК» та «Ідеально»), ширша",
+    coins: "🪙 Монети — усі монети за забіг більші",
+    chest: "🎁 Сундуки — вищий шанс отримати сундук за повторну перемогу рівня",
+    item: "✨ Речі — у сундуку частіше випадає предмет замість монет (діє аксесуар, надягнутий, коли відкриваєш сундук)",
+    weapon: "🪙 Монети — з цією зброєю всі монети за забіг множаться: крутіша зброя — більше монет"
+};
+
+// Які пояснення показати внизу вкладки магазину
+const TAB_HINTS = {
+    skin: ["series", "words", "perfect", "shield"],
+    trail: ["slow"],
+    explosion: ["zone"],
+    accessory: ["coins", "chest", "item"],
+    weapon: ["weapon"]
+};
+
+export function shopTabHints(type) {
+    return (TAB_HINTS[type] || []).map(function (k) { return PERK_HINTS[k]; });
+}
+
+// Повне пояснення бонусу конкретного товару або ""
+export function itemPerkHint(itemId) {
+    const item = getShopItem(itemId);
+    if (!item) {
+        return "";
+    }
+    if (item.type === "skin") {
+        const perk = skinPerk(item.renderType);
+        return perk ? PERK_HINTS[perk] : "";
+    }
+    if (item.type === "trail" && TRAIL_PERKS[itemId]) {
+        return PERK_HINTS.slow;
+    }
+    if (item.type === "explosion" && EXPLOSION_PERKS[itemId]) {
+        return PERK_HINTS.zone;
+    }
+    if (item.type === "weapon" && weaponCoinBonus(itemId) > 1) {
+        return PERK_HINTS.weapon;
+    }
+    const perk = accessoryPerk(itemId);
+    if (perk.coins) {
+        return PERK_HINTS.coins;
+    }
+    if (perk.chest) {
+        return PERK_HINTS.chest;
+    }
+    if (perk.item) {
+        return PERK_HINTS.item;
+    }
+    return "";
+}
+
 // Бонус монет за зброю: крутіша зброя — монети збираються швидше.
 // Без зброї ×1, до 200 — ×1.1, до 350 — ×1.2, дорожча — ×1.3, легендарна — ×1.5
 export function weaponCoinBonus(weaponId) {
