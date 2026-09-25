@@ -11,6 +11,7 @@ import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js"
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
+import { SHOP_ITEMS, SHOP_TYPES, computeReward, drawTrail, drawExplosion, drawAccessory } from "./shop.js";
 
 // ---------- Полотно та адаптивність ----------
 
@@ -81,6 +82,15 @@ const activeSkinCanvas = document.getElementById("active-skin-canvas");
 const skinsModalEl = document.getElementById("skins-modal");
 const skinsGridEl = document.getElementById("skinsGrid");
 const btnCloseSkins = document.getElementById("btnCloseSkins");
+const shopTriggerEl = document.getElementById("shop-trigger");
+const shopModalEl = document.getElementById("shop-modal");
+const shopGridEl = document.getElementById("shopGrid");
+const shopTabsEl = document.getElementById("shopTabs");
+const shopBalanceEl = document.getElementById("shopBalance");
+const menuCrystalsEl = document.getElementById("menuCrystals");
+const btnCloseShop = document.getElementById("btnCloseShop");
+const victoryCrystalsEl = document.getElementById("victoryCrystals");
+const gameoverCrystalsEl = document.getElementById("gameoverCrystals");
 
 // ---------- Менеджер Станів ----------
 
@@ -140,6 +150,7 @@ function setState(next) {
 
     if (next === "MENU") {
         renderCurrentSkinIcon();
+        refreshCrystalDisplays();
     }
 
     playMusic(STATE_MUSIC[next]);
@@ -224,6 +235,19 @@ function handleGameOver() {
             maxHard: runState.maxHard,
             difficulty: runState.difficulty
         });
+        // Вибух: зберігається половина кристалів, зібраних у забігу
+        const balanceBefore = save.getCrystals();
+        const reward = computeReward({
+            perfect: runState.runPerfect,
+            series: runState.runSeries,
+            won: false,
+            difficulty: save.getDifficulty(),
+            speed: save.getSpeed(),
+            hitWindow: save.getHitWindow()
+        });
+        save.addCrystals(reward.total);
+        renderRewardBreakdown(gameoverCrystalsEl, reward, balanceBefore);
+        refreshCrystalDisplays();
     }
     const runState = gameEngine.getState();
     gameoverPctEl.textContent = Math.floor(runState.progressPct) + "%";
@@ -237,11 +261,36 @@ function handleVictory() {
     if (!resultRecorded) {
         resultRecorded = true;
         const runState = gameEngine.getState();
+        const paidBefore = save.getPaid(currentLevelId);
         victorySkinResult = save.recordResult(currentLevelId, 100, runState.score, {
             maxEasy: runState.maxEasy,
             maxHard: runState.maxHard,
             difficulty: runState.difficulty
         });
+        // Кристали: стрибки, серії, фініш і разові бонуси рівня
+        const wonLevel = ALL_LEVELS.find(function (l) { return l.id === currentLevelId; });
+        const achievementNow = save.getLevelAchievement(currentLevelId);
+        const balanceBefore = save.getCrystals();
+        const reward = computeReward({
+            perfect: runState.runPerfect,
+            series: runState.runSeries,
+            won: true,
+            leagueId: wonLevel ? wonLevel.leagueId : 1,
+            firstClear: !paidBefore.first,
+            newSilver: !!achievementNow && !paidBefore.silver,
+            newGold: achievementNow === "hard" && !paidBefore.gold,
+            difficulty: save.getDifficulty(),
+            speed: save.getSpeed(),
+            hitWindow: save.getHitWindow()
+        });
+        save.addCrystals(reward.total);
+        save.markPaid(currentLevelId, {
+            first: true,
+            silver: !!achievementNow,
+            gold: achievementNow === "hard"
+        });
+        renderRewardBreakdown(victoryCrystalsEl, reward, balanceBefore);
+        refreshCrystalDisplays();
     }
     const runState = gameEngine.getState();
     victoryScoreEl.textContent = String(runState.score);
@@ -609,6 +658,10 @@ initKeyboardInput(
 
 // Esc: закриває відкрите вікно або повертає до головного меню (зокрема з рівня — без запису результату)
 function handleEscape() {
+    if (!shopModalEl.classList.contains("hidden")) {
+        closeShop();
+        return;
+    }
     if (!skinsModalEl.classList.contains("hidden")) {
         skinsModalEl.classList.add("hidden");
         return;
@@ -793,12 +846,16 @@ function renderCurrentSkinIcon() {
         return;
     }
 
-    var miniSize = size * 0.8;
+    // З аксесуаром кубик трохи менший і нижче, щоб капелюх чи корона вмістилися
+    var accessory = save.getEquipped("accessory");
+    var withAccessory = accessory && accessory !== "acc_none";
+    var miniSize = size * (withAccessory ? 0.62 : 0.8);
     skinCtx.save();
-    skinCtx.translate(size / 2, size / 2);
+    skinCtx.translate(size / 2, size / 2 + (withAccessory ? size * 0.1 : 0));
     var nowMs = performance.now();
     SKIN_RENDERERS[renderType](skinCtx, miniSize, nowMs);
     drawAchievementFrame(skinCtx, miniSize, achievement, nowMs);
+    drawAccessory(skinCtx, accessory, miniSize, nowMs);
     skinCtx.restore();
     activeSkinCache = activeSkinId;
 }
@@ -930,9 +987,287 @@ skinsModalEl.addEventListener("click", function (e) {
     }
 });
 
+// ---------- Кристали: відображення й розбивка нагороди ----------
+
+function refreshCrystalDisplays() {
+    const balance = String(save.getCrystals());
+    if (menuCrystalsEl) {
+        menuCrystalsEl.textContent = balance;
+    }
+    if (shopBalanceEl) {
+        shopBalanceEl.textContent = balance;
+    }
+}
+
+function addBreakdownRow(el, label, value, extraClass) {
+    const l = document.createElement("span");
+    l.textContent = label;
+    const v = document.createElement("span");
+    v.className = "cb-value";
+    v.textContent = value;
+    if (extraClass) {
+        l.classList.add(extraClass);
+        v.classList.add(extraClass);
+    }
+    el.appendChild(l);
+    el.appendChild(v);
+}
+
+// Показує, за що нараховано кристали, та підказує, на що тепер вистачає
+function renderRewardBreakdown(el, reward, balanceBefore) {
+    if (!el) {
+        return;
+    }
+    el.innerHTML = "";
+    for (const line of reward.lines) {
+        addBreakdownRow(el, "💎 " + line.label, "+" + line.value);
+    }
+    if (reward.mult !== 1) {
+        addBreakdownRow(el, "Множник налаштувань", "×" + reward.mult);
+    }
+    if (reward.half) {
+        addBreakdownRow(el, "Вибух — лишається половина", "÷2");
+    }
+    const balanceAfter = balanceBefore + reward.total;
+    addBreakdownRow(el, "Разом (усього " + balanceAfter + ")", "+" + reward.total + " 💎", "cb-total");
+    const newlyAffordable = SHOP_ITEMS.filter(function (item) {
+        return item.price > balanceBefore && item.price <= balanceAfter && !save.isOwned(item.id);
+    });
+    if (newlyAffordable.length > 0) {
+        const note = document.createElement("span");
+        note.className = "cb-note";
+        note.textContent = "Тепер вистачає на: " + newlyAffordable.slice(0, 2).map(function (i) { return i.name; }).join(", ") + "!";
+        el.appendChild(note);
+    }
+}
+
+// ---------- Магазин ----------
+
+let activeShopType = "trail";
+let confirmItemId = null;
+let shopPreviews = [];
+let shopAnimating = false;
+
+function buildShopTabs() {
+    shopTabsEl.innerHTML = "";
+    for (const t of SHOP_TYPES) {
+        const tab = document.createElement("button");
+        tab.type = "button";
+        tab.className = "league-tab" + (t.type === activeShopType ? " active" : "");
+        tab.textContent = t.name;
+        tab.addEventListener("click", function () {
+            activeShopType = t.type;
+            confirmItemId = null;
+            buildShop();
+        });
+        shopTabsEl.appendChild(tab);
+    }
+}
+
+function buildShop() {
+    refreshCrystalDisplays();
+    buildShopTabs();
+    shopGridEl.innerHTML = "";
+    shopPreviews = [];
+    const balance = save.getCrystals();
+    const equipped = save.getEquipped(activeShopType);
+    for (const item of SHOP_ITEMS) {
+        if (item.type !== activeShopType) {
+            continue;
+        }
+        const owned = save.isOwned(item.id);
+        const isEquipped = equipped === item.id;
+        const card = document.createElement("div");
+        card.className = "skin-card shop-card" + (isEquipped ? " active" : "");
+
+        const canvas = document.createElement("canvas");
+        canvas.className = "skin-preview";
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.round(150 * dpr);
+        canvas.height = Math.round(100 * dpr);
+        canvas.style.width = "150px";
+        canvas.style.height = "100px";
+        card.appendChild(canvas);
+        shopPreviews.push({ canvas: canvas, item: item, dpr: dpr });
+
+        const name = document.createElement("span");
+        name.className = "skin-card-name";
+        name.textContent = item.name;
+        card.appendChild(name);
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "shop-btn";
+        if (isEquipped) {
+            btn.classList.add("equipped");
+            btn.textContent = "ОДЯГНУТО";
+            btn.disabled = true;
+        } else if (owned) {
+            btn.classList.add("equip");
+            btn.textContent = "ОДЯГНУТИ";
+            btn.addEventListener("click", function () {
+                save.equipItem(item.id);
+                confirmItemId = null;
+                renderCurrentSkinIcon();
+                buildShop();
+            });
+        } else if (balance >= item.price) {
+            if (confirmItemId === item.id) {
+                btn.classList.add("confirm");
+                btn.textContent = "ТОЧНО? 💎 " + item.price;
+            } else {
+                btn.textContent = "КУПИТИ 💎 " + item.price;
+            }
+            btn.addEventListener("click", function () {
+                if (confirmItemId !== item.id) {
+                    // Перше натискання лише просить підтвердження — щоб не купити випадково
+                    confirmItemId = item.id;
+                    buildShop();
+                    return;
+                }
+                confirmItemId = null;
+                if (save.buyItem(item.id)) {
+                    save.equipItem(item.id);
+                    playSound("click");
+                }
+                renderCurrentSkinIcon();
+                buildShop();
+            });
+        } else {
+            btn.classList.add("poor");
+            btn.textContent = "Ще " + (item.price - balance) + " 💎";
+            btn.disabled = true;
+        }
+        card.appendChild(btn);
+        shopGridEl.appendChild(card);
+    }
+}
+
+// Живий попередній перегляд товару на кубику з поточним скіном
+function drawShopPreview(entry, now) {
+    const c = entry.canvas;
+    const pctx = c.getContext("2d");
+    const w = 150;
+    const h = 100;
+    pctx.setTransform(entry.dpr, 0, 0, entry.dpr, 0, 0);
+    pctx.fillStyle = "#070b1c";
+    pctx.fillRect(0, 0, w, h);
+    const groundY = h * 0.82;
+    pctx.fillStyle = "#12203a";
+    pctx.fillRect(0, groundY, w, h - groundY);
+    pctx.fillStyle = "#00f6ff";
+    pctx.fillRect(0, groundY, w, 2);
+
+    // Аксесуари показуємо на більшому кубику, щоб було видно деталі
+    const size = entry.item.type === "accessory" ? 46 : entry.item.type === "explosion" ? 34 : 30;
+    const skinType = save.getActiveSkin();
+    const skinFn = SKIN_RENDERERS[skinType] || SKIN_RENDERERS.neon_base;
+    const accessory = entry.item.type === "accessory" ? entry.item.id : save.getEquipped("accessory");
+    const item = entry.item;
+    let cx = w * 0.5;
+    let cy = groundY - size / 2;
+    let rot = 0;
+    let showCube = true;
+
+    if (item.type === "trail") {
+        cx = w * 0.7;
+        const hop = function (t) {
+            return Math.abs(Math.sin(t * 0.003)) * h * 0.35;
+        };
+        const points = [];
+        for (let k = 0; k < 18; k++) {
+            const tk = now - k * 16;
+            points.push({
+                sx: cx - k * 5,
+                sy: groundY - size / 2 - hop(tk),
+                alpha: 0.55 * (1 - k / 18),
+                i: Math.floor(tk / 16)
+            });
+        }
+        drawTrail(pctx, item.id, points, size, now);
+        cy = groundY - size / 2 - hop(now);
+        rot = (now * 0.006) % (Math.PI * 2);
+    } else if (item.type === "explosion") {
+        const cycle = 2400;
+        const ph = now % cycle;
+        if (ph >= 700) {
+            showCube = false;
+            const t = (ph - 700) / 1000;
+            if (item.id === "boom_default") {
+                // Звичайний вибух: квадратні уламки
+                for (let i = 0; i < 10; i++) {
+                    const a = i * Math.PI * 2 / 10;
+                    const d = t * size * 2.4;
+                    pctx.globalAlpha = Math.max(0, 1 - t / 1.2);
+                    pctx.fillStyle = i % 2 === 0 ? "#00f6ff" : "#ff2ea6";
+                    pctx.fillRect(cx + Math.cos(a) * d - 3, cy + Math.sin(a) * d + t * t * 30 - 3, 6, 6);
+                }
+                pctx.globalAlpha = 1;
+            } else {
+                drawExplosion(pctx, item.id, t, cx, cy, size);
+            }
+        }
+    } else {
+        cy = groundY - size / 2 - Math.abs(Math.sin(now * 0.004)) * 6;
+        cx = w * 0.5;
+        cy += 4;
+    }
+    if (showCube) {
+        pctx.save();
+        pctx.translate(cx, cy);
+        pctx.rotate(rot);
+        skinFn(pctx, size, now, {});
+        drawAccessory(pctx, accessory, size, now);
+        pctx.restore();
+    }
+}
+
+function animateShop(now) {
+    if (shopModalEl.classList.contains("hidden")) {
+        shopAnimating = false;
+        return;
+    }
+    for (const entry of shopPreviews) {
+        drawShopPreview(entry, now);
+    }
+    requestAnimationFrame(animateShop);
+}
+
+function openShop() {
+    confirmItemId = null;
+    buildShop();
+    shopModalEl.classList.remove("hidden");
+    if (!shopAnimating) {
+        shopAnimating = true;
+        requestAnimationFrame(animateShop);
+    }
+}
+
+function closeShop() {
+    confirmItemId = null;
+    shopModalEl.classList.add("hidden");
+    refreshCrystalDisplays();
+    renderCurrentSkinIcon();
+}
+
+if (shopTriggerEl) {
+    shopTriggerEl.addEventListener("click", openShop);
+}
+
+if (btnCloseShop) {
+    btnCloseShop.addEventListener("click", closeShop);
+}
+
+shopModalEl.addEventListener("click", function (e) {
+    if (e.target === shopModalEl) {
+        closeShop();
+    }
+});
+
 // ---------- Старт застосунку ----------
 
 save.load();
+refreshCrystalDisplays();
 currentLevelId = save.getLastPlayable();
 currentLeagueId = (ALL_LEVELS.find(function (l) { return l.id === currentLevelId; }) || { leagueId: 1 }).leagueId;
 
