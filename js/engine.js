@@ -28,11 +28,11 @@ export const LEVELS_CONFIG = [
         id: 1,
         name: "Базова",
         levels: [
-            { id: 1,  leagueId: 1, name: "Перші кроки",             letters: ["А","П","Р","О"], speed: 165, spikeCount: 12, seed: 2001, bgTheme: "neon_start",              accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_1_1", name: "Стандартний Неон", renderType: "neon_base" } },
+            { id: 1,  leagueId: 1, name: "Перші кроки",             letters: ["А","П","Р","О"], speed: 165, spikeCount: 12, seed: 2001, bgTheme: "block_village",           accentColor: "#39c6ff", rhythmGroups: false, skin: { id: "skin_1_1", name: "Стандартний Неон", renderType: "neon_base" } },
             { id: 2,  leagueId: 1, name: "Сусіди центру",           letters: ["В","І","Л","Д"], speed: 172, spikeCount: 13, seed: 2002, bgTheme: "sunset_city",             accentColor: "#ff9ed0", rhythmGroups: false, skin: { id: "skin_1_2", name: "Кібер-Око", renderType: "cyber_eye" } },
             { id: 3,  leagueId: 1, name: "Верхній центр",           letters: ["К","Е","Н","Г"], speed: 179, spikeCount: 14, seed: 2003, bgTheme: "cosmodrome",                 accentColor: "#39c6ff", rhythmGroups: false, skin: { id: "skin_1_3", name: "Прибулець", renderType: "retro_gamer" } },
             { id: 4,  leagueId: 1, name: "Нижній центр",            letters: ["М","И","Т","Ь"], speed: 186, spikeCount: 15, seed: 2004, bgTheme: "neon_highway",             accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_1_4", name: "Ніндзя", renderType: "throne" } },
-            { id: 5,  leagueId: 1, name: "Верхні сусіди",           letters: ["У","Ц","Ш","Щ"], speed: 193, spikeCount: 16, seed: 2005, bgTheme: "laser_range",         accentColor: "#ff3355", rhythmGroups: false, skin: { id: "skin_1_5", name: "Лазерний приціл", renderType: "crosshair" } },
+            { id: 5,  leagueId: 1, name: "Верхні сусіди",           letters: ["У","Ц","Ш","Щ"], speed: 193, spikeCount: 16, seed: 2005, bgTheme: "jungle_temple",       accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_5", name: "Лазерний приціл", renderType: "crosshair" } },
             { id: 6,  leagueId: 1, name: "Нижні сусіди",            letters: ["С","Ч","Б","Ю"], speed: 200, spikeCount: 17, seed: 2006, bgTheme: "digital_forest",     accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_6", name: "Матричний Піксель", renderType: "matrix_pixel" } },
             { id: 7,  leagueId: 1, name: "Краї середнього ряду",    letters: ["Ф","І","Ж","Є"], speed: 207, spikeCount: 18, seed: 2007, bgTheme: "storm_sky",            accentColor: "#9fb4ff", rhythmGroups: false, skin: { id: "skin_1_7", name: "Блискавка", renderType: "slice" } },
             { id: 8,  leagueId: 1, name: "Краї верхнього ряду",     letters: ["Й","Ц","З","Х"], speed: 214, spikeCount: 19, seed: 2008, bgTheme: "crystal_cave",            accentColor: "#b35cff", rhythmGroups: false, skin: { id: "skin_1_8", name: "Сяючий Кристал", renderType: "shining_diamond" } },
@@ -1995,11 +1995,13 @@ const FINISH_OPEN_DISTANCE = 300;
 // Реакція світу на приземлення кубика
 const LANDING_FX = {
     pixel_ocean: { kind: "bubbles", colors: ["rgba(200, 240, 255, 0.9)", "rgba(150, 220, 255, 0.8)"] },
-    night_harbor: { kind: "bubbles", colors: ["rgba(200, 240, 255, 0.9)"] },
+    night_harbor: { kind: "splash", colors: ["#bfe8ff", "#ffffff"] },
     sea_fabricator: { kind: "sparks", colors: ["#39c6ff", "#ffffff", "#ff9a3d"] },
     pirate_bay: { kind: "splash", colors: ["#e8c07a", "#f5d89a"] },
     digital_forest: { kind: "fireflies", colors: ["#c8ff5a", "#fff4a0"] },
     pixel_night: { kind: "fireflies", colors: ["#c8ff5a", "#fff4a0"] },
+    block_village: { kind: "splash", colors: ["#5ab84a", "#6a4a2a"] },
+    jungle_temple: { kind: "splash", colors: ["#3aa04a", "#ff5a8a"] },
     dino_valley: { kind: "splash", colors: ["#2f8a3a", "#4fb55a"] },
     sky_citadel: { kind: "splash", colors: ["#ffffff", "#ffe8a0"] },
     luna_park: { kind: "sparks", colors: ["#ff3355", "#ffe14d", "#39c6ff", "#ff5ad8"] },
@@ -2074,7 +2076,8 @@ const SPIKE_STYLE_BY_THEME = {
     dragon_lair: "lava",
     pixel_night: "pixel",
     digital_forest: "pixel",
-    dino_valley: "pixel"
+    dino_valley: "pixel",
+    block_village: "pixel"
 };
 
 // Основні кольори кожного стилю (для уламків, коли шип розсипається)
