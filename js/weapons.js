@@ -100,14 +100,14 @@ export const DESTRUCTION_TIME = {
     saber_blue: 0.9,
     saber_red: 0.9,
     zap: 0.6,
-    fling: 1.55
+    fling: 1.7
 };
 
 // Гравітаційна гармата: промінь летить до шипа зі швидкістю GRAVITY_BEAM_SPEED
 // (до близького шипа — майже миттєво, але не довше за GRAVITY_GRAB), потім GRAVITY_LIFT
-// тримає шип у повітрі; коли промінь гасне, шип одразу відлітає.
+// шип піднімається й підтягується до кубика; коли промінь гасне, гармата відстрілює його вперед.
 export const GRAVITY_GRAB = 0.18;
-export const GRAVITY_LIFT = 0.55;
+export const GRAVITY_LIFT = 0.7;
 export const GRAVITY_BEAM_SPEED = 1400;
 // Шип злітає швидко (за GRAVITY_RISE) і вище кубика, далі висить і погойдується
 const GRAVITY_RISE = 0.16;
@@ -124,6 +124,16 @@ export function gravityLiftOffset(ft, h) {
     const rise = 1 - Math.pow(1 - k, 3);
     const hover = ft > GRAVITY_RISE ? Math.sin((ft - GRAVITY_RISE) * 9) * 0.08 : 0;
     return -h * GRAVITY_LIFT_RATIO * (rise + hover);
+}
+
+// Де тримається шип через ft секунд після захоплення: спершу злітає вгору, потім
+// плавно підтягується на відстань toPull (до точки перед кубиком; зазвичай від'ємна)
+// і встигає трохи повисіти, перш ніж промінь згасне
+export function gravityHoldOffset(ft, h, toPull) {
+    const start = GRAVITY_RISE * 0.5;
+    const k = clamp01((ft - start) / (GRAVITY_LIFT - start - 0.12));
+    const ease = k * k * (3 - 2 * k);
+    return { dx: (toPull || 0) * ease, dy: gravityLiftOffset(ft, h) };
 }
 
 // Тривалість удару ближнього бою і момент, коли лезо торкається шипа
@@ -295,8 +305,8 @@ function drawSaberShape(ctx, s, time, color) {
     ctx.fillRect(-s * 0.06, s * 0.14, s * 0.12, s * 0.04);
     ctx.fillStyle = "#e0303a";
     ctx.fillRect(s * 0.03, 0, s * 0.03, s * 0.04);
-    // Довжина леза стала; «гудіння» — лише м'яке повільне дихання сяйва
-    const len = s * 1.05;
+    // Лезо ледь помітно тремтить (утричі слабше й повільніше, ніж спершу) і м'яко «дихає» сяйвом
+    const len = s * 1.05 * (1 + Math.sin(time * 0.03) * 0.013);
     const glow = 0.32 + 0.06 * Math.sin(time * 0.006);
     ctx.globalAlpha *= glow;
     ctx.fillStyle = color;
@@ -842,7 +852,8 @@ function clipHalfPlane(ctx, x1, y1, x2, y2, side) {
 
 // Малює анімацію руйнування. drawShape(ctx) малює цілий шип на його місці.
 // x — центр шипа на екрані, hw — половина ширини, h — висота.
-export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape) {
+// opts (необов'язково): { pullX } — куди гравітаційна гармата притягує шип (x точки перед кубиком)
+export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape, opts) {
     const dur = DESTRUCTION_TIME[kind] || 0.5;
     const k = clamp01(t / dur);
     ctx.save();
@@ -1211,19 +1222,22 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape)
         }
         ctx.stroke();
     } else if (kind === "fling") {
-        // Гравітаційна гармата: поки тримає промінь — шип плавно піднімається й
-        // погойдується; щойно промінь гасне — шип одразу відлітає в небо й зникає зірочкою
-        let dx = 0;
+        // Гравітаційна гармата: промінь піднімає шип, притягує його до кубика й тримає,
+        // погойдуючи; щойно промінь гасне — шип відстрілюється вперед і вгору, зникаючи зірочкою
         const liftPx = h * GRAVITY_LIFT_RATIO;
-        let dy = gravityLiftOffset(t, h);
-        let spin = Math.sin(t * 14) * 0.12 * clamp01(t / 0.15);
+        const toPull = opts && typeof opts.pullX === "number" ? opts.pullX - x : 0;
+        const hold = gravityHoldOffset(Math.min(t, GRAVITY_LIFT), h, toPull);
+        let dx = hold.dx;
+        let dy = hold.dy;
+        // Поки тягне, шип нахиляється до кубика
+        let spin = Math.sin(t * 14) * 0.12 * clamp01(t / 0.15) - 0.35 * clamp01(t / GRAVITY_LIFT) * (toPull < 0 ? 1 : 0);
         let scale = 1;
         const f = t - GRAVITY_LIFT;
         if (f > 0) {
-            dx = f * 560 + f * f * 300;
-            dy = -liftPx - f * 680 - f * f * 400;
-            spin = f * 11;
-            scale = Math.max(0, 1 - f * 1.3);
+            dx = hold.dx + f * 900 + f * f * 700;
+            dy = -liftPx - f * 260 - f * f * 260;
+            spin = f * 13;
+            scale = Math.max(0, 1 - f * 1.1);
         }
         if (scale > 0.02) {
             const cy = groundY - h * 0.4 + dy;
@@ -1240,21 +1254,26 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape)
             drawShape(ctx);
             ctx.restore();
         }
-        // Спалах-кільце в мить кидка
+        // Спалах-кільце в мить пострілу — там, де шип висів перед кубиком
         if (f > 0 && f < 0.25) {
             const e = f / 0.25;
             ctx.strokeStyle = "rgba(220, 200, 255, " + (1 - e).toFixed(2) + ")";
             ctx.lineWidth = 3 * (1 - e) + 1;
             ctx.beginPath();
-            ctx.arc(x, groundY - h * 0.4 - liftPx, 10 + e * 40, 0, Math.PI * 2);
+            ctx.arc(x + hold.dx, groundY - h * 0.4 - liftPx, 10 + e * 40, 0, Math.PI * 2);
             ctx.stroke();
+            // Смуги швидкості позаду шипа
+            ctx.fillStyle = "rgba(200, 180, 255, " + (0.7 * (1 - e)).toFixed(2) + ")";
+            for (let i = 0; i < 3; i++) {
+                ctx.fillRect(x + dx - 30 - i * 14, groundY - h * 0.4 + dy - 8 + i * 8, 24, 2);
+            }
         }
         // Зірочка там, де шип зник у небі
         const star = f > 0.6 ? Math.sin(clamp01((f - 0.6) / 0.35) * Math.PI) : 0;
         if (star > 0) {
             const sf = 0.72;
-            const sx = x + sf * 560 + sf * sf * 300;
-            const sy = groundY - h * 0.4 - liftPx - sf * 680 - sf * sf * 400;
+            const sx = x + hold.dx + sf * 900 + sf * sf * 700;
+            const sy = groundY - h * 0.4 - liftPx - sf * 260 - sf * sf * 260;
             ctx.fillStyle = "rgba(255, 255, 255, " + star.toFixed(2) + ")";
             ctx.fillRect(sx - 1.5, sy - 9 * star, 3, 18 * star);
             ctx.fillRect(sx - 9 * star, sy - 1.5, 18 * star, 3);
@@ -1382,7 +1401,7 @@ export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
     } else {
         drawSpikeDestruction(ctx, spec.fx, u - hitAt, spikeX, groundY, hw, sh, function (c) {
             drawPreviewSpike(c, spikeX, groundY, hw, sh);
-        });
+        }, { pullX: cubeX + s * 1.6 });
     }
 
     // Снаряди та промінь
@@ -1424,8 +1443,9 @@ export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
     if (spec && spec.mode === "beam" && demoBeam) {
         const bt = demoBeam.time;
         if (u >= press && u < press + bt) {
-            const liftY = spec.beam === "gravity" && u > hitAt ? gravityLiftOffset(u - hitAt, sh) : 0;
-            drawBeam(ctx, spec.beam, muzzleX + s * 0.08, muzzleY, spikeAt(press), groundY - sh * 0.45 + liftY, (u - press) / bt, time, demoBeam.hit / demoBeam.time);
+            const endX = u > hitAt ? spikeX : spikeAt(press);
+            const hold = spec.beam === "gravity" && u > hitAt ? gravityHoldOffset(u - hitAt, sh, cubeX + s * 1.6 - endX) : { dx: 0, dy: 0 };
+            drawBeam(ctx, spec.beam, muzzleX + s * 0.08, muzzleY, endX + hold.dx, groundY - sh * 0.45 + hold.dy, (u - press) / bt, time, demoBeam.hit / demoBeam.time);
             recoil = 1 - (u - press) / bt;
         }
     }
