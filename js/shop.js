@@ -65,8 +65,13 @@ export const SHOP_ITEMS = [
     { id: "weapon_ball", type: "weapon", name: "Футбольний м'яч", price: 450 },
     { id: "weapon_pistol", type: "weapon", name: "Пістолет", price: 450 },
     { id: "weapon_rifle", type: "weapon", name: "Автомат", price: 600 },
+    { id: "weapon_flamethrower", type: "weapon", name: "Вогнемет", price: 650 },
     { id: "weapon_laser", type: "weapon", name: "Лазер", price: 700 },
     { id: "weapon_rocket", type: "weapon", name: "Ракетниця", price: 900 },
+    // Легендарна зброя: як легендарні скіни, купується лише після виконання умови
+    { id: "weapon_firesword", type: "weapon", name: "Вогняний меч", price: 1500, legendary: true, requirement: { kind: "boss" } },
+    { id: "weapon_thunder", type: "weapon", name: "Громовий молот", price: 1800, legendary: true, requirement: { kind: "gold_count", target: 10 } },
+    { id: "weapon_gravity", type: "weapon", name: "Гравітаційна гармата", price: 2200, legendary: true, requirement: { kind: "gold_league", league: 1 } },
 
     { id: "acc_none", type: "accessory", name: "Без аксесуара", price: 0 },
     { id: "acc_cap", type: "accessory", name: "Кепка", price: 60 },
