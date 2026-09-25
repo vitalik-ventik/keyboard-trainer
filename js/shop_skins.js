@@ -875,6 +875,79 @@ export const SHOP_SKIN_RENDERERS = {
         frame(ctx, s, "#7a8aff");
     },
 
+    // Чорний дракончик: великі зелені очі, вушка-плавці, беззуба усмішка,
+    // крильця махають, зіниці то звужуються, то розширюються, іноді кліпає
+    shop_night_dragon: function (ctx, s, time) {
+        var flap = Math.sin(time * 0.006) * 0.08;
+        var wiggle = Math.sin(time * 0.004) * 0.03;
+        // Хвіст із червоним плавцем позаду кубика
+        tri(ctx, s, "#15161d", 0.3, 0.3, 0.72, 0.28, 0.5, 0.48);
+        tri(ctx, s, "#d8302a", 0.62, 0.2, 0.8, 0.22, 0.7, 0.4);
+        tri(ctx, s, "#15161d", 0.6, 0.3, 0.76, 0.46, 0.64, 0.5);
+        // Крильця позаду махають
+        tri(ctx, s, "#2e3346", -0.46, -0.16, -0.84, -0.4 - flap, -0.7, 0.14);
+        tri(ctx, s, "#2e3346", 0.46, -0.16, 0.84, -0.4 - flap, 0.7, 0.14);
+        tri(ctx, s, "#4a5270", -0.5, -0.08, -0.74, -0.3 - flap, -0.64, 0.08);
+        tri(ctx, s, "#4a5270", 0.5, -0.08, 0.74, -0.3 - flap, 0.64, 0.08);
+        // Вушка-плавці: великі по краях, маленькі ближче до центру
+        tri(ctx, s, "#2e3346", -0.44, -0.48, -0.22, -0.48, -0.56 - wiggle, -0.76);
+        tri(ctx, s, "#2e3346", 0.44, -0.48, 0.22, -0.48, 0.56 + wiggle, -0.76);
+        tri(ctx, s, "#2e3346", -0.2, -0.48, -0.06, -0.48, -0.2 - wiggle, -0.66);
+        tri(ctx, s, "#2e3346", 0.2, -0.48, 0.06, -0.48, 0.2 + wiggle, -0.66);
+        tri(ctx, s, "#4a5270", -0.4, -0.48, -0.28, -0.48, -0.5 - wiggle, -0.68);
+        tri(ctx, s, "#4a5270", 0.4, -0.48, 0.28, -0.48, 0.5 + wiggle, -0.68);
+        // Тіло: чорне з синюватим полиском
+        var body = ctx.createLinearGradient(0, -s / 2, 0, s / 2);
+        body.addColorStop(0, "#2a2e3c");
+        body.addColorStop(1, "#111218");
+        ctx.fillStyle = body;
+        ctx.fillRect(-s / 2, -s / 2, s, s);
+        r(ctx, s, "rgba(120, 150, 255, 0.12)", -0.46, -0.46, 0.92, 0.06);
+        // Лусочки-цяточки
+        r(ctx, s, "#353a4c", -0.38, -0.36, 0.04, 0.04);
+        r(ctx, s, "#353a4c", 0.3, -0.38, 0.04, 0.04);
+        r(ctx, s, "#353a4c", -0.02, -0.4, 0.04, 0.04);
+        // Рум'янець
+        disc(ctx, s, "rgba(255, 120, 160, 0.42)", -0.34, 0.14, 0.07);
+        disc(ctx, s, "rgba(255, 120, 160, 0.42)", 0.34, 0.14, 0.07);
+        // Великі зелені очі
+        var blink = time > 0 && (time % 3600) < 140;
+        var pupil = 0.035 + 0.025 * (0.5 + 0.5 * Math.sin(time * 0.0025));
+        for (var e = -1; e <= 1; e += 2) {
+            var ex = e * 0.2;
+            if (blink) {
+                r(ctx, s, "#9be83a", ex - 0.12, -0.06, 0.24, 0.03);
+                continue;
+            }
+            disc(ctx, s, "#6cc82a", ex, -0.06, 0.14);
+            disc(ctx, s, "#b8f050", ex, -0.06, 0.11);
+            ctx.fillStyle = "#0c0d12";
+            ctx.beginPath();
+            ctx.ellipse(ex * s, -0.06 * s, pupil * s, 0.09 * s, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Блиски
+            disc(ctx, s, "#ffffff", ex - 0.05, -0.12, 0.03);
+            disc(ctx, s, "#ffffff", ex + 0.05, -0.01, 0.015);
+        }
+        // Ніздрі
+        disc(ctx, s, "#050507", -0.06, 0.13, 0.02);
+        disc(ctx, s, "#050507", 0.06, 0.13, 0.02);
+        // Беззуба усмішка: рожеві ясна
+        ctx.fillStyle = "#e8849e";
+        ctx.beginPath();
+        ctx.moveTo(-0.18 * s, 0.22 * s);
+        ctx.quadraticCurveTo(0, 0.4 * s, 0.18 * s, 0.22 * s);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#050507";
+        ctx.lineWidth = Math.max(1, s * 0.025);
+        ctx.beginPath();
+        ctx.moveTo(-0.2 * s, 0.21 * s);
+        ctx.quadraticCurveTo(0, 0.42 * s, 0.2 * s, 0.21 * s);
+        ctx.stroke();
+        frame(ctx, s, "#4ab0ff");
+    },
+
     // Дракончик: ріжки, крильця, з ніздрів іде димок
     shop_dragon: function (ctx, s, time) {
         // Крильця позаду махають

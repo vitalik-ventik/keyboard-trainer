@@ -2081,6 +2081,18 @@ export const save = {
         };
     },
 
+    // Почати заново: стирає рівні, монети, покупки, сундуки й досягнення.
+    // Налаштування (складність, швидкість, камера) лишаються, скін — стартовий
+    resetProgress() {
+        if (!saveData) {
+            this.load();
+        }
+        const settings = saveData.settings;
+        saveData = defaultSaveData();
+        saveData.settings = Object.assign({}, settings, { activeSkin: null });
+        this.persist();
+    },
+
     persist() {
         if (!saveData) {
             saveData = defaultSaveData();

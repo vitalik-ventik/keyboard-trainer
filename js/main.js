@@ -572,6 +572,27 @@ btnHard.addEventListener("click", function () {
     createDemoEngine();
 });
 
+// «Почати заново»: перше натискання питає «ТОЧНО?», друге (протягом 4 с) стирає прогрес
+const btnResetProgress = document.getElementById("btnResetProgress");
+let resetArmedUntil = 0;
+if (btnResetProgress) {
+    btnResetProgress.addEventListener("click", function () {
+        const now = Date.now();
+        if (now > resetArmedUntil) {
+            resetArmedUntil = now + 4000;
+            btnResetProgress.textContent = "ТОЧНО? НАТИСНИ ЩЕ РАЗ";
+            setTimeout(function () {
+                if (Date.now() >= resetArmedUntil) {
+                    btnResetProgress.textContent = "🗑 ПОЧАТИ ЗАНОВО";
+                }
+            }, 4100);
+            return;
+        }
+        save.resetProgress();
+        window.location.reload();
+    });
+}
+
 btnCloseSettings.addEventListener("click", function () {
     createDemoEngine();
     setState("MENU");
