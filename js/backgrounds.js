@@ -3190,39 +3190,41 @@ function drawFarmBuilding(fx, kind, bx, farmH, B, windows, chimneys) {
         windows.push({ x: bx + B * 3.1, y: g - B * 1.8 });
         fx.fillStyle = "#2a2018";
         fx.fillRect(bx + B * 1.8, g - B * 1.5, B * 0.8, B * 1.5);
-    } else if (kind === "church") {
-        // Церква: широка нава з двосхилим дахом і дзвіниця збоку з гострим шпилем
-        fx.fillStyle = "#8a8a9a";
-        fx.fillRect(bx, g - B * 2.4, B * 4, B * 2.4);
-        fx.fillStyle = "#4a4458";
-        for (let k = 0; k < 4; k++) {
-            fx.fillRect(bx - B * 0.3 + k * B * 0.55, g - B * 2.4 - (k + 1) * B * 0.45, B * 4.6 - k * B * 1.1, B * 0.45);
+    } else if (kind === "cowshed") {
+        // Хлів: довга низька будівля з ламаним дахом, сіновалом і коровою у дверях
+        fx.fillStyle = "#6a3a24";
+        fx.fillRect(bx, g - B * 2, B * 5.4, B * 2);
+        fx.fillStyle = "#4a2a1a";
+        fx.fillRect(bx - B * 0.3, g - B * 2.5, B * 6, B * 0.5);
+        fx.fillRect(bx + B * 0.4, g - B * 3, B * 4.6, B * 0.5);
+        fx.fillRect(bx + B * 1.2, g - B * 3.4, B * 3, B * 0.4);
+        fx.fillStyle = "#c8a040";
+        fx.fillRect(bx + B * 2.2, g - B * 2.9, B * 1, B * 0.6);
+        fx.fillStyle = "#2a1810";
+        fx.fillRect(bx + B * 3.6, g - B * 1.5, B * 1.2, B * 1.5);
+        fx.fillStyle = "#f0f0f0";
+        fx.fillRect(bx + B * 3.7, g - B * 1.2, B * 0.9, B * 0.7);
+        fx.fillStyle = "#2a2a2a";
+        fx.fillRect(bx + B * 3.9, g - B * 1.1, B * 0.3, B * 0.3);
+        fx.fillStyle = "#e8b0a0";
+        fx.fillRect(bx + B * 3.9, g - B * 0.7, B * 0.5, B * 0.25);
+        fx.fillStyle = "#e8e0d0";
+        fx.fillRect(bx + B * 0.4, g - B * 1.5, B * 0.8, B * 0.1);
+        windows.push({ x: bx + B * 0.5, y: g - B * 1.4 });
+        windows.push({ x: bx + B * 1.8, y: g - B * 1.4 });
+    } else if (kind === "haystack") {
+        // Стіг сіна та возик
+        for (let r = 0; r < 4; r++) {
+            fx.fillStyle = r % 2 === 0 ? "#c8a040" : "#b89030";
+            fx.fillRect(bx + r * B * 0.4, g - (r + 1) * B * 0.6, B * 3 - r * B * 0.8, B * 0.6);
         }
-        const tx = bx + B * 4;
-        fx.fillStyle = "#9a9aaa";
-        fx.fillRect(tx, g - B * 4.2, B * 1.6, B * 4.2);
-        fx.fillStyle = "#5a5470";
-        for (let k = 0; k < 6; k++) {
-            const w = B * 1.9 - k * B * 0.32;
-            fx.fillRect(tx + (B * 1.6 - w) / 2, g - B * 4.2 - (k + 1) * B * 0.4, w, B * 0.4);
-        }
-        fx.fillStyle = "#c8b060";
-        fx.fillRect(tx + B * 0.74, g - B * 7.4, B * 0.12, B * 0.8);
-        fx.fillRect(tx + B * 0.55, g - B * 7.15, B * 0.5, B * 0.12);
+        fx.fillStyle = "#6a4a2a";
+        fx.fillRect(bx + B * 3.4, g - B * 1.2, B * 2.2, B * 0.6);
+        fx.fillStyle = "#c8a040";
+        fx.fillRect(bx + B * 3.5, g - B * 1.6, B * 2, B * 0.4);
         fx.fillStyle = "#2a2018";
-        fx.fillRect(bx + B * 1.6, g - B * 1.3, B * 0.8, B * 1.3);
-        fx.fillRect(bx + B * 1.7, g - B * 1.4, B * 0.6, B * 0.1);
-        windows.push({ x: tx + B * 0.5, y: g - B * 3.4 });
-        windows.push({ x: bx + B * 0.4, y: g - B * 1.8 });
-        windows.push({ x: bx + B * 2.9, y: g - B * 1.8 });
-    } else if (kind === "silo") {
-        fx.fillStyle = "#7a8090";
-        fx.fillRect(bx, g - B * 5, B * 1.8, B * 5);
-        drawPixelDisc(fx, bx + B * 0.9, g - B * 5, B * 0.9, B / 4, "#8a90a0");
-        fx.fillStyle = "#5a1e1e";
-        fx.fillRect(bx + B * 2, g - B * 2.2, B * 2.4, B * 2.2);
-        fx.fillRect(bx + B * 1.8, g - B * 2.6, B * 2.8, B * 0.4);
-        windows.push({ x: bx + B * 2.9, y: g - B * 1.6 });
+        fx.fillRect(bx + B * 3.6, g - B * 0.6, B * 0.6, B * 0.6);
+        fx.fillRect(bx + B * 4.9, g - B * 0.6, B * 0.6, B * 0.6);
     } else if (kind === "cottage") {
         fx.fillStyle = "#c8b890";
         fx.fillRect(bx, g - B * 2, B * 3.6, B * 2);
@@ -3302,9 +3304,9 @@ function buildStormSky(W, H, groundY, B) {
     const trees = [];
     const windows = [];
     const chimneys = [];
-    const farmKinds = ["barn", "house", "church", "silo", "cottage", "tower"];
+    const farmKinds = ["barn", "house", "cowshed", "haystack", "cottage", "tower"];
     for (let x = 0; x < farmW; x += B * 16) {
-        // Будівля: щоразу інша (амбар, хата з димарем, церква, силос, котедж, водонапірна вежа)
+        // Будівля: щоразу інша (амбар, хата з димарем, хлів, стіг сіна, котедж, водонапірна вежа)
         drawFarmBuilding(fx, farmKinds[Math.floor(x / (B * 16)) % farmKinds.length], x + B * 1.5, farmH, B, windows, chimneys);
         // Вітряк
         const mx = x + B * 10;
