@@ -52,6 +52,13 @@ export const SHOP_ITEMS = [
     { id: "shop_sharingan", type: "skin", name: "Шарінган", price: 1300, renderType: "shop_sharingan" },
     { id: "shop_dragon", type: "skin", name: "Кубик-дракончик", price: 1600, renderType: "shop_dragon" },
     { id: "shop_galaxy", type: "skin", name: "Кубик-галактика", price: 2000, renderType: "shop_galaxy" },
+    // Скіни пізніх ліг (league — з якої ліги відкриваються)
+    { id: "shop_terminator", type: "skin", name: "Термінатор", price: 2500, league: 3, renderType: "shop_terminator" },
+    { id: "shop_predator", type: "skin", name: "Хижак", price: 3000, league: 3, renderType: "shop_predator" },
+    { id: "shop_kurama", type: "skin", name: "Дев'ятихвостий лис", price: 3500, league: 3, renderType: "shop_kurama" },
+    { id: "shop_godzilla", type: "skin", name: "Ґодзілла", price: 4000, league: 4, renderType: "shop_godzilla" },
+    { id: "shop_demogorgon", type: "skin", name: "Демогоргон", price: 5000, league: 4, renderType: "shop_demogorgon" },
+    { id: "shop_reaper", type: "skin", name: "Жнець-левіафан", price: 6000, league: 4, renderType: "shop_reaper" },
 
     // Легендарні скіни: купуються лише після виконання умови (requirement)
     { id: "shop_phoenix", type: "skin", name: "Вогняний фенікс", price: 3000, renderType: "shop_phoenix", legendary: true, requirement: { kind: "clears", target: 25 } },
@@ -67,6 +74,9 @@ export const SHOP_ITEMS = [
     { id: "trail_blocks", type: "trail", name: "Кубічні пікселі", price: 350 },
     { id: "trail_stars", type: "trail", name: "Зірочки", price: 600 },
     { id: "trail_fire", type: "trail", name: "Вогонь", price: 1000 },
+    { id: "trail_plasma", type: "trail", name: "Плазма", price: 2500, league: 3 },
+    { id: "trail_comet", type: "trail", name: "Комета", price: 3200, league: 3 },
+    { id: "trail_blackhole", type: "trail", name: "Чорна діра", price: 4500, league: 4 },
 
     { id: "boom_default", type: "explosion", name: "Звичайний", price: 0 },
     { id: "boom_confetti", type: "explosion", name: "Конфеті", price: 40 },
@@ -75,6 +85,9 @@ export const SHOP_ITEMS = [
     { id: "boom_watermelon", type: "explosion", name: "Кавун", price: 350 },
     { id: "boom_fireworks", type: "explosion", name: "Феєрверк", price: 600 },
     { id: "boom_starfall", type: "explosion", name: "Зорепад", price: 1000 },
+    { id: "boom_plasma", type: "explosion", name: "Плазмовий розряд", price: 2500, league: 3 },
+    { id: "boom_supernova", type: "explosion", name: "Наднова", price: 3200, league: 3 },
+    { id: "boom_atomic", type: "explosion", name: "Атомний вибух", price: 4500, league: 4 },
 
     { id: "weapon_none", type: "weapon", name: "Без зброї (стрибки)", price: 0 },
     { id: "weapon_sword", type: "weapon", name: "Меч", price: 100, league: 1, bonus: 1.05 },
@@ -107,7 +120,11 @@ export const SHOP_ITEMS = [
     { id: "acc_pirate", type: "accessory", name: "Піратський капелюх", price: 800 },
     { id: "acc_halo", type: "accessory", name: "Німб", price: 850 },
     { id: "acc_crown", type: "accessory", name: "Корона", price: 900 },
-    { id: "acc_wings", type: "accessory", name: "Крила", price: 1000 }
+    { id: "acc_wings", type: "accessory", name: "Крила", price: 1000 },
+    { id: "acc_ninja_band", type: "accessory", name: "Пов'язка ніндзя", price: 2500, league: 3 },
+    { id: "acc_cyber_visor", type: "accessory", name: "Кібер-візор", price: 2800, league: 3 },
+    { id: "acc_heart_orbit", type: "accessory", name: "Орбіта сердець", price: 4000, league: 4 },
+    { id: "acc_diamond_crown", type: "accessory", name: "Діамантова корона", price: 5000, league: 4 }
 ];
 
 export const SHOP_TYPES = [
@@ -179,7 +196,8 @@ export function rewardMultiplier(difficulty, speed, hitWindow) {
 // Бонуси аксесуарів: кожен дає один бонус — більше монет (coins), вищий шанс
 // сундука за повторну перемогу (chest) або вищий шанс речі в сундуку (item).
 // Дорожчий аксесуар — більший бонус: кожен вид має три сходинки (+5%, +10%, +20%;
-// сердечка — +5%, +10%, +15%), і ціна росте разом із бонусом
+// сердечка — +5%, +10%, +15%), і ціна росте разом із бонусом;
+// у Лігах 3–4 — четверта сходинка (+30%, сердечка — +20%)
 export const ACCESSORY_PERKS = {
     acc_cap: { coins: 0.05 },
     acc_bow: { chest: 0.05 },
@@ -193,7 +211,12 @@ export const ACCESSORY_PERKS = {
     // Шанс сердечка в сундуку
     acc_heart_pendant: { hearts: 0.05 },
     acc_flower_wreath: { hearts: 0.1 },
-    acc_wings: { hearts: 0.15 }
+    acc_wings: { hearts: 0.15 },
+    // Четверта сходинка — у Лігах 3–4
+    acc_ninja_band: { chest: 0.3 },
+    acc_cyber_visor: { item: 0.3 },
+    acc_diamond_crown: { coins: 0.3 },
+    acc_heart_orbit: { hearts: 0.2 }
 };
 
 export function accessoryPerk(accessoryId) {
@@ -227,7 +250,10 @@ export const TRAIL_PERKS = {
     trail_rainbow: { slow: 0.07 },
     trail_blocks: { slow: 0.09 },
     trail_stars: { slow: 0.11 },
-    trail_fire: { slow: 0.13 }
+    trail_fire: { slow: 0.13 },
+    trail_plasma: { slow: 0.15 },
+    trail_comet: { slow: 0.17 },
+    trail_blackhole: { slow: 0.2 }
 };
 
 // Бонуси вибухів: ширша зона стрибка (window — на скільки частка зон «ОК» та «Ідеально» більша)
@@ -237,7 +263,10 @@ export const EXPLOSION_PERKS = {
     boom_bubbles: { window: 0.11 },
     boom_watermelon: { window: 0.14 },
     boom_fireworks: { window: 0.17 },
-    boom_starfall: { window: 0.2 }
+    boom_starfall: { window: 0.2 },
+    boom_plasma: { window: 0.23 },
+    boom_supernova: { window: 0.26 },
+    boom_atomic: { window: 0.3 }
 };
 
 // Наскільки шлейф сповільнює трасу (0…1)
@@ -268,7 +297,7 @@ export function itemPerkText(itemId) {
 // Бонуси скінів із магазину (скіни рівнів — нагорода без бонусу), за ціною:
 //   до 300 — series: монети за серії «Ідеально» ×1.5 … ×1.7
 //   до 800 — words: монети за слова й комбінації ×2 … ×2.4
-//   дорожчі — perfect: зона «Ідеально» +20% … +35%
+//   дорожчі — perfect: зона «Ідеально» +20% … +50% (Ліги 3–4 — +40% і +50%)
 //   легендарні — shield: одна помилка чи зіткнення за рівень пробачається
 export const SKIN_SERIES_MULT = 1.5;
 export const SKIN_WORDS_MULT = 2;
@@ -287,7 +316,7 @@ export const SKIN_PERK_TIERS = {
 export const SHOP_SKIN_PERK_STEPS = {
     series: [[150, 1.5], [220, 1.6], [300, 1.7]],
     words: [[450, 2], [600, 2.2], [800, 2.4]],
-    perfect: [[1000, 0.2], [1300, 0.25], [1600, 0.3], [2000, 0.35]]
+    perfect: [[1000, 0.2], [1300, 0.25], [1600, 0.3], [2000, 0.35], [2500, 0.4], [4000, 0.5]]
 };
 
 // Сила бонусу скіна з магазину (для «сердечок» — своя в кожного скіна)
@@ -639,6 +668,39 @@ export function drawTrail(ctx, id, points, cube, time) {
         ctx.lineCap = "butt";
         return;
     }
+    if (id === "trail_plasma") {
+        // Блискавка: ламана лінія, що мерехтить (зсуви оновлюються кожні 60 мс)
+        if (points.length < 2) {
+            return;
+        }
+        const flick = Math.floor(time / 60);
+        for (let pass = 0; pass < 2; pass++) {
+            ctx.strokeStyle = pass === 0 ? "rgba(80, 150, 255, 0.4)" : "rgba(225, 245, 255, 0.95)";
+            ctx.lineWidth = pass === 0 ? cube * 0.3 : cube * 0.07;
+            ctx.lineJoin = "round";
+            ctx.beginPath();
+            for (let k = 0; k < points.length; k++) {
+                const jit = k === points.length - 1 ? 0 : (hashRand(points[k].i * 7 + flick) - 0.5) * cube * 0.45;
+                if (k === 0) {
+                    ctx.moveTo(points[k].sx, points[k].sy + jit);
+                } else {
+                    ctx.lineTo(points[k].sx, points[k].sy + jit);
+                }
+            }
+            ctx.stroke();
+        }
+        ctx.lineJoin = "miter";
+        // Іскри
+        ctx.fillStyle = "#ffffff";
+        for (const p of points) {
+            if (hashRand(p.i * 3 + flick) < 0.15) {
+                ctx.globalAlpha = Math.max(0, Math.min(1, p.alpha / 0.55));
+                ctx.fillRect(p.sx + (hashRand(p.i + flick) - 0.5) * cube * 0.8, p.sy + (hashRand(p.i * 5 + flick) - 0.5) * cube * 0.8, 3, 3);
+            }
+        }
+        ctx.globalAlpha = 1;
+        return;
+    }
     for (const p of points) {
         const a = Math.max(0, Math.min(1, p.alpha / 0.55));
         const age = 1 - a;
@@ -680,6 +742,51 @@ export function drawTrail(ctx, id, points, cube, time) {
             ctx.fillStyle = r < 0.5 ? "#ffe14d" : "#ffffff";
             ctx.fillRect(x - s / 2, y - s * 1.5, s, s * 3);
             ctx.fillRect(x - s * 1.5, y - s / 2, s * 3, s);
+        } else if (id === "trail_comet") {
+            // Хвіст комети: біле ядро, блакитне сяйво, що звужується, і зірочки
+            const rad = cube * 0.42 * (1 - age * 0.8);
+            ctx.globalAlpha = a * 0.35;
+            ctx.fillStyle = age < 0.5 ? "#8ad8ff" : "#b58cff";
+            ctx.beginPath();
+            ctx.arc(p.sx, p.sy, rad, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = a * 0.8;
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath();
+            ctx.arc(p.sx, p.sy, rad * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+            if (p.i % 3 === 0) {
+                const x = p.sx + (r - 0.5) * cube * 1.1;
+                const y = p.sy + (hashRand(p.i + 13) - 0.5) * cube * 1.1;
+                const st = cube * 0.05 * (0.6 + 0.4 * Math.sin(time * 0.015 + p.i));
+                ctx.fillStyle = "#e8f6ff";
+                ctx.fillRect(x - st / 2, y - st * 1.5, st, st * 3);
+                ctx.fillRect(x - st * 1.5, y - st / 2, st * 3, st);
+            }
+        } else if (id === "trail_blackhole") {
+            // Чорна діра: фіолетові кільця обертаються, до центру затягує частинки
+            if (p.i % 2 !== 0) {
+                continue;
+            }
+            const rad = cube * (0.2 + age * 0.3);
+            ctx.globalAlpha = a * 0.9;
+            ctx.strokeStyle = "#b35cff";
+            ctx.lineWidth = Math.max(1.5, cube * 0.06);
+            ctx.beginPath();
+            ctx.ellipse(p.sx, p.sy, rad, rad * 0.4, time * 0.004 + p.i, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.strokeStyle = "#ff5ad8";
+            ctx.lineWidth = Math.max(1, cube * 0.025);
+            ctx.stroke();
+            ctx.fillStyle = "#07000f";
+            ctx.beginPath();
+            ctx.arc(p.sx, p.sy, rad * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            // Частинка, що спіраллю падає в діру
+            const ang = time * 0.006 + r * 6.28;
+            const d = rad * (1.4 - ((time * 0.001 + r) % 1));
+            ctx.fillStyle = "#e0c8ff";
+            ctx.fillRect(p.sx + Math.cos(ang) * d - 1.5, p.sy + Math.sin(ang) * d * 0.4 - 1.5, 3, 3);
         } else if (id === "trail_fire") {
             const s = cube * (0.35 - age * 0.25) * (0.8 + r * 0.4);
             ctx.globalAlpha = a;
@@ -805,6 +912,110 @@ export function drawExplosion(ctx, id, t, x, y, cube) {
                 ctx.fillRect(bx + Math.cos(ang) * rad * 0.7 - 1, by + Math.sin(ang) * rad * 0.7 + kb * kb * cube * 0.6 - 1, 2, 2);
             }
         }
+    } else if (id === "boom_plasma") {
+        // Спалах і блискавки на всі боки, що мерехтять
+        const flick = Math.floor(t * 20);
+        const len = cube * 3.2 * Math.min(1, t * 3);
+        if (t < 0.18) {
+            ctx.globalAlpha = 1 - t / 0.18;
+            ctx.fillStyle = "#e0f4ff";
+            ctx.beginPath();
+            ctx.arc(x, y, cube * (0.6 + t * 6), 0, Math.PI * 2);
+            ctx.fill();
+        }
+        for (let b = 0; b < 8; b++) {
+            const ang = b * Math.PI / 4 + hashRand(b) * 0.4;
+            for (let pass = 0; pass < 2; pass++) {
+                ctx.globalAlpha = fade * (pass === 0 ? 0.45 : 1);
+                ctx.strokeStyle = pass === 0 ? "#5a9aff" : "#ffffff";
+                ctx.lineWidth = pass === 0 ? cube * 0.18 : cube * 0.05;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                for (let seg = 1; seg <= 5; seg++) {
+                    const d = len * seg / 5;
+                    const side = (hashRand(b * 13 + seg + flick * 7) - 0.5) * cube * 0.6;
+                    ctx.lineTo(x + Math.cos(ang) * d - Math.sin(ang) * side, y + Math.sin(ang) * d + Math.cos(ang) * side);
+                }
+                ctx.stroke();
+            }
+        }
+    } else if (id === "boom_supernova") {
+        // Білий спалах, три кольорові хвилі й розліт зірочок
+        if (t < 0.2) {
+            ctx.globalAlpha = 1 - t / 0.2;
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath();
+            ctx.arc(x, y, cube * (0.8 + t * 8), 0, Math.PI * 2);
+            ctx.fill();
+        }
+        const ringColors = ["#ffe14d", "#ff5ad8", "#5ad0ff"];
+        for (let rg = 0; rg < 3; rg++) {
+            const tr = t - rg * 0.15;
+            if (tr <= 0) {
+                continue;
+            }
+            const kr = Math.min(1, tr / 1.0);
+            ctx.globalAlpha = Math.max(0, 1 - kr);
+            ctx.strokeStyle = ringColors[rg];
+            ctx.lineWidth = cube * 0.22 * (1 - kr) + 1;
+            ctx.beginPath();
+            ctx.arc(x, y, cube * 3.5 * Math.sqrt(kr), 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        for (let i = 0; i < 16; i++) {
+            const ang = hashRand(i + 70) * Math.PI * 2;
+            const d = cube * (2 + hashRand(i + 80) * 2.5) * Math.sqrt(k);
+            const st = cube * 0.07;
+            ctx.globalAlpha = fade;
+            ctx.fillStyle = i % 2 === 0 ? "#ffffff" : "#ffe14d";
+            ctx.fillRect(x + Math.cos(ang) * d - st / 2, y + Math.sin(ang) * d - st * 1.5, st, st * 3);
+            ctx.fillRect(x + Math.cos(ang) * d - st * 1.5, y + Math.sin(ang) * d - st / 2, st * 3, st);
+        }
+    } else if (id === "boom_atomic") {
+        // Спалах, ударна хвиля по землі й гриб, що росте й темніє
+        if (t < 0.15) {
+            ctx.globalAlpha = 1 - t / 0.15;
+            ctx.fillStyle = "#fff8d0";
+            ctx.beginPath();
+            ctx.arc(x, y, cube * (1 + t * 12), 0, Math.PI * 2);
+            ctx.fill();
+        }
+        const ground = y + cube * 0.5;
+        ctx.globalAlpha = fade * 0.8;
+        ctx.strokeStyle = "#ffcc66";
+        ctx.lineWidth = Math.max(1.5, cube * 0.08);
+        ctx.beginPath();
+        ctx.ellipse(x, ground, cube * 4.5 * Math.sqrt(k), cube * 0.5 * Math.sqrt(k), 0, 0, Math.PI * 2);
+        ctx.stroke();
+        const rise = Math.min(1, t / 0.7);
+        const top = ground - cube * 3.2 * rise;
+        const hot = Math.max(0, 1 - k * 1.6);
+        const colA = hot > 0.5 ? "#ffcc33" : hot > 0.15 ? "#ff7a2a" : "#8a7a70";
+        const colB = hot > 0.5 ? "#ff7a1a" : hot > 0.15 ? "#c84a1a" : "#5a524c";
+        ctx.globalAlpha = fade;
+        // Ніжка гриба
+        ctx.fillStyle = colB;
+        ctx.fillRect(x - cube * 0.28, top + cube * 0.4, cube * 0.56, ground - top - cube * 0.4);
+        ctx.fillStyle = colA;
+        ctx.fillRect(x - cube * 0.14, top + cube * 0.4, cube * 0.28, ground - top - cube * 0.4);
+        // Шапка з клубів
+        const capR = cube * (0.5 + 0.9 * rise);
+        for (let c = 0; c < 7; c++) {
+            const ang = Math.PI + c * Math.PI / 6;
+            const cx = x + Math.cos(ang) * capR * 0.8;
+            const cy = top + Math.sin(ang) * capR * 0.45 + cube * 0.2;
+            ctx.fillStyle = c % 2 === 0 ? colA : colB;
+            ctx.beginPath();
+            ctx.arc(cx, cy, capR * 0.45, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.fillStyle = colA;
+        ctx.beginPath();
+        ctx.arc(x, top + cube * 0.1, capR * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+        // Кільце диму навколо ніжки
+        ctx.fillStyle = colB;
+        ctx.fillRect(x - cube * 0.6 * rise, top + (ground - top) * 0.55, cube * 1.2 * rise, cube * 0.18);
     } else if (id === "boom_starfall") {
         for (let i = 0; i < 20; i++) {
             const ang = -Math.PI / 2 + (hashRand(i) - 0.5) * 2.2;
@@ -971,6 +1182,98 @@ export function drawAccessory(ctx, id, size, time) {
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(-h * 0.8 + glint * size * 3.5, -h - size * 0.1, size * 0.04, size * 0.1);
         }
+    } else if (id === "acc_ninja_band") {
+        // Синя пов'язка з металевою пластиною та знаком листка; кінці тріпочуть
+        const flutter = Math.sin(time * 0.008) * size * 0.05;
+        ctx.fillStyle = "#1e3a8a";
+        ctx.beginPath();
+        ctx.moveTo(h, -h + size * 0.08);
+        ctx.lineTo(h + size * 0.34, -h + size * 0.02 + flutter);
+        ctx.lineTo(h + size * 0.3, -h + size * 0.12 + flutter);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(h, -h + size * 0.14);
+        ctx.lineTo(h + size * 0.28, -h + size * 0.2 - flutter);
+        ctx.lineTo(h + size * 0.22, -h + size * 0.27 - flutter);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillRect(-h - size * 0.02, -h + size * 0.04, size * 1.04, size * 0.16);
+        ctx.fillStyle = "#8a8e96";
+        ctx.fillRect(-size * 0.24, -h + size * 0.03, size * 0.48, size * 0.18);
+        ctx.fillStyle = "#d0d4dc";
+        ctx.fillRect(-size * 0.22, -h + size * 0.05, size * 0.44, size * 0.14);
+        ctx.strokeStyle = "#4a4e56";
+        ctx.lineWidth = Math.max(1, size * 0.025);
+        ctx.beginPath();
+        ctx.arc(0, -h + size * 0.12, size * 0.045, 0.3, Math.PI * 1.8);
+        ctx.moveTo(size * 0.03, -h + size * 0.09);
+        ctx.lineTo(size * 0.1, -h + size * 0.06);
+        ctx.lineTo(size * 0.07, -h + size * 0.14);
+        ctx.stroke();
+    } else if (id === "acc_cyber_visor") {
+        // Червоний напівпрозорий візор із HUD: смуга сканування бігає туди-сюди
+        ctx.fillStyle = "#2a2a34";
+        ctx.fillRect(-h - size * 0.06, -size * 0.22, size * 0.1, size * 0.24);
+        ctx.fillRect(h - size * 0.04, -size * 0.22, size * 0.1, size * 0.24);
+        ctx.fillStyle = "rgba(255, 40, 40, 0.35)";
+        ctx.fillRect(-h + size * 0.02, -size * 0.2, size * 0.96, size * 0.2);
+        ctx.strokeStyle = "#ff3a3a";
+        ctx.lineWidth = Math.max(1, size * 0.025);
+        ctx.strokeRect(-h + size * 0.02, -size * 0.2, size * 0.96, size * 0.2);
+        const scan = (Math.sin(time * 0.003) * 0.5 + 0.5) * size * 0.86;
+        ctx.fillStyle = "rgba(255, 180, 180, 0.9)";
+        ctx.fillRect(-h + size * 0.05 + scan, -size * 0.19, size * 0.04, size * 0.18);
+        ctx.fillStyle = "#ff8a8a";
+        for (let k = 0; k < 4; k++) {
+            ctx.fillRect(-h + size * 0.08 + k * size * 0.06, -size * 0.06, size * 0.03, size * 0.03);
+        }
+        ctx.fillStyle = Math.sin(time * 0.012) > 0 ? "#ff3a3a" : "#6a1a1a";
+        ctx.fillRect(h, -size * 0.14, size * 0.04, size * 0.04);
+    } else if (id === "acc_heart_orbit") {
+        // Три сердечка кружляють навколо кубика
+        for (let k = 0; k < 3; k++) {
+            const ang = time * 0.002 + k * Math.PI * 2 / 3;
+            const hx = Math.cos(ang) * size * 0.78;
+            const hy = -size * 0.05 + Math.sin(ang) * size * 0.28;
+            drawHeartLife(ctx, hx, hy, size * (0.24 + 0.04 * Math.sin(ang)), time + k * 300);
+        }
+    } else if (id === "acc_diamond_crown") {
+        // Діамантова корона: блакитна, з рожевими каменями й зірочками-блисками
+        ctx.fillStyle = "#1e9aa8";
+        ctx.fillRect(-h * 0.9, -h - size * 0.1, size * 0.9, size * 0.14);
+        ctx.fillStyle = "#4ae8f0";
+        ctx.fillRect(-h * 0.9, -h - size * 0.13, size * 0.9, size * 0.12);
+        for (let k = 0; k < 5; k++) {
+            const px = -h * 0.9 + k * size * 0.18;
+            const tall = k % 2 === 0 ? 0.4 : 0.3;
+            ctx.fillStyle = "#4ae8f0";
+            ctx.beginPath();
+            ctx.moveTo(px, -h - size * 0.12);
+            ctx.lineTo(px + size * 0.09, -h - size * tall);
+            ctx.lineTo(px + size * 0.18, -h - size * 0.12);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = "#b8fbff";
+            ctx.fillRect(px + size * 0.07, -h - size * (tall - 0.06), size * 0.03, size * 0.08);
+        }
+        const gems = ["#ff5ad8", "#b35cff", "#ff5ad8"];
+        for (let k = 0; k < 3; k++) {
+            ctx.fillStyle = gems[k];
+            ctx.fillRect(-h * 0.9 + size * (0.12 + k * 0.28), -h - size * 0.1, size * 0.08, size * 0.07);
+        }
+        for (let k = 0; k < 3; k++) {
+            const tw = Math.max(0, Math.sin(time * 0.004 + k * 2.1));
+            if (tw <= 0.05) {
+                continue;
+            }
+            const sx = -h * 0.8 + k * size * 0.4;
+            const sy = -h - size * (0.42 + (k % 2) * 0.08);
+            const st = size * 0.035 * tw;
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(sx - st / 2, sy - st * 2, st, st * 4);
+            ctx.fillRect(sx - st * 2, sy - st / 2, st * 4, st);
+        }
     }
 }
 
@@ -1029,12 +1332,12 @@ export function chestsForVictory(win, random) {
 
 // Звичайні товари відкриваються за лігою, до якої дійшов гравець:
 // до 600 — одразу, до 2000 — з Ліги 2, дорожчі — з Ліги 3 (легендарні — за своїми умовами,
-// зброя — за полем league)
+// або за полем league — зброя та товари пізніх ліг)
 export function shopTierLeague(item) {
     if (!item || item.legendary) {
         return 1;
     }
-    // Зброя має власну лігу — ціни в неї ширші, ніж у скінів
+    // Зброя й товари пізніх ліг мають власну лігу
     if (typeof item.league === "number") {
         return item.league;
     }
