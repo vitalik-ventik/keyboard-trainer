@@ -1676,3 +1676,45 @@ body {
     white-space: normal;
     font-size: 1.35vmin;
 }
+
+/* Підпис бонусу з підказкою: курсор-питання */
+.weapon-coin-bonus[data-tip] {
+    cursor: help;
+}
+
+/* Спливаюча підказка з поясненням бонусу */
+.perk-tip {
+    position: fixed;
+    z-index: 1100;
+    padding: 1vmin 1.4vmin;
+    border-radius: 1vmin;
+    border: 1px solid rgba(255, 216, 74, 0.7);
+    background: rgba(12, 14, 34, 0.96);
+    color: #fff4d0;
+    font-size: 1.7vmin;
+    line-height: 1.35;
+    text-align: center;
+    pointer-events: none;
+    box-shadow: 0 0 1.6vmin rgba(255, 190, 60, 0.35);
+}
+
+.perk-tip.hidden {
+    display: none;
+}
+
+/* Пояснення бонусів поточної вкладки внизу магазину */
+.shop-legend {
+    margin: 0.8vmin 0 0.4vmin;
+    padding: 0.8vmin 1.4vmin;
+    border-radius: 1vmin;
+    background: rgba(255, 216, 74, 0.08);
+    border: 1px solid rgba(255, 216, 74, 0.3);
+    color: #ffe9a8;
+    font-size: 1.6vmin;
+    line-height: 1.45;
+    text-align: left;
+}
+
+.shop-legend.hidden {
+    display: none;
+}
