@@ -60,20 +60,20 @@ export const SHOP_ITEMS = [
     { id: "shop_golden", type: "skin", name: "Золотий кубик", price: 1200, renderType: "shop_golden", legendary: true, requirement: { kind: "gold_league", league: 1 } },
 
     { id: "trail_default", type: "trail", name: "Звичайний", price: 0 },
-    { id: "trail_neon", type: "trail", name: "Неонова лінія", price: 40 },
-    { id: "trail_bubbles", type: "trail", name: "Бульбашки", price: 50 },
-    { id: "trail_rainbow", type: "trail", name: "Райдуга", price: 60 },
-    { id: "trail_blocks", type: "trail", name: "Кубічні пікселі", price: 75 },
-    { id: "trail_stars", type: "trail", name: "Зірочки", price: 90 },
-    { id: "trail_fire", type: "trail", name: "Вогонь", price: 100 },
+    { id: "trail_neon", type: "trail", name: "Неонова лінія", price: 30 },
+    { id: "trail_bubbles", type: "trail", name: "Бульбашки", price: 60 },
+    { id: "trail_rainbow", type: "trail", name: "Райдуга", price: 100 },
+    { id: "trail_blocks", type: "trail", name: "Кубічні пікселі", price: 140 },
+    { id: "trail_stars", type: "trail", name: "Зірочки", price: 190 },
+    { id: "trail_fire", type: "trail", name: "Вогонь", price: 240 },
 
     { id: "boom_default", type: "explosion", name: "Звичайний", price: 0 },
-    { id: "boom_confetti", type: "explosion", name: "Конфеті", price: 40 },
+    { id: "boom_confetti", type: "explosion", name: "Конфеті", price: 30 },
     { id: "boom_pixels", type: "explosion", name: "Пікселі-кубики", price: 60 },
-    { id: "boom_bubbles", type: "explosion", name: "Мильні бульбашки", price: 75 },
-    { id: "boom_watermelon", type: "explosion", name: "Кавун", price: 90 },
-    { id: "boom_fireworks", type: "explosion", name: "Феєрверк", price: 100 },
-    { id: "boom_starfall", type: "explosion", name: "Зорепад", price: 120 },
+    { id: "boom_bubbles", type: "explosion", name: "Мильні бульбашки", price: 100 },
+    { id: "boom_watermelon", type: "explosion", name: "Кавун", price: 140 },
+    { id: "boom_fireworks", type: "explosion", name: "Феєрверк", price: 190 },
+    { id: "boom_starfall", type: "explosion", name: "Зорепад", price: 240 },
 
     { id: "weapon_none", type: "weapon", name: "Без зброї (стрибки)", price: 0 },
     { id: "weapon_sword", type: "weapon", name: "Меч", price: 60, league: 1, bonus: 1.05 },
@@ -99,14 +99,14 @@ export const SHOP_ITEMS = [
     { id: "acc_bow", type: "accessory", name: "Бант", price: 35 },
     { id: "acc_glasses", type: "accessory", name: "Сонцезахисні окуляри", price: 45 },
     { id: "acc_heart_pendant", type: "accessory", name: "Кулон-сердечко", price: 50 },
-    { id: "acc_headphones", type: "accessory", name: "Навушники", price: 60 },
-    { id: "acc_cowboy", type: "accessory", name: "Ковбойський капелюх", price: 75 },
-    { id: "acc_horns", type: "accessory", name: "Ріжки", price: 100 },
-    { id: "acc_flower_wreath", type: "accessory", name: "Квітковий вінок", price: 110 },
-    { id: "acc_pirate", type: "accessory", name: "Піратський капелюх", price: 120 },
-    { id: "acc_halo", type: "accessory", name: "Німб", price: 150 },
-    { id: "acc_wings", type: "accessory", name: "Крила", price: 180 },
-    { id: "acc_crown", type: "accessory", name: "Корона", price: 200 }
+    { id: "acc_headphones", type: "accessory", name: "Навушники", price: 80 },
+    { id: "acc_cowboy", type: "accessory", name: "Ковбойський капелюх", price: 90 },
+    { id: "acc_horns", type: "accessory", name: "Ріжки", price: 110 },
+    { id: "acc_flower_wreath", type: "accessory", name: "Квітковий вінок", price: 120 },
+    { id: "acc_pirate", type: "accessory", name: "Піратський капелюх", price: 160 },
+    { id: "acc_halo", type: "accessory", name: "Німб", price: 180 },
+    { id: "acc_crown", type: "accessory", name: "Корона", price: 200 },
+    { id: "acc_wings", type: "accessory", name: "Крила", price: 210 }
 ];
 
 export const SHOP_TYPES = [
@@ -177,7 +177,8 @@ export function rewardMultiplier(difficulty, speed, hitWindow) {
 
 // Бонуси аксесуарів: кожен дає один бонус — більше монет (coins), вищий шанс
 // сундука за повторну перемогу (chest) або вищий шанс речі в сундуку (item).
-// Дорожчий аксесуар — більший бонус
+// Дорожчий аксесуар — більший бонус: кожен вид має три сходинки (+5%, +10%, +20%;
+// сердечка — +5%, +10%, +15%), і ціна росте разом із бонусом
 export const ACCESSORY_PERKS = {
     acc_cap: { coins: 0.05 },
     acc_bow: { chest: 0.05 },
@@ -185,9 +186,9 @@ export const ACCESSORY_PERKS = {
     acc_headphones: { coins: 0.1 },
     acc_cowboy: { chest: 0.1 },
     acc_horns: { item: 0.1 },
-    acc_pirate: { chest: 0.15 },
-    acc_halo: { item: 0.15 },
-    acc_crown: { coins: 0.15 },
+    acc_pirate: { chest: 0.2 },
+    acc_halo: { item: 0.2 },
+    acc_crown: { coins: 0.2 },
     // Шанс сердечка в сундуку
     acc_heart_pendant: { hearts: 0.05 },
     acc_flower_wreath: { hearts: 0.1 },
@@ -217,24 +218,25 @@ export function accessoryPerkText(accessoryId) {
 }
 
 // Бонуси шлейфів: траса рухається повільніше (slow — частка, на яку падає швидкість),
-// щоб на старших рівнях було більше часу помітити літеру
+// щоб на старших рівнях було більше часу помітити літеру.
+// Кожна сходинка — +2% повільніше (у вибухів — +3% зони), ціни рівномірно ростуть
 export const TRAIL_PERKS = {
     trail_neon: { slow: 0.03 },
-    trail_bubbles: { slow: 0.04 },
-    trail_rainbow: { slow: 0.05 },
-    trail_blocks: { slow: 0.06 },
-    trail_stars: { slow: 0.08 },
-    trail_fire: { slow: 0.1 }
+    trail_bubbles: { slow: 0.05 },
+    trail_rainbow: { slow: 0.07 },
+    trail_blocks: { slow: 0.09 },
+    trail_stars: { slow: 0.11 },
+    trail_fire: { slow: 0.13 }
 };
 
 // Бонуси вибухів: ширша зона стрибка (window — на скільки частка зон «ОК» та «Ідеально» більша)
 export const EXPLOSION_PERKS = {
     boom_confetti: { window: 0.05 },
-    boom_pixels: { window: 0.06 },
-    boom_bubbles: { window: 0.08 },
-    boom_watermelon: { window: 0.1 },
-    boom_fireworks: { window: 0.12 },
-    boom_starfall: { window: 0.15 }
+    boom_pixels: { window: 0.08 },
+    boom_bubbles: { window: 0.11 },
+    boom_watermelon: { window: 0.14 },
+    boom_fireworks: { window: 0.17 },
+    boom_starfall: { window: 0.2 }
 };
 
 // Наскільки шлейф сповільнює трасу (0…1)
@@ -263,9 +265,9 @@ export function itemPerkText(itemId) {
 }
 
 // Бонуси скінів із магазину (скіни рівнів — нагорода без бонусу), за ціною:
-//   до 150 — series: монети за серії «Ідеально» ×1.5
-//   до 230 — words: монети за слова й комбінації ×2
-//   дорожчі — perfect: зона «Ідеально» +20%
+//   до 150 — series: монети за серії «Ідеально» ×1.5 … ×1.7
+//   до 230 — words: монети за слова й комбінації ×2 … ×2.4
+//   дорожчі — perfect: зона «Ідеально» +20% … +35%
 //   легендарні — shield: одна помилка чи зіткнення за рівень пробачається
 export const SKIN_SERIES_MULT = 1.5;
 export const SKIN_WORDS_MULT = 2;
@@ -279,6 +281,14 @@ export const SKIN_PERK_TIERS = {
     perfect: [0.1, 0.15, SKIN_PERFECT_BONUS]
 };
 
+// Сила бонусу скіна з магазину росте з ціною: [ціна від, значення].
+// Дешевші скіни одного виду — як золота рамка скіна рівня, дорожчі — сильніші
+export const SHOP_SKIN_PERK_STEPS = {
+    series: [[100, 1.5], [120, 1.6], [150, 1.7]],
+    words: [[180, 2], [200, 2.2], [230, 2.4]],
+    perfect: [[250, 0.2], [280, 0.25], [300, 0.3], [350, 0.35]]
+};
+
 // Сила бонусу скіна з магазину (для «сердечок» — своя в кожного скіна)
 export function shopSkinPerkValue(renderType) {
     const item = renderType ? getShopSkinByRenderType(renderType) : null;
@@ -289,7 +299,17 @@ export function shopSkinPerkValue(renderType) {
     if (kind === "hearts") {
         return SKIN_HEART_PERKS[item.id];
     }
-    return kind === "shield" ? 1 : skinPerkValue(kind, 2);
+    if (kind === "shield") {
+        return 1;
+    }
+    // Найбільша сходинка, до якої дотягує ціна скіна
+    let value = skinPerkValue(kind, 2);
+    for (const step of SHOP_SKIN_PERK_STEPS[kind] || []) {
+        if (item.price >= step[0]) {
+            value = step[1];
+        }
+    }
+    return value;
 }
 
 // Значення бонусу за видом і рівнем рамки (0 — без рамки, 1 — срібна, 2 — золота)
@@ -346,7 +366,7 @@ export function skinPerkText(perk, value) {
 // Пояснення бонусів (для підказки на картці й рядка внизу магазину)
 const PERK_HINTS = {
     series: "🔥 Серії — за кілька «Ідеально» поспіль (3, 5, 10…) даються бонусні монети; цей скін їх збільшує",
-    words: "📝 Слова — монети за слова й комбінації, набрані без жодної помилки, подвоюються",
+    words: "📝 Слова — монети за слова й комбінації, набрані без жодної помилки, множаться",
     perfect: "💠 Ідеально — зона «Ідеально» ширша: легше робити ідеальні стрибки й серії",
     shield: "🛡 Щит — одна помилка чи зіткнення за рівень пробачається: кубик не вибухає, а їде далі",
     slow: "🐢 Швидкість — шипи рухаються повільніше, тож більше часу знайти потрібну клавішу (монет не менше)",
