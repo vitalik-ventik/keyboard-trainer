@@ -9,6 +9,7 @@ import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
 import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
+import { EXTRA_LEVEL_SKINS } from "./level_skins_extra.js";
 import { getWeaponSpec, drawHeldWeapon, drawProjectile, drawBeam, beamTiming, drawStuckArrow, drawSpikeDestruction, DESTRUCTION_TIME, SWING_TIME, SWING_HIT, BOLT_TIME, MELEE_CONTACT, meleeTriggerGap, gravityLiftOffset, gravityGrabTime, GRAVITY_LIFT, getWeaponSound } from "./weapons.js";
 
 // ---------- Детермінований PRNG (фіксовані траси) ----------
@@ -33,20 +34,28 @@ export const LEVELS_CONFIG = [
         levels: [
             { id: 1,  leagueId: 1, name: "Перші кроки",             letters: ["А","П","Р","О"], speed: 165, spikeCount: 12, seed: 2001, bgTheme: "block_village",           accentColor: "#39c6ff", rhythmGroups: false, skin: { id: "skin_1_1", name: "Кубик-кіт", renderType: "block_cat" } },
             { id: 2,  leagueId: 1, name: "Сусіди центру",           letters: ["В","І","Л","Д"], speed: 172, spikeCount: 13, seed: 2002, bgTheme: "sunset_city",             accentColor: "#ff9ed0", rhythmGroups: false, skin: { id: "skin_1_2", name: "Серфер", renderType: "cyber_eye" } },
+            { id: 32, leagueId: 1, name: "Перші слова",             words: ["ЛАПА","ВОДА","ДІД","ПАРА","ВІРА","РАДІО","ЛІРА"], speed: 172, spikeCount: 14, seed: 2017, tuneAs: 2, bgTheme: "pumpkin_pastures", accentColor: "#ff9a3d", rhythmGroups: false, skin: { id: "skin_1_x1", name: "Гарбуз-ліхтар", renderType: "pumpkin_lantern" } },
             { id: 3,  leagueId: 1, name: "Верхній центр",           letters: ["К","Е","Н","Г"], speed: 179, spikeCount: 14, seed: 2003, bgTheme: "cosmodrome",                 accentColor: "#39c6ff", rhythmGroups: false, skin: { id: "skin_1_3", name: "Прибулець", renderType: "retro_gamer" } },
             { id: 4,  leagueId: 1, name: "Нижній центр",            letters: ["М","И","Т","Ь"], speed: 186, spikeCount: 15, seed: 2004, bgTheme: "neon_highway",             accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_1_4", name: "Гонщик", renderType: "throne" } },
+            { id: 33, leagueId: 1, name: "Дзеркальні пари",         letters: ["А","О","В","Л","П","Р","К","Г"], speed: 186, spikeCount: 16, seed: 2018, tuneAs: 4, bgTheme: "creeper_woods", accentColor: "#6aff5a", rhythmGroups: false, skin: { id: "skin_1_x2", name: "Кубик-гриб", renderType: "mushroom_cube" } },
             { id: 5,  leagueId: 1, name: "Верхні сусіди",           letters: ["У","Ц","Ш","Щ"], speed: 193, spikeCount: 16, seed: 2005, bgTheme: "jungle_temple",       accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_5", name: "Золотий ідол", renderType: "crosshair" } },
             { id: 6,  leagueId: 1, name: "Нижні сусіди",            letters: ["С","Ч","Б","Ю"], speed: 200, spikeCount: 17, seed: 2006, bgTheme: "digital_forest",     accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_6", name: "Матричний Піксель", renderType: "matrix_pixel" } },
+            { id: 34, leagueId: 1, name: "Вказівні пальці",         letters: ["К","Е","А","П","М","И","Н","Г","Р","О","Т","Ь"], speed: 200, spikeCount: 18, seed: 2019, tuneAs: 6, bgTheme: "redstone_mines", accentColor: "#ff4a3a", rhythmGroups: false, skin: { id: "skin_1_x3", name: "Рудокоп", renderType: "redstone_miner" } },
             { id: 7,  leagueId: 1, name: "Краї середнього ряду",    letters: ["Ф","І","Ж","Є"], speed: 207, spikeCount: 18, seed: 2007, bgTheme: "storm_sky",            accentColor: "#9fb4ff", rhythmGroups: false, skin: { id: "skin_1_7", name: "Блискавка", renderType: "slice" } },
             { id: 8,  leagueId: 1, name: "Краї верхнього ряду",     letters: ["Й","Ц","З","Х"], speed: 214, spikeCount: 19, seed: 2008, bgTheme: "crystal_cave",            accentColor: "#b35cff", rhythmGroups: false, skin: { id: "skin_1_8", name: "Сяючий Кристал", renderType: "shining_diamond" } },
+            { id: 35, leagueId: 1, name: "Найчастіші літери",       letters: ["О","А","Н","І","И","Т","Е","Р"], speed: 214, spikeCount: 20, seed: 2020, tuneAs: 8, bgTheme: "alien_freighter", accentColor: "#5aff78", rhythmGroups: false, skin: { id: "skin_1_x4", name: "Космодесантник", renderType: "space_marine" } },
             { id: 9,  leagueId: 1, name: "Далекі кути",             letters: ["Я","Ч","Х","Ї"], speed: 221, spikeCount: 20, seed: 2009, bgTheme: "dino_valley",          accentColor: "#ff9a3d", rhythmGroups: false, skin: { id: "skin_1_9", name: "Динозаврик", renderType: "double_frame" } },
             { id: 10, leagueId: 1, name: "Остання літера",          letters: ["А","В","Є","Ґ"], speed: 228, spikeCount: 21, seed: 2010, bgTheme: "pixel_night",             accentColor: "#62c13a", rhythmGroups: false, skin: { id: "skin_1_10", name: "Нічна сова", renderType: "monolith" } },
+            { id: 36, leagueId: 1, name: "Слова з верхнім рядом",   words: ["КІНО","НЕБО","ГУСИ","ЗЕБРА","ЛИМОН","КОТИК","ШАПКА","ЦУКОР","МЕТРО","ПІСНЯ"], speed: 228, spikeCount: 22, seed: 2021, tuneAs: 10, bgTheme: "hunter_jungle", accentColor: "#ff3a2a", rhythmGroups: false, skin: { id: "skin_1_x5", name: "Мисливець", renderType: "jungle_hunter" } },
             { id: 11, leagueId: 1, name: "Середній ряд",            letters: ["В","А","П","Р","О","Л"], speed: 235, spikeCount: 22, seed: 2011, bgTheme: "secret_base",            accentColor: "#39ffd0", rhythmGroups: false, skin: { id: "skin_1_11", name: "Радар", renderType: "radar" } },
             { id: 12, leagueId: 1, name: "Верхній ряд",             letters: ["У","К","Е","Н","Г","Ш"], speed: 242, spikeCount: 23, seed: 2012, bgTheme: "luna_park",             accentColor: "#ff5ad8", rhythmGroups: false, skin: { id: "skin_1_12", name: "Клоун", renderType: "speed_arrow" } },
+            { id: 37, leagueId: 1, name: "Мізинці",                 letters: ["Й","Ф","Я","Х","Ж","Є","Ї"], speed: 242, spikeCount: 23, seed: 2022, tuneAs: 12, bgTheme: "soggy_swamp", accentColor: "#8ad86a", rhythmGroups: false, skin: { id: "skin_1_x6", name: "Болотяний дух", renderType: "swamp_stump" } },
             { id: 13, leagueId: 1, name: "Нижній ряд",              letters: ["С","М","И","Т","Ь","Б"], speed: 249, spikeCount: 24, seed: 2013, bgTheme: "sea_fabricator",          accentColor: "#39c6ff", rhythmGroups: false, skin: { id: "skin_1_13", name: "Дрон-будівельник", renderType: "neon_cross" } },
             { id: 14, leagueId: 1, name: "Широкий середній ряд",    letters: ["Ф","І","В","Ж","Є","Ґ"], speed: 256, spikeCount: 25, seed: 2014, bgTheme: "twin_sun_planet",      accentColor: "#ff5a8a", rhythmGroups: false, skin: { id: "skin_1_14", name: "Слиз", renderType: "liquid_gradient" } },
+            { id: 38, leagueId: 1, name: "Тренування помилок",      letters: ["Ж","Є","Х","Ї","Щ","Ґ"], adaptive: { pool: ["Й","Ц","У","К","Е","Н","Г","Ш","Щ","З","Х","Ї","Ф","І","В","А","П","Р","О","Л","Д","Ж","Є","Ґ","Я","Ч","С","М","И","Т","Ь","Б","Ю"], count: 6 }, speed: 256, spikeCount: 24, seed: 2023, tuneAs: 14, bgTheme: "dungeon_depths", accentColor: "#5ac8ff", rhythmGroups: false, skin: { id: "skin_1_x7", name: "Страж підземелля", renderType: "dungeon_guard" } },
             { id: 15, leagueId: 1, name: "Широкий верхній ряд",     letters: ["Й","Ц","У","Щ","З","Х"], speed: 263, spikeCount: 26, seed: 2015, bgTheme: "sky_city",           accentColor: "#bfe0ff", rhythmGroups: false, skin: { id: "skin_1_15", name: "Крилатий", renderType: "winged" } },
-            { id: 16, leagueId: 1, name: "Широкий нижній ряд",      letters: ["Я","Ч","С","Ю","Є","Ї"], speed: 270, spikeCount: 28, seed: 2016, bgTheme: "stadium",          accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_16", name: "Футбольний м'яч", renderType: "light_cup" } }
+            { id: 16, leagueId: 1, name: "Широкий нижній ряд",      letters: ["Я","Ч","С","Ю","Є","Ї"], speed: 270, spikeCount: 28, seed: 2016, bgTheme: "stadium",          accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_16", name: "Футбольний м'яч", renderType: "light_cup" } },
+            { id: 39, leagueId: 1, name: "Слова всього алфавіту",   words: ["РАКЕТА","ПЛАНЕТА","КОСМОС","ЛАЗЕР","ЗОРЯ","ТУНЕЛЬ","ЯЙЦЕ","ЖУК","ЩИТ","ҐУДЗИК","ЇЖАК","ЄНОТ","ФАКЕЛ","ХВІСТ","ЧАЙ","БЮРО"], speed: 275, spikeCount: 30, seed: 2024, tuneAs: 16, bgTheme: "alien_hive", accentColor: "#78ffbe", rhythmGroups: false, skin: { id: "skin_1_x8", name: "Яйце з вулика", renderType: "alien_egg" } }
         ]
     },
     {
@@ -1622,6 +1631,8 @@ export const SKIN_RENDERERS = {
 
 // Скіни з магазину малюються так само, як скіни рівнів
 Object.assign(SKIN_RENDERERS, SHOP_SKIN_RENDERERS);
+// Скіни нових рівнів Ліги 1
+Object.assign(SKIN_RENDERERS, EXTRA_LEVEL_SKINS);
 
 // ---------- Генерація фіксованої траси ----------
 
@@ -1696,7 +1707,8 @@ function generateTrack(level, effectiveSpeed, okPx) {
         const prev = spikes[spikes.length - 1];
         return Math.max(candidateX, prev.x + minSpikeSpacing(prev.type, obstacleType, moveSpeed, windowPx));
     }
-    const baseGapTime = reactionTimeForLevel(level.id);
+    // Нові рівні, вставлені всередину ліги, мають складність сусіднього (tuneAs)
+    const baseGapTime = reactionTimeForLevel(level.tuneAs || level.id);
     let x = level.speed * 3.0;
     let lastLetter1 = null;
     const lastTypes = [];
@@ -2530,7 +2542,15 @@ const LANDING_FX = {
     sunset_city: { kind: "sparks", colors: ["#ff2ea6", "#00f6ff", "#ffe14d"] },
     neon_rooftops: { kind: "sparks", colors: ["#ff2ea6", "#00f6ff", "#39ff88"] },
     neon_highway: { kind: "sparks", colors: ["#ff2ea6", "#00f6ff"] },
-    pixel_nether: { kind: "sparks", colors: ["#ff6a00", "#ffcc33"] }
+    pixel_nether: { kind: "sparks", colors: ["#ff6a00", "#ffcc33"] },
+    pumpkin_pastures: { kind: "splash", colors: ["#6a8a2a", "#ff9a3d"] },
+    creeper_woods: { kind: "fireflies", colors: ["#c8ff5a", "#fff4a0"] },
+    redstone_mines: { kind: "pebbles", colors: ["#ff3a2a", "#4a4650"] },
+    alien_freighter: { kind: "sparks", colors: ["#ffcc33", "#ffffff"] },
+    hunter_jungle: { kind: "splash", colors: ["#2a7a22", "#4a3a1a"] },
+    soggy_swamp: { kind: "splash", colors: ["#3a5a2a", "#8ad86a"] },
+    dungeon_depths: { kind: "pebbles", colors: ["#4a4852", "#2a2830"] },
+    alien_hive: { kind: "splash", colors: ["#78ffbe", "#2a443c"] }
 };
 
 function spikeHalfWidth(type) {
@@ -2593,7 +2613,15 @@ const SPIKE_STYLE_BY_THEME = {
     pixel_night: "pixel",
     digital_forest: "pixel",
     dino_valley: "pixel",
-    block_village: "pixel"
+    block_village: "pixel",
+    pumpkin_pastures: "pixel",
+    creeper_woods: "pixel",
+    hunter_jungle: "pixel",
+    redstone_mines: "crystal",
+    alien_freighter: "iron",
+    dungeon_depths: "iron",
+    soggy_swamp: "urchin",
+    alien_hive: "urchin"
 };
 
 // Основні кольори кожного стилю (для уламків, коли шип розсипається)
@@ -2894,7 +2922,7 @@ export class Engine {
         this.onVictory = null;
         this.currentTime = 0;
 
-        const windows = hitWindowTimes(this.level.id);
+        const windows = hitWindowTimes(this.level.tuneAs || this.level.id);
         const multiplier = this.hitWindowSetting === "large" ? 2 : 1;
         this.okPx = this.effectiveSpeed * windows.okTime * multiplier;
         this.perfectPx = this.effectiveSpeed * windows.perfectTime * multiplier;
