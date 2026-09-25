@@ -60,53 +60,53 @@ export const SHOP_ITEMS = [
     { id: "shop_golden", type: "skin", name: "Золотий кубик", price: 1200, renderType: "shop_golden", legendary: true, requirement: { kind: "gold_league", league: 1 } },
 
     { id: "trail_default", type: "trail", name: "Звичайний", price: 0 },
-    { id: "trail_neon", type: "trail", name: "Неонова лінія", price: 40 },
-    { id: "trail_bubbles", type: "trail", name: "Бульбашки", price: 50 },
-    { id: "trail_rainbow", type: "trail", name: "Райдуга", price: 60 },
-    { id: "trail_blocks", type: "trail", name: "Кубічні пікселі", price: 75 },
-    { id: "trail_stars", type: "trail", name: "Зірочки", price: 90 },
-    { id: "trail_fire", type: "trail", name: "Вогонь", price: 100 },
+    { id: "trail_neon", type: "trail", name: "Неонова лінія", price: 30 },
+    { id: "trail_bubbles", type: "trail", name: "Бульбашки", price: 60 },
+    { id: "trail_rainbow", type: "trail", name: "Райдуга", price: 100 },
+    { id: "trail_blocks", type: "trail", name: "Кубічні пікселі", price: 140 },
+    { id: "trail_stars", type: "trail", name: "Зірочки", price: 190 },
+    { id: "trail_fire", type: "trail", name: "Вогонь", price: 240 },
 
     { id: "boom_default", type: "explosion", name: "Звичайний", price: 0 },
-    { id: "boom_confetti", type: "explosion", name: "Конфеті", price: 40 },
+    { id: "boom_confetti", type: "explosion", name: "Конфеті", price: 30 },
     { id: "boom_pixels", type: "explosion", name: "Пікселі-кубики", price: 60 },
-    { id: "boom_bubbles", type: "explosion", name: "Мильні бульбашки", price: 75 },
-    { id: "boom_watermelon", type: "explosion", name: "Кавун", price: 90 },
-    { id: "boom_fireworks", type: "explosion", name: "Феєрверк", price: 100 },
-    { id: "boom_starfall", type: "explosion", name: "Зорепад", price: 120 },
+    { id: "boom_bubbles", type: "explosion", name: "Мильні бульбашки", price: 100 },
+    { id: "boom_watermelon", type: "explosion", name: "Кавун", price: 140 },
+    { id: "boom_fireworks", type: "explosion", name: "Феєрверк", price: 190 },
+    { id: "boom_starfall", type: "explosion", name: "Зорепад", price: 240 },
 
     { id: "weapon_none", type: "weapon", name: "Без зброї (стрибки)", price: 0 },
-    { id: "weapon_sword", type: "weapon", name: "Меч", price: 120 },
-    { id: "weapon_axe", type: "weapon", name: "Сокира-бумеранг", price: 150 },
-    { id: "weapon_pickaxe", type: "weapon", name: "Кирка", price: 170 },
-    { id: "weapon_bow", type: "weapon", name: "Лук", price: 180 },
-    { id: "weapon_ball", type: "weapon", name: "Футбольний м'яч", price: 200 },
-    { id: "weapon_pistol", type: "weapon", name: "Пістолет", price: 220 },
-    { id: "weapon_rifle", type: "weapon", name: "Автомат", price: 280 },
-    { id: "weapon_flamethrower", type: "weapon", name: "Вогнемет", price: 320 },
-    { id: "weapon_laser", type: "weapon", name: "Лазер", price: 350 },
-    { id: "weapon_saber_green", type: "weapon", name: "Світловий меч (зелений)", price: 400 },
-    { id: "weapon_saber_blue", type: "weapon", name: "Світловий меч (синій)", price: 400 },
-    { id: "weapon_saber_red", type: "weapon", name: "Світловий меч (червоний)", price: 400 },
-    { id: "weapon_rocket", type: "weapon", name: "Ракетниця", price: 450 },
+    { id: "weapon_sword", type: "weapon", name: "Меч", price: 60, league: 1, bonus: 1.05 },
+    { id: "weapon_axe", type: "weapon", name: "Сокира-бумеранг", price: 100, league: 1, bonus: 1.1 },
+    { id: "weapon_pickaxe", type: "weapon", name: "Кирка", price: 150, league: 1, bonus: 1.15 },
+    { id: "weapon_bow", type: "weapon", name: "Лук", price: 200, league: 1, bonus: 1.2 },
+    { id: "weapon_ball", type: "weapon", name: "Футбольний м'яч", price: 260, league: 1, bonus: 1.25 },
+    { id: "weapon_pistol", type: "weapon", name: "Пістолет", price: 330, league: 2, bonus: 1.3 },
+    { id: "weapon_rifle", type: "weapon", name: "Автомат", price: 400, league: 2, bonus: 1.35 },
+    { id: "weapon_flamethrower", type: "weapon", name: "Вогнемет", price: 480, league: 2, bonus: 1.4 },
+    { id: "weapon_laser", type: "weapon", name: "Лазер", price: 560, league: 2, bonus: 1.45 },
+    { id: "weapon_saber_green", type: "weapon", name: "Світловий меч (зелений)", price: 650, league: 3, bonus: 1.5 },
+    { id: "weapon_saber_blue", type: "weapon", name: "Світловий меч (синій)", price: 650, league: 3, bonus: 1.5 },
+    { id: "weapon_saber_red", type: "weapon", name: "Світловий меч (червоний)", price: 650, league: 3, bonus: 1.5 },
+    { id: "weapon_rocket", type: "weapon", name: "Ракетниця", price: 800, league: 3, bonus: 1.6 },
     // Легендарна зброя: як легендарні скіни, купується лише після виконання умови
-    { id: "weapon_firesword", type: "weapon", name: "Вогняний меч", price: 900, legendary: true, requirement: { kind: "clears", target: 15 } },
-    { id: "weapon_thunder", type: "weapon", name: "Громовий молот", price: 1000, legendary: true, requirement: { kind: "gold_count", target: 10 } },
-    { id: "weapon_gravity", type: "weapon", name: "Гравітаційна гармата", price: 1200, legendary: true, requirement: { kind: "gold_count", target: 20 } },
+    { id: "weapon_firesword", type: "weapon", name: "Вогняний меч", price: 1000, bonus: 1.7, legendary: true, requirement: { kind: "clears", target: 15 } },
+    { id: "weapon_thunder", type: "weapon", name: "Громовий молот", price: 1300, bonus: 1.8, legendary: true, requirement: { kind: "gold_count", target: 10 } },
+    { id: "weapon_gravity", type: "weapon", name: "Гравітаційна гармата", price: 1600, bonus: 1.9, legendary: true, requirement: { kind: "gold_count", target: 20 } },
 
     { id: "acc_none", type: "accessory", name: "Без аксесуара", price: 0 },
     { id: "acc_cap", type: "accessory", name: "Кепка", price: 30 },
     { id: "acc_bow", type: "accessory", name: "Бант", price: 35 },
     { id: "acc_glasses", type: "accessory", name: "Сонцезахисні окуляри", price: 45 },
     { id: "acc_heart_pendant", type: "accessory", name: "Кулон-сердечко", price: 50 },
-    { id: "acc_headphones", type: "accessory", name: "Навушники", price: 60 },
-    { id: "acc_cowboy", type: "accessory", name: "Ковбойський капелюх", price: 75 },
-    { id: "acc_horns", type: "accessory", name: "Ріжки", price: 100 },
-    { id: "acc_flower_wreath", type: "accessory", name: "Квітковий вінок", price: 110 },
-    { id: "acc_pirate", type: "accessory", name: "Піратський капелюх", price: 120 },
-    { id: "acc_halo", type: "accessory", name: "Німб", price: 150 },
-    { id: "acc_wings", type: "accessory", name: "Крила", price: 180 },
-    { id: "acc_crown", type: "accessory", name: "Корона", price: 200 }
+    { id: "acc_headphones", type: "accessory", name: "Навушники", price: 80 },
+    { id: "acc_cowboy", type: "accessory", name: "Ковбойський капелюх", price: 90 },
+    { id: "acc_horns", type: "accessory", name: "Ріжки", price: 110 },
+    { id: "acc_flower_wreath", type: "accessory", name: "Квітковий вінок", price: 120 },
+    { id: "acc_pirate", type: "accessory", name: "Піратський капелюх", price: 160 },
+    { id: "acc_halo", type: "accessory", name: "Німб", price: 180 },
+    { id: "acc_crown", type: "accessory", name: "Корона", price: 200 },
+    { id: "acc_wings", type: "accessory", name: "Крила", price: 210 }
 ];
 
 export const SHOP_TYPES = [
@@ -177,7 +177,8 @@ export function rewardMultiplier(difficulty, speed, hitWindow) {
 
 // Бонуси аксесуарів: кожен дає один бонус — більше монет (coins), вищий шанс
 // сундука за повторну перемогу (chest) або вищий шанс речі в сундуку (item).
-// Дорожчий аксесуар — більший бонус
+// Дорожчий аксесуар — більший бонус: кожен вид має три сходинки (+5%, +10%, +20%;
+// сердечка — +5%, +10%, +15%), і ціна росте разом із бонусом
 export const ACCESSORY_PERKS = {
     acc_cap: { coins: 0.05 },
     acc_bow: { chest: 0.05 },
@@ -185,9 +186,9 @@ export const ACCESSORY_PERKS = {
     acc_headphones: { coins: 0.1 },
     acc_cowboy: { chest: 0.1 },
     acc_horns: { item: 0.1 },
-    acc_pirate: { chest: 0.15 },
-    acc_halo: { item: 0.15 },
-    acc_crown: { coins: 0.15 },
+    acc_pirate: { chest: 0.2 },
+    acc_halo: { item: 0.2 },
+    acc_crown: { coins: 0.2 },
     // Шанс сердечка в сундуку
     acc_heart_pendant: { hearts: 0.05 },
     acc_flower_wreath: { hearts: 0.1 },
@@ -217,24 +218,25 @@ export function accessoryPerkText(accessoryId) {
 }
 
 // Бонуси шлейфів: траса рухається повільніше (slow — частка, на яку падає швидкість),
-// щоб на старших рівнях було більше часу помітити літеру
+// щоб на старших рівнях було більше часу помітити літеру.
+// Кожна сходинка — +2% повільніше (у вибухів — +3% зони), ціни рівномірно ростуть
 export const TRAIL_PERKS = {
     trail_neon: { slow: 0.03 },
-    trail_bubbles: { slow: 0.04 },
-    trail_rainbow: { slow: 0.05 },
-    trail_blocks: { slow: 0.06 },
-    trail_stars: { slow: 0.08 },
-    trail_fire: { slow: 0.1 }
+    trail_bubbles: { slow: 0.05 },
+    trail_rainbow: { slow: 0.07 },
+    trail_blocks: { slow: 0.09 },
+    trail_stars: { slow: 0.11 },
+    trail_fire: { slow: 0.13 }
 };
 
 // Бонуси вибухів: ширша зона стрибка (window — на скільки частка зон «ОК» та «Ідеально» більша)
 export const EXPLOSION_PERKS = {
     boom_confetti: { window: 0.05 },
-    boom_pixels: { window: 0.06 },
-    boom_bubbles: { window: 0.08 },
-    boom_watermelon: { window: 0.1 },
-    boom_fireworks: { window: 0.12 },
-    boom_starfall: { window: 0.15 }
+    boom_pixels: { window: 0.08 },
+    boom_bubbles: { window: 0.11 },
+    boom_watermelon: { window: 0.14 },
+    boom_fireworks: { window: 0.17 },
+    boom_starfall: { window: 0.2 }
 };
 
 // Наскільки шлейф сповільнює трасу (0…1)
@@ -263,9 +265,9 @@ export function itemPerkText(itemId) {
 }
 
 // Бонуси скінів із магазину (скіни рівнів — нагорода без бонусу), за ціною:
-//   до 150 — series: монети за серії «Ідеально» ×1.5
-//   до 230 — words: монети за слова й комбінації ×2
-//   дорожчі — perfect: зона «Ідеально» +20%
+//   до 150 — series: монети за серії «Ідеально» ×1.5 … ×1.7
+//   до 230 — words: монети за слова й комбінації ×2 … ×2.4
+//   дорожчі — perfect: зона «Ідеально» +20% … +35%
 //   легендарні — shield: одна помилка чи зіткнення за рівень пробачається
 export const SKIN_SERIES_MULT = 1.5;
 export const SKIN_WORDS_MULT = 2;
@@ -279,6 +281,14 @@ export const SKIN_PERK_TIERS = {
     perfect: [0.1, 0.15, SKIN_PERFECT_BONUS]
 };
 
+// Сила бонусу скіна з магазину росте з ціною: [ціна від, значення].
+// Дешевші скіни одного виду — як золота рамка скіна рівня, дорожчі — сильніші
+export const SHOP_SKIN_PERK_STEPS = {
+    series: [[100, 1.5], [120, 1.6], [150, 1.7]],
+    words: [[180, 2], [200, 2.2], [230, 2.4]],
+    perfect: [[250, 0.2], [280, 0.25], [300, 0.3], [350, 0.35]]
+};
+
 // Сила бонусу скіна з магазину (для «сердечок» — своя в кожного скіна)
 export function shopSkinPerkValue(renderType) {
     const item = renderType ? getShopSkinByRenderType(renderType) : null;
@@ -289,7 +299,17 @@ export function shopSkinPerkValue(renderType) {
     if (kind === "hearts") {
         return SKIN_HEART_PERKS[item.id];
     }
-    return kind === "shield" ? 1 : skinPerkValue(kind, 2);
+    if (kind === "shield") {
+        return 1;
+    }
+    // Найбільша сходинка, до якої дотягує ціна скіна
+    let value = skinPerkValue(kind, 2);
+    for (const step of SHOP_SKIN_PERK_STEPS[kind] || []) {
+        if (item.price >= step[0]) {
+            value = step[1];
+        }
+    }
+    return value;
 }
 
 // Значення бонусу за видом і рівнем рамки (0 — без рамки, 1 — срібна, 2 — золота)
@@ -346,7 +366,7 @@ export function skinPerkText(perk, value) {
 // Пояснення бонусів (для підказки на картці й рядка внизу магазину)
 const PERK_HINTS = {
     series: "🔥 Серії — за кілька «Ідеально» поспіль (3, 5, 10…) даються бонусні монети; цей скін їх збільшує",
-    words: "📝 Слова — монети за слова й комбінації, набрані без жодної помилки, подвоюються",
+    words: "📝 Слова — монети за слова й комбінації, набрані без жодної помилки, множаться",
     perfect: "💠 Ідеально — зона «Ідеально» ширша: легше робити ідеальні стрибки й серії",
     shield: "🛡 Щит — одна помилка чи зіткнення за рівень пробачається: кубик не вибухає, а їде далі",
     slow: "🐢 Швидкість — шипи рухаються повільніше, тож більше часу знайти потрібну клавішу (монет не менше)",
@@ -419,17 +439,15 @@ export function itemPerkHint(itemId) {
     return "";
 }
 
-// Бонус монет за зброю: крутіша зброя — монети збираються швидше.
-// Бонус росте з ціною, тож кожна дорожча зброя вигідніша за дешевшу:
-// звичайна — 1 + ціна/1500 (меч ×1.08 … ракетниця ×1.3),
-// легендарна — 1.4 + (ціна − 900)/2000 (вогняний меч ×1.4 … гравітаційна гармата ×1.55)
+// Бонус монет за зброю: кожна наступна зброя — помітна сходинка вгору.
+// Ліга 1: ×1.05 … ×1.25, Ліга 2: ×1.3 … ×1.45, Ліга 3: ×1.5 … ×1.6,
+// легендарна: ×1.7 … ×1.9 (значення — у полі bonus товару)
 export function weaponCoinBonus(weaponId) {
     const item = weaponId ? getShopItem(weaponId) : null;
-    if (!item || item.type !== "weapon" || item.price <= 0) {
+    if (!item || item.type !== "weapon" || typeof item.bonus !== "number") {
         return 1;
     }
-    const bonus = item.legendary ? 1.4 + (item.price - 900) / 2000 : 1 + item.price / 1500;
-    return Math.round(bonus * 100) / 100;
+    return item.bonus;
 }
 
 // Підсумок забігу: рядки для екрана результату та загальна сума.
@@ -963,9 +981,9 @@ export function drawAccessory(ctx, id, size, time) {
 // legendaryChance — окремий крихітний шанс легендарного предмета: він випадає навіть
 // без виконання умови (пройти Боса, золоті рамки) — справжня удача
 export const CHEST_TYPES = {
-    wood: { name: "Дерев'яний сундук", itemChance: 0.35, crystals: [15, 40], maxPrice: 200, rarityPower: 1.2, legendaryChance: 0.003, heartChance: 0.12 },
-    silver: { name: "Срібний сундук", itemChance: 0.55, crystals: [40, 100], maxPrice: 300, rarityPower: 0.8, legendaryChance: 0.01, heartChance: 0.18 },
-    gold: { name: "Золотий сундук", itemChance: 0.8, crystals: [100, 220], maxPrice: 450, rarityPower: 0.4, legendaryChance: 0.03, heartChance: 0.25 }
+    wood: { name: "Дерев'яний сундук", itemChance: 0.35, crystals: [15, 40], maxPrice: 200, maxLeague: 1, rarityPower: 1.2, legendaryChance: 0.003, heartChance: 0.12 },
+    silver: { name: "Срібний сундук", itemChance: 0.55, crystals: [40, 100], maxPrice: 300, maxLeague: 2, rarityPower: 0.8, legendaryChance: 0.01, heartChance: 0.18 },
+    gold: { name: "Золотий сундук", itemChance: 0.8, crystals: [100, 220], maxPrice: 450, maxLeague: 3, rarityPower: 0.4, legendaryChance: 0.03, heartChance: 0.25 }
 };
 
 // Шанс сундука за повторну перемогу й гарантія: не більше 4 перемог поспіль без сундука
@@ -1008,10 +1026,26 @@ export function chestsForVictory(win, random) {
     return { chests: chests, winsWithoutChest: chests.length > 0 ? 0 : (win.winsWithoutChest || 0) + 1 };
 }
 
+// Чи задорогий предмет для сундука: зброя — за лігою, решта — за ціною
+function tooRareForChest(item, chest) {
+    if (item.type === "weapon" && typeof item.league === "number") {
+        return item.league > chest.maxLeague;
+    }
+    return item.price > chest.maxPrice;
+}
+
 // Звичайні товари відкриваються за лігою, до якої дійшов гравець:
-// до 200 — одразу, до 350 — з Ліги 2, дорожчі — з Ліги 3 (легендарні — за своїми умовами)
+// до 200 — одразу, до 350 — з Ліги 2, дорожчі — з Ліги 3 (легендарні — за своїми умовами,
+// зброя — за полем league)
 export function shopTierLeague(item) {
-    if (!item || item.legendary || item.price <= 200) {
+    if (!item || item.legendary) {
+        return 1;
+    }
+    // Зброя має власну лігу — ціни в неї ширші, ніж у скінів
+    if (typeof item.league === "number") {
+        return item.league;
+    }
+    if (item.price <= 200) {
         return 1;
     }
     return item.price <= 350 ? 2 : 3;
@@ -1023,7 +1057,7 @@ export function chestItemPool(type, isOwned) {
     const chest = CHEST_TYPES[type] || CHEST_TYPES.wood;
     const pool = [];
     for (const item of SHOP_ITEMS) {
-        if (item.price <= 0 || item.legendary || item.price > chest.maxPrice || isOwned(item.id)) {
+        if (item.price <= 0 || item.legendary || tooRareForChest(item, chest) || isOwned(item.id)) {
             continue;
         }
         pool.push({ item: item, weight: 1 / Math.pow(item.price, chest.rarityPower) });
