@@ -57,11 +57,17 @@ const BLOCKED_CODES = new Set([
     "NumpadEnter"
 ]);
 
+// Пробіл — пауза в грі та «далі» на екранах результату; Enter — підтвердження (сердечко)
 const CONFIRM_CODES = new Set([
     "Space"
 ]);
 
-export function initKeyboardInput(onLetter, onConfirm, onEscape) {
+const ENTER_CODES = new Set([
+    "Enter",
+    "NumpadEnter"
+]);
+
+export function initKeyboardInput(onLetter, onConfirm, onEscape, onEnter) {
     window.addEventListener("keydown", function (event) {
         if (event.ctrlKey || event.altKey || event.metaKey) {
             return;
@@ -81,6 +87,15 @@ export function initKeyboardInput(onLetter, onConfirm, onEscape) {
             }
             if (typeof onConfirm === "function") {
                 onConfirm();
+            }
+            return;
+        }
+        if (ENTER_CODES.has(event.code)) {
+            if (event.repeat) {
+                return;
+            }
+            if (typeof onEnter === "function") {
+                onEnter();
             }
             return;
         }

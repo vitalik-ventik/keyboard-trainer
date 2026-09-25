@@ -251,6 +251,8 @@ function startLevel(levelId) {
         openReviveModal(count);
     };
     setState("PLAYING");
+    // Рівень починається на паузі: можна роздивитися літери й приготуватися, старт — Пробілом
+    gameEngine.pauseGame("start");
 }
 
 // ---------- Завершення забігу ----------
@@ -703,29 +705,68 @@ initKeyboardInput(
             }
         }
     },
+    // Пробіл: у грі — пауза / продовження; на екранах результату й сундука — «далі»
+    function () {
+        if (isReviveOpen()) {
+            // Сердечко підтверджується лише Enter, щоб не використати його випадково
+            return;
+        }
+        if (state === "PLAYING" && gameEngine) {
+            togglePause();
+            return;
+        }
+        confirmResultScreen();
+    },
+    function () {
+        handleEscape();
+    },
+    // Enter: використати сердечко; на екранах результату й сундука — те саме, що Пробіл
     function () {
         if (isReviveOpen()) {
             acceptRevive();
             return;
         }
-        if (!chestModalEl.classList.contains("hidden")) {
-            chestPrimaryAction();
-            return;
+        if (state !== "PLAYING") {
+            confirmResultScreen();
         }
-        if (state === "GAMEOVER") {
-            btnRetry.click();
-        } else if (state === "VICTORY") {
-            if (!btnNext.classList.contains("hidden")) {
-                btnNext.click();
-            } else {
-                btnRetryWin.click();
-            }
-        }
-    },
-    function () {
-        handleEscape();
     }
 );
+
+function confirmResultScreen() {
+    if (!chestModalEl.classList.contains("hidden")) {
+        chestPrimaryAction();
+        return;
+    }
+    if (state === "GAMEOVER") {
+        btnRetry.click();
+    } else if (state === "VICTORY") {
+        if (!btnNext.classList.contains("hidden")) {
+            btnNext.click();
+        } else {
+            btnRetryWin.click();
+        }
+    }
+}
+
+// Пауза гравця: Пробілом, дотиком до екрана або коли вкладку сховано
+function togglePause() {
+    if (!gameEngine || isReviveOpen()) {
+        return;
+    }
+    if (gameEngine.isUserPaused()) {
+        gameEngine.resumeGame();
+    } else {
+        gameEngine.pauseGame("user");
+    }
+    kbCache.markDirty();
+}
+
+// Дотик або клік по ігровому полю під час паузи — продовжити (зручно на планшеті)
+canvas.addEventListener("pointerdown", function () {
+    if (state === "PLAYING" && gameEngine && gameEngine.isUserPaused() && !isReviveOpen()) {
+        togglePause();
+    }
+});
 
 // ---------- Сердечко: друге життя ----------
 
@@ -859,6 +900,10 @@ startUpdateWatcher(function () {
 document.addEventListener("visibilitychange", function () {
     if (document.hidden) {
         frameCtrl.reset();
+        // Вкладку сховано посеред рівня — ставимо на паузу, щоб не програти за відсутності
+        if (state === "PLAYING" && gameEngine && !gameEngine.isUserPaused()) {
+            gameEngine.pauseGame("user");
+        }
     }
 });
 
@@ -922,7 +967,8 @@ function frame(now) {
                 w: W * 0.92,
                 h: H * 0.28
             };
-            var tarLetter = gameEngine.getTargetLetter();
+            // На паузі ціль не підсвічується: видно всі літери рівня, щоб роздивитися їх
+            var tarLetter = gameEngine.paused ? null : gameEngine.getTargetLetter();
             var grpLetters = gameEngine.level.letters;
             var wrongLetter = wrongKeyError.letter;
             // Розмір перевіряється щокадру: після зміни розміру вікна клавіатура одразу перемальовується
