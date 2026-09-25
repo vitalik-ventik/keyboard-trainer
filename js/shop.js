@@ -53,7 +53,7 @@ export const SHOP_ITEMS = [
     { id: "shop_galaxy", type: "skin", name: "Кубик-галактика", price: 350, renderType: "shop_galaxy" },
 
     // Легендарні скіни: купуються лише після виконання умови (requirement)
-    { id: "shop_phoenix", type: "skin", name: "Вогняний фенікс", price: 800, renderType: "shop_phoenix", legendary: true, requirement: { kind: "boss" } },
+    { id: "shop_phoenix", type: "skin", name: "Вогняний фенікс", price: 800, renderType: "shop_phoenix", legendary: true, requirement: { kind: "clears", target: 25 } },
     { id: "shop_golden_ninja", type: "skin", name: "Золотий ніндзя", price: 900, renderType: "shop_golden_ninja", legendary: true, requirement: { kind: "combo_levels" } },
     { id: "shop_rainbow", type: "skin", name: "Кубик-райдуга", price: 1000, renderType: "shop_rainbow", legendary: true, requirement: { kind: "gold_count", target: 10 } },
     { id: "shop_trophy", type: "skin", name: "Кубок досягнень", price: 1100, renderType: "shop_trophy", legendary: true, requirement: { kind: "achievements", target: 25 } },
@@ -172,11 +172,32 @@ export function rewardMultiplier(difficulty, speed, hitWindow) {
     return Math.round(mult * 100) / 100;
 }
 
+// Бонус монет за зброю: крутіша зброя — монети збираються швидше.
+// Без зброї ×1, до 200 — ×1.1, до 350 — ×1.2, дорожча — ×1.3, легендарна — ×1.5
+export function weaponCoinBonus(weaponId) {
+    const item = weaponId ? getShopItem(weaponId) : null;
+    if (!item || item.type !== "weapon" || item.price <= 0) {
+        return 1;
+    }
+    if (item.legendary) {
+        return 1.5;
+    }
+    if (item.price <= 200) {
+        return 1.1;
+    }
+    if (item.price <= 350) {
+        return 1.2;
+    }
+    return 1.3;
+}
+
 // Підсумок забігу: рядки для екрана результату та загальна сума.
-// run: { hits, perfect, series, won, leagueId, firstClear, newSilver, newGold, difficulty, speed, hitWindow }
+// run: { hits, perfect, series, won, leagueId, firstClear, newSilver, newGold, difficulty, speed, hitWindow, weaponId }
 export function computeReward(run) {
     const lines = [];
-    const mult = rewardMultiplier(run.difficulty, run.speed, run.hitWindow);
+    const settingsMult = rewardMultiplier(run.difficulty, run.speed, run.hitWindow);
+    const weaponMult = weaponCoinBonus(run.weaponId);
+    const mult = settingsMult * weaponMult;
     let base = 0;
     // +1 за кожен подоланий шип і ще +1, якщо це було «Ідеально»
     if (run.hits > 0) {
@@ -202,7 +223,7 @@ export function computeReward(run) {
     if (!run.won) {
         // Вибух: зберігається половина зібраного
         const total = Math.ceil(base * mult / 2);
-        return { lines: lines, mult: mult, half: true, total: total };
+        return { lines: lines, mult: settingsMult, weaponMult: weaponMult, half: true, total: total };
     }
     const finish = FINISH_BONUS[run.leagueId] || 10;
     lines.push({ label: "Фініш", value: finish });
@@ -220,7 +241,7 @@ export function computeReward(run) {
         lines.push({ label: "Золота рамка", value: GOLD_BONUS });
         base += GOLD_BONUS;
     }
-    return { lines: lines, mult: mult, half: false, total: Math.ceil(base * mult) };
+    return { lines: lines, mult: settingsMult, weaponMult: weaponMult, half: false, total: Math.ceil(base * mult) };
 }
 
 // ---------- Золота монета: значок валюти ----------
