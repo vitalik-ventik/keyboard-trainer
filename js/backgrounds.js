@@ -1894,7 +1894,7 @@ function drawStarsInto(ctx, W, maxY, count, rng, B) {
 
 // ---------- 1. Неоновий старт ----------
 // Геометричний простір у стилі Geometry Dash: два шари неонових гір,
-// у небі обертаються світні каркасні фігури, сіткою біжать світлові імпульси.
+// у небі обертаються світні каркасні фігури.
 
 // Каркасні фігури: вершини (x, y, z) та ребра
 const WIRE_SHAPES = {
@@ -2005,14 +2005,6 @@ BackgroundRenderer.renderNeonStart = function (ctx, W, H, groundY, time, speed, 
         ctx.lineTo(W, y);
     }
     ctx.stroke();
-    // Світлові імпульси біжать сіткою до глядача
-    for (let k = 0; k < 2; k++) {
-        const t = ((time * 0.6 + k * 0.5) % 1);
-        const y = hz + (groundY - hz) * t * t;
-        ctx.globalAlpha = 0.9 * (1 - t * 0.5);
-        ctx.fillStyle = k === 0 ? "#ffffff" : "#ff2ea6";
-        ctx.fillRect(0, Math.round(y) - 1, W, Math.max(2, Math.round(1 + t * 3)));
-    }
     ctx.globalAlpha = 1;
     // Горизонт пульсує в такт
     const beat = Math.pow(Math.max(0, Math.sin(time * Math.PI * 2)), 6);
