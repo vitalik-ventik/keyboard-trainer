@@ -7,7 +7,7 @@
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
-import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, accessoryPerk, trailSlowdown, explosionWindowBonus, skinPerk, skinPerkValue, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
+import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, drawHeartLife, accessoryPerk, trailSlowdown, explosionWindowBonus, skinPerk, skinPerkValue, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCoinIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
 import { EXTRA_LEVEL_SKINS } from "./level_skins_extra.js";
 import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, sanitizeAchievementData, localDayKey } from "./achievements.js";
@@ -1948,7 +1948,9 @@ function defaultSaveData() {
             paid: {},
             // Ще не відкриті сундуки та скільки перемог поспіль минуло без сундука
             chests: [],
-            winsWithoutChest: 0
+            winsWithoutChest: 0,
+            // Сердечка — запасні життя з сундуків
+            hearts: 0
         },
         // Відкриті досягнення й лічильники для них
         achievements: defaultAchievementData()
@@ -2044,6 +2046,10 @@ function sanitizeSaveData(raw) {
         }
         if (Array.isArray(raw.shop.chests)) {
             clean.shop.chests = raw.shop.chests.filter(function (c) { return typeof c === "string" && CHEST_TYPES[c]; }).slice(0, 50);
+        }
+        const hearts = Number(raw.shop.hearts);
+        if (Number.isFinite(hearts)) {
+            clean.shop.hearts = Math.max(0, Math.min(99, Math.floor(hearts)));
         }
         const wins = Number(raw.shop.winsWithoutChest);
         if (Number.isFinite(wins)) {
@@ -2482,11 +2488,43 @@ export const save = {
         const result = rollChest(type, function (id) { return self.isOwned(id); }, undefined, itemBonus);
         if (result.kind === "item") {
             saveData.shop.owned.push(result.id);
+        } else if (result.kind === "heart") {
+            saveData.shop.hearts = Math.min(99, (saveData.shop.hearts || 0) + result.amount);
         } else {
             saveData.shop.crystals += result.amount;
         }
         this.persist();
         return { type: type, result: result };
+    },
+
+    // ---------- Сердечка (запасні життя) ----------
+
+    getHearts() {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.shop.hearts || 0;
+    },
+
+    addHearts(n) {
+        if (!saveData) {
+            this.load();
+        }
+        saveData.shop.hearts = Math.max(0, Math.min(99, (saveData.shop.hearts || 0) + Math.floor(n)));
+        this.persist();
+    },
+
+    // Витратити одне сердечко: true — вдалося
+    useHeart() {
+        if (!saveData) {
+            this.load();
+        }
+        if ((saveData.shop.hearts || 0) <= 0) {
+            return false;
+        }
+        saveData.shop.hearts--;
+        this.persist();
+        return true;
     },
 
     // Умова легендарного товару: { met, current, target, text }.
@@ -3226,6 +3264,13 @@ export class Engine {
         }
         this.shieldReady = this.skinPerk === "shield";
         this.shieldFlash = 0;
+        // Пропозиція сердечка: гра на паузі, доки гравець не вирішить
+        this.onReviveOffer = null;
+        this.pendingRevive = null;
+        this.paused = false;
+        this.pauseStart = null;
+        this.pausedTotal = 0;
+        this.heartFlash = 0;
 
         this.cameraMotion = save.getCameraMotion();
 
@@ -3563,6 +3608,76 @@ export class Engine {
         return true;
     }
 
+    // Помилка, що мала б закінчитися вибухом. kind: "wrong" (не та літера на HARD),
+    // "late" (запізнення на HARD), "collision" (зіткнення з шипом).
+    // Спершу безкоштовний щит скіна, потім пропозиція сердечка, інакше — вибух
+    failAt(kind, spike, gap) {
+        if (this.useShield()) {
+            this.forgiveMistake(kind, spike, gap);
+            return "forgiven";
+        }
+        if (!this.demoMode && typeof this.onReviveOffer === "function" && save.getHearts() > 0 && this.player.alive) {
+            this.pendingRevive = { kind: kind, spike: spike, gap: gap };
+            this.paused = true;
+            this.onReviveOffer(save.getHearts());
+            return "paused";
+        }
+        if (kind === "collision" && spike) {
+            spike.state = "hit";
+        }
+        this.explode();
+        return "exploded";
+    }
+
+    // Пробачена помилка: після запізнення кубик сам перестрибує шип, після зіткнення
+    // шип розбивається; після не тієї літери можна просто натиснути правильну
+    forgiveMistake(kind, spike, gap) {
+        if (!spike) {
+            return;
+        }
+        if (kind === "late") {
+            this.markSpikeCleared(spike, 0);
+            this.jump(Math.max(0, gap) + 2 * spikeHalfWidth(spike.type) + SAFE_MARGIN, false);
+        } else if (kind === "collision") {
+            this.markSpikeCleared(spike, 0);
+        }
+    }
+
+    // Гравець погодився використати сердечко (Пробіл)
+    acceptRevive() {
+        const r = this.pendingRevive;
+        if (!r) {
+            return;
+        }
+        this.pendingRevive = null;
+        this.paused = false;
+        save.useHeart();
+        this.heartFlash = 1;
+        this.combo = 0;
+        this.scorePopups.push({
+            x: this.player.x,
+            y: this.player.y + CUBE_SIZE * 2.2,
+            text: "❤ Друге життя!",
+            life: 1.4,
+            maxLife: 1.4
+        });
+        this.forgiveMistake(r.kind, r.spike, r.gap);
+    }
+
+    // Гравець відмовився (Esc) — вибух, як зазвичай
+    declineRevive() {
+        const r = this.pendingRevive;
+        if (!r) {
+            return;
+        }
+        this.pendingRevive = null;
+        this.paused = false;
+        if (r.kind === "collision" && r.spike) {
+            r.spike.state = "hit";
+        }
+        this.explode();
+    }
+
     explode() {
         if (!this.player.alive) {
             return;
@@ -3607,6 +3722,9 @@ export class Engine {
     }
 
     handleLetter(letter) {
+        if (this.paused) {
+            return { result: "paused", letter: letter };
+        }
         if (this.demoMode || !this.player.alive || this.outcome !== "running") {
             return { result: "no_target", letter: letter };
         }
@@ -3649,11 +3767,11 @@ export class Engine {
         }
         this.worldReact();
         if (this.difficulty === "HARD") {
-            if (this.useShield()) {
-                return { result: "wrong", letter: letter };
+            const fate = this.failAt("wrong", spike, 0);
+            if (fate === "exploded") {
+                return { result: "exploded", letter: letter };
             }
-            this.explode();
-            return { result: "exploded", letter: letter };
+            return { result: fate === "paused" ? "paused" : "wrong", letter: letter };
         }
 
         return { result: "wrong", letter: letter };
@@ -4028,6 +4146,10 @@ export class Engine {
         if (this.outcome === "won") {
             return;
         }
+        // Пауза, поки гравець вирішує щодо сердечка
+        if (this.paused) {
+            return;
+        }
 
         this.currentTime = performance.now();
         this.pulse = Math.max(0, this.pulse - dt * 2.2);
@@ -4078,6 +4200,7 @@ export class Engine {
         }
         this.perfectFlash = Math.max(0, this.perfectFlash - dt);
         this.shieldFlash = Math.max(0, (this.shieldFlash || 0) - dt * 1.2);
+        this.heartFlash = Math.max(0, (this.heartFlash || 0) - dt * 1.2);
         if (this.boom) {
             this.boom.t += dt;
             if (this.boom.t > EXPLOSION_DURATION) {
@@ -4192,12 +4315,8 @@ export class Engine {
                 const gap = target.x - spikeHalfWidth(target.type) - this.player.x;
                 if (gap <= CUBE_SIZE * 0.4) {
                     this.noteSpikeMiss(target);
-                    if (this.useShield()) {
-                        // Щит перестрибує шип замість вибуху
-                        this.markSpikeCleared(target, 0);
-                        this.jump(gap + 2 * spikeHalfWidth(target.type) + SAFE_MARGIN, false);
-                    } else {
-                        this.explode();
+                    // Щит або сердечко перестрибують шип замість вибуху
+                    if (this.failAt("late", target, gap) !== "forgiven") {
                         return;
                     }
                 }
@@ -4212,14 +4331,11 @@ export class Engine {
             const halfW = spikeHalfWidth(spike.type);
             if (dx < halfW + CUBE_SIZE * 0.32 && this.player.y < SPIKE_H * 0.72) {
                 this.noteSpikeMiss(spike);
-                if (this.useShield()) {
-                    // Щит розбиває шип, і кубик їде далі
-                    this.markSpikeCleared(spike, 0);
-                    continue;
+                // Щит або сердечко розбивають шип, і кубик їде далі
+                if (this.failAt("collision", spike, 0) !== "forgiven") {
+                    return;
                 }
-                spike.state = "hit";
-                this.explode();
-                return;
+                continue;
             }
             if (spike.x + halfW < this.player.x) {
                 spike.state = "cleared";
@@ -4252,6 +4368,19 @@ export class Engine {
     // ---------- Рендер ----------
 
     render(ctx, W, H, time) {
+        // Під час паузи фон і всі анімації завмирають: час рендера не йде вперед
+        if (this.paused) {
+            if (this.pauseStart === null) {
+                this.pauseStart = time;
+            }
+            time = this.pauseStart - this.pausedTotal;
+        } else {
+            if (this.pauseStart !== null) {
+                this.pausedTotal += time - this.pauseStart;
+                this.pauseStart = null;
+            }
+            time -= this.pausedTotal;
+        }
         var groundY = H * 0.64;
         var anchorX = W * PLAYER_ANCHOR;
         var camX = this.player.x;
@@ -4307,7 +4436,30 @@ export class Engine {
             this.renderWordBar(ctx, W);
             this.renderWorldTitle(ctx, W, H);
             this.renderProgressBar(ctx, W);
+            this.renderHearts(ctx);
         }
+    }
+
+    // Запас сердечок — у лівому верхньому куті під панеллю
+    renderHearts(ctx) {
+        const count = save.getHearts();
+        if (count <= 0 && this.heartFlash <= 0) {
+            return;
+        }
+        const x = 26;
+        const y = 78;
+        ctx.save();
+        const pulse = 1 + (this.heartFlash || 0) * 0.5;
+        drawHeartLife(ctx, x, y, 28 * pulse, performance.now());
+        ctx.font = "bold 18px 'Segoe UI', Arial, sans-serif";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = "rgba(5, 5, 20, 0.9)";
+        ctx.strokeText("×" + count, x + 18, y + 2);
+        ctx.fillStyle = "#ffe14d";
+        ctx.fillText("×" + count, x + 18, y + 2);
+        ctx.restore();
     }
 
     // Рівень-слова: під панеллю прогресу — поточне слово, набрані літери зелені,

@@ -11,7 +11,7 @@ import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js"
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
-import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity, coinsText, weaponCoinBonus, accessoryPerk, itemPerkText, itemPerkHint, shopTabHints, skinPerkText, levelSkinPerkHint } from "./shop.js";
+import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity, coinsText, heartsText, drawHeartLife, weaponCoinBonus, accessoryPerk, itemPerkText, itemPerkHint, shopTabHints, skinPerkText, levelSkinPerkHint } from "./shop.js";
 import { drawShopItemScene, drawShopSkinScene, drawChestScene, CHEST_SHAKE_MS, CHEST_OPEN_MS } from "./shop_preview.js";
 import { ACHIEVEMENTS, ACHIEVEMENT_GROUPS, achievementProgress, buildAchievementCard, buildAchievementToast } from "./achievements.js";
 
@@ -242,6 +242,10 @@ function startLevel(levelId) {
     };
     gameEngine.onExplode = function () {
         playSound("explode");
+    };
+    // Помилка, а в запасі є сердечко: гра на паузі й питає, чи використати його
+    gameEngine.onReviveOffer = function (count) {
+        openReviveModal(count);
     };
     setState("PLAYING");
 }
@@ -676,6 +680,10 @@ initKeyboardInput(
         }
     },
     function () {
+        if (isReviveOpen()) {
+            acceptRevive();
+            return;
+        }
         if (!chestModalEl.classList.contains("hidden")) {
             chestPrimaryAction();
             return;
@@ -695,8 +703,58 @@ initKeyboardInput(
     }
 );
 
+// ---------- Сердечко: друге життя ----------
+
+const reviveModalEl = document.getElementById("reviveModal");
+const reviveCountEl = document.getElementById("reviveCount");
+const reviveHeartCanvas = document.getElementById("reviveHeart");
+
+function isReviveOpen() {
+    return reviveModalEl && !reviveModalEl.classList.contains("hidden");
+}
+
+function openReviveModal(count) {
+    reviveCountEl.textContent = heartsText(count);
+    const hctx = reviveHeartCanvas.getContext("2d");
+    hctx.clearRect(0, 0, reviveHeartCanvas.width, reviveHeartCanvas.height);
+    drawHeartLife(hctx, 36, 36, 52, 0);
+    reviveModalEl.classList.remove("hidden");
+}
+
+function closeReviveModal() {
+    reviveModalEl.classList.add("hidden");
+}
+
+function acceptRevive() {
+    if (!isReviveOpen()) {
+        return;
+    }
+    closeReviveModal();
+    if (gameEngine) {
+        gameEngine.acceptRevive();
+    }
+    playSound("chest_item", { volume: 0.7 });
+}
+
+function declineRevive() {
+    if (!isReviveOpen()) {
+        return;
+    }
+    closeReviveModal();
+    if (gameEngine) {
+        gameEngine.declineRevive();
+    }
+}
+
+document.getElementById("btnReviveYes").addEventListener("click", acceptRevive);
+document.getElementById("btnReviveNo").addEventListener("click", declineRevive);
+
 // Esc: закриває відкрите вікно або повертає до головного меню (зокрема з рівня — без запису результату)
 function handleEscape() {
+    if (isReviveOpen()) {
+        declineRevive();
+        return;
+    }
     if (!chestModalEl.classList.contains("hidden")) {
         closeChestModal();
         return;
@@ -1861,6 +1919,9 @@ function showChestResult() {
     if (result.kind === "crystals") {
         chestResultEl.innerHTML = "🪙 +" + coinsText(result.amount) + "!";
         playSound("chest_coins");
+    } else if (result.kind === "heart") {
+        chestResultEl.innerHTML = "❤ +" + heartsText(result.amount) + "! Запасне життя на випадок помилки";
+        playSound("chest_item");
     } else {
         const item = getShopItem(result.id);
         const rarity = itemRarity(item);
