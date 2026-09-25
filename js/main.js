@@ -9,7 +9,7 @@ import { loadAssets, unlockAudio, playSound, playMusic } from "./assets.js";
 import { LEVELS_CONFIG, ALL_LEVELS, Engine, save, SKIN_RENDERERS } from "./engine.js";
 import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
-import { FrameController, KeyboardCache } from "./cache.js";
+import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
 
 // ---------- Полотно та адаптивність ----------
 
@@ -579,6 +579,9 @@ function frame(now) {
     }
     const dt = frameCtrl.clampDt(dtMs);
     frameCtrl.advance(now);
+    if (!document.hidden) {
+        BackgroundQuality.report(dtMs);
+    }
     const time = (now - appStart) / 1000;
 
     ctx.clearRect(0, 0, W, H);

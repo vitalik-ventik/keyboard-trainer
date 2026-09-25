@@ -201,11 +201,6 @@ export function drawTargetPulse(ctx, area, targetLetter, time) {
     const blink = (Math.sin(time * 6) + 1) / 2;
     const spread = 3 + blink * Math.min(8, layout.keyW * 0.14);
     ctx.save();
-    ctx.globalAlpha = 0.35 + 0.5 * blink;
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = COLORS.TARGET_STROKE;
-    ctx.shadowBlur = COLORS.TARGET_GLOW + 8 * blink;
-    ctx.shadowColor = COLORS.TARGET_GLOW_COLOR;
     roundRect(
         ctx,
         pos.x - spread,
@@ -214,6 +209,14 @@ export function drawTargetPulse(ctx, area, targetLetter, time) {
         layout.keyH + spread * 2,
         Math.min(8, layout.keyW * 0.16) + spread
     );
+    // Ореол — широкий напівпрозорий штрих замість shadowBlur (без дорогого розмиття щокадру)
+    ctx.globalAlpha = 0.15 + 0.25 * blink;
+    ctx.lineWidth = 6 + 4 * blink;
+    ctx.strokeStyle = COLORS.TARGET_GLOW_COLOR;
+    ctx.stroke();
+    ctx.globalAlpha = 0.35 + 0.5 * blink;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = COLORS.TARGET_STROKE;
     ctx.stroke();
     ctx.restore();
 }
