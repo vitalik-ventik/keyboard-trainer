@@ -7,7 +7,7 @@
 
 import { loadAssets, unlockAudio, playSound, playMusic } from "./assets.js";
 import { LEVELS_CONFIG, ALL_LEVELS, Engine, save, SKIN_RENDERERS } from "./engine.js";
-import { initKeyboardInput, drawKeyboard } from "./keyboard.js";
+import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache } from "./cache.js";
 
@@ -201,6 +201,7 @@ function handleGameOver() {
 
 function handleVictory() {
     var victorySkinResult = null;
+    const unlockedBefore = save.getLastPlayable();
     if (!resultRecorded) {
         resultRecorded = true;
         const runState = gameEngine.getState();
@@ -243,7 +244,12 @@ function handleVictory() {
         victoryUnlockEl.textContent = skinUnlockText || "Ти переміг! Усі 31 рівень пройдено! Повний алфавіт освоєно!";
         btnNext.classList.add("hidden");
     } else if (nextLevel && save.getLastPlayable() >= nextLevel.id) {
-        victoryUnlockEl.textContent = skinUnlockText || ("Відкрито: " + nextLevel.name + "!");
+        // «Відкрито» — лише якщо наступний рівень відкрився саме цією перемогою
+        const justUnlocked = nextLevel.id > unlockedBefore;
+        const nextText = justUnlocked
+            ? "Відкрито: " + nextLevel.name + "!"
+            : "Наступний рівень: " + nextLevel.name;
+        victoryUnlockEl.textContent = skinUnlockText || nextText;
         btnNext.classList.remove("hidden");
     } else {
         victoryUnlockEl.textContent = skinUnlockText;
@@ -389,6 +395,8 @@ btnStart.addEventListener("click", function () {
 });
 
 btnLevels.addEventListener("click", function () {
+    // Відкриваємо лігу останнього зіграного рівня, а не завжди першу
+    activeLeagueId = currentLeagueId;
     buildLevelCards();
     setState("LEVEL_SELECT");
 });
@@ -524,8 +532,32 @@ initKeyboardInput(
                 btnRetryWin.click();
             }
         }
+    },
+    function () {
+        handleEscape();
     }
 );
+
+// Esc: закриває відкрите вікно або повертає до головного меню (зокрема з рівня — без запису результату)
+function handleEscape() {
+    if (!skinsModalEl.classList.contains("hidden")) {
+        skinsModalEl.classList.add("hidden");
+        return;
+    }
+    if (state === "SETTINGS") {
+        btnCloseSettings.click();
+    } else if (state === "LEVEL_SELECT") {
+        btnLevelsBack.click();
+    } else if (state === "GAMEOVER") {
+        btnGoMenu.click();
+    } else if (state === "VICTORY") {
+        btnWinMenu.click();
+    } else if (state === "PLAYING") {
+        wrongKeyError = { letter: null, timestamp: 0 };
+        createDemoEngine();
+        setState("MENU");
+    }
+}
 
 // ---------- Пауза при прихованій вкладці ----------
 
@@ -581,9 +613,10 @@ function frame(now) {
             var tarLetter = gameEngine.getTargetLetter();
             var grpLetters = gameEngine.level.letters;
             var wrongLetter = wrongKeyError.letter;
+            // Розмір перевіряється щокадру: після зміни розміру вікна клавіатура одразу перемальовується
+            kbCache.resize(keyboardArea.w, keyboardArea.h, window.devicePixelRatio || 1);
             if (kbCache.shouldUpdate(tarLetter, grpLetters, wrongLetter)) {
                 kbCache.setState(tarLetter, grpLetters, wrongLetter);
-                kbCache.resize(keyboardArea.w, keyboardArea.h);
                 kbCache.render(function (cacheCtx) {
                     drawKeyboard(
                         cacheCtx,
@@ -596,6 +629,9 @@ function frame(now) {
                 });
             }
             kbCache.drawImage(ctx, keyboardArea.x, keyboardArea.y);
+            if (state === "PLAYING" && wrongLetter === null) {
+                drawTargetPulse(ctx, keyboardArea, tarLetter, time);
+            }
 
             if (state === "PLAYING") {
                 const outcome = gameEngine.getOutcome();
@@ -820,6 +856,8 @@ skinsModalEl.addEventListener("click", function (e) {
 // ---------- Старт застосунку ----------
 
 save.load();
+currentLevelId = save.getLastPlayable();
+currentLeagueId = (ALL_LEVELS.find(function (l) { return l.id === currentLevelId; }) || { leagueId: 1 }).leagueId;
 
 loadAssets(function (loaded, total) {
     loadingProgressEl.textContent = loaded + " / " + total;

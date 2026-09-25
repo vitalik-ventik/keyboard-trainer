@@ -163,9 +163,10 @@ export class FrameController {
     constructor() {
         this.lastTime = null;
         this.maxDt = 0.05;
-        this.skipThreshold = 0.03;
-        this.skippedFrames = 0;
-        this.maxSkippedFrames = 10;
+        // Пропускаємо кадр лише після довгої паузи (перемикання вкладки, зависання),
+        // щоб не зробити один гігантський крок. Звичайні повільні кадри (30 fps)
+        // не пропускаються — інакше гра сповільнюється в рази.
+        this.pauseThreshold = 0.25;
     }
 
     shouldSkip(dt, time) {
@@ -173,13 +174,10 @@ export class FrameController {
             this.lastTime = time;
             return true;
         }
-        var dtSeconds = dt / 1000;
-        if (dtSeconds > this.skipThreshold && this.skippedFrames < this.maxSkippedFrames) {
-            this.skippedFrames++;
+        if (dt / 1000 > this.pauseThreshold) {
             this.lastTime = time;
             return true;
         }
-        this.skippedFrames = 0;
         return false;
     }
 
@@ -193,7 +191,6 @@ export class FrameController {
 
     reset() {
         this.lastTime = null;
-        this.skippedFrames = 0;
     }
 }
 
@@ -208,10 +205,14 @@ export class KeyboardCache {
         this.lastTargetLetter = null;
         this.lastGroupLetters = "";
         this.lastWrongKeyLetter = null;
+        this.dpr = 1;
         this.dirty = true;
     }
 
     shouldUpdate(targetLetter, groupLetters, wrongKeyLetter) {
+        if (this.dirty) {
+            return true;
+        }
         var groupStr = (groupLetters || []).join(",");
         if (targetLetter !== this.lastTargetLetter ||
             groupStr !== this.lastGroupLetters ||
@@ -238,19 +239,25 @@ export class KeyboardCache {
         }
     }
 
-    resize(w, h) {
-        if (this.width !== w || this.height !== h) {
+    // Полотно кешу має фізичний розмір (w × dpr), щоб літери були чіткими
+    // при масштабі Windows 125–150%
+    resize(w, h, dpr) {
+        var ratio = dpr || 1;
+        if (this.width !== w || this.height !== h || this.dpr !== ratio) {
             this.width = w;
             this.height = h;
-            this.canvas.width = Math.round(w);
-            this.canvas.height = Math.round(h);
+            this.dpr = ratio;
+            this.canvas.width = Math.round(w * ratio);
+            this.canvas.height = Math.round(h * ratio);
             this.dirty = true;
         }
     }
 
     render(drawFn) {
         if (!this.dirty) return;
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
         if (typeof drawFn === "function") {
             drawFn(this.ctx);
         }
@@ -278,27 +285,20 @@ export class BackgroundCache {
         this.width = 0;
         this.height = 0;
         this.currentTheme = null;
-        this.frameCounter = 0;
-        this.skipFrames = 3;
+        // Фон перемальовується приблизно 20 разів на секунду незалежно від частоти монітора
+        // (раніше — кожен 3-й кадр, тобто 48 разів на секунду на моніторі 144 Гц)
+        this.redrawInterval = 0.045;
+        this.lastRenderTime = null;
         this.dirty = true;
         this.isInitialized = false;
     }
 
-    shouldUpdate() {
-        if (this.dirty) return true;
-        this.frameCounter++;
-        if (this.frameCounter >= this.skipFrames) {
-            this.frameCounter = 0;
+    shouldUpdate(time) {
+        if (this.dirty || this.lastRenderTime === null) return true;
+        if (time < this.lastRenderTime || time - this.lastRenderTime >= this.redrawInterval) {
             return true;
         }
         return false;
-    }
-
-    incrementFrame() {
-        this.frameCounter++;
-        if (this.frameCounter >= this.skipFrames) {
-            this.frameCounter = 0;
-        }
     }
 
     resize(w, h) {
@@ -320,11 +320,12 @@ export class BackgroundCache {
         }
     }
 
-    render(renderFn) {
+    render(renderFn, time) {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         if (typeof renderFn === "function") {
             renderFn(this.ctx);
         }
+        this.lastRenderTime = time;
         this.isInitialized = true;
         this.dirty = false;
     }
@@ -339,7 +340,7 @@ export class BackgroundCache {
         this.dirty = true;
         this.isInitialized = false;
         this.currentTheme = null;
-        this.frameCounter = 0;
+        this.lastRenderTime = null;
     }
 
     destroy() {
