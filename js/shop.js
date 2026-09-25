@@ -1044,8 +1044,14 @@ export function shopTierLeague(item) {
     return item.price <= 2000 ? 2 : 3;
 }
 
+// Частка, з якою в сундуку лишається випадена річ не-скін (шлейф, вибух,
+// аксесуар, зброя); інакше замість неї — монети. Скіни випадають як і раніше,
+// а решту сходинок частіше доводиться купувати
+export const NON_SKIN_ITEM_KEEP = 0.4;
+
 // Предмети, які можуть випасти із сундука: ще не куплені, не безкоштовні,
-// не легендарні й не дорожчі за межу сундука. Вага — обернено до ціни.
+// не легендарні й не дорожчі за межу сундука. Вага — обернено до ціни,
+// keep — частка, з якою річ справді лишається (не-скіни — NON_SKIN_ITEM_KEEP).
 export function chestItemPool(type, isOwned) {
     const chest = CHEST_TYPES[type] || CHEST_TYPES.wood;
     const pool = [];
@@ -1053,7 +1059,7 @@ export function chestItemPool(type, isOwned) {
         if (item.price <= 0 || item.legendary || item.price > chest.maxPrice || isOwned(item.id)) {
             continue;
         }
-        pool.push({ item: item, weight: 1 / Math.pow(item.price, chest.rarityPower) });
+        pool.push({ item: item, weight: 1 / Math.pow(item.price, chest.rarityPower), keep: item.type === "skin" ? 1 : NON_SKIN_ITEM_KEEP });
     }
     const total = pool.reduce(function (s, p) { return s + p.weight; }, 0);
     for (const p of pool) {
@@ -1081,13 +1087,18 @@ export function rollChest(type, isOwned, random, itemBonus, heartBonus) {
     const pool = chestItemPool(type, isOwned);
     if (pool.length > 0 && rnd() < Math.min(0.95, chest.itemChance + (itemBonus || 0))) {
         let r = rnd();
+        let picked = pool[pool.length - 1];
         for (const p of pool) {
             r -= p.chance;
             if (r <= 0) {
-                return { kind: "item", id: p.item.id };
+                picked = p;
+                break;
             }
         }
-        return { kind: "item", id: pool[pool.length - 1].item.id };
+        // Річ не-скін лишається лише з часткою keep, інакше — монети
+        if (picked.keep >= 1 || rnd() < picked.keep) {
+            return { kind: "item", id: picked.item.id };
+        }
     }
     const lo = chest.crystals[0];
     const hi = chest.crystals[1];
