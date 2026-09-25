@@ -117,6 +117,9 @@ const STATE_MUSIC = {
     GAMEOVER: "gameover",
     VICTORY: "win"
 };
+// Мелодії результату (перемога, вибух) звучать один раз, а не по колу:
+// якщо гравець лишив екран результату відкритим, далі — тиша
+const ONE_SHOT_MUSIC = { win: true, gameover: true };
 
 let state = "LOADING";
 let demoEngine = null;
@@ -159,7 +162,7 @@ function setState(next) {
         refreshChestButtons();
     }
 
-    playMusic(STATE_MUSIC[next]);
+    playMusic(STATE_MUSIC[next], !ONE_SHOT_MUSIC[STATE_MUSIC[next]]);
 }
 
 // ---------- Демо-заставка меню ----------
