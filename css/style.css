@@ -1406,3 +1406,8 @@ body {
 .chest-buttons .hidden {
     display: none;
 }
+
+/* Найскладніші літери гравця в налаштуваннях */
+.option-hint.weak-letters {
+    color: #ffcc88;
+}

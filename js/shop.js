@@ -167,6 +167,11 @@ export function computeReward(run) {
         lines.push({ label: "Серії", value: run.series });
         base += run.series;
     }
+    // Рівні-слова: +2 за кожне слово без жодної помилки
+    if (run.words > 0) {
+        lines.push({ label: "Слова без помилок", value: run.words * 2 });
+        base += run.words * 2;
+    }
     if (!run.won) {
         // Вибух: зберігається половина зібраного
         const total = Math.ceil(base * mult / 2);

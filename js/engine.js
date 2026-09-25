@@ -93,9 +93,39 @@ export const LEVELS_CONFIG = [
 // Стартовий скін, яким кубик малюється до першого вибору (завжди відкритий, не належить рівню)
 export const DEFAULT_SKIN = "neon_base";
 
+// Рівень боса (фінал гри)
+export const BOSS_LEVEL_ID = 31;
+
 export const ALL_LEVELS = LEVELS_CONFIG.reduce(function (acc, league) {
     return acc.concat(league.levels);
 }, []);
+
+// Рівні-слова: літери рівня — усі літери його слів (для клавіатури й підказок)
+for (const lvl of ALL_LEVELS) {
+    if (Array.isArray(lvl.words) && lvl.words.length > 0 && !lvl.letters) {
+        const set = [];
+        for (const w of lvl.words) {
+            for (const ch of w) {
+                if (set.indexOf(ch) === -1) {
+                    set.push(ch);
+                }
+            }
+        }
+        lvl.letters = set;
+    }
+}
+
+// Порядок проходження: ліга за лігою, у лізі — за порядком у масиві.
+// Відкриття рівнів спирається на цей порядок, а не на номер (id), тож нові рівні
+// можна вставляти будь-куди, не ламаючи збереження
+export function levelOrderIndex(levelId) {
+    return ALL_LEVELS.findIndex(function (l) { return l.id === levelId; });
+}
+
+export function nextLevelOf(levelId) {
+    const i = levelOrderIndex(levelId);
+    return i >= 0 && i < ALL_LEVELS.length - 1 ? ALL_LEVELS[i + 1] : null;
+}
 
 function getLevelById(levelId) {
     return ALL_LEVELS.find(function (l) { return l.id === levelId; }) ||
@@ -1729,7 +1759,46 @@ function generateTrack(level, effectiveSpeed, okPx) {
         return letter;
     }
 
-    if (level.rhythmGroups) {
+    if (Array.isArray(level.words) && level.words.length > 0) {
+        // Рівень-слова: шипи по черзі складають справжні слова; між словами — пауза
+        const order = level.words.slice();
+        let wordIdx = 0;
+        let placed = 0;
+        while (placed < level.spikeCount) {
+            if (wordIdx % order.length === 0) {
+                // Кожне коло слів — у новому випадковому порядку
+                for (let i = order.length - 1; i > 0; i--) {
+                    const j = Math.floor(rng() * (i + 1));
+                    const tmp = order[i];
+                    order[i] = order[j];
+                    order[j] = tmp;
+                }
+            }
+            const word = order[wordIdx % order.length];
+            for (let c = 0; c < word.length; c++) {
+                const obstacleType = pickObstacleType(rng, lastTypes);
+                lastTypes.push(obstacleType);
+                if (lastTypes.length > 2) {
+                    lastTypes.shift();
+                }
+                x = placeAt(x, obstacleType);
+                spikes.push({
+                    x: x,
+                    letter: word[c],
+                    state: "ahead",
+                    type: obstacleType,
+                    rotationAngle: 0,
+                    word: word,
+                    wordIdx: wordIdx,
+                    charIdx: c
+                });
+                placed++;
+                x += level.speed * (baseGapTime + rng() * 0.35);
+            }
+            x += level.speed * 0.7;
+            wordIdx++;
+        }
+    } else if (level.rhythmGroups) {
         let placed = 0;
         while (placed < level.spikeCount) {
             const groupSize = Math.min(
@@ -1792,7 +1861,7 @@ function defaultSaveData() {
     return {
         version: 1,
         settings: { difficulty: "EASY", hitWindow: "normal", speed: "normal", activeSkin: null, cameraMotion: true },
-        progress: { unlocked: 1, unlockedSkins: [], levels: levels },
+        progress: { unlocked: 1, unlockedSkins: [], levels: levels, letterStats: {} },
         // Кристали, куплені товари, надіте та вже виплачені разові бонуси рівнів
         shop: {
             crystals: 0,
@@ -1829,7 +1898,18 @@ function sanitizeSaveData(raw) {
     if (raw.progress && typeof raw.progress === "object") {
         const unlocked = Number(raw.progress.unlocked);
         if (Number.isFinite(unlocked)) {
-            clean.progress.unlocked = Math.min(31, Math.max(1, Math.floor(unlocked)));
+            // Невідомий рівень у збереженні — починаємо з першого
+            clean.progress.unlocked = levelOrderIndex(Math.floor(unlocked)) >= 0 ? Math.floor(unlocked) : ALL_LEVELS[0].id;
+        }
+        if (raw.progress.letterStats && typeof raw.progress.letterStats === "object") {
+            for (const letter of Object.keys(raw.progress.letterStats)) {
+                const s = raw.progress.letterStats[letter];
+                const ok = Number(s && s.ok);
+                const miss = Number(s && s.miss);
+                if (letter.length === 1 && Number.isFinite(ok) && Number.isFinite(miss) && ok >= 0 && miss >= 0) {
+                    clean.progress.letterStats[letter] = { ok: Math.min(ok, 1000), miss: Math.min(miss, 1000) };
+                }
+            }
         }
         if (Array.isArray(raw.progress.unlockedSkins)) {
             clean.progress.unlockedSkins = raw.progress.unlockedSkins.filter(function (s) { return typeof s === "string"; });
@@ -1958,23 +2038,10 @@ export const save = {
             }
         }
         if (cleanPct === 100) {
-            if (levelId < 31) {
-                const currentLevel = getLevelById(levelId);
-                if (currentLevel) {
-                    const currentLeague = LEVELS_CONFIG.find(function (lg) { return lg.id === currentLevel.leagueId; });
-                    if (currentLeague) {
-                        const idxInLeague = currentLeague.levels.indexOf(currentLevel);
-                        if (idxInLeague >= 0 && idxInLeague < currentLeague.levels.length - 1) {
-                            const nextLevel = currentLeague.levels[idxInLeague + 1];
-                            saveData.progress.unlocked = Math.max(saveData.progress.unlocked, nextLevel.id);
-                        } else if (currentLeague.id < 5) {
-                            const nextLeague = LEVELS_CONFIG[currentLeague.id];
-                            if (nextLeague && nextLeague.levels.length > 0) {
-                                saveData.progress.unlocked = Math.max(saveData.progress.unlocked, nextLeague.levels[0].id);
-                            }
-                        }
-                    }
-                }
+            // Відкриваємо наступний за порядком рівень (якщо він ще не відкритий)
+            const next = nextLevelOf(levelId);
+            if (next && levelOrderIndex(next.id) > levelOrderIndex(saveData.progress.unlocked)) {
+                saveData.progress.unlocked = next.id;
             }
             const level = getLevelById(levelId);
             if (level && level.skin && !saveData.progress.unlockedSkins.includes(level.skin.id)) {
@@ -2098,6 +2165,87 @@ export const save = {
             this.load();
         }
         return saveData.progress.unlocked;
+    },
+
+    // Чи відкритий рівень: він не далі за найдальший відкритий у порядку проходження
+    isLevelUnlocked(levelId) {
+        if (!saveData) {
+            this.load();
+        }
+        const idx = levelOrderIndex(levelId);
+        return idx >= 0 && idx <= levelOrderIndex(saveData.progress.unlocked);
+    },
+
+    // ---------- Статистика літер (для тренування помилок) ----------
+
+    // stats: { "Ж": { ok: 3, miss: 2 }, … } за один забіг
+    recordLetterStats(stats) {
+        if (!saveData) {
+            this.load();
+        }
+        const all = saveData.progress.letterStats;
+        for (const letter of Object.keys(stats)) {
+            const cur = all[letter] || { ok: 0, miss: 0 };
+            cur.ok += stats[letter].ok || 0;
+            cur.miss += stats[letter].miss || 0;
+            // Пам'ятаємо лише недавнє: коли спроб багато, старі поступово «забуваються»,
+            // і вивчена літера перестає вважатися складною
+            const total = cur.ok + cur.miss;
+            if (total > LETTER_MEMORY) {
+                const k = LETTER_MEMORY / total;
+                cur.ok = Math.round(cur.ok * k * 10) / 10;
+                cur.miss = Math.round(cur.miss * k * 10) / 10;
+            }
+            all[letter] = cur;
+        }
+        this.persist();
+    },
+
+    // Частка помилок на літері (зі згладжуванням, щоб одна помилка не робила літеру «найгіршою»)
+    letterErrorRate(letter) {
+        if (!saveData) {
+            this.load();
+        }
+        const s = saveData.progress.letterStats[letter];
+        if (!s) {
+            return 0;
+        }
+        return (s.miss + 0.3) / (s.ok + s.miss + 3);
+    },
+
+    // Найскладніші літери з pool: ті, де помилок найбільше. null — якщо даних ще замало
+    getWeakLetters(pool, count) {
+        if (!saveData) {
+            this.load();
+        }
+        const self = this;
+        const stats = saveData.progress.letterStats;
+        const known = pool.filter(function (l) {
+            const s = stats[l];
+            return s && s.ok + s.miss >= 3 && s.miss > 0;
+        });
+        if (known.length < 3) {
+            return null;
+        }
+        known.sort(function (a, b) { return self.letterErrorRate(b) - self.letterErrorRate(a); });
+        return known.slice(0, count);
+    },
+
+    // Звіт для налаштувань: до n найскладніших літер із відсотком помилок
+    getLetterReport(n) {
+        if (!saveData) {
+            this.load();
+        }
+        const self = this;
+        const stats = saveData.progress.letterStats;
+        return Object.keys(stats)
+            .filter(function (l) { return stats[l].ok + stats[l].miss >= 3 && stats[l].miss > 0; })
+            .sort(function (a, b) { return self.letterErrorRate(b) - self.letterErrorRate(a); })
+            .slice(0, n)
+            .map(function (l) {
+                const s = stats[l];
+                return { letter: l, missPct: Math.round(100 * s.miss / (s.ok + s.miss)) };
+            });
     },
 
     getLevelAchievement(levelId) {
@@ -2269,7 +2417,7 @@ export const save = {
         }
         const levels = saveData.progress.levels;
         if (req.kind === "boss") {
-            const boss = levels["31"];
+            const boss = levels[String(BOSS_LEVEL_ID)];
             const done = !!boss && boss.bestPct === 100;
             return { met: done, current: done ? 1 : 0, target: 1, text: "Пройди Боса (5-1)" };
         }
@@ -2461,6 +2609,10 @@ const SPIKE_STYLE_COLORS = {
 
 const SPIKE_POP_DISTANCE = 140;
 const SPIKE_CRUMBLE_TIME = 0.35;
+// Скільки останніх спроб на літеру пам'ятає статистика помилок
+const LETTER_MEMORY = 40;
+// Бонус кристалів за слово без жодної помилки
+const WORD_BONUS = 2;
 const KEYCAP_SIZE = 34;
 
 function roundedRectPath(ctx, x, y, w, h, r) {
@@ -2719,6 +2871,15 @@ export class Engine {
     constructor(levelId, difficulty, demoMode, hitWindow, speed, leagueInfo) {
         const SPEED_MULTIPLIERS = { slow: 0.75, normal: 1.0, fast: 1.25 };
         this.level = { ...getLevelById(levelId) };
+        // Тренування помилок: літери рівня — ті, на яких гравець помиляється найчастіше
+        // (поки даних замало — звичайні літери рівня)
+        if (this.level.adaptive) {
+            const weak = save.getWeakLetters(this.level.adaptive.pool, this.level.adaptive.count);
+            if (weak) {
+                this.level.letters = weak;
+            }
+            this.adaptiveFromStats = !!weak;
+        }
         this.effectiveSpeed = this.level.speed * (SPEED_MULTIPLIERS[speed] ?? 1.0);
         this.difficulty = difficulty === "HARD" ? "HARD" : "EASY";
         this.demoMode = !!demoMode;
@@ -2801,6 +2962,9 @@ export class Engine {
         this.oopsTime = 0;
         this.elapsed = 0;
         // Кристали за цей забіг (без множника налаштувань) і ефект вибуху з магазину
+        // Статистика літер цього забігу (влучання й помилки) — для тренування помилок
+        this.letterStats = {};
+        this.runWords = 0;
         this.runHits = 0;
         this.runPerfect = 0;
         this.runSeries = 0;
@@ -2922,6 +3086,7 @@ export class Engine {
             score: this.score,
             combo: this.combo,
             runHits: this.runHits,
+            runWords: this.runWords,
             runPerfect: this.runPerfect,
             runSeries: this.runSeries,
             weapon: !!this.weaponSpec,
@@ -2950,6 +3115,7 @@ export class Engine {
             const perfect = gap <= this.perfectPx + this.okPx * 0.35;
             const points = calculateHitScore(true, this.scoreConfig, perfect);
             this.score += points;
+            this.noteSpikeDone(spike);
             this.markSpikeCleared(spike, points);
             const distance = gap + 2 * spikeHalfWidth(spike.type) + SAFE_MARGIN;
             this.jump(distance, perfect);
@@ -3093,6 +3259,7 @@ export class Engine {
             const perfect = gap <= this.perfectPx + this.okPx * 0.35;
             const points = calculateHitScore(true, this.scoreConfig, perfect);
             this.score += points;
+            this.noteSpikeDone(spike);
             if (this.weaponSpec) {
                 this.strike(spike, gap, perfect, points);
                 return { result: "correct", letter: letter };
@@ -3103,6 +3270,10 @@ export class Engine {
             return { result: "correct", letter: letter };
         }
 
+        // Не та літера (або правильна, але зарано) — помилка на цьому шипі
+        if (!correct) {
+            this.noteSpikeMiss(spike);
+        }
         this.worldReact();
         if (this.difficulty === "HARD") {
             this.explode();
@@ -3160,6 +3331,54 @@ export class Engine {
             this.emitWeaponSound("fire");
             this.weaponRecoil = 1;
         }
+    }
+
+    // Облік літери для статистики помилок (у демо не ведеться)
+    noteLetter(letter, ok) {
+        if (this.demoMode || !letter) {
+            return;
+        }
+        const s = this.letterStats[letter] || (this.letterStats[letter] = { ok: 0, miss: 0 });
+        if (ok) {
+            s.ok++;
+        } else {
+            s.miss++;
+        }
+    }
+
+    // Помилка на шипі (не та літера, запізнення, зіткнення) — рахується один раз на шип
+    noteSpikeMiss(spike) {
+        if (spike && !spike.missed) {
+            spike.missed = true;
+            this.noteLetter(spike.letter, false);
+        }
+    }
+
+    // Шип подолано правильною літерою: статистика й бонус за слово без помилок
+    noteSpikeDone(spike) {
+        if (!spike.missed) {
+            this.noteLetter(spike.letter, true);
+        }
+        if (this.demoMode || spike.word === undefined || spike.charIdx !== spike.word.length - 1) {
+            return;
+        }
+        const wordSpikes = this.spikes.filter(function (s) { return s.wordIdx === spike.wordIdx; });
+        if (wordSpikes.every(function (s) { return !s.missed; })) {
+            this.runWords++;
+            this.scorePopups.push({
+                x: spike.x,
+                y: SPIKE_H + 90,
+                text: "Слово «" + spike.word + "»! +" + WORD_BONUS,
+                life: 1.5,
+                maxLife: 1.5,
+                crystal: true
+            });
+        }
+    }
+
+    // Статистика літер за забіг (main зберігає її після завершення)
+    getLetterStats() {
+        return this.letterStats;
     }
 
     // Звук зброї для події «fire» / «swing» / «hit»
@@ -3578,6 +3797,7 @@ export class Engine {
             if (target && this.player.onGround) {
                 const gap = target.x - spikeHalfWidth(target.type) - this.player.x;
                 if (gap <= CUBE_SIZE * 0.4) {
+                    this.noteSpikeMiss(target);
                     this.explode();
                     return;
                 }
@@ -3591,6 +3811,7 @@ export class Engine {
             const dx = Math.abs(spike.x - this.player.x);
             const halfW = spikeHalfWidth(spike.type);
             if (dx < halfW + CUBE_SIZE * 0.32 && this.player.y < SPIKE_H * 0.72) {
+                this.noteSpikeMiss(spike);
                 spike.state = "hit";
                 this.explode();
                 return;
@@ -3676,9 +3897,58 @@ export class Engine {
         this.renderScorePopups(ctx, groundY, anchorX, camX);
         ctx.restore();
         if (!this.demoMode) {
+            this.renderWordBar(ctx, W);
             this.renderWorldTitle(ctx, W, H);
             this.renderProgressBar(ctx, W);
         }
+    }
+
+    // Рівень-слова: під панеллю прогресу — поточне слово, набрані літери зелені,
+    // потрібна зараз — жовта, решта — білі
+    renderWordBar(ctx, W) {
+        if (!Array.isArray(this.level.words) || this.spikes.length === 0) {
+            return;
+        }
+        let current = this.nearestAheadSpike();
+        if (!current) {
+            for (let i = this.spikes.length - 1; i >= 0; i--) {
+                if (this.spikes[i].state !== "ahead") {
+                    current = this.spikes[i];
+                    break;
+                }
+            }
+        }
+        if (!current || current.word === undefined) {
+            return;
+        }
+        const wordSpikes = this.spikes.filter(function (s) { return s.wordIdx === current.wordIdx; });
+        const cell = 34;
+        const gapPx = 6;
+        const total = wordSpikes.length * cell + (wordSpikes.length - 1) * gapPx;
+        const x0 = Math.round(W / 2 - total / 2);
+        const y0 = 64;
+        ctx.save();
+        ctx.fillStyle = "rgba(5, 8, 20, 0.72)";
+        roundedRectPath(ctx, x0 - 14, y0 - 8, total + 28, cell + 16, 10);
+        ctx.fill();
+        ctx.font = "bold 22px 'Segoe UI', Arial, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        for (let i = 0; i < wordSpikes.length; i++) {
+            const s = wordSpikes[i];
+            const x = x0 + i * (cell + gapPx);
+            const done = s.state !== "ahead";
+            const isCurrent = s === current && s.state === "ahead";
+            ctx.fillStyle = done ? (s.missed ? "rgba(120, 40, 60, 0.9)" : "rgba(20, 90, 50, 0.95)") : isCurrent ? "rgba(90, 80, 20, 0.95)" : "rgba(40, 44, 70, 0.9)";
+            roundedRectPath(ctx, x, y0, cell, cell, 6);
+            ctx.fill();
+            ctx.strokeStyle = done ? (s.missed ? "#ff4466" : "#39ff88") : isCurrent ? "#ffe14d" : "rgba(160, 170, 210, 0.5)";
+            ctx.lineWidth = isCurrent ? 2.5 : 1.5;
+            ctx.stroke();
+            ctx.fillStyle = done ? "#ffffff" : isCurrent ? "#ffe14d" : "#e8ecf8";
+            ctx.fillText(s.letter, x + cell / 2, y0 + cell / 2 + 1);
+        }
+        ctx.restore();
     }
 
     // Світло від кубика кольору скіна підсвічує землю й найближчі шипи
@@ -4263,7 +4533,7 @@ export class Engine {
         // Кристали, зібрані в цьому забігу
         drawCrystalIcon(ctx, barX + barW + 70, barY + barH / 2, 16);
         ctx.fillStyle = "#7df9ff";
-        ctx.fillText(String(this.runHits + this.runPerfect + this.runSeries), barX + barW + 82, barY + barH / 2);
+        ctx.fillText(String(this.runHits + this.runPerfect + this.runSeries + this.runWords * WORD_BONUS), barX + barW + 82, barY + barH / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = "#ffe14d";
         var maxForMode = this.difficulty === "HARD" ? this.maxHard : this.maxEasy;

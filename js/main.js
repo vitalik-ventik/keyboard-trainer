@@ -6,7 +6,7 @@
 // ============================================================
 
 import { loadAssets, unlockAudio, playSound, playMusic } from "./assets.js";
-import { LEVELS_CONFIG, ALL_LEVELS, Engine, save, SKIN_RENDERERS, drawAchievementFrame, DEFAULT_SKIN } from "./engine.js";
+import { LEVELS_CONFIG, ALL_LEVELS, Engine, save, SKIN_RENDERERS, drawAchievementFrame, DEFAULT_SKIN, BOSS_LEVEL_ID, levelOrderIndex, nextLevelOf } from "./engine.js";
 import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
@@ -149,6 +149,9 @@ function setState(next) {
         overlays[next].classList.remove("hidden");
     }
 
+    if (next === "SETTINGS") {
+        refreshWeakLetters();
+    }
     if (next === "MENU") {
         renderCurrentSkinIcon();
         refreshCrystalDisplays();
@@ -173,10 +176,9 @@ function createDemoEngine(levelId) {
 }
 
 function nextShowcaseLevel() {
-    const unlocked = save.getLastPlayable();
     const current = ALL_LEVELS.find(function (l) { return l.id === demoLevelId; });
     const candidates = ALL_LEVELS.filter(function (l) {
-        return l.id <= unlocked && (!current || l.bgTheme !== current.bgTheme);
+        return save.isLevelUnlocked(l.id) && (!current || l.bgTheme !== current.bgTheme);
     });
     if (candidates.length === 0) {
         return demoLevelId;
@@ -185,6 +187,17 @@ function nextShowcaseLevel() {
 }
 
 // ---------- Запуск рівня ----------
+
+// Підпис літер рівня: звичайні літери, слова або «твої найважчі літери»
+function levelLettersText(level) {
+    if (level.adaptive) {
+        return "твої найважчі літери";
+    }
+    if (Array.isArray(level.words)) {
+        return "слова з літер " + level.letters.join(" ");
+    }
+    return level.letters.length === 33 ? "усі 33 літери" : "літери " + level.letters.join(" ");
+}
 
 function getLevelLeagueInfo(levelId) {
     const level = ALL_LEVELS.find(function (l) { return l.id === levelId; });
@@ -196,7 +209,7 @@ function getLevelLeagueInfo(levelId) {
         leagueName: league.name,
         levelNumber: levelNumber,
         levelName: BackgroundRenderer.worldName(level.bgTheme) || level.name,
-        lettersText: level.letters.length === 33 ? "усі 33 літери" : "літери " + level.letters.join(" ")
+        lettersText: levelLettersText(level)
     };
 }
 
@@ -240,10 +253,12 @@ function handleGameOver() {
             maxHard: runState.maxHard,
             difficulty: runState.difficulty
         });
+        save.recordLetterStats(gameEngine.getLetterStats());
         // Вибух: зберігається половина кристалів, зібраних у забігу
         const balanceBefore = save.getCrystals();
         const reward = computeReward({
             hits: runState.runHits,
+            words: runState.runWords,
             perfect: runState.runPerfect,
             series: runState.runSeries,
             weapon: runState.weapon,
@@ -274,12 +289,14 @@ function handleVictory() {
             maxHard: runState.maxHard,
             difficulty: runState.difficulty
         });
+        save.recordLetterStats(gameEngine.getLetterStats());
         // Кристали: стрибки, серії, фініш і разові бонуси рівня
         const wonLevel = ALL_LEVELS.find(function (l) { return l.id === currentLevelId; });
         const achievementNow = save.getLevelAchievement(currentLevelId);
         const balanceBefore = save.getCrystals();
         const reward = computeReward({
             hits: runState.runHits,
+            words: runState.runWords,
             perfect: runState.runPerfect,
             series: runState.runSeries,
             weapon: runState.weapon,
@@ -327,26 +344,14 @@ function handleVictory() {
         skinUnlockText = (skinUnlockText ? skinUnlockText + " | " : "") + achName + "!";
     }
 
-    const currentLeague = currentLevel ? LEVELS_CONFIG.find(function (lg) { return lg.id === currentLevel.leagueId; }) : null;
-    let nextLevel = null;
-    if (currentLevel && currentLeague) {
-        const idx = currentLeague.levels.indexOf(currentLevel);
-        if (idx >= 0 && idx < currentLeague.levels.length - 1) {
-            nextLevel = currentLeague.levels[idx + 1];
-        } else if (currentLeague.id < 5) {
-            const nextLeague = LEVELS_CONFIG[currentLeague.id];
-            if (nextLeague && nextLeague.levels.length > 0) {
-                nextLevel = nextLeague.levels[0];
-            }
-        }
-    }
+    const nextLevel = nextLevelOf(currentLevelId);
 
-    if (currentLevelId === 31) {
-        victoryUnlockEl.textContent = skinUnlockText || "Ти переміг! Усі 31 рівень пройдено! Повний алфавіт освоєно!";
+    if (currentLevelId === BOSS_LEVEL_ID) {
+        victoryUnlockEl.textContent = skinUnlockText || "Ти переміг! Усі рівні пройдено! Повний алфавіт освоєно!";
         btnNext.classList.add("hidden");
-    } else if (nextLevel && save.getLastPlayable() >= nextLevel.id) {
+    } else if (nextLevel && save.isLevelUnlocked(nextLevel.id)) {
         // «Відкрито» — лише якщо наступний рівень відкрився саме цією перемогою
-        const justUnlocked = nextLevel.id > unlockedBefore;
+        const justUnlocked = levelOrderIndex(nextLevel.id) > levelOrderIndex(unlockedBefore);
         const nextText = justUnlocked
             ? "Відкрито: " + levelLabel(nextLevel) + "!"
             : "Наступний рівень: " + levelLabel(nextLevel);
@@ -393,14 +398,14 @@ function buildLevelCards() {
     for (const level of league.levels) {
         levelIdx++;
         const entry = progress.levels[String(level.id)];
-        const locked = level.id > progress.unlocked;
+        const locked = !save.isLevelUnlocked(level.id);
 
         const card = document.createElement("div");
         card.className = "level-card";
         if (locked) {
             card.classList.add("locked");
         }
-        if (level.id === 31) {
+        if (level.id === BOSS_LEVEL_ID) {
             card.classList.add("boss-card");
         }
 
@@ -437,7 +442,11 @@ function buildLevelCards() {
 
         const lettersPreview = document.createElement("div");
         lettersPreview.className = "level-letters-preview";
-        if (level.letters.length === 33) {
+        if (level.adaptive) {
+            lettersPreview.textContent = "Твої найважчі літери";
+        } else if (Array.isArray(level.words)) {
+            lettersPreview.textContent = "Слова: " + level.words.slice(0, 3).join(", ") + "…";
+        } else if (level.letters.length === 33) {
             lettersPreview.textContent = "Усі 33 літери";
         } else {
             lettersPreview.textContent = level.letters.join(" ");
@@ -607,23 +616,9 @@ btnGoMenu.addEventListener("click", function () {
 });
 
 btnNext.addEventListener("click", function () {
-    const currentLevel = ALL_LEVELS.find(function (l) { return l.id === currentLevelId; });
-    if (currentLevel) {
-        const league = LEVELS_CONFIG.find(function (lg) { return lg.id === currentLevel.leagueId; });
-        if (league) {
-            const idx = league.levels.indexOf(currentLevel);
-            if (idx >= 0 && idx < league.levels.length - 1) {
-                const nextId = league.levels[idx + 1].id;
-                if (save.getLastPlayable() >= nextId) {
-                    startLevel(nextId);
-                }
-                return;
-            }
-        }
-    }
-    const nextId = currentLevelId + 1;
-    if (nextId <= 31 && save.getLastPlayable() >= nextId) {
-        startLevel(nextId);
+    const next = nextLevelOf(currentLevelId);
+    if (next && save.isLevelUnlocked(next.id)) {
+        startLevel(next.id);
     }
 });
 
@@ -710,6 +705,18 @@ function handleEscape() {
 }
 
 // ---------- Автоматичне оновлення гри ----------
+
+// Найскладніші літери гравця (за статистикою помилок) — у налаштуваннях
+function refreshWeakLetters() {
+    const el = document.getElementById("weakLettersLine");
+    if (!el) {
+        return;
+    }
+    const report = save.getLetterReport(5);
+    el.textContent = report.length === 0
+        ? "Найважчі літери: ще мало даних — пограй кілька рівнів"
+        : "Найважчі літери: " + report.map(function (r) { return r.letter + " (" + r.missPct + "% помилок)"; }).join(", ");
+}
 
 // Підпис версії в налаштуваннях
 const versionLineEl = document.getElementById("versionLine");
