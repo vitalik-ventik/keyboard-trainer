@@ -712,10 +712,13 @@ function chestInfoHtml(type) {
     const pool = chestItemPool(type, nothingOwned).sort(function (a, b) { return b.chance - a.chance; });
     // Порядок: легендарне → сердечко → предмет або монети
     const rest = (1 - chest.legendaryChance) * (1 - (chest.heartChance || 0));
-    const itemShare = rest * chest.itemChance;
-    const fmt = function (p) { return p.item.name + " " + pct(itemShare * p.chance); };
-    return "<b>Предмет:</b> " + pct(itemShare) + " (ціною до " + chest.maxPrice + " 🪙, дешеві частіше) · " +
-        "<b>Монети:</b> " + pct(rest * (1 - chest.itemChance)) + " (" + chest.crystals[0] + "–" + chest.crystals[1] + ") · " +
+    // Річ не-скін лишається лише з часткою keep — решта її шансу йде в монети
+    const rollShare = rest * chest.itemChance;
+    const itemShare = rollShare * pool.reduce(function (sum, p) { return sum + p.chance * p.keep; }, 0);
+    pool.sort(function (a, b) { return b.chance * b.keep - a.chance * a.keep; });
+    const fmt = function (p) { return p.item.name + " " + pct(rollShare * p.chance * p.keep); };
+    return "<b>Предмет:</b> " + pct(itemShare) + " (ціною до " + chest.maxPrice + " 🪙, дешеві частіше; не-скіни — рідше) · " +
+        "<b>Монети:</b> " + pct(rest - itemShare) + " (" + chest.crystals[0] + "–" + chest.crystals[1] + ") · " +
         "<b>❤ Сердечко:</b> " + pct((1 - chest.legendaryChance) * (chest.heartChance || 0)) + " · " +
         "<b>Легендарний:</b> " + pct(chest.legendaryChance) + "<br>" +
         "<b>Найчастіше:</b> " + pool.slice(0, 4).map(fmt).join(", ") + "<br>" +
