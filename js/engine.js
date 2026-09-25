@@ -28,22 +28,22 @@ export const LEVELS_CONFIG = [
         id: 1,
         name: "Базова",
         levels: [
-            { id: 1,  leagueId: 1, name: "Перші кроки",             letters: ["А","П","Р","О"], speed: 165, spikeCount: 12, seed: 2001, bgTheme: "cyber_grid",              accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_1_1", name: "Стандартний Неон", renderType: "neon_base" } },
-            { id: 2,  leagueId: 1, name: "Сусіди центру",           letters: ["В","І","Л","Д"], speed: 172, spikeCount: 13, seed: 2002, bgTheme: "parallax_city",             accentColor: "#aa44ff", rhythmGroups: false, skin: { id: "skin_1_2", name: "Кібер-Око", renderType: "cyber_eye" } },
-            { id: 3,  leagueId: 1, name: "Верхній центр",           letters: ["К","Е","Н","Г"], speed: 179, spikeCount: 14, seed: 2003, bgTheme: "starfield",                 accentColor: "#00d4aa", rhythmGroups: false, skin: { id: "skin_1_3", name: "Прибулець", renderType: "retro_gamer" } },
+            { id: 1,  leagueId: 1, name: "Перші кроки",             letters: ["А","П","Р","О"], speed: 165, spikeCount: 12, seed: 2001, bgTheme: "neon_start",              accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_1_1", name: "Стандартний Неон", renderType: "neon_base" } },
+            { id: 2,  leagueId: 1, name: "Сусіди центру",           letters: ["В","І","Л","Д"], speed: 172, spikeCount: 13, seed: 2002, bgTheme: "sunset_city",             accentColor: "#ff9ed0", rhythmGroups: false, skin: { id: "skin_1_2", name: "Кібер-Око", renderType: "cyber_eye" } },
+            { id: 3,  leagueId: 1, name: "Верхній центр",           letters: ["К","Е","Н","Г"], speed: 179, spikeCount: 14, seed: 2003, bgTheme: "cosmodrome",                 accentColor: "#39c6ff", rhythmGroups: false, skin: { id: "skin_1_3", name: "Прибулець", renderType: "retro_gamer" } },
             { id: 4,  leagueId: 1, name: "Нижній центр",            letters: ["М","И","Т","Ь"], speed: 186, spikeCount: 15, seed: 2004, bgTheme: "neon_highway",             accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_1_4", name: "Ніндзя", renderType: "throne" } },
-            { id: 5,  leagueId: 1, name: "Верхні сусіди",           letters: ["У","Ц","Ш","Щ"], speed: 193, spikeCount: 16, seed: 2005, bgTheme: "cyber_columns",         accentColor: "#0066ff", rhythmGroups: false, skin: { id: "skin_1_5", name: "Приціл", renderType: "crosshair" } },
-            { id: 6,  leagueId: 1, name: "Нижні сусіди",            letters: ["С","Ч","Б","Ю"], speed: 200, spikeCount: 17, seed: 2006, bgTheme: "geo_landscape",     accentColor: "#00ff41", rhythmGroups: false, skin: { id: "skin_1_6", name: "Матричний Піксель", renderType: "matrix_pixel" } },
-            { id: 7,  leagueId: 1, name: "Краї середнього ряду",    letters: ["Ф","І","Ж","Є"], speed: 207, spikeCount: 18, seed: 2007, bgTheme: "pulsar_core",            accentColor: "#ff8855", rhythmGroups: false, skin: { id: "skin_1_7", name: "Блискавка", renderType: "slice" } },
-            { id: 8,  leagueId: 1, name: "Краї верхнього ряду",     letters: ["Й","Ц","З","Х"], speed: 214, spikeCount: 19, seed: 2008, bgTheme: "demon",            accentColor: "#9944dd", rhythmGroups: false, skin: { id: "skin_1_8", name: "Сяючий Алмаз", renderType: "shining_diamond" } },
-            { id: 9,  leagueId: 1, name: "Далекі кути",             letters: ["Я","Ч","Х","Ї"], speed: 221, spikeCount: 20, seed: 2009, bgTheme: "scanline_sweep",         accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_1_9", name: "Подвійна Рамка", renderType: "double_frame" } },
+            { id: 5,  leagueId: 1, name: "Верхні сусіди",           letters: ["У","Ц","Ш","Щ"], speed: 193, spikeCount: 16, seed: 2005, bgTheme: "laser_range",         accentColor: "#ff3355", rhythmGroups: false, skin: { id: "skin_1_5", name: "Лазерний приціл", renderType: "crosshair" } },
+            { id: 6,  leagueId: 1, name: "Нижні сусіди",            letters: ["С","Ч","Б","Ю"], speed: 200, spikeCount: 17, seed: 2006, bgTheme: "digital_forest",     accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_6", name: "Матричний Піксель", renderType: "matrix_pixel" } },
+            { id: 7,  leagueId: 1, name: "Краї середнього ряду",    letters: ["Ф","І","Ж","Є"], speed: 207, spikeCount: 18, seed: 2007, bgTheme: "storm_sky",            accentColor: "#9fb4ff", rhythmGroups: false, skin: { id: "skin_1_7", name: "Блискавка", renderType: "slice" } },
+            { id: 8,  leagueId: 1, name: "Краї верхнього ряду",     letters: ["Й","Ц","З","Х"], speed: 214, spikeCount: 19, seed: 2008, bgTheme: "crystal_cave",            accentColor: "#b35cff", rhythmGroups: false, skin: { id: "skin_1_8", name: "Сяючий Кристал", renderType: "shining_diamond" } },
+            { id: 9,  leagueId: 1, name: "Далекі кути",             letters: ["Я","Ч","Х","Ї"], speed: 221, spikeCount: 20, seed: 2009, bgTheme: "retro_arcade",         accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_1_9", name: "Джойстик", renderType: "double_frame" } },
             { id: 10, leagueId: 1, name: "Остання літера",          letters: ["А","В","Є","Ґ"], speed: 228, spikeCount: 21, seed: 2010, bgTheme: "pixel_night",             accentColor: "#62c13a", rhythmGroups: false, skin: { id: "skin_1_10", name: "Блок трави", renderType: "monolith" } },
-            { id: 11, leagueId: 1, name: "Середній ряд",            letters: ["В","А","П","Р","О","Л"], speed: 235, spikeCount: 22, seed: 2011, bgTheme: "toxic_waste",            accentColor: "#ccccee", rhythmGroups: false, skin: { id: "skin_1_11", name: "Радар", renderType: "radar" } },
-            { id: 12, leagueId: 1, name: "Верхній ряд",             letters: ["У","К","Е","Н","Г","Ш"], speed: 242, spikeCount: 23, seed: 2012, bgTheme: "neon_rain",          accentColor: "#39ff14", rhythmGroups: false, skin: { id: "skin_1_12", name: "Стріла Швидкості", renderType: "speed_arrow" } },
-            { id: 13, leagueId: 1, name: "Нижній ряд",              letters: ["С","М","И","Т","Ь","Б"], speed: 249, spikeCount: 24, seed: 2013, bgTheme: "bezier_waves",           accentColor: "#e5ff00", rhythmGroups: false, skin: { id: "skin_1_13", name: "Робот", renderType: "neon_cross" } },
-            { id: 14, leagueId: 1, name: "Широкий середній ряд",    letters: ["Ф","І","В","Ж","Є","Ґ"], speed: 256, spikeCount: 25, seed: 2014, bgTheme: "binary_star",      accentColor: "#ff3800", rhythmGroups: false, skin: { id: "skin_1_14", name: "Рідкий Градієнт", renderType: "liquid_gradient" } },
-            { id: 15, leagueId: 1, name: "Широкий верхній ряд",     letters: ["Й","Ц","У","Щ","З","Х"], speed: 263, spikeCount: 26, seed: 2015, bgTheme: "aurora_wings",           accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_1_15", name: "Крилатий", renderType: "winged" } },
-            { id: 16, leagueId: 1, name: "Широкий нижній ряд",      letters: ["Я","Ч","С","Ю","Є","Ї"], speed: 270, spikeCount: 28, seed: 2016, bgTheme: "triumph_flare",          accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_16", name: "Кубок Світла", renderType: "light_cup" } }
+            { id: 11, leagueId: 1, name: "Середній ряд",            letters: ["В","А","П","Р","О","Л"], speed: 235, spikeCount: 22, seed: 2011, bgTheme: "secret_base",            accentColor: "#39ffd0", rhythmGroups: false, skin: { id: "skin_1_11", name: "Радар", renderType: "radar" } },
+            { id: 12, leagueId: 1, name: "Верхній ряд",             letters: ["У","К","Е","Н","Г","Ш"], speed: 242, spikeCount: 23, seed: 2012, bgTheme: "metro_tunnel",          accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_12", name: "Стріла Швидкості", renderType: "speed_arrow" } },
+            { id: 13, leagueId: 1, name: "Нижній ряд",              letters: ["С","М","И","Т","Ь","Б"], speed: 249, spikeCount: 24, seed: 2013, bgTheme: "robot_factory",           accentColor: "#ffcc00", rhythmGroups: false, skin: { id: "skin_1_13", name: "Робот", renderType: "neon_cross" } },
+            { id: 14, leagueId: 1, name: "Широкий середній ряд",    letters: ["Ф","І","В","Ж","Є","Ґ"], speed: 256, spikeCount: 25, seed: 2014, bgTheme: "twin_sun_planet",      accentColor: "#ff5a8a", rhythmGroups: false, skin: { id: "skin_1_14", name: "Слиз", renderType: "liquid_gradient" } },
+            { id: 15, leagueId: 1, name: "Широкий верхній ряд",     letters: ["Й","Ц","У","Щ","З","Х"], speed: 263, spikeCount: 26, seed: 2015, bgTheme: "sky_city",           accentColor: "#bfe0ff", rhythmGroups: false, skin: { id: "skin_1_15", name: "Крилатий", renderType: "winged" } },
+            { id: 16, leagueId: 1, name: "Широкий нижній ряд",      letters: ["Я","Ч","С","Ю","Є","Ї"], speed: 270, spikeCount: 28, seed: 2016, bgTheme: "stadium",          accentColor: "#39ff88", rhythmGroups: false, skin: { id: "skin_1_16", name: "Кубок", renderType: "light_cup" } }
         ]
     },
     {
@@ -258,23 +258,37 @@ export const SKIN_RENDERERS = {
         drawSkinFrame(ctx, size, "#bb55ff");
     },
 
+    // Лазерний приціл: кільце з рисками обертається, центр пульсує, лазерна точка
     crosshair: function (ctx, size, time) {
-        ctx.fillStyle = "#0a0a20";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        renderSkinGlow(ctx, size, "#ff2222", 6);
-        ctx.strokeStyle = "#ff2222";
-        ctx.lineWidth = 1.5;
+        var h = size / 2;
+        ctx.fillStyle = "#14060a";
+        ctx.fillRect(-h, -h, size, size);
+        ctx.save();
+        ctx.rotate(time * 0.0015);
+        ctx.strokeStyle = "#ff3355";
+        ctx.lineWidth = Math.max(1.5, size * 0.05);
         ctx.beginPath();
-        ctx.arc(0, 0, size * 0.22, 0, Math.PI * 2);
+        ctx.arc(0, 0, size * 0.28, 0.25, Math.PI / 2 - 0.25);
+        ctx.moveTo(Math.cos(Math.PI / 2 + 0.25) * size * 0.28, Math.sin(Math.PI / 2 + 0.25) * size * 0.28);
+        ctx.arc(0, 0, size * 0.28, Math.PI / 2 + 0.25, Math.PI - 0.25);
+        ctx.moveTo(Math.cos(Math.PI + 0.25) * size * 0.28, Math.sin(Math.PI + 0.25) * size * 0.28);
+        ctx.arc(0, 0, size * 0.28, Math.PI + 0.25, Math.PI * 1.5 - 0.25);
+        ctx.moveTo(Math.cos(Math.PI * 1.5 + 0.25) * size * 0.28, Math.sin(Math.PI * 1.5 + 0.25) * size * 0.28);
+        ctx.arc(0, 0, size * 0.28, Math.PI * 1.5 + 0.25, Math.PI * 2 - 0.25);
         ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(-size * 0.28, 0);
-        ctx.lineTo(size * 0.28, 0);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(0, -size * 0.28);
-        ctx.lineTo(0, size * 0.28);
-        ctx.stroke();
+        ctx.restore();
+        ctx.fillStyle = "#ff3355";
+        var t = size * 0.05;
+        ctx.fillRect(-t / 2, -h + size * 0.1, t, size * 0.18);
+        ctx.fillRect(-t / 2, h - size * 0.28, t, size * 0.18);
+        ctx.fillRect(-h + size * 0.1, -t / 2, size * 0.18, t);
+        ctx.fillRect(h - size * 0.28, -t / 2, size * 0.18, t);
+        var pulse = 0.5 + 0.5 * Math.sin(time * 0.01);
+        ctx.fillStyle = "rgba(255, 60, 90, " + (0.3 + 0.3 * pulse).toFixed(2) + ")";
+        ctx.fillRect(-size * 0.1, -size * 0.1, size * 0.2, size * 0.2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(-size * 0.04, -size * 0.04, size * 0.08, size * 0.08);
+        drawSkinFrame(ctx, size, "#ff3355");
     },
 
     // Матричний Піксель: по кубику біжать зелені стовпчики «коду»
@@ -331,36 +345,100 @@ export const SKIN_RENDERERS = {
         drawSkinFrame(ctx, size, "#fff3a0");
     },
 
+    // Сяючий Кристал: огранований фіолетовий кристал із гранями та відблисками
     shining_diamond: function (ctx, size, time) {
-        ctx.fillStyle = "#1a1a30";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.strokeStyle = "#9944dd";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(-size / 2, -size / 2, size, size);
-        renderSkinGlow(ctx, size, "#cc88ff", 18);
-        ctx.globalAlpha = 0.9;
-        ctx.fillStyle = "#bb77ee";
+        var h = size / 2;
+        var bg = ctx.createLinearGradient(0, -h, 0, h);
+        bg.addColorStop(0, "#2a1045");
+        bg.addColorStop(1, "#140822");
+        ctx.fillStyle = bg;
+        ctx.fillRect(-h, -h, size, size);
+        var top = -size * 0.34;
+        var girdle = -size * 0.1;
+        var bottom = size * 0.38;
+        var w = size * 0.36;
+        // Верхні грані
+        ctx.fillStyle = "#e0b0ff";
         ctx.beginPath();
-        ctx.moveTo(0, -size * 0.38);
-        ctx.lineTo(size * 0.38, 0);
-        ctx.lineTo(0, size * 0.38);
-        ctx.lineTo(-size * 0.38, 0);
+        ctx.moveTo(-w * 0.5, top);
+        ctx.lineTo(w * 0.5, top);
+        ctx.lineTo(w, girdle);
+        ctx.lineTo(-w, girdle);
         ctx.closePath();
         ctx.fill();
-        ctx.globalAlpha = 1;
+        ctx.fillStyle = "#c77dff";
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.5, top);
+        ctx.lineTo(0, girdle);
+        ctx.lineTo(-w, girdle);
+        ctx.closePath();
+        ctx.moveTo(w * 0.5, top);
+        ctx.lineTo(w, girdle);
+        ctx.lineTo(0, girdle);
+        ctx.closePath();
+        ctx.fill();
+        // Нижні грані
+        ctx.fillStyle = "#9b3dea";
+        ctx.beginPath();
+        ctx.moveTo(-w, girdle);
+        ctx.lineTo(0, girdle);
+        ctx.lineTo(0, bottom);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "#7a22c9";
+        ctx.beginPath();
+        ctx.moveTo(w, girdle);
+        ctx.lineTo(0, girdle);
+        ctx.lineTo(0, bottom);
+        ctx.closePath();
+        ctx.fill();
+        // Відблиск, що перебігає, і іскра
+        var glint = (time * 0.0008) % 1.5;
+        if (glint < 1) {
+            ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+            var gx = -w + glint * w * 2;
+            ctx.fillRect(gx - size * 0.03, top + size * 0.04, size * 0.06, size * 0.18);
+        }
+        var spark = Math.max(0, Math.sin(time * 0.005));
+        ctx.fillStyle = "rgba(255, 255, 255, " + spark.toFixed(2) + ")";
+        var ss = size * 0.04;
+        ctx.fillRect(w * 0.6 - ss / 2, top - ss * 1.5, ss, ss * 3);
+        ctx.fillRect(w * 0.6 - ss * 1.5, top - ss / 2, ss * 3, ss);
+        drawSkinFrame(ctx, size, "#c77dff");
     },
 
+    // Джойстик: кубик-геймпад із хрестовиною та кнопками, що натискаються
     double_frame: function (ctx, size, time) {
-        ctx.fillStyle = "#4a0020";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        var pulse = 2 + Math.sin(time * 0.005) * 2;
-        ctx.strokeStyle = "#cc1155";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(-size / 2 + pulse, -size / 2 + pulse, size - pulse * 2, size - pulse * 2);
-        ctx.strokeStyle = "#ff4488";
-        ctx.lineWidth = 1.5;
-        var pulse2 = pulse + 5;
-        ctx.strokeRect(-size / 2 + pulse2, -size / 2 + pulse2, size - pulse2 * 2, size - pulse2 * 2);
+        var h = size / 2;
+        ctx.fillStyle = "#2a2f3a";
+        ctx.fillRect(-h, -h, size, size);
+        ctx.fillStyle = "#1a1e26";
+        ctx.fillRect(-h + size * 0.08, -size * 0.2, size * 0.84, size * 0.42);
+        // Хрестовина
+        var dx = -size * 0.22;
+        var d = size * 0.08;
+        ctx.fillStyle = "#e8ecf2";
+        ctx.fillRect(dx - d / 2, -d * 1.5, d, d * 3);
+        ctx.fillRect(dx - d * 1.5, -d / 2, d * 3, d);
+        // Чотири кнопки: одна «натиснута» по черзі
+        var pressed = Math.floor(time / 250) % 4;
+        var bx = size * 0.22;
+        var buttons = [[0, -size * 0.1, "#ffe14d"], [size * 0.1, 0, "#ff3355"], [0, size * 0.1, "#39ff88"], [-size * 0.1, 0, "#00b4ff"]];
+        for (var i = 0; i < buttons.length; i++) {
+            var r = size * (i === pressed ? 0.04 : 0.055);
+            ctx.fillStyle = buttons[i][2];
+            ctx.beginPath();
+            ctx.arc(bx + buttons[i][0], buttons[i][1], r, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        // Екран-смужка зверху та світлодіод
+        ctx.fillStyle = "#0a0f14";
+        ctx.fillRect(-size * 0.3, -h + size * 0.1, size * 0.6, size * 0.12);
+        ctx.fillStyle = "#39ff88";
+        ctx.fillRect(-size * 0.28 + ((time * 0.0005) % 1) * size * 0.5, -h + size * 0.12, size * 0.06, size * 0.08);
+        ctx.fillStyle = Math.sin(time * 0.006) > 0 ? "#ff3355" : "#551122";
+        ctx.fillRect(-size * 0.04, size * 0.3, size * 0.08, size * 0.06);
+        drawSkinFrame(ctx, size, "#ff4488");
     },
 
     // Блок трави: піксельний блок у стилі блочного світу — трава зверху, земля знизу
@@ -485,64 +563,151 @@ export const SKIN_RENDERERS = {
         drawSkinFrame(ctx, size, "#dff6ff");
     },
 
+    // Слиз: зелений кубик-слайм, верх колишеться, всередині бульбашки, милі очі
     liquid_gradient: function (ctx, size, time) {
-        var gradient = ctx.createLinearGradient(-size / 2, -size / 2, size / 2, size / 2);
-        gradient.addColorStop(0, "#cc0000");
-        gradient.addColorStop(0.5, "#990066");
-        gradient.addColorStop(1, "#4400cc");
-        ctx.fillStyle = gradient;
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        ctx.strokeStyle = "#ff88cc";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(-size / 2, -size / 2, size, size);
+        var h = size / 2;
+        ctx.fillStyle = "#0b2410";
+        ctx.fillRect(-h, -h, size, size);
+        var wobble = Math.sin(time * 0.006) * size * 0.05;
+        var body = ctx.createLinearGradient(0, -h, 0, h);
+        body.addColorStop(0, "#9dff5a");
+        body.addColorStop(1, "#2fb83a");
+        ctx.fillStyle = body;
+        ctx.beginPath();
+        ctx.moveTo(-h, h);
+        ctx.lineTo(-h, -h + size * 0.18 + wobble);
+        ctx.quadraticCurveTo(-size * 0.25, -h - wobble, 0, -h + size * 0.14);
+        ctx.quadraticCurveTo(size * 0.25, -h + size * 0.28 + wobble, h, -h + size * 0.16 - wobble);
+        ctx.lineTo(h, h);
+        ctx.closePath();
+        ctx.fill();
+        // Бульбашки
+        ctx.fillStyle = "rgba(220, 255, 200, 0.55)";
+        for (var b = 0; b < 3; b++) {
+            var ph = ((time * 0.0004) + b * 0.33) % 1;
+            var bx = -size * 0.25 + b * size * 0.25;
+            var by = h - size * 0.1 - ph * size * 0.55;
+            ctx.fillRect(bx, by, size * 0.07, size * 0.07);
+        }
+        // Очі та усмішка
+        ctx.fillStyle = "#0b2410";
+        ctx.fillRect(-size * 0.2, -size * 0.02, size * 0.1, size * 0.14);
+        ctx.fillRect(size * 0.1, -size * 0.02, size * 0.1, size * 0.14);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(-size * 0.18, 0, size * 0.04, size * 0.04);
+        ctx.fillRect(size * 0.12, 0, size * 0.04, size * 0.04);
+        ctx.fillStyle = "#0b2410";
+        ctx.fillRect(-size * 0.1, size * 0.2, size * 0.2, size * 0.04);
+        ctx.fillRect(-size * 0.14, size * 0.16, size * 0.04, size * 0.04);
+        ctx.fillRect(size * 0.1, size * 0.16, size * 0.04, size * 0.04);
+        drawSkinFrame(ctx, size, "#9dff5a");
     },
 
+    // Крилатий: синій кубик-птах із крилами, що махають, і пір'ям
     winged: function (ctx, size, time) {
-        ctx.fillStyle = "#0a0a20";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        renderSkinGlow(ctx, size, "#00f6ff", 12);
-        ctx.fillStyle = "#0066cc";
-        ctx.fillRect(-size * 0.35, -size * 0.4, size * 0.7, size * 0.8);
-        ctx.strokeStyle = "#00f6ff";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(-size / 2, -size / 2, size, size);
-        ctx.fillStyle = "#00ccff";
+        var h = size / 2;
+        var flap = Math.sin(time * 0.012);
+        // Крила позаду кубика
+        function wing(dir) {
+            ctx.fillStyle = "#bff4ff";
+            ctx.beginPath();
+            ctx.moveTo(dir * h * 0.8, -size * 0.1);
+            ctx.lineTo(dir * (h + size * 0.35), -size * 0.3 - flap * size * 0.25);
+            ctx.lineTo(dir * (h + size * 0.3), -size * 0.05 - flap * size * 0.12);
+            ctx.lineTo(dir * (h + size * 0.22), size * 0.08);
+            ctx.lineTo(dir * h * 0.8, size * 0.12);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = "#00c8ff";
+            ctx.fillRect(dir > 0 ? h : -h - size * 0.18, -size * 0.04 - flap * size * 0.06, size * 0.18, size * 0.05);
+        }
+        wing(-1);
+        wing(1);
+        var body = ctx.createLinearGradient(0, -h, 0, h);
+        body.addColorStop(0, "#3aa8ff");
+        body.addColorStop(1, "#0a4fb0");
+        ctx.fillStyle = body;
+        ctx.fillRect(-h, -h, size, size);
+        // Пір'я-лусочки на грудях
+        ctx.fillStyle = "rgba(191, 244, 255, 0.35)";
+        for (var r = 0; r < 2; r++) {
+            for (var c = 0; c < 3; c++) {
+                ctx.fillRect(-size * 0.27 + c * size * 0.2 + (r % 2) * size * 0.1, size * 0.14 + r * size * 0.14, size * 0.12, size * 0.08);
+            }
+        }
+        // Очі та дзьоб
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(-size * 0.24, -size * 0.2, size * 0.14, size * 0.14);
+        ctx.fillRect(size * 0.1, -size * 0.2, size * 0.14, size * 0.14);
+        ctx.fillStyle = "#06142a";
+        ctx.fillRect(-size * 0.17, -size * 0.16, size * 0.07, size * 0.08);
+        ctx.fillRect(size * 0.17, -size * 0.16, size * 0.07, size * 0.08);
+        ctx.fillStyle = "#ffb300";
         ctx.beginPath();
-        ctx.moveTo(-size / 2, -size * 0.1);
-        ctx.lineTo(-size / 2 - 6, -size * 0.3);
-        ctx.lineTo(-size / 2, size * 0.1);
+        ctx.moveTo(-size * 0.08, -size * 0.02);
+        ctx.lineTo(size * 0.08, -size * 0.02);
+        ctx.lineTo(0, size * 0.1);
         ctx.closePath();
         ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(size / 2, -size * 0.1);
-        ctx.lineTo(size / 2 + 6, -size * 0.3);
-        ctx.lineTo(size / 2, size * 0.1);
-        ctx.closePath();
-        ctx.fill();
+        drawSkinFrame(ctx, size, "#bff4ff");
     },
 
+    // Кубок: блискучий золотий трофей із зіркою — нагорода за фінал Ліги 1
     light_cup: function (ctx, size, time) {
-        ctx.fillStyle = "#004d33";
-        ctx.fillRect(-size / 2, -size / 2, size, size);
-        renderSkinGlow(ctx, size, "#ffd700", 10);
-        ctx.strokeStyle = "#39ff88";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(-size / 2, -size / 2, size, size);
-        ctx.fillStyle = "#ffd700";
-        var outerR = size * 0.28;
-        var innerR = size * 0.12;
-        var points = 5;
+        var h = size / 2;
+        var bg = ctx.createLinearGradient(0, -h, 0, h);
+        bg.addColorStop(0, "#0a4a2e");
+        bg.addColorStop(1, "#04200f");
+        ctx.fillStyle = bg;
+        ctx.fillRect(-h, -h, size, size);
+        var gold = ctx.createLinearGradient(-size * 0.25, 0, size * 0.25, 0);
+        gold.addColorStop(0, "#c98a00");
+        gold.addColorStop(0.4, "#fff2a0");
+        gold.addColorStop(1, "#d99a00");
+        ctx.fillStyle = gold;
+        // Чаша
         ctx.beginPath();
-        for (var i = 0; i < points * 2; i++) {
+        ctx.moveTo(-size * 0.26, -size * 0.3);
+        ctx.lineTo(size * 0.26, -size * 0.3);
+        ctx.lineTo(size * 0.2, size * 0.02);
+        ctx.quadraticCurveTo(0, size * 0.14, -size * 0.2, size * 0.02);
+        ctx.closePath();
+        ctx.fill();
+        // Ручки
+        ctx.strokeStyle = "#ffd700";
+        ctx.lineWidth = Math.max(1.5, size * 0.05);
+        ctx.beginPath();
+        ctx.arc(-size * 0.27, -size * 0.17, size * 0.09, Math.PI * 0.5, Math.PI * 1.5);
+        ctx.moveTo(size * 0.27, -size * 0.26);
+        ctx.arc(size * 0.27, -size * 0.17, size * 0.09, -Math.PI * 0.5, Math.PI * 0.5);
+        ctx.stroke();
+        // Ніжка та підставка
+        ctx.fillStyle = "#d99a00";
+        ctx.fillRect(-size * 0.05, size * 0.08, size * 0.1, size * 0.14);
+        ctx.fillStyle = "#8a5a2a";
+        ctx.fillRect(-size * 0.2, size * 0.22, size * 0.4, size * 0.14);
+        ctx.fillStyle = "#ffd700";
+        ctx.fillRect(-size * 0.14, size * 0.26, size * 0.28, size * 0.05);
+        // Зірка на чаші
+        ctx.fillStyle = "#ffffff";
+        var outerR = size * 0.09;
+        var innerR = size * 0.04;
+        ctx.beginPath();
+        for (var i = 0; i < 10; i++) {
             var r = i % 2 === 0 ? outerR : innerR;
-            var angle = (Math.PI / 2 * 3) + (i * Math.PI / points);
-            var sx = Math.cos(angle) * r;
-            var sy = Math.sin(angle) * r;
-            if (i === 0) { ctx.moveTo(sx, sy); }
-            else { ctx.lineTo(sx, sy); }
+            var a = -Math.PI / 2 + i * Math.PI / 5;
+            if (i === 0) { ctx.moveTo(Math.cos(a) * r, -size * 0.13 + Math.sin(a) * r); }
+            else { ctx.lineTo(Math.cos(a) * r, -size * 0.13 + Math.sin(a) * r); }
         }
         ctx.closePath();
         ctx.fill();
+        // Відблиск, що перебігає
+        var glint = (time * 0.0009) % 1.6;
+        if (glint < 1) {
+            ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+            ctx.fillRect(-size * 0.24 + glint * size * 0.44, -size * 0.28, size * 0.05, size * 0.26);
+        }
+        drawSkinFrame(ctx, size, "#39ff88");
     },
 
     // === ГРУПА 2: СЕРЕДНЯ ЛІГА ===
@@ -1156,7 +1321,6 @@ export const SKIN_RENDERERS = {
 // Скіни, які малюються на темному тлі без власної рамки й зливаються з фоном:
 // обгортаємо їх, додаючи неонову рамку в кольорі скіна
 const FRAMELESS_SKIN_COLORS = {
-    crosshair: "#ff3333",
     cyberpunk_horizon: "#00ddff"
 };
 
@@ -1930,7 +2094,7 @@ export class Engine {
         this.player.alive = false;
         this.deathTimer = 0;
         this.combo = 0;
-        const isDemon = this.level.bgTheme === "demon";
+        const isDemon = this.level.bgTheme === "pixel_nether";
         const palette = isDemon
             ? ["#ff1111", "#ff4400", "#ffe14d"]
             : ["#00f6ff", "#ff2ea6", "#ffe14d", "#00ff88"];

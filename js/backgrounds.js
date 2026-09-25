@@ -6,7 +6,7 @@ function rand(min,max){return min+Math.random()*(max-min)}function randInt(min,m
 const SKY_WINDOW_COLORS=[[255,204,68],[255,102,34],[255,136,204],[136,221,255],[255,153,102],[170,204,255]];const SKY_ALPHA_LEVELS=19;let _skyStyles=null;const _skyBuckets=[];for(let i=0;i<SKY_WINDOW_COLORS.length*SKY_ALPHA_LEVELS;i++)_skyBuckets.push([]);
 function _skyWindowStyles(){if(_skyStyles)return _skyStyles;_skyStyles=[];for(const c of SKY_WINDOW_COLORS){for(let lv=0;lv<SKY_ALPHA_LEVELS;lv++){const a=Math.min(0.5,0.15+lv*0.02);_skyStyles.push("rgba("+c[0]+","+c[1]+","+c[2]+","+a.toFixed(2)+")")}}return _skyStyles}
 const BackgroundRenderer = {
-    init(W,H,groundY){_W=W;_H=H;_groundY=groundY;/* Дані, що залежать від розміру екрана, будуються заново */this._skyData=null;this._toxicTop=null;this._abyssBubs=null;this._sporeCells=null;this._triStars=null;this._waterMist=null;this._infernoEmbers=null;this._infernoSmoke=null;this._skyBg=null;this._pixelNight=null;this._pixelCave=null;this._pixelSnow=null;this._pixelOcean=null;this._pixelDesert=null;this._pixelIslands=null;this._pixelNether=null;this._neonHighway=null;this._neonRooftops=null;this._pulsarHex=null;_particles=[];_raindrops=[];_matrixColumns=[];_sparks=[];_starsInitialized=!1;_matrixInitialized=!1;_cityBuildings=null;_landscapeSeed=Math.random()*1000},
+    init(W,H,groundY){_W=W;_H=H;_groundY=groundY;/* Дані, що залежать від розміру екрана, будуються заново */this._skyData=null;this._toxicTop=null;this._abyssBubs=null;this._sporeCells=null;this._triStars=null;this._waterMist=null;this._infernoEmbers=null;this._infernoSmoke=null;this._skyBg=null;this._pixelNight=null;this._pixelCave=null;this._pixelSnow=null;this._pixelOcean=null;this._pixelDesert=null;this._pixelIslands=null;this._pixelNether=null;this._neonHighway=null;this._neonRooftops=null;this._neonStart=null;this._sunsetCity=null;this._cosmodrome=null;this._laserRange=null;this._digitalForest=null;this._stormSky=null;this._crystalCave=null;this._retroArcade=null;this._secretBase=null;this._metroTunnel=null;this._robotFactory=null;this._twinSun=null;this._skyCity=null;this._stadium=null;this._pulsarHex=null;_particles=[];_raindrops=[];_matrixColumns=[];_sparks=[];_starsInitialized=!1;_matrixInitialized=!1;_cityBuildings=null;_landscapeSeed=Math.random()*1000},
     reset(){_particles=[];_raindrops=[];_matrixColumns=[];_sparks=[];_starsInitialized=!1;_matrixInitialized=!1;_cityBuildings=null;_rainTimer=0;_landscapeSeed=Math.random()*1000},
     getDimensions(){return{W:_W,H:_H,groundY:_groundY}},
     createParticles(x,y,count,palette){const colors=palette||NEON_PALETTE;for(let i=0;i<count;i++){if(_particles.length>=MAX_PARTICLES){let min=Infinity,mi=-1;for(let j=0;j<_particles.length;j++){if(_particles[j].life<min){min=_particles[j].life;mi=j}}if(mi>=0)_particles.splice(mi,1)}const a=rand(0,Math.PI*2),s=rand(80,200);_particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-rand(40,100),size:rand(2,4),life:rand(0.4,0.6),maxLife:0,color:colors[randInt(0,colors.length-1)],gravity:rand(300,500)})}for(let j=0;j<_particles.length;j++)if(_particles[j].maxLife===0)_particles[j].maxLife=_particles[j].life},
@@ -30,7 +30,7 @@ case"spore_field":this.renderSporeField(ctx,W,H,groundY,time,speed,hueShift);bre
 case"diamond_matrix":this.renderDiamondMatrix(ctx,W,H,groundY,time,speed,hueShift);break;case"waterfall_cascade":this.renderWaterfallCascade(ctx,W,H,groundY,time,speed,hueShift);break;
 case"barrier_wall":this.renderBarrierWall(ctx,W,H,groundY,time,speed,hueShift);break;case"glitch_field":this.renderGlitchField(ctx,W,H,groundY,time,speed,hueShift);break;
 case"nebula_drift":this.renderNebulaDrift(ctx,W,H,groundY,time,speed,hueShift);break;case"grand_hex":this.renderGrandHex(ctx,W,H,groundY,time,speed,hueShift);break;
-case"pixel_snow":this.renderPixelSnow(ctx,W,H,groundY,time,speed);break;case"pixel_ocean":this.renderPixelOcean(ctx,W,H,groundY,time,speed);break;case"pixel_desert":this.renderPixelDesert(ctx,W,H,groundY,time,speed);break;case"pixel_islands":this.renderPixelIslands(ctx,W,H,groundY,time,speed);break;case"pixel_nether":this.renderPixelNether(ctx,W,H,groundY,time,speed);break;case"neon_highway":this.renderNeonHighway(ctx,W,H,groundY,time,speed);break;case"neon_rooftops":this.renderNeonRooftops(ctx,W,H,groundY,time,speed);break;case"pixel_night":this.renderPixelNight(ctx,W,H,groundY,time,speed);break;case"pixel_cave":this.renderPixelCave(ctx,W,H,groundY,time,speed);break;default:this.renderCyberGrid(ctx,W,H,groundY,time,speed,"#00f6ff");break;}}finally{ctx.fillStyle=saveFill;ctx.strokeStyle=saveStroke;ctx.globalAlpha=saveAlpha}},
+case"neon_start":this.renderNeonStart(ctx,W,H,groundY,time,speed,accentColor);break;case"sunset_city":this.renderSunsetCity(ctx,W,H,groundY,time,speed);break;case"cosmodrome":this.renderCosmodrome(ctx,W,H,groundY,time,speed);break;case"laser_range":this.renderLaserRange(ctx,W,H,groundY,time,speed);break;case"digital_forest":this.renderDigitalForest(ctx,W,H,groundY,time,speed);break;case"storm_sky":this.renderStormSky(ctx,W,H,groundY,time,speed);break;case"crystal_cave":this.renderCrystalCave(ctx,W,H,groundY,time,speed);break;case"retro_arcade":this.renderRetroArcade(ctx,W,H,groundY,time,speed);break;case"secret_base":this.renderSecretBase(ctx,W,H,groundY,time,speed);break;case"metro_tunnel":this.renderMetroTunnel(ctx,W,H,groundY,time,speed);break;case"robot_factory":this.renderRobotFactory(ctx,W,H,groundY,time,speed);break;case"twin_sun_planet":this.renderTwinSunPlanet(ctx,W,H,groundY,time,speed);break;case"sky_city":this.renderSkyCity(ctx,W,H,groundY,time,speed);break;case"stadium":this.renderStadium(ctx,W,H,groundY,time,speed);break;case"pixel_snow":this.renderPixelSnow(ctx,W,H,groundY,time,speed);break;case"pixel_ocean":this.renderPixelOcean(ctx,W,H,groundY,time,speed);break;case"pixel_desert":this.renderPixelDesert(ctx,W,H,groundY,time,speed);break;case"pixel_islands":this.renderPixelIslands(ctx,W,H,groundY,time,speed);break;case"pixel_nether":this.renderPixelNether(ctx,W,H,groundY,time,speed);break;case"neon_highway":this.renderNeonHighway(ctx,W,H,groundY,time,speed);break;case"neon_rooftops":this.renderNeonRooftops(ctx,W,H,groundY,time,speed);break;case"pixel_night":this.renderPixelNight(ctx,W,H,groundY,time,speed);break;case"pixel_cave":this.renderPixelCave(ctx,W,H,groundY,time,speed);break;default:this.renderCyberGrid(ctx,W,H,groundY,time,speed,"#00f6ff");break;}}finally{ctx.fillStyle=saveFill;ctx.strokeStyle=saveStroke;ctx.globalAlpha=saveAlpha}},
     renderStarfield(ctx, W, H, time, speed, hueShift) {ctx.fillStyle="#020412";ctx.fillRect(0,0,W,H);if(!_starsInitialized){_stars=[];for(var i=0;i<130;i++){var layer=Math.random();var z=layer<0.4?0.3:(layer<0.75?0.6:1.0);_stars.push({x:Math.random()*W,y:Math.random()*H*0.7,z:z,size:z*2.5,twinklePhase:Math.random()*Math.PI*2,twinkleSpeed:0.5+Math.random()*2,brightness:0.3+Math.random()*0.7})}_starsInitialized=true}for(var si=0;si<_stars.length;si++){var s=_stars[si];s.x-=speed*s.z*0.15*_step;if(s.x<-s.size){s.x=W+s.size;s.y=Math.random()*H*0.7}var alpha=s.brightness*(0.4+0.6*(Math.sin(time*s.twinkleSpeed+s.twinklePhase)*0.5+0.5));ctx.globalAlpha=alpha;ctx.fillStyle=s.z>0.7?"#cceeff":(s.z>0.4?"#88bbff":"#6699cc");ctx.fillRect(s.x-s.size/2,s.y-s.size/2,s.size,s.size)}ctx.globalAlpha=1},
     renderEnergyGrid(ctx, W, H, time, hueShift) {ctx.fillStyle="#040618";ctx.fillRect(0,0,W,H);var cx=W/2;var cy=H/2;for(var i=0;i<6;i++){var r=Math.min(W,H)*0.07+i*Math.min(W,H)*0.1+Math.min(W,H)*0.04*Math.sin(time*1.8+i*0.9);var hue=(time*50+i*40)%360;applyGlow(ctx,"hsl("+hue.toFixed(0)+",80%,55%)",10);ctx.strokeStyle="hsl("+hue.toFixed(0)+",80%,55%)";ctx.lineWidth=1.5;ctx.globalAlpha=0.5;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();clearGlow(ctx)}for(var i=0;i<10;i++){var angle=(i/10)*Math.PI*2+time*0.3;ctx.strokeStyle="hsl("+((time*40+i*30)%360).toFixed(0)+",70%,40%)";ctx.lineWidth=1;ctx.globalAlpha=0.25;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(angle)*Math.min(W,H)*0.65,cy+Math.sin(angle)*Math.min(W,H)*0.65);ctx.stroke()}ctx.globalAlpha=1},
     renderCyberColumns(ctx,W,H,groundY,time,speed,hueShift){var grad=ctx.createLinearGradient(0,0,W*0.15,0);grad.addColorStop(0,"#0a0a30");grad.addColorStop(0.3,"#050520");grad.addColorStop(0.7,"#050520");grad.addColorStop(1,"#0a0a30");ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);ctx.fillStyle="#020615";ctx.fillRect(0,0,W,H);var colW=W*0.06;var gap=W*0.04;var cols=Math.ceil(W/(colW+gap))+2;var offset=(time*speed*0.35)%(colW+gap);for(var i=0;i<cols;i++){var x=-colW+i*(colW+gap)+offset;var h=H*0.4+Math.sin(i*1.7+time*0.8)*H*0.15;var alpha=0.2+0.3*Math.abs(Math.sin(i*0.6+time*0.5));applyGlow(ctx,"#4466ff",8);var colGrad=ctx.createLinearGradient(x,groundY-h,x,groundY);colGrad.addColorStop(0,"rgba(30,60,200,0)");colGrad.addColorStop(0.3,"rgba(50,100,255,"+alpha.toFixed(2)+")");colGrad.addColorStop(1,"rgba(20,40,150,"+(alpha*0.4).toFixed(2)+")");ctx.fillStyle=colGrad;ctx.fillRect(x,groundY-h,colW,h);clearGlow(ctx)}},
@@ -1149,6 +1149,1133 @@ BackgroundRenderer.renderNeonRooftops = function (ctx, W, H, groundY, time, spee
         color: "#8fb8ff", dir: 1, speedMin: 400, speedMax: 600, sizeMin: 1, sizeMax: 2,
         sway: 0, swayAmp: 0, alpha: 0.35, stretch: 8
     });
+};
+
+// ---------- Ліга 1: сцени рівнів ----------
+
+// Піксельний силует гір з неоновим контуром (для далекого плану)
+function drawNeonMountains(ctx, W, baseY, B, heights, fill, edge) {
+    ctx.fillStyle = fill;
+    for (let c = 0; c < heights.length; c++) {
+        ctx.fillRect(c * B, baseY - heights[c] * B, B, heights[c] * B);
+    }
+    ctx.fillStyle = edge;
+    for (let c = 0; c < heights.length; c++) {
+        ctx.fillRect(c * B, baseY - heights[c] * B, B, Math.max(2, B / 5));
+        const prev = c > 0 ? heights[c - 1] : heights[c];
+        if (prev !== heights[c]) {
+            const top = baseY - Math.max(prev, heights[c]) * B;
+            const hgt = Math.abs(prev - heights[c]) * B;
+            ctx.fillRect(c * B, top, Math.max(2, B / 5), hgt);
+        }
+    }
+}
+
+// Зоряне небо у буфер
+function drawStarsInto(ctx, W, maxY, count, rng, B) {
+    for (let i = 0; i < count; i++) {
+        ctx.fillStyle = rng() < 0.2 ? "#bfe9ff" : "#ffffff";
+        ctx.globalAlpha = 0.3 + rng() * 0.7;
+        const s = rng() < 0.1 ? Math.max(2, B / 4) : Math.max(1, B / 8);
+        ctx.fillRect(Math.round(rng() * W), Math.round(rng() * maxY), s, s);
+    }
+    ctx.globalAlpha = 1;
+}
+
+// ---------- 1. Неоновий старт ----------
+
+function buildNeonStart(W, H, groundY, B) {
+    const rng = pixelRng(101);
+    const horizon = Math.round(H * 0.35);
+    const sky = makeSky(W, H, [[0, "#02030f"], [0.35, "#0a1035"], [1, "#0a1035"]]);
+    const sx = sky.getContext("2d");
+    drawStarsInto(sx, W, horizon - B, 80, rng, B);
+    const cols = Math.ceil(W / B) + 1;
+    const far = periodicHeights(cols, 4, [{ amp: 2, k: 3, ph: 0.4 }, { amp: 1.2, k: 7, ph: 1.1 }]);
+    drawNeonMountains(sx, W, horizon, B, far, "#0b0f2e", "rgba(0, 246, 255, 0.55)");
+    return { W: W, H: H, sky: sky, horizon: horizon };
+}
+
+BackgroundRenderer.renderNeonStart = function (ctx, W, H, groundY, time, speed, accentColor) {
+    const B = pixelBlockSize(H);
+    let st = this._neonStart;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildNeonStart(W, H, groundY, B);
+        this._neonStart = st;
+    }
+    ctx.drawImage(st.sky, 0, 0);
+    const hz = st.horizon;
+    const accent = accentColor || "#00f6ff";
+    // Перспективна сітка: усі лінії однієї групи — один шлях
+    const vanishX = W / 2;
+    const spacing = W * 0.08;
+    const offset = (time * speed * 0.25) % spacing;
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = accent;
+    ctx.globalAlpha = 0.55;
+    ctx.beginPath();
+    for (let x = -W * 2 - offset; x < W * 3; x += spacing) {
+        ctx.moveTo(vanishX, hz);
+        ctx.lineTo(x, groundY);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 0.3;
+    ctx.beginPath();
+    for (let j = 1; j <= 14; j++) {
+        const t = j / 14;
+        const y = hz + (groundY - hz) * t * t;
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = accent;
+    ctx.fillRect(0, hz - 1, W, 3);
+    // Падаючі метеори: кожні ~4 с один проноситься небом
+    for (let m = 0; m < 2; m++) {
+        const period = 4 + m * 2.3;
+        const t = ((time + m * 1.7) % period) / 1.1;
+        if (t > 1) {
+            continue;
+        }
+        const seed = Math.floor((time + m * 1.7) / period) * 7 + m;
+        const startX = W * (0.3 + ((seed * 0.37) % 0.6));
+        const x = startX - t * W * 0.35;
+        const y = hz * 0.1 + t * hz * 0.55;
+        for (let k = 0; k < 6; k++) {
+            ctx.globalAlpha = (1 - k / 6) * (1 - t * 0.5);
+            ctx.fillStyle = k === 0 ? "#ffffff" : "#7df9ff";
+            ctx.fillRect(Math.round(x + k * B * 0.5), Math.round(y - k * B * 0.4), Math.max(2, B / 4), Math.max(2, B / 4));
+        }
+    }
+    ctx.globalAlpha = 1;
+};
+
+// ---------- 2. Місто на заході сонця ----------
+
+function buildSunsetCity(W, H, groundY, B) {
+    const rng = pixelRng(202);
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#1a0a2e"], [0.35, "#5a1450"], [0.62, "#e0445a"], [1, "#ffb35c"]]);
+    const sx = sky.getContext("2d");
+    const sunR = Math.round(H * 0.13);
+    const sunX = Math.round(W * 0.5);
+    const sunY = Math.round(gY * 0.72);
+    sx.fillStyle = "#ffd36b";
+    for (let y = -sunR; y < sunR; y += B / 2) {
+        const half = Math.sqrt(sunR * sunR - y * y);
+        sx.fillRect(Math.round(sunX - half), sunY + y, Math.round(half * 2), B / 2);
+    }
+    function cityStrip(stripW, maxH, colorBody, windowColors, winChance, seed) {
+        const r = pixelRng(seed);
+        const strip = makeCanvas(stripW, maxH);
+        const cx = strip.getContext("2d");
+        for (let x = 0; x < stripW; ) {
+            const w = Math.round((3 + r() * 5)) * B / 2;
+            const h = Math.round((0.35 + r() * 0.65) * maxH / (B / 2)) * B / 2;
+            cx.fillStyle = colorBody;
+            cx.fillRect(x, maxH - h, w, h);
+            for (let wy = maxH - h + B / 2; wy < maxH - B / 2; wy += B / 2) {
+                for (let wx = x + B / 4; wx < x + w - B / 4; wx += B / 2) {
+                    if (r() < winChance) {
+                        cx.fillStyle = windowColors[Math.floor(r() * windowColors.length)];
+                        cx.fillRect(wx, wy, B / 4, B / 4);
+                    }
+                }
+            }
+            x += w + Math.round(r() * 2) * B / 4;
+        }
+        return strip;
+    }
+    const far = cityStrip(Math.ceil(W * 1.5 / B) * B, Math.round(gY * 0.45), "#3a1250", ["rgba(255, 180, 120, 0.5)"], 0.15, 2021);
+    const near = cityStrip(Math.ceil(W * 1.3 / B) * B, Math.round(gY * 0.32), "#140620", ["#ffd36b", "#ff9ed0", "#7df9ff"], 0.3, 2022);
+    const cars = [];
+    for (let i = 0; i < 5; i++) {
+        cars.push({ lane: i % 2, offset: rng() * W * 2, speed: 90 + rng() * 80, color: ["#ff2ea6", "#00f6ff", "#ffe14d"][i % 3] });
+    }
+    return { W: W, H: H, sky: sky, far: far, near: near, cars: cars };
+}
+
+BackgroundRenderer.renderSunsetCity = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._sunsetCity;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildSunsetCity(W, H, groundY, B);
+        this._sunsetCity = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.sky, 0, 0);
+    drawScrollingStrip(ctx, st.far, W, gY, time, speed, 0.08);
+    // Літаючі машини-кубики зі світловим шлейфом
+    for (const car of st.cars) {
+        const span = W + B * 10;
+        const x = Math.round(((car.offset + time * car.speed) % span) - B * 5);
+        const y = Math.round(gY * (0.3 + car.lane * 0.12));
+        ctx.globalAlpha = 0.35;
+        ctx.fillStyle = car.color;
+        ctx.fillRect(x - B * 2, y + B * 0.2, B * 2, B * 0.25);
+        ctx.globalAlpha = 1;
+        ctx.fillRect(x, y, B, B * 0.6);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(x + B * 0.7, y + B * 0.1, B * 0.25, B * 0.2);
+    }
+    drawScrollingStrip(ctx, st.near, W, gY, time, speed, 0.3);
+};
+
+// ---------- 3. Космодром ----------
+
+function buildCosmodrome(W, H, groundY, B) {
+    const rng = pixelRng(303);
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#020412"], [0.7, "#0b1640"], [1, "#1b2a5c"]]);
+    const sx = sky.getContext("2d");
+    drawStarsInto(sx, W, gY * 0.8, 110, rng, B);
+    const cols = Math.ceil(W / B) + 1;
+    const hills = periodicHeights(cols, 2, [{ amp: 1, k: 2, ph: 0.2 }, { amp: 0.6, k: 5, ph: 1 }]);
+    sx.fillStyle = "#0a1026";
+    for (let c = 0; c < cols; c++) {
+        sx.fillRect(c * B, gY - hills[c] * B, B, hills[c] * B);
+    }
+    // Стартова вежа
+    const towerX = Math.round(W * 0.72 / B) * B;
+    sx.fillStyle = "#2a3350";
+    sx.fillRect(towerX, gY - B * 12, B, B * 12);
+    for (let i = 0; i < 12; i++) {
+        sx.fillStyle = i % 2 === 0 ? "#3a4570" : "#2a3350";
+        sx.fillRect(towerX - B / 2, gY - B * (i + 1), B * 2, B / 4);
+    }
+    sx.fillStyle = "#ff3333";
+    sx.fillRect(towerX + B / 4, gY - B * 12.5, B / 2, B / 2);
+    // Майданчик
+    sx.fillStyle = "#39415e";
+    sx.fillRect(towerX - B * 2, gY - B, B * 6, B);
+    return { W: W, H: H, sky: sky, padX: towerX + B * 1.5, gY: gY };
+}
+
+BackgroundRenderer.renderCosmodrome = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._cosmodrome;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildCosmodrome(W, H, groundY, B);
+        this._cosmodrome = st;
+    }
+    ctx.drawImage(st.sky, 0, 0);
+    // Ракета: стоїть кілька секунд, потім злітає з вогняним слідом
+    const period = 14;
+    const t = time % period;
+    const launchAt = 5;
+    const lift = t < launchAt ? 0 : Math.pow(t - launchAt, 2) * B * 3;
+    const rx = st.padX;
+    const ry = st.gY - B - B * 6 - lift;
+    if (ry > -B * 8) {
+        if (t >= launchAt - 1) {
+            // Вогонь і дим
+            const flameH = B * (2 + Math.sin(time * 30) * 0.5 + (t >= launchAt ? 2 : 0));
+            ctx.fillStyle = "#ffcc33";
+            ctx.fillRect(rx + B * 0.25, ry + B * 6, B * 1.5, flameH);
+            ctx.fillStyle = "#ff6a00";
+            ctx.fillRect(rx + B * 0.5, ry + B * 6 + flameH * 0.3, B, flameH);
+            ctx.fillStyle = "rgba(200, 200, 220, 0.25)";
+            for (let k = 0; k < 6; k++) {
+                const sz = B * (1 + k * 0.5);
+                ctx.fillRect(rx + B - sz / 2 + Math.sin(k * 2 + time) * B, st.gY - B - sz, sz, sz);
+            }
+        }
+        ctx.fillStyle = "#e8ecf2";
+        ctx.fillRect(rx, ry + B, B * 2, B * 5);
+        ctx.fillStyle = "#ff3355";
+        ctx.fillRect(rx + B / 2, ry, B, B);
+        ctx.fillRect(rx - B / 2, ry + B * 4.5, B / 2, B * 1.5);
+        ctx.fillRect(rx + B * 2, ry + B * 4.5, B / 2, B * 1.5);
+        ctx.fillStyle = "#39c6ff";
+        ctx.fillRect(rx + B * 0.6, ry + B * 2, B * 0.8, B * 0.8);
+    }
+};
+
+// ---------- 5. Лазерний полігон ----------
+
+function buildLaserRange(W, H, groundY, B) {
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#05060d"], [1, "#101528"]]);
+    const sx = sky.getContext("2d");
+    // Панелі стін
+    for (let x = 0; x < W; x += B * 3) {
+        sx.fillStyle = (x / (B * 3)) % 2 === 0 ? "#0c1022" : "#0e1328";
+        sx.fillRect(x, 0, B * 3, gY);
+        sx.fillStyle = "#1a2140";
+        sx.fillRect(x, 0, 2, gY);
+    }
+    // Мішені на стійках у смузі
+    const stripW = Math.ceil(W * 1.3 / B) * B;
+    const strip = makeCanvas(stripW, B * 6);
+    const tx = strip.getContext("2d");
+    for (let x = B * 3; x < stripW - B * 3; x += B * 9) {
+        tx.fillStyle = "#39415e";
+        tx.fillRect(x + B * 1.25, B * 3, B / 2, B * 3);
+        const rings = ["#ff3333", "#ffffff", "#ff3333", "#ffffff", "#ffcc00"];
+        for (let r = 0; r < rings.length; r++) {
+            const s = B * 3 - r * B * 0.6;
+            tx.fillStyle = rings[r];
+            tx.fillRect(x + (B * 3 - s) / 2, (B * 3 - s) / 2, s, s);
+        }
+    }
+    return { W: W, H: H, sky: sky, targets: strip };
+}
+
+BackgroundRenderer.renderLaserRange = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._laserRange;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildLaserRange(W, H, groundY, B);
+        this._laserRange = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.sky, 0, 0);
+    drawScrollingStrip(ctx, st.targets, W, gY, time, speed, 0.3);
+    // Сканувальні лазери зі стелі
+    const emitters = 5;
+    for (let i = 0; i < emitters; i++) {
+        const ex = W * (i + 0.5) / emitters;
+        const angle = Math.sin(time * (0.7 + i * 0.13) + i * 1.3) * 0.6;
+        const endX = ex + Math.tan(angle) * gY;
+        const color = i % 2 === 0 ? "255, 40, 60" : "40, 255, 140";
+        ctx.strokeStyle = "rgba(" + color + ", 0.15)";
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.moveTo(ex, 0);
+        ctx.lineTo(endX, gY);
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(" + color + ", 0.85)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = "#39415e";
+        ctx.fillRect(ex - B / 2, 0, B, B / 2);
+        ctx.fillStyle = "rgba(" + color + ", 0.6)";
+        ctx.fillRect(endX - B / 2, gY - B / 4, B, B / 4);
+    }
+};
+
+// ---------- 6. Цифровий ліс ----------
+
+function buildDigitalForest(W, H, groundY, B) {
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#010805"], [1, "#04160c"]]);
+    function forestStrip(stripW, trunkColor, leafColor, leafLight, height, seed, gap) {
+        const r = pixelRng(seed);
+        const strip = makeCanvas(stripW, height);
+        const fx = strip.getContext("2d");
+        const trees = [];
+        for (let x = B; x < stripW - B * 3; x += B * (gap + Math.floor(r() * 3))) {
+            const th = Math.round((0.35 + r() * 0.3) * height / B);
+            fx.fillStyle = trunkColor;
+            fx.fillRect(x + B, height - th * B, B, th * B);
+            // Крона з блоків
+            const crown = 2 + Math.floor(r() * 2);
+            for (let row = 0; row < crown + 1; row++) {
+                const w = crown * 2 + 1 - row * 2;
+                fx.fillStyle = row % 2 === 0 ? leafColor : leafLight;
+                fx.fillRect(x + B * 1.5 - (w * B) / 2, height - th * B - (row + 1) * B, w * B, B);
+            }
+            trees.push({ x: x + B, top: height - th * B, h: th * B });
+        }
+        return { canvas: strip, trees: trees };
+    }
+    const far = forestStrip(Math.ceil(W * 1.5 / B) * B, "#06200f", "#0a3318", "#0c3d1c", Math.round(gY * 0.6), 601, 4);
+    const near = forestStrip(Math.ceil(W * 1.3 / B) * B, "#0f3a1c", "#146b2e", "#1b8a3a", Math.round(gY * 0.75), 602, 6);
+    return { W: W, H: H, sky: sky, far: far, near: near };
+}
+
+BackgroundRenderer.renderDigitalForest = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._digitalForest;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildDigitalForest(W, H, groundY, B);
+        this._digitalForest = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.sky, 0, 0);
+    drawScrollingStrip(ctx, st.far.canvas, W, gY, time, speed, 0.1);
+    const nearW = st.near.canvas.width;
+    const offset = Math.round(time * speed * 0.3) % nearW;
+    const top = gY - st.near.canvas.height;
+    for (let x = -offset; x < W; x += nearW) {
+        ctx.drawImage(st.near.canvas, x, top);
+        // По стовбурах біжить зелений «код»
+        for (let i = 0; i < st.near.trees.length; i++) {
+            const tr = st.near.trees[i];
+            const tx = x + tr.x;
+            if (tx < -B || tx > W + B) {
+                continue;
+            }
+            const cell = B / 3;
+            const head = (time * (60 + i * 7) + i * 50) % (tr.h + cell * 6);
+            for (let k = 0; k < 5; k++) {
+                const y = head - k * cell;
+                if (y < 0 || y > tr.h) {
+                    continue;
+                }
+                ctx.fillStyle = k === 0 ? "#d8ffe0" : "rgba(0, 255, 90, " + (0.8 - k * 0.15).toFixed(2) + ")";
+                ctx.fillRect(tx + cell, top + tr.top + y, cell, cell);
+            }
+        }
+    }
+    // Світлячки
+    drawFallingPixels(ctx, W, gY, time, 25, 606, {
+        color: "#c8ff5a", dir: -1, speedMin: 4, speedMax: 12, sizeMin: 2, sizeMax: 3,
+        sway: 1.2, swayAmp: B * 1.5, alpha: 0.8
+    });
+};
+
+// ---------- 7. Грозове небо ----------
+
+function buildStormSky(W, H, groundY, B) {
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#06070f"], [0.7, "#161a2e"], [1, "#22283f"]]);
+    const cols = Math.ceil(W / B) + 1;
+    const sx = sky.getContext("2d");
+    const hills = periodicHeights(cols, 3, [{ amp: 1.5, k: 2, ph: 0.5 }, { amp: 0.8, k: 6, ph: 2 }]);
+    sx.fillStyle = "#121628";
+    for (let c = 0; c < cols; c++) {
+        sx.fillRect(c * B, gY - hills[c] * B, B, hills[c] * B);
+    }
+    // Хатинка з вогником у вікні та дерева на пагорбах
+    const hc = Math.round(cols * 0.62);
+    const hTop = gY - hills[hc] * B;
+    sx.fillStyle = "#1c2238";
+    sx.fillRect(hc * B, hTop - B * 2, B * 3, B * 2);
+    sx.fillRect(hc * B + B / 2, hTop - B * 3, B * 2, B);
+    sx.fillStyle = "#ffcc55";
+    sx.fillRect(hc * B + B, hTop - B * 1.5, B * 0.6, B * 0.6);
+    for (const tc of [Math.round(cols * 0.18), Math.round(cols * 0.35), Math.round(cols * 0.85)]) {
+        const tTop = gY - hills[tc] * B;
+        sx.fillStyle = "#161b30";
+        sx.fillRect(tc * B + B / 3, tTop - B * 2, B / 3, B * 2);
+        sx.fillRect(tc * B - B / 2, tTop - B * 3.5, B * 2, B * 1.8);
+    }
+    function cloudStrip(stripW, color, colorLight, seed, rows) {
+        const r = pixelRng(seed);
+        const strip = makeCanvas(stripW, rows * B);
+        const cx = strip.getContext("2d");
+        for (let x = 0; x < stripW; x += B) {
+            const hgt = rows - Math.floor(r() * 2) - (Math.sin(x / stripW * Math.PI * 6) > 0 ? 0 : 1);
+            cx.fillStyle = color;
+            cx.fillRect(x, 0, B, hgt * B);
+            cx.fillStyle = colorLight;
+            cx.fillRect(x, (hgt - 1) * B, B, B / 3);
+        }
+        return strip;
+    }
+    const far = cloudStrip(Math.ceil(W * 1.5 / B) * B, "#1c2138", "#262c48", 701, 4);
+    const near = cloudStrip(Math.ceil(W * 1.3 / B) * B, "#2a3050", "#3a4266", 702, 3);
+    return { W: W, H: H, sky: sky, far: far, near: near };
+}
+
+BackgroundRenderer.renderStormSky = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._stormSky;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildStormSky(W, H, groundY, B);
+        this._stormSky = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.sky, 0, 0);
+    // Блискавка кожні ~3.5 с у різному місці
+    const period = 3.5;
+    const phase = time % period;
+    const strike = Math.floor(time / period);
+    if (phase < 0.35) {
+        const flash = 1 - phase / 0.35;
+        ctx.fillStyle = "rgba(200, 210, 255, " + (0.25 * flash).toFixed(3) + ")";
+        ctx.fillRect(0, 0, W, gY);
+        const r = pixelRng(strike * 13 + 7);
+        // Зигзаг блискавки: вертикальні відрізки, з'єднані горизонтальними, з ореолом
+        let x = Math.round(W * (0.15 + r() * 0.7));
+        let y = B * 3;
+        const bw = Math.max(4, Math.round(B / 2.5));
+        const segments = [];
+        while (y < gY - B * 2) {
+            const segH = B * (1 + Math.floor(r() * 2));
+            const nx = x + (r() < 0.5 ? -1 : 1) * Math.round(B * 0.8);
+            segments.push([x, y, segH, nx]);
+            x = nx;
+            y += segH;
+        }
+        for (let pass = 0; pass < 2; pass++) {
+            const grow = pass === 0 ? bw : 0;
+            ctx.fillStyle = pass === 0
+                ? "rgba(140, 170, 255, " + (0.35 * flash).toFixed(3) + ")"
+                : "rgba(255, 255, 255, " + flash.toFixed(3) + ")";
+            for (const sg of segments) {
+                ctx.fillRect(sg[0] - grow, sg[1] - grow, bw + grow * 2, sg[2] + grow * 2);
+                ctx.fillRect(Math.min(sg[0], sg[3]) - grow, sg[1] + sg[2] - bw / 2 - grow, Math.abs(sg[3] - sg[0]) + bw + grow * 2, bw + grow * 2);
+            }
+        }
+    }
+    drawScrollingStrip(ctx, st.far, W, B * 5, time, speed, 0.04);
+    drawScrollingStrip(ctx, st.near, W, B * 3, time, speed, 0.08);
+    // Спалах підсвічує хмари
+    if (phase < 0.35) {
+        ctx.fillStyle = "rgba(200, 215, 255, " + (0.3 * (1 - phase / 0.35)).toFixed(3) + ")";
+        ctx.fillRect(0, 0, W, B * 5);
+    }
+    drawFallingPixels(ctx, W, gY, time, 70, 707, {
+        color: "#9fb4ff", dir: 1, speedMin: 450, speedMax: 650, sizeMin: 1, sizeMax: 2,
+        sway: 0, swayAmp: 0, alpha: 0.4, stretch: 7
+    });
+};
+
+// ---------- 8. Кришталева печера ----------
+
+function buildCrystalCave(W, H, groundY, B) {
+    const rng = pixelRng(808);
+    const gY = Math.round(groundY);
+    const cols = Math.ceil(W * 1.3 / B);
+    const rows = Math.ceil(gY / B) + 1;
+    const p = B / 4;
+    const wall = makeCanvas(cols * B, rows * B);
+    const wx = wall.getContext("2d");
+    const shades = ["#1d1430", "#221838", "#1a1129"];
+    for (let c = 0; c < cols; c++) {
+        for (let r = 0; r < rows; r++) {
+            wx.fillStyle = shades[Math.floor(rng() * shades.length)];
+            wx.fillRect(c * B, r * B, B, B);
+            wx.fillStyle = "#140d22";
+            wx.fillRect(c * B + Math.floor(rng() * 4) * p, r * B + Math.floor(rng() * 4) * p, p, p);
+        }
+    }
+    // Сталактити
+    wx.fillStyle = "#0e0918";
+    for (let c = 0; c < cols; c++) {
+        const len = 1 + Math.floor((Math.sin(c * 1.3) + 1) * 1.6);
+        wx.fillRect(c * B, 0, B, len * B);
+    }
+    // Кластери кристалів
+    const crystals = [];
+    const palette = [["#b35cff", "#e6bfff"], ["#ff4fd8", "#ffc0f0"], ["#5cc8ff", "#c8f0ff"]];
+    for (let c = 2; c < cols - 2; c += 4 + Math.floor(rng() * 4)) {
+        const onFloor = rng() < 0.6;
+        const colr = palette[Math.floor(rng() * palette.length)];
+        const baseY = onFloor ? rows * B - B : B * (2 + Math.floor(rng() * 2));
+        const count = 2 + Math.floor(rng() * 2);
+        for (let k = 0; k < count; k++) {
+            const h = (1 + Math.floor(rng() * 3)) * B;
+            const x = c * B + k * B * 0.7;
+            wx.fillStyle = colr[0];
+            if (onFloor) {
+                wx.fillRect(x, baseY - h + B, B * 0.6, h);
+                wx.fillStyle = colr[1];
+                wx.fillRect(x, baseY - h + B, B * 0.2, h);
+            } else {
+                wx.fillRect(x, baseY, B * 0.6, h);
+                wx.fillStyle = colr[1];
+                wx.fillRect(x, baseY, B * 0.2, h);
+            }
+        }
+        crystals.push({ x: c * B + B, y: onFloor ? baseY - B : baseY + B, color: colr[0], phase: rng() * 6 });
+    }
+    return { W: W, H: H, wall: wall, crystals: crystals };
+}
+
+BackgroundRenderer.renderCrystalCave = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._crystalCave;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildCrystalCave(W, H, groundY, B);
+        this._crystalCave = st;
+    }
+    ctx.fillStyle = "#07040d";
+    ctx.fillRect(0, 0, W, H);
+    const wallW = st.wall.width;
+    const offset = Math.round(time * speed * 0.2) % wallW;
+    const wallY = Math.round(groundY) - st.wall.height;
+    for (let x = -offset; x < W; x += wallW) {
+        ctx.drawImage(st.wall, x, wallY);
+        for (const c of st.crystals) {
+            const cx = x + c.x;
+            if (cx < -B * 3 || cx > W + B * 3) {
+                continue;
+            }
+            const pulse = Math.sin(time * 1.8 + c.phase) * 0.5 + 0.5;
+            ctx.globalAlpha = 0.08 + 0.14 * pulse;
+            ctx.fillStyle = c.color;
+            ctx.fillRect(cx - B * 2, wallY + c.y - B * 2, B * 4, B * 4);
+            ctx.globalAlpha = 0.1 + 0.1 * pulse;
+            ctx.fillRect(cx - B, wallY + c.y - B, B * 2, B * 2);
+        }
+    }
+    ctx.globalAlpha = 1;
+    drawFallingPixels(ctx, W, Math.round(groundY), time, 25, 808, {
+        color: "#e6bfff", dir: -1, speedMin: 8, speedMax: 20, sizeMin: 2, sizeMax: 3,
+        sway: 1, swayAmp: B, alpha: 0.6
+    });
+};
+
+// ---------- 9. Ретро-аркада ----------
+
+function buildRetroArcade(W, H, groundY, B) {
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#0a0418"], [1, "#1a0a30"]]);
+    const sx = sky.getContext("2d");
+    // Неонові смуги на стелі
+    sx.fillStyle = "rgba(255, 46, 166, 0.5)";
+    sx.fillRect(0, B, W, B / 4);
+    sx.fillStyle = "rgba(0, 246, 255, 0.4)";
+    sx.fillRect(0, B * 1.6, W, B / 4);
+    // Автомати в смузі
+    const stripW = Math.ceil(W * 1.3 / B) * B;
+    const cabH = B * 8;
+    const strip = makeCanvas(stripW, cabH);
+    const cx = strip.getContext("2d");
+    const screens = [];
+    const bodyColors = ["#3a1a6a", "#1a3a6a", "#6a1a3a"];
+    let i = 0;
+    for (let x = B; x < stripW - B * 5; x += B * 6) {
+        const body = bodyColors[i % bodyColors.length];
+        cx.fillStyle = body;
+        cx.fillRect(x, 0, B * 4, cabH);
+        cx.fillStyle = "#0a0a14";
+        cx.fillRect(x + B * 0.5, B * 1.5, B * 3, B * 2.5);
+        cx.fillStyle = "#ffe14d";
+        cx.fillRect(x + B * 0.5, B * 0.4, B * 3, B * 0.7);
+        // Пульт з кнопками
+        cx.fillStyle = "#222";
+        cx.fillRect(x + B * 0.3, B * 4.5, B * 3.4, B);
+        cx.fillStyle = "#ff3355";
+        cx.fillRect(x + B * 2.2, B * 4.7, B * 0.5, B * 0.5);
+        cx.fillStyle = "#39ff88";
+        cx.fillRect(x + B * 2.9, B * 4.7, B * 0.5, B * 0.5);
+        cx.fillStyle = "#cccccc";
+        cx.fillRect(x + B * 0.9, B * 4.4, B * 0.25, B * 0.6);
+        screens.push({ x: x + B * 0.5, y: B * 1.5, w: B * 3, h: B * 2.5, kind: i % 3 });
+        i++;
+    }
+    return { W: W, H: H, sky: sky, strip: strip, screens: screens };
+}
+
+BackgroundRenderer.renderRetroArcade = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._retroArcade;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildRetroArcade(W, H, groundY, B);
+        this._retroArcade = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.sky, 0, 0);
+    const stripW = st.strip.width;
+    const offset = Math.round(time * speed * 0.3) % stripW;
+    const top = gY - st.strip.height;
+    for (let x = -offset; x < W; x += stripW) {
+        ctx.drawImage(st.strip, x, top);
+        // Анімовані екрани автоматів
+        for (const s of st.screens) {
+            const sx = x + s.x;
+            if (sx < -s.w || sx > W) {
+                continue;
+            }
+            const sy = top + s.y;
+            const px = B / 4;
+            if (s.kind === 0) {
+                // «Тенісна» гра: м'ячик між двома ракетками
+                const bx = sx + px + ((Math.sin(time * 3) + 1) / 2) * (s.w - px * 3);
+                const by = sy + px + ((Math.sin(time * 4.3) + 1) / 2) * (s.h - px * 3);
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(sx + px * 0.5, by - px, px * 0.5, px * 3);
+                ctx.fillRect(sx + s.w - px, by - px, px * 0.5, px * 3);
+                ctx.fillRect(bx, by, px, px);
+            } else if (s.kind === 1) {
+                // Кольорові смуги, що пробігають
+                const shift = Math.floor(time * 6) % 4;
+                const colors = ["#ff2ea6", "#00f6ff", "#ffe14d", "#39ff88"];
+                for (let r = 0; r < 4; r++) {
+                    ctx.fillStyle = colors[(r + shift) % 4];
+                    ctx.fillRect(sx, sy + r * s.h / 4, s.w, s.h / 4);
+                }
+            } else {
+                // Піксельний кубик, що стрибає через шип
+                const jump = Math.abs(Math.sin(time * 3)) * s.h * 0.4;
+                ctx.fillStyle = "#0a0a14";
+                ctx.fillRect(sx, sy, s.w, s.h);
+                ctx.fillStyle = "#00f6ff";
+                ctx.fillRect(sx + s.w * 0.3, sy + s.h * 0.7 - jump, px * 2, px * 2);
+                ctx.fillStyle = "#ff2ea6";
+                ctx.fillRect(sx + s.w * 0.65, sy + s.h * 0.78, px * 1.5, px * 1.5);
+                ctx.fillStyle = "#39ff88";
+                ctx.fillRect(sx, sy + s.h * 0.78 + px * 1.5, s.w, px * 0.5);
+            }
+        }
+    }
+    // Мерехтливі лампи на стелі
+    ctx.globalAlpha = 0.5 + 0.5 * (Math.sin(time * 5) > 0 ? 1 : 0.4);
+    ctx.fillStyle = "#ff2ea6";
+    ctx.fillRect(0, B, W, B / 4);
+    ctx.globalAlpha = 1;
+};
+
+// ---------- 11. Секретна база ----------
+
+function buildSecretBase(W, H, groundY, B) {
+    const rng = pixelRng(1111);
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#02050c"], [1, "#0a1a1a"]]);
+    const sx = sky.getContext("2d");
+    drawStarsInto(sx, W, gY * 0.6, 60, rng, B);
+    const stripW = Math.ceil(W * 1.3 / B) * B;
+    const strip = makeCanvas(stripW, B * 10);
+    const bx = strip.getContext("2d");
+    const dishes = [];
+    const towers = [];
+    // Паркан
+    bx.fillStyle = "#1a2a2a";
+    bx.fillRect(0, B * 8, stripW, B / 6);
+    for (let x = 0; x < stripW; x += B) {
+        bx.fillRect(x, B * 7.5, B / 8, B * 2.5);
+    }
+    for (let x = B * 2; x < stripW - B * 6; x += B * 14) {
+        // Бункер і радарна тарілка на ньому
+        bx.fillStyle = "#16302a";
+        bx.fillRect(x, B * 7, B * 5, B * 3);
+        bx.fillStyle = "#0e201c";
+        bx.fillRect(x + B * 2, B * 8, B, B * 2);
+        bx.fillStyle = "#39415e";
+        bx.fillRect(x + B * 2.3, B * 5.5, B * 0.4, B * 1.5);
+        dishes.push({ x: x + B * 2.5, y: B * 5.5 });
+        // Вишка з прожектором
+        const tx = x + B * 9;
+        bx.fillStyle = "#1a2a2a";
+        bx.fillRect(tx, B * 3, B / 4, B * 7);
+        bx.fillRect(tx + B * 1.75, B * 3, B / 4, B * 7);
+        bx.fillRect(tx - B / 2, B * 2.5, B * 3, B * 0.7);
+        towers.push({ x: tx + B, y: B * 2.5 });
+    }
+    return { W: W, H: H, sky: sky, strip: strip, dishes: dishes, towers: towers };
+}
+
+BackgroundRenderer.renderSecretBase = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._secretBase;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildSecretBase(W, H, groundY, B);
+        this._secretBase = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.sky, 0, 0);
+    const stripW = st.strip.width;
+    const offset = Math.round(time * speed * 0.3) % stripW;
+    const top = gY - st.strip.height;
+    for (let x = -offset; x < W; x += stripW) {
+        // Промені прожекторів (під смугою, щоб вишки були попереду)
+        for (let i = 0; i < st.towers.length; i++) {
+            const tw = st.towers[i];
+            const tx = x + tw.x;
+            if (tx < -W || tx > W * 2) {
+                continue;
+            }
+            const ang = -Math.PI / 2 + Math.sin(time * 0.6 + i * 2) * 0.8;
+            const len = gY * 1.2;
+            ctx.fillStyle = "rgba(255, 255, 200, 0.07)";
+            ctx.beginPath();
+            ctx.moveTo(tx, top + tw.y);
+            ctx.lineTo(tx + Math.cos(ang - 0.1) * len, top + tw.y + Math.sin(ang - 0.1) * len);
+            ctx.lineTo(tx + Math.cos(ang + 0.1) * len, top + tw.y + Math.sin(ang + 0.1) * len);
+            ctx.closePath();
+            ctx.fill();
+        }
+        ctx.drawImage(st.strip, x, top);
+        // Радарні тарілки обертаються (ширина еліпса змінюється)
+        for (let i = 0; i < st.dishes.length; i++) {
+            const d = st.dishes[i];
+            const dx = x + d.x;
+            if (dx < -B * 3 || dx > W + B * 3) {
+                continue;
+            }
+            const turn = Math.cos(time * 1.5 + i);
+            const w = Math.max(B * 0.3, Math.abs(turn) * B * 2.4);
+            ctx.fillStyle = turn > 0 ? "#8fa3b8" : "#5a6a7a";
+            ctx.fillRect(Math.round(dx - w / 2), top + d.y - B * 1.6, Math.round(w), B * 1.6);
+            ctx.fillStyle = "#ff3333";
+            if (Math.sin(time * 4 + i) > 0) {
+                ctx.fillRect(Math.round(dx - B / 8), top + d.y - B * 2, B / 4, B / 4);
+            }
+        }
+    }
+};
+
+// ---------- 12. Швидкісне метро ----------
+
+function buildMetroTunnel(W, H, groundY, B) {
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#0a0a10"], [1, "#16161f"]]);
+    const sx = sky.getContext("2d");
+    // Плитка стін
+    for (let y = B * 2; y < gY; y += B) {
+        for (let x = ((y / B) % 2) * B / 2; x < W; x += B) {
+            sx.fillStyle = (x / B + y / B) % 3 === 0 ? "#1c1c28" : "#191923";
+            sx.fillRect(x, y, B - 1, B - 1);
+        }
+    }
+    sx.fillStyle = "#26263a";
+    sx.fillRect(0, 0, W, B * 2);
+    // Кольорова смуга лінії метро
+    sx.fillStyle = "#39ff88";
+    sx.fillRect(0, gY * 0.55, W, B / 2);
+    return { W: W, H: H, sky: sky };
+}
+
+BackgroundRenderer.renderMetroTunnel = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._metroTunnel;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildMetroTunnel(W, H, groundY, B);
+        this._metroTunnel = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.sky, 0, 0);
+    // Лампи на стелі пробігають повз
+    const lampGap = B * 6;
+    const lampOff = Math.round(time * speed * 0.6) % lampGap;
+    for (let x = -lampOff; x < W + lampGap; x += lampGap) {
+        ctx.fillStyle = "rgba(255, 240, 200, 0.12)";
+        ctx.fillRect(x - B, B * 2, B * 4, B * 3);
+        ctx.fillStyle = "#fff4d0";
+        ctx.fillRect(x, B * 1.5, B * 2, B / 2);
+    }
+    // Потяг проноситься кожні 6 с
+    const period = 6;
+    const t = (time % period) / 1.6;
+    if (t < 1) {
+        const trainLen = W * 1.4;
+        const tx = W - t * (W + trainLen);
+        const ty = Math.round(gY * 0.3);
+        const th = Math.round(gY * 0.35);
+        ctx.fillStyle = "#c8ccd8";
+        ctx.fillRect(tx, ty, trainLen, th);
+        ctx.fillStyle = "#39ff88";
+        ctx.fillRect(tx, ty + th * 0.7, trainLen, B / 3);
+        ctx.fillStyle = "#1a2a3a";
+        for (let wx = tx + B; wx < tx + trainLen - B * 2; wx += B * 3) {
+            ctx.fillRect(wx, ty + B * 0.6, B * 2, th * 0.4);
+        }
+        ctx.fillStyle = "#fff4a0";
+        ctx.fillRect(tx - B * 0.3, ty + th * 0.5, B * 0.3, B * 0.6);
+    }
+    // Рейки
+    ctx.fillStyle = "#3a3a4a";
+    ctx.fillRect(0, gY - B / 3, W, B / 6);
+    const sleeperGap = B * 1.5;
+    const so = Math.round(time * speed) % sleeperGap;
+    ctx.fillStyle = "#2a2018";
+    for (let x = -so; x < W; x += sleeperGap) {
+        ctx.fillRect(x, gY - B / 6, B * 0.6, B / 6);
+    }
+};
+
+// ---------- 13. Завод роботів ----------
+
+function buildRobotFactory(W, H, groundY, B) {
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#0d1014"], [1, "#1c2229"]]);
+    const sx = sky.getContext("2d");
+    // Труби на стелі
+    sx.fillStyle = "#39414e";
+    sx.fillRect(0, B, W, B / 2);
+    sx.fillRect(0, B * 2, W, B / 3);
+    for (let x = B * 3; x < W; x += B * 8) {
+        sx.fillRect(x, B, B / 2, B * 3);
+    }
+    // Попереджувальні смуги
+    for (let x = 0; x < W; x += B) {
+        sx.fillStyle = (x / B) % 2 === 0 ? "#ffcc00" : "#1a1a1a";
+        sx.fillRect(x, gY - B * 4.6, B, B / 3);
+    }
+    return { W: W, H: H, sky: sky };
+}
+
+BackgroundRenderer.renderRobotFactory = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._robotFactory;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildRobotFactory(W, H, groundY, B);
+        this._robotFactory = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.sky, 0, 0);
+    const beltY = gY - B * 3;
+    // Конвеєр з ящиками
+    ctx.fillStyle = "#2a2f38";
+    ctx.fillRect(0, beltY, W, B);
+    const boxGap = B * 5;
+    const bo = Math.round(time * speed * 0.35) % boxGap;
+    for (let x = -bo; x < W + boxGap; x += boxGap) {
+        ctx.fillStyle = "#b07a3a";
+        ctx.fillRect(x, beltY - B * 1.5, B * 1.5, B * 1.5);
+        ctx.fillStyle = "#8a5a2a";
+        ctx.fillRect(x, beltY - B * 0.8, B * 1.5, B / 6);
+    }
+    ctx.fillStyle = "#1a1d24";
+    for (let x = -(Math.round(time * speed * 0.35) % B); x < W; x += B) {
+        ctx.fillRect(x, beltY + B * 0.4, B / 2, B / 5);
+    }
+    // Роботизовані руки: плече гойдається, рука «зварює» ящики
+    const arms = 3;
+    for (let i = 0; i < arms; i++) {
+        const baseX = W * (i + 0.5) / arms;
+        const a1 = Math.PI / 2 + Math.sin(time * 1.3 + i * 2) * 0.5;
+        const a2 = a1 + 0.9 + Math.sin(time * 2 + i) * 0.4;
+        const l1 = B * 3.5;
+        const l2 = B * 3;
+        const jx = baseX + Math.cos(a1) * l1;
+        const jy = B * 2 + Math.sin(a1) * l1;
+        const ex = jx + Math.cos(a2) * l2;
+        const ey = jy + Math.sin(a2) * l2;
+        ctx.strokeStyle = "#ff8c00";
+        ctx.lineWidth = B * 0.5;
+        ctx.beginPath();
+        ctx.moveTo(baseX, B * 2);
+        ctx.lineTo(jx, jy);
+        ctx.lineTo(ex, ey);
+        ctx.stroke();
+        ctx.fillStyle = "#39414e";
+        ctx.fillRect(baseX - B / 2, B * 1.6, B, B * 0.8);
+        ctx.fillRect(jx - B * 0.35, jy - B * 0.35, B * 0.7, B * 0.7);
+        // Іскри зварювання
+        if (Math.sin(time * 6 + i * 3) > 0.3) {
+            ctx.fillStyle = "#fff4a0";
+            ctx.fillRect(ex - B * 0.3, ey - B * 0.3, B * 0.6, B * 0.6);
+            const r = pixelRng(Math.floor(time * 20) + i * 100);
+            ctx.fillStyle = "#ffcc33";
+            for (let k = 0; k < 6; k++) {
+                ctx.fillRect(ex + (r() - 0.5) * B * 3, ey + (r() - 0.2) * B * 2, 3, 3);
+            }
+        }
+    }
+};
+
+// ---------- 14. Планета двох сонць ----------
+
+function buildTwinSunPlanet(W, H, groundY, B) {
+    const rng = pixelRng(1414);
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#0a2a3a"], [0.5, "#1f6a6a"], [1, "#e08a4a"]]);
+    const sx = sky.getContext("2d");
+    function pixelDisc(cx, cy, r, color) {
+        sx.fillStyle = color;
+        for (let y = -r; y < r; y += B / 2) {
+            const half = Math.sqrt(Math.max(0, r * r - y * y));
+            sx.fillRect(Math.round(cx - half), cy + y, Math.round(half * 2), B / 2);
+        }
+    }
+    pixelDisc(W * 0.28, Math.round(gY * 0.3), B * 3, "#ffdd66");
+    pixelDisc(W * 0.7, Math.round(gY * 0.18), B * 2, "#ff7a5a");
+    const cols = Math.ceil(W * 1.3 / B);
+    const hs = periodicHeights(cols, 2, [{ amp: 1, k: 3, ph: 0.3 }, { amp: 0.6, k: 7, ph: 1 }]);
+    const near = makeCanvas(cols * B, (Math.max.apply(null, hs) + 7) * B);
+    const nx = near.getContext("2d");
+    drawBlockTerrain(nx, hs, B, near.height, { top: "#6a3a8a", topLight: "#8a5aaa", body: "#3a1f4a", body2: "#331a42", speck: "#4a2a5a" }, rng);
+    const bulbs = [];
+    // Грибні дерева та рослини з кульками, що світяться
+    for (let c = 2; c < cols - 3; c += 5 + Math.floor(rng() * 4)) {
+        const top = near.height - hs[c] * B;
+        if (rng() < 0.5) {
+            const th = 3 + Math.floor(rng() * 3);
+            nx.fillStyle = "#d8c8a8";
+            nx.fillRect(c * B, top - th * B, B, th * B);
+            nx.fillStyle = "#ff5a8a";
+            nx.fillRect((c - 1) * B, top - th * B - B, B * 3, B);
+            nx.fillRect(c * B - B * 1.5, top - th * B, B * 4, B / 2);
+            nx.fillStyle = "#ffd0e0";
+            nx.fillRect(c * B - B / 2, top - th * B - B * 0.7, B / 3, B / 3);
+        } else {
+            nx.fillStyle = "#2a8a6a";
+            nx.fillRect(c * B + B / 3, top - B * 3, B / 3, B * 3);
+            bulbs.push({ x: c * B + B / 2, y: top - B * 3.3, phase: rng() * 6 });
+        }
+    }
+    return { W: W, H: H, sky: sky, near: near, bulbs: bulbs };
+}
+
+BackgroundRenderer.renderTwinSunPlanet = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._twinSun;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildTwinSunPlanet(W, H, groundY, B);
+        this._twinSun = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.sky, 0, 0);
+    const nearW = st.near.width;
+    const offset = Math.round(time * speed * 0.3) % nearW;
+    const top = gY - st.near.height;
+    for (let x = -offset; x < W; x += nearW) {
+        ctx.drawImage(st.near, x, top);
+        for (const b of st.bulbs) {
+            const bx = x + b.x;
+            if (bx < -B * 2 || bx > W + B * 2) {
+                continue;
+            }
+            const pulse = Math.sin(time * 2.5 + b.phase) * 0.5 + 0.5;
+            ctx.fillStyle = "rgba(90, 255, 200, " + (0.15 + 0.2 * pulse).toFixed(3) + ")";
+            ctx.fillRect(bx - B, top + b.y - B, B * 2, B * 2);
+            ctx.fillStyle = "#9affd8";
+            ctx.fillRect(bx - B * 0.4, top + b.y - B * 0.4, B * 0.8, B * 0.8);
+        }
+    }
+    drawFallingPixels(ctx, W, gY, time, 30, 1414, {
+        color: "#ffd0f0", dir: -1, speedMin: 6, speedMax: 18, sizeMin: 2, sizeMax: 3,
+        sway: 0.9, swayAmp: B * 1.2, alpha: 0.6
+    });
+};
+
+// ---------- 15. Місто над хмарами ----------
+
+function buildSkyCity(W, H, groundY, B) {
+    const rng = pixelRng(1515);
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#1b3a7a"], [0.6, "#6a8fd8"], [1, "#ffc6a0"]]);
+    function cloudStrip(stripW, color, light, height, seed) {
+        const r = pixelRng(seed);
+        const strip = makeCanvas(stripW, height);
+        const cx = strip.getContext("2d");
+        for (let x = 0; x < stripW; x += B) {
+            const h = Math.round((0.4 + 0.3 * Math.sin(x / stripW * Math.PI * 8) + r() * 0.2) * height / B) * B;
+            cx.fillStyle = color;
+            cx.fillRect(x, height - h, B, h);
+            cx.fillStyle = light;
+            cx.fillRect(x, height - h, B, B / 3);
+        }
+        return strip;
+    }
+    const clouds = cloudStrip(Math.ceil(W * 1.5 / B) * B, "#e8eeff", "#ffffff", Math.round(gY * 0.3), 1501);
+    // Летючі платформи з вежами
+    const stripW = Math.ceil(W * 1.3 / B) * B;
+    const plat = makeCanvas(stripW, gY);
+    const px = plat.getContext("2d");
+    for (let x = B * 2; x < stripW - B * 8; x += B * (10 + Math.floor(rng() * 5))) {
+        const y = Math.round(gY * (0.25 + rng() * 0.35) / B) * B;
+        const w = 5 + Math.floor(rng() * 3);
+        px.fillStyle = "#f4f0e0";
+        px.fillRect(x, y, w * B, B);
+        px.fillStyle = "#c8c0a8";
+        px.fillRect(x + B, y + B, (w - 2) * B, B);
+        px.fillStyle = "#ffffff";
+        px.fillRect(x + B * 1.5, y - B * 4, B * 1.5, B * 4);
+        px.fillRect(x + B * 3.5, y - B * 2.5, B * 1.5, B * 2.5);
+        px.fillStyle = "#3a8adf";
+        px.fillRect(x + B * 1.5, y - B * 5, B * 1.5, B);
+        px.fillRect(x + B * 3.5, y - B * 3.5, B * 1.5, B);
+        px.fillStyle = "#ffe14d";
+        px.fillRect(x + B * 2, y - B * 3, B / 2, B / 2);
+    }
+    return { W: W, H: H, sky: sky, clouds: clouds, plat: plat };
+}
+
+BackgroundRenderer.renderSkyCity = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._skyCity;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildSkyCity(W, H, groundY, B);
+        this._skyCity = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.sky, 0, 0);
+    const bob = Math.round(Math.sin(time * 0.8) * B * 0.3);
+    drawScrollingStrip(ctx, st.plat, W, gY + bob, time, speed, 0.15);
+    // Птахи: пари пікселів, що махають крилами
+    for (let i = 0; i < 5; i++) {
+        const span = W + B * 6;
+        const x = Math.round(((i * 331 + time * (40 + i * 9)) % span) - B * 3);
+        const y = Math.round(gY * (0.15 + i * 0.07) + Math.sin(time * 1.5 + i) * B * 0.5);
+        const flap = Math.sin(time * 10 + i) > 0;
+        ctx.fillStyle = "#1a2a4a";
+        ctx.fillRect(x, y, B / 3, B / 3);
+        ctx.fillRect(x - B / 3, y + (flap ? -B / 3 : B / 6), B / 3, B / 4);
+        ctx.fillRect(x + B / 3, y + (flap ? -B / 3 : B / 6), B / 3, B / 4);
+    }
+    drawScrollingStrip(ctx, st.clouds, W, gY, time, speed, 0.3);
+};
+
+// ---------- 16. Стадіон-фінал ----------
+
+function buildStadium(W, H, groundY, B) {
+    const rng = pixelRng(1616);
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#04030c"], [1, "#120a24"]]);
+    const sx = sky.getContext("2d");
+    // Трибуни з глядачами
+    const standTop = Math.round(gY * 0.35);
+    const crowdColors = ["#ff2ea6", "#00f6ff", "#ffe14d", "#39ff88", "#ffffff", "#ff7a3d"];
+    for (let row = 0; row < 8; row++) {
+        const y = standTop + row * B * 0.9;
+        sx.fillStyle = row % 2 === 0 ? "#1a1430" : "#161028";
+        sx.fillRect(0, y, W, B * 0.9);
+        for (let x = (row % 2) * B / 3; x < W; x += B * 0.66) {
+            if (rng() < 0.85) {
+                sx.fillStyle = crowdColors[Math.floor(rng() * crowdColors.length)];
+                sx.globalAlpha = 0.55;
+                sx.fillRect(x, y + B * 0.2, B * 0.35, B * 0.35);
+                sx.globalAlpha = 1;
+            }
+        }
+    }
+    // Табло
+    sx.fillStyle = "#0a0a14";
+    sx.fillRect(W * 0.4, B, W * 0.2, B * 3);
+    sx.fillStyle = "#39ff88";
+    sx.fillRect(W * 0.42, B * 1.5, W * 0.16, B / 3);
+    sx.fillRect(W * 0.42, B * 2.5, W * 0.1, B / 3);
+    return { W: W, H: H, sky: sky, standTop: standTop };
+}
+
+BackgroundRenderer.renderStadium = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._stadium;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildStadium(W, H, groundY, B);
+        this._stadium = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.sky, 0, 0);
+    // Спалахи камер у натовпі
+    const r = pixelRng(Math.floor(time * 8));
+    ctx.fillStyle = "#ffffff";
+    for (let i = 0; i < 6; i++) {
+        ctx.fillRect(Math.round(r() * W), Math.round(st.standTop + r() * B * 7), B / 3, B / 3);
+    }
+    // Прожектори
+    for (let i = 0; i < 4; i++) {
+        const baseX = W * (0.1 + i * 0.27);
+        const ang = Math.PI / 2 + Math.sin(time * 0.9 + i * 1.7) * 0.5;
+        ctx.fillStyle = i % 2 === 0 ? "rgba(0, 246, 255, 0.08)" : "rgba(255, 46, 166, 0.08)";
+        ctx.beginPath();
+        ctx.moveTo(baseX, 0);
+        ctx.lineTo(baseX + Math.cos(ang - 0.12) * gY * 1.3, Math.sin(ang - 0.12) * gY * 1.3);
+        ctx.lineTo(baseX + Math.cos(ang + 0.12) * gY * 1.3, Math.sin(ang + 0.12) * gY * 1.3);
+        ctx.closePath();
+        ctx.fill();
+    }
+    // Феєрверки: вибух із піксельних іскор кожні ~1.7 с
+    for (let f = 0; f < 3; f++) {
+        const period = 1.7 + f * 0.4;
+        const local = (time + f * 0.9) % period;
+        const burst = Math.floor((time + f * 0.9) / period);
+        const fr = pixelRng(burst * 31 + f);
+        const cx = W * (0.15 + fr() * 0.7);
+        const cy = st.standTop * (0.3 + fr() * 0.5);
+        const colors = ["#ffe14d", "#ff2ea6", "#00f6ff", "#39ff88"];
+        const color = colors[Math.floor(fr() * colors.length)];
+        if (local < 1.2) {
+            const rad = local * B * 6;
+            ctx.globalAlpha = Math.max(0, 1 - local / 1.2);
+            ctx.fillStyle = color;
+            for (let k = 0; k < 14; k++) {
+                const a = k / 14 * Math.PI * 2;
+                ctx.fillRect(Math.round(cx + Math.cos(a) * rad), Math.round(cy + Math.sin(a) * rad + local * local * B), B / 3, B / 3);
+            }
+            ctx.globalAlpha = 1;
+        }
+    }
+    // Поле біля землі
+    ctx.fillStyle = "#1f6a2a";
+    ctx.fillRect(0, gY - B / 2, W, B / 2);
 };
 
 export { BackgroundRenderer };
