@@ -6,7 +6,7 @@ function rand(min,max){return min+Math.random()*(max-min)}function randInt(min,m
 const SKY_WINDOW_COLORS=[[255,204,68],[255,102,34],[255,136,204],[136,221,255],[255,153,102],[170,204,255]];const SKY_ALPHA_LEVELS=19;let _skyStyles=null;const _skyBuckets=[];for(let i=0;i<SKY_WINDOW_COLORS.length*SKY_ALPHA_LEVELS;i++)_skyBuckets.push([]);
 function _skyWindowStyles(){if(_skyStyles)return _skyStyles;_skyStyles=[];for(const c of SKY_WINDOW_COLORS){for(let lv=0;lv<SKY_ALPHA_LEVELS;lv++){const a=Math.min(0.5,0.15+lv*0.02);_skyStyles.push("rgba("+c[0]+","+c[1]+","+c[2]+","+a.toFixed(2)+")")}}return _skyStyles}
 const BackgroundRenderer = {
-    init(W,H,groundY){_W=W;_H=H;_groundY=groundY;/* Дані, що залежать від розміру екрана, будуються заново */this._skyData=null;this._toxicTop=null;this._abyssBubs=null;this._sporeCells=null;this._triStars=null;this._waterMist=null;this._infernoEmbers=null;this._infernoSmoke=null;this._skyBg=null;this._pixelNight=null;this._pixelCave=null;this._pixelSnow=null;this._pixelOcean=null;this._pixelDesert=null;this._pixelIslands=null;this._pixelNether=null;this._neonHighway=null;this._neonRooftops=null;this._neonStart=null;this._sunsetCity=null;this._cosmodrome=null;this._laserRange=null;this._digitalForest=null;this._stormSky=null;this._crystalCave=null;this._retroArcade=null;this._secretBase=null;this._metroTunnel=null;this._robotFactory=null;this._twinSun=null;this._skyCity=null;this._stadium=null;this._pulsarHex=null;_particles=[];_raindrops=[];_matrixColumns=[];_sparks=[];_starsInitialized=!1;_matrixInitialized=!1;_cityBuildings=null;_landscapeSeed=Math.random()*1000},
+    init(W,H,groundY){_W=W;_H=H;_groundY=groundY;/* Дані, що залежать від розміру екрана, будуються заново */this._skyData=null;this._toxicTop=null;this._abyssBubs=null;this._sporeCells=null;this._triStars=null;this._waterMist=null;this._infernoEmbers=null;this._infernoSmoke=null;this._skyBg=null;this._pixelNight=null;this._pixelCave=null;this._pixelSnow=null;this._pixelOcean=null;this._pixelDesert=null;this._pixelIslands=null;this._pixelNether=null;this._neonHighway=null;this._neonRooftops=null;this._neonStart=null;this._sunsetCity=null;this._cosmodrome=null;this._laserRange=null;this._digitalForest=null;this._stormSky=null;this._crystalCave=null;this._retroArcade=null;this._secretBase=null;this._metroTunnel=null;this._robotFactory=null;this._twinSun=null;this._skyCity=null;this._stadium=null;this._nightHarbor=null;this._glitchWorld=null;this._treasury=null;this._dragonLair=null;this._knightCastle=null;this._blackHole=null;this._throneRoom=null;this._pulsarHex=null;_particles=[];_raindrops=[];_matrixColumns=[];_sparks=[];_starsInitialized=!1;_matrixInitialized=!1;_cityBuildings=null;_landscapeSeed=Math.random()*1000},
     reset(){_particles=[];_raindrops=[];_matrixColumns=[];_sparks=[];_starsInitialized=!1;_matrixInitialized=!1;_cityBuildings=null;_rainTimer=0;_landscapeSeed=Math.random()*1000},
     getDimensions(){return{W:_W,H:_H,groundY:_groundY}},
     createParticles(x,y,count,palette){const colors=palette||NEON_PALETTE;for(let i=0;i<count;i++){if(_particles.length>=MAX_PARTICLES){let min=Infinity,mi=-1;for(let j=0;j<_particles.length;j++){if(_particles[j].life<min){min=_particles[j].life;mi=j}}if(mi>=0)_particles.splice(mi,1)}const a=rand(0,Math.PI*2),s=rand(80,200);_particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-rand(40,100),size:rand(2,4),life:rand(0.4,0.6),maxLife:0,color:colors[randInt(0,colors.length-1)],gravity:rand(300,500)})}for(let j=0;j<_particles.length;j++)if(_particles[j].maxLife===0)_particles[j].maxLife=_particles[j].life},
@@ -30,7 +30,7 @@ case"spore_field":this.renderSporeField(ctx,W,H,groundY,time,speed,hueShift);bre
 case"diamond_matrix":this.renderDiamondMatrix(ctx,W,H,groundY,time,speed,hueShift);break;case"waterfall_cascade":this.renderWaterfallCascade(ctx,W,H,groundY,time,speed,hueShift);break;
 case"barrier_wall":this.renderBarrierWall(ctx,W,H,groundY,time,speed,hueShift);break;case"glitch_field":this.renderGlitchField(ctx,W,H,groundY,time,speed,hueShift);break;
 case"nebula_drift":this.renderNebulaDrift(ctx,W,H,groundY,time,speed,hueShift);break;case"grand_hex":this.renderGrandHex(ctx,W,H,groundY,time,speed,hueShift);break;
-case"neon_start":this.renderNeonStart(ctx,W,H,groundY,time,speed,accentColor);break;case"sunset_city":this.renderSunsetCity(ctx,W,H,groundY,time,speed);break;case"cosmodrome":this.renderCosmodrome(ctx,W,H,groundY,time,speed);break;case"laser_range":this.renderLaserRange(ctx,W,H,groundY,time,speed);break;case"digital_forest":this.renderDigitalForest(ctx,W,H,groundY,time,speed);break;case"storm_sky":this.renderStormSky(ctx,W,H,groundY,time,speed);break;case"crystal_cave":this.renderCrystalCave(ctx,W,H,groundY,time,speed);break;case"retro_arcade":this.renderRetroArcade(ctx,W,H,groundY,time,speed);break;case"secret_base":this.renderSecretBase(ctx,W,H,groundY,time,speed);break;case"metro_tunnel":this.renderMetroTunnel(ctx,W,H,groundY,time,speed);break;case"robot_factory":this.renderRobotFactory(ctx,W,H,groundY,time,speed);break;case"twin_sun_planet":this.renderTwinSunPlanet(ctx,W,H,groundY,time,speed);break;case"sky_city":this.renderSkyCity(ctx,W,H,groundY,time,speed);break;case"stadium":this.renderStadium(ctx,W,H,groundY,time,speed);break;case"pixel_snow":this.renderPixelSnow(ctx,W,H,groundY,time,speed);break;case"pixel_ocean":this.renderPixelOcean(ctx,W,H,groundY,time,speed);break;case"pixel_desert":this.renderPixelDesert(ctx,W,H,groundY,time,speed);break;case"pixel_islands":this.renderPixelIslands(ctx,W,H,groundY,time,speed);break;case"pixel_nether":this.renderPixelNether(ctx,W,H,groundY,time,speed);break;case"neon_highway":this.renderNeonHighway(ctx,W,H,groundY,time,speed);break;case"neon_rooftops":this.renderNeonRooftops(ctx,W,H,groundY,time,speed);break;case"pixel_night":this.renderPixelNight(ctx,W,H,groundY,time,speed);break;case"pixel_cave":this.renderPixelCave(ctx,W,H,groundY,time,speed);break;default:this.renderCyberGrid(ctx,W,H,groundY,time,speed,"#00f6ff");break;}}finally{ctx.fillStyle=saveFill;ctx.strokeStyle=saveStroke;ctx.globalAlpha=saveAlpha}},
+case"neon_start":this.renderNeonStart(ctx,W,H,groundY,time,speed,accentColor);break;case"sunset_city":this.renderSunsetCity(ctx,W,H,groundY,time,speed);break;case"cosmodrome":this.renderCosmodrome(ctx,W,H,groundY,time,speed);break;case"laser_range":this.renderLaserRange(ctx,W,H,groundY,time,speed);break;case"digital_forest":this.renderDigitalForest(ctx,W,H,groundY,time,speed);break;case"storm_sky":this.renderStormSky(ctx,W,H,groundY,time,speed);break;case"crystal_cave":this.renderCrystalCave(ctx,W,H,groundY,time,speed);break;case"retro_arcade":this.renderRetroArcade(ctx,W,H,groundY,time,speed);break;case"secret_base":this.renderSecretBase(ctx,W,H,groundY,time,speed);break;case"metro_tunnel":this.renderMetroTunnel(ctx,W,H,groundY,time,speed);break;case"robot_factory":this.renderRobotFactory(ctx,W,H,groundY,time,speed);break;case"twin_sun_planet":this.renderTwinSunPlanet(ctx,W,H,groundY,time,speed);break;case"sky_city":this.renderSkyCity(ctx,W,H,groundY,time,speed);break;case"stadium":this.renderStadium(ctx,W,H,groundY,time,speed);break;case"night_harbor":this.renderNightHarbor(ctx,W,H,groundY,time,speed);break;case"glitch_world":this.renderGlitchWorld(ctx,W,H,groundY,time,speed);break;case"treasury":this.renderTreasury(ctx,W,H,groundY,time,speed);break;case"dragon_lair":this.renderDragonLair(ctx,W,H,groundY,time,speed);break;case"knight_castle":this.renderKnightCastle(ctx,W,H,groundY,time,speed);break;case"black_hole":this.renderBlackHole(ctx,W,H,groundY,time,speed);break;case"throne_room":this.renderThroneRoom(ctx,W,H,groundY,time,speed);break;case"pixel_snow":this.renderPixelSnow(ctx,W,H,groundY,time,speed);break;case"pixel_ocean":this.renderPixelOcean(ctx,W,H,groundY,time,speed);break;case"pixel_desert":this.renderPixelDesert(ctx,W,H,groundY,time,speed);break;case"pixel_islands":this.renderPixelIslands(ctx,W,H,groundY,time,speed);break;case"pixel_nether":this.renderPixelNether(ctx,W,H,groundY,time,speed);break;case"neon_highway":this.renderNeonHighway(ctx,W,H,groundY,time,speed);break;case"neon_rooftops":this.renderNeonRooftops(ctx,W,H,groundY,time,speed);break;case"pixel_night":this.renderPixelNight(ctx,W,H,groundY,time,speed);break;case"pixel_cave":this.renderPixelCave(ctx,W,H,groundY,time,speed);break;default:this.renderCyberGrid(ctx,W,H,groundY,time,speed,"#00f6ff");break;}}finally{ctx.fillStyle=saveFill;ctx.strokeStyle=saveStroke;ctx.globalAlpha=saveAlpha}},
     renderStarfield(ctx, W, H, time, speed, hueShift) {ctx.fillStyle="#020412";ctx.fillRect(0,0,W,H);if(!_starsInitialized){_stars=[];for(var i=0;i<130;i++){var layer=Math.random();var z=layer<0.4?0.3:(layer<0.75?0.6:1.0);_stars.push({x:Math.random()*W,y:Math.random()*H*0.7,z:z,size:z*2.5,twinklePhase:Math.random()*Math.PI*2,twinkleSpeed:0.5+Math.random()*2,brightness:0.3+Math.random()*0.7})}_starsInitialized=true}for(var si=0;si<_stars.length;si++){var s=_stars[si];s.x-=speed*s.z*0.15*_step;if(s.x<-s.size){s.x=W+s.size;s.y=Math.random()*H*0.7}var alpha=s.brightness*(0.4+0.6*(Math.sin(time*s.twinkleSpeed+s.twinklePhase)*0.5+0.5));ctx.globalAlpha=alpha;ctx.fillStyle=s.z>0.7?"#cceeff":(s.z>0.4?"#88bbff":"#6699cc");ctx.fillRect(s.x-s.size/2,s.y-s.size/2,s.size,s.size)}ctx.globalAlpha=1},
     renderEnergyGrid(ctx, W, H, time, hueShift) {ctx.fillStyle="#040618";ctx.fillRect(0,0,W,H);var cx=W/2;var cy=H/2;for(var i=0;i<6;i++){var r=Math.min(W,H)*0.07+i*Math.min(W,H)*0.1+Math.min(W,H)*0.04*Math.sin(time*1.8+i*0.9);var hue=(time*50+i*40)%360;applyGlow(ctx,"hsl("+hue.toFixed(0)+",80%,55%)",10);ctx.strokeStyle="hsl("+hue.toFixed(0)+",80%,55%)";ctx.lineWidth=1.5;ctx.globalAlpha=0.5;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();clearGlow(ctx)}for(var i=0;i<10;i++){var angle=(i/10)*Math.PI*2+time*0.3;ctx.strokeStyle="hsl("+((time*40+i*30)%360).toFixed(0)+",70%,40%)";ctx.lineWidth=1;ctx.globalAlpha=0.25;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(angle)*Math.min(W,H)*0.65,cy+Math.sin(angle)*Math.min(W,H)*0.65);ctx.stroke()}ctx.globalAlpha=1},
     renderCyberColumns(ctx,W,H,groundY,time,speed,hueShift){var grad=ctx.createLinearGradient(0,0,W*0.15,0);grad.addColorStop(0,"#0a0a30");grad.addColorStop(0.3,"#050520");grad.addColorStop(0.7,"#050520");grad.addColorStop(1,"#0a0a30");ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);ctx.fillStyle="#020615";ctx.fillRect(0,0,W,H);var colW=W*0.06;var gap=W*0.04;var cols=Math.ceil(W/(colW+gap))+2;var offset=(time*speed*0.35)%(colW+gap);for(var i=0;i<cols;i++){var x=-colW+i*(colW+gap)+offset;var h=H*0.4+Math.sin(i*1.7+time*0.8)*H*0.15;var alpha=0.2+0.3*Math.abs(Math.sin(i*0.6+time*0.5));applyGlow(ctx,"#4466ff",8);var colGrad=ctx.createLinearGradient(x,groundY-h,x,groundY);colGrad.addColorStop(0,"rgba(30,60,200,0)");colGrad.addColorStop(0.3,"rgba(50,100,255,"+alpha.toFixed(2)+")");colGrad.addColorStop(1,"rgba(20,40,150,"+(alpha*0.4).toFixed(2)+")");ctx.fillStyle=colGrad;ctx.fillRect(x,groundY-h,colW,h);clearGlow(ctx)}},
@@ -1039,51 +1039,89 @@ BackgroundRenderer.renderNeonHighway = function (ctx, W, H, groundY, time, speed
     }
 };
 
-// ---------- Неонові дахи (рівень 18) ----------
+// ---------- Нічне неонове місто (рівень 17): далекі хмарочоси + дахи з вивісками ----------
 
 function buildNeonRooftops(W, H, groundY) {
     const gY = Math.round(groundY);
     const rng = pixelRng(1818);
     const sky = makeSky(W, H, [[0, "#050314"], [0.6, "#1a0b3a"], [1, "#2e0f52"]]);
     const sx = sky.getContext("2d");
+    sx.fillStyle = "rgba(244, 233, 255, 0.08)";
+    sx.beginPath();
+    sx.arc(W * 0.82, H * 0.14, H * 0.08, 0, Math.PI * 2);
+    sx.fill();
     sx.fillStyle = "#f4e9ff";
     sx.beginPath();
     sx.arc(W * 0.82, H * 0.14, H * 0.05, 0, Math.PI * 2);
     sx.fill();
-    // Далеке місто
+    const windowColors = ["rgba(255, 220, 140, 0.45)", "rgba(140, 220, 255, 0.35)", "rgba(255, 150, 220, 0.3)"];
+
+    // Далекі хмарочоси з вікнами
     const farW = Math.ceil(W * 1.5);
-    const far = makeCanvas(farW, gY * 0.6);
+    const far = makeCanvas(farW, gY * 0.7);
     const fx = far.getContext("2d");
     for (let x = 0; x < farW; ) {
-        const w = 30 + rng() * 70;
+        const w = 30 + rng() * 80;
         const h = far.height * (0.3 + rng() * 0.7);
-        fx.fillStyle = "#1b0f3a";
+        fx.fillStyle = rng() < 0.5 ? "#1b0f3a" : "#221449";
         fx.fillRect(x, far.height - h, w, h);
-        fx.fillStyle = "rgba(255, 220, 140, 0.35)";
+        fx.fillStyle = "rgba(120, 100, 200, 0.35)";
+        fx.fillRect(x, far.height - h, w, 2);
         for (let wy = far.height - h + 8; wy < far.height - 6; wy += 12) {
             for (let wx = x + 5; wx < x + w - 6; wx += 10) {
                 if (rng() < 0.3) {
+                    fx.fillStyle = windowColors[Math.floor(rng() * windowColors.length)];
                     fx.fillRect(wx, wy, 4, 5);
                 }
             }
         }
         x += w + 4 + rng() * 12;
     }
-    // Ближні дахи з антенами та вивісками
+
+    // Ближні дахи: вивіски малюються одразу в смугу разом зі світінням
     const nearW = Math.ceil(W * 1.3);
-    const near = makeCanvas(nearW, gY * 0.45);
+    const near = makeCanvas(nearW, gY * 0.5);
     const nx = near.getContext("2d");
     const lights = [];
-    const signs = [];
-    const signColors = ["#ff2ea6", "#00f6ff", "#39ff88", "#ffe14d"];
+    const flickering = [];
+    const signColors = ["#ff2ea6", "#00f6ff", "#39ff88", "#ffe14d", "#b06bff"];
+    function drawSign(x, y, w, h, color) {
+        nx.globalAlpha = 0.18;
+        nx.fillStyle = color;
+        nx.fillRect(x - 6, y - 6, w + 12, h + 12);
+        nx.globalAlpha = 1;
+        nx.strokeStyle = color;
+        nx.lineWidth = 2;
+        nx.strokeRect(x, y, w, h);
+        // «Літери» вивіски — короткі риски
+        nx.fillStyle = color;
+        const vertical = h > w;
+        const n = Math.max(2, Math.floor((vertical ? h : w) / 14));
+        for (let i = 0; i < n; i++) {
+            if (vertical) {
+                nx.fillRect(x + 3, y + 4 + i * 14, w - 6, 8);
+            } else {
+                nx.fillRect(x + 4 + i * 14, y + 3, 8, h - 6);
+            }
+        }
+    }
     for (let x = 0; x < nearW - 40; ) {
         const w = 90 + rng() * 140;
-        const h = near.height * (0.35 + rng() * 0.4);
+        const h = near.height * (0.35 + rng() * 0.45);
         const top = near.height - h;
         nx.fillStyle = "#0d0620";
         nx.fillRect(x, top, w, h);
         nx.fillStyle = "#2a1650";
         nx.fillRect(x, top, w, 4);
+        // Кілька тьмяних вікон
+        nx.fillStyle = "rgba(255, 220, 140, 0.25)";
+        for (let wy = top + 40; wy < near.height - 8; wy += 16) {
+            for (let wx = x + 8; wx < x + w - 10; wx += 14) {
+                if (rng() < 0.15) {
+                    nx.fillRect(wx, wy, 5, 6);
+                }
+            }
+        }
         // Бак для води або антена
         if (rng() < 0.5) {
             nx.fillStyle = "#1a0d33";
@@ -1094,13 +1132,25 @@ function buildNeonRooftops(W, H, groundY) {
             nx.fillRect(x + w * 0.7, top - 50, 3, 50);
             lights.push({ x: x + w * 0.7 + 1, y: top - 52, phase: rng() * 6 });
         }
-        // Неонова вивіска
-        if (rng() < 0.6) {
-            signs.push({ x: x + w * 0.35, y: top + 14, w: w * 0.35, h: 12, color: signColors[Math.floor(rng() * signColors.length)], phase: rng() * 10 });
+        // Горизонтальна вивіска на даху та вертикальна на стіні
+        const signs = [];
+        if (rng() < 0.85) {
+            signs.push({ x: x + w * 0.3, y: top + 12, w: Math.round(w * 0.4), h: 14 });
+        }
+        if (rng() < 0.6 && h > 70) {
+            signs.push({ x: x + w - 22, y: top + 34, w: 14, h: Math.round(Math.min(h - 50, 90)) });
+        }
+        for (const sg of signs) {
+            const color = signColors[Math.floor(rng() * signColors.length)];
+            drawSign(sg.x, sg.y, sg.w, sg.h, color);
+            // Лише приблизно кожна четверта вивіска мерехтить
+            if (rng() < 0.25) {
+                flickering.push({ x: sg.x - 6, y: sg.y - 6, w: sg.w + 12, h: sg.h + 12, phase: rng() * 10 });
+            }
         }
         x += w + 14 + rng() * 30;
     }
-    return { W: W, H: H, sky: sky, far: far, near: near, lights: lights, signs: signs };
+    return { W: W, H: H, sky: sky, far: far, near: near, lights: lights, flickering: flickering };
 }
 
 BackgroundRenderer.renderNeonRooftops = function (ctx, W, H, groundY, time, speed) {
@@ -1117,23 +1167,18 @@ BackgroundRenderer.renderNeonRooftops = function (ctx, W, H, groundY, time, spee
     const top = gY - st.near.height;
     for (let x = -offset; x < W; x += nearW) {
         ctx.drawImage(st.near, x, top);
-        for (const s of st.signs) {
-            const sxp = x + s.x;
-            if (sxp < -s.w || sxp > W) {
+        // М'яке мерехтіння: вивіска на мить тьмяніє, а не гасне повністю
+        ctx.fillStyle = "rgba(13, 6, 32, 0.45)";
+        for (const f of st.flickering) {
+            const fx = x + f.x;
+            if (fx < -f.w || fx > W) {
                 continue;
             }
-            // Вивіска іноді «мерехтить», як несправна неонова лампа
-            const flicker = Math.sin(time * 13 + s.phase) > -0.92 ? 1 : 0.2;
-            ctx.globalAlpha = 0.25 * flicker;
-            ctx.fillStyle = s.color;
-            ctx.fillRect(sxp - 6, top + s.y - 6, s.w + 12, s.h + 12);
-            ctx.globalAlpha = flicker;
-            ctx.strokeStyle = s.color;
-            ctx.lineWidth = 2;
-            ctx.strokeRect(sxp, top + s.y, s.w, s.h);
-            ctx.fillRect(sxp + 4, top + s.y + 4, s.w * 0.4, s.h - 8);
+            const dip = Math.sin(time * 7 + f.phase) * Math.sin(time * 2.3 + f.phase * 2);
+            if (dip > 0.8) {
+                ctx.fillRect(fx, top + f.y, f.w, f.h);
+            }
         }
-        ctx.globalAlpha = 1;
         for (const l of st.lights) {
             const lx = x + l.x;
             if (lx < -10 || lx > W + 10) {
@@ -1149,6 +1194,107 @@ BackgroundRenderer.renderNeonRooftops = function (ctx, W, H, groundY, time, spee
         color: "#8fb8ff", dir: 1, speedMin: 400, speedMax: 600, sizeMin: 1, sizeMax: 2,
         sway: 0, swayAmp: 0, alpha: 0.35, stretch: 8
     });
+};
+
+// ---------- Нічна гавань (рівень 18) ----------
+
+function buildNightHarbor(W, H, groundY) {
+    const gY = Math.round(groundY);
+    const rng = pixelRng(1819);
+    const horizon = Math.round(gY * 0.55);
+    const sky = makeSky(W, H, [[0, "#04061a"], [0.5, "#101a4a"], [1, "#06081a"]]);
+    const sx = sky.getContext("2d");
+    drawStarsInto(sx, W, horizon * 0.7, 60, rng, 16);
+    // Далеке місто на березі з вогнями
+    const lights = [];
+    for (let x = 0; x < W; ) {
+        const w = 20 + rng() * 50;
+        const h = 15 + rng() * horizon * 0.35;
+        sx.fillStyle = "#0b1030";
+        sx.fillRect(x, horizon - h, w, h);
+        for (let wy = horizon - h + 6; wy < horizon - 4; wy += 9) {
+            for (let wx = x + 3; wx < x + w - 4; wx += 7) {
+                if (rng() < 0.25) {
+                    const c = ["#ffcc66", "#66e0ff", "#ff66c4"][Math.floor(rng() * 3)];
+                    sx.fillStyle = c;
+                    sx.fillRect(wx, wy, 3, 3);
+                    if (rng() < 0.3) {
+                        lights.push({ x: wx, color: c, phase: rng() * 6 });
+                    }
+                }
+            }
+        }
+        x += w + rng() * 6;
+    }
+    // Вода
+    const water = sx.createLinearGradient(0, horizon, 0, gY);
+    water.addColorStop(0, "#0a1440");
+    water.addColorStop(1, "#040820");
+    sx.fillStyle = water;
+    sx.fillRect(0, horizon, W, gY - horizon);
+    // Портові крани
+    const cranes = makeCanvas(Math.ceil(W * 1.4), horizon);
+    const cx = cranes.getContext("2d");
+    for (let x = 40; x < cranes.width - 120; x += 260 + rng() * 120) {
+        const h = horizon * (0.55 + rng() * 0.3);
+        cx.fillStyle = "#2a1f3a";
+        cx.fillRect(x, horizon - h, 8, h);
+        cx.fillRect(x - 40, horizon - h, 140, 6);
+        cx.fillRect(x + 90, horizon - h, 3, h * 0.5);
+        cx.fillStyle = "#ff3355";
+        cx.fillRect(x - 40, horizon - h - 4, 5, 4);
+        cx.fillRect(x + 95, horizon - h - 4, 5, 4);
+    }
+    return { W: W, H: H, sky: sky, cranes: cranes, lights: lights, horizon: horizon };
+}
+
+BackgroundRenderer.renderNightHarbor = function (ctx, W, H, groundY, time, speed) {
+    let st = this._nightHarbor;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildNightHarbor(W, H, groundY);
+        this._nightHarbor = st;
+    }
+    const gY = Math.round(groundY);
+    const hz = st.horizon;
+    ctx.drawImage(st.sky, 0, 0);
+    drawScrollingStrip(ctx, st.cranes, W, hz, time, speed, 0.08);
+    // Відображення вогнів у воді: смужки, що тремтять
+    for (let i = 0; i < st.lights.length; i++) {
+        const l = st.lights[i];
+        const len = 6 + ((i * 7) % 5) * 6;
+        for (let k = 0; k < 4; k++) {
+            const y = hz + 4 + k * (gY - hz) / 5;
+            const jitter = Math.round(Math.sin(time * 3 + l.phase + k) * 3);
+            ctx.globalAlpha = 0.35 - k * 0.07;
+            ctx.fillStyle = l.color;
+            ctx.fillRect(l.x + jitter - len / 4, y, len / 2, 2);
+        }
+    }
+    ctx.globalAlpha = 1;
+    // Хвилі
+    ctx.fillStyle = "rgba(120, 160, 255, 0.12)";
+    const wo = (time * 20) % 40;
+    for (let y = hz + 10; y < gY; y += 14) {
+        for (let x = -wo + ((y / 14) % 2) * 20; x < W; x += 40) {
+            ctx.fillRect(Math.round(x), y, 14, 2);
+        }
+    }
+    // Кораблі з вогниками повільно пливуть
+    for (let s = 0; s < 2; s++) {
+        const span = W + 400;
+        const x = Math.round(((s * 700 + time * (18 + s * 10)) % span) - 200);
+        const y = hz + 8 + s * 28;
+        const len = 160 - s * 40;
+        ctx.fillStyle = "#1a1030";
+        ctx.fillRect(x, y, len, 14 - s * 3);
+        ctx.fillRect(x + len * 0.55, y - 16, len * 0.25, 16);
+        ctx.fillStyle = "#ffcc66";
+        for (let wx = x + 8; wx < x + len - 10; wx += 16) {
+            ctx.fillRect(wx, y + 4, 4, 3);
+        }
+        ctx.fillStyle = Math.sin(time * 4 + s) > 0 ? "#39ff88" : "#ff3355";
+        ctx.fillRect(x + len - 6, y - 4, 4, 4);
+    }
 };
 
 // ---------- Ліга 1: сцени рівнів ----------
@@ -2276,6 +2422,543 @@ BackgroundRenderer.renderStadium = function (ctx, W, H, groundY, time, speed) {
     // Поле біля землі
     ctx.fillStyle = "#1f6a2a";
     ctx.fillRect(0, gY - B / 2, W, B / 2);
+};
+
+// ---------- Ліги 2 та 4: сцени рівнів ----------
+
+// ---------- 19. Глітч-світ ----------
+
+function buildGlitchWorld(W, H, groundY, B) {
+    const rng = pixelRng(1919);
+    const gY = Math.round(groundY);
+    const scene = makeSky(W, H, [[0, "#05020f"], [1, "#12062a"]]);
+    const sx = scene.getContext("2d");
+    // Піксельне місто-«рівень гри», яке потім «ламається»
+    const cols = Math.ceil(W / B) + 1;
+    const hs = periodicHeights(cols, 5, [{ amp: 3, k: 3, ph: 0.2 }, { amp: 1.5, k: 9, ph: 1.3 }]);
+    const palette = ["#ff2ea6", "#00f6ff", "#39ff88", "#b06bff"];
+    for (let c = 0; c < cols; c++) {
+        for (let r = 0; r < hs[c]; r++) {
+            const y = gY - (r + 1) * B;
+            sx.fillStyle = r === hs[c] - 1 ? palette[c % palette.length] : ((r + c) % 2 === 0 ? "#1a0f33" : "#160c2c");
+            sx.fillRect(c * B, y, B, B);
+            if (r !== hs[c] - 1 && rng() < 0.12) {
+                sx.fillStyle = palette[Math.floor(rng() * palette.length)];
+                sx.globalAlpha = 0.5;
+                sx.fillRect(c * B + B / 4, y + B / 4, B / 2, B / 2);
+                sx.globalAlpha = 1;
+            }
+        }
+    }
+    // Сітка «пікселів екрана»
+    sx.fillStyle = "rgba(255, 255, 255, 0.03)";
+    for (let y = 0; y < gY; y += 4) {
+        sx.fillRect(0, y, W, 1);
+    }
+    return { W: W, H: H, scene: scene };
+}
+
+BackgroundRenderer.renderGlitchWorld = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._glitchWorld;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildGlitchWorld(W, H, groundY, B);
+        this._glitchWorld = st;
+    }
+    const gY = Math.round(groundY);
+    const sceneW = st.scene.width;
+    const offset = Math.round(time * speed * 0.15) % sceneW;
+    ctx.drawImage(st.scene, -offset, 0);
+    ctx.drawImage(st.scene, sceneW - offset, 0);
+    // Глітч: кілька горизонтальних смуг зсуваються, частина з кольоровим розщепленням
+    const tick = Math.floor(time * 12);
+    const r = pixelRng(tick * 7 + 3);
+    const intensity = Math.sin(time * 0.9) > 0.3 ? 5 : 2;
+    for (let i = 0; i < intensity; i++) {
+        const y = Math.round(r() * gY / 4) * 4;
+        const h = 4 + Math.round(r() * 5) * 4;
+        const shift = Math.round((r() - 0.5) * B * 3);
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, y, W, h);
+        ctx.clip();
+        ctx.drawImage(st.scene, -offset + shift - sceneW, 0);
+        ctx.drawImage(st.scene, -offset + shift, 0);
+        ctx.drawImage(st.scene, -offset + shift + sceneW, 0);
+        ctx.restore();
+        ctx.globalAlpha = 0.35;
+        ctx.fillStyle = r() < 0.5 ? "#ff0044" : "#00e5ff";
+        ctx.fillRect(0, y, W, 2);
+        ctx.globalAlpha = 1;
+    }
+    // «Биті» блоки, що з'являються й зникають
+    for (let i = 0; i < 6; i++) {
+        const bx = Math.round(r() * W / B) * B;
+        const by = Math.round(r() * gY / B) * B;
+        ctx.fillStyle = ["#ffffff", "#ff2ea6", "#00f6ff", "#000000"][Math.floor(r() * 4)];
+        ctx.fillRect(bx, by, B, B / (1 + Math.floor(r() * 3)));
+    }
+};
+
+// ---------- 20. Скарбниця ----------
+
+function buildTreasury(W, H, groundY, B) {
+    const rng = pixelRng(2020);
+    const gY = Math.round(groundY);
+    const wall = makeSky(W, H, [[0, "#140e08"], [1, "#2a1c0e"]]);
+    const wx = wall.getContext("2d");
+    // Кам'яна кладка
+    for (let y = 0; y < gY; y += B) {
+        for (let x = ((y / B) % 2) * B; x < W; x += B * 2) {
+            wx.fillStyle = (x + y) % 3 === 0 ? "#2e2214" : "#281d10";
+            wx.fillRect(x, y, B * 2 - 2, B - 2);
+        }
+    }
+    // Двері сховища
+    const dx = Math.round(W * 0.7);
+    const dy = Math.round(gY * 0.42);
+    const dr = Math.round(gY * 0.26);
+    wx.fillStyle = "#5a5f6a";
+    wx.beginPath();
+    wx.arc(dx, dy, dr, 0, Math.PI * 2);
+    wx.fill();
+    wx.fillStyle = "#7a808c";
+    wx.beginPath();
+    wx.arc(dx, dy, dr * 0.82, 0, Math.PI * 2);
+    wx.fill();
+    wx.fillStyle = "#4a4f5a";
+    for (let i = 0; i < 12; i++) {
+        const a = i / 12 * Math.PI * 2;
+        wx.fillRect(dx + Math.cos(a) * dr * 0.9 - 4, dy + Math.sin(a) * dr * 0.9 - 4, 8, 8);
+    }
+    // Купи монет і злитків
+    const stripW = Math.ceil(W * 1.3 / B) * B;
+    const piles = makeCanvas(stripW, B * 6);
+    const px = piles.getContext("2d");
+    const glints = [];
+    for (let x = B; x < stripW - B * 6; x += B * (7 + Math.floor(rng() * 4))) {
+        const levels = 3 + Math.floor(rng() * 3);
+        for (let l = 0; l < levels; l++) {
+            const w = (levels - l) * 2;
+            for (let k = 0; k < w; k++) {
+                px.fillStyle = (k + l) % 2 === 0 ? "#ffcc33" : "#e0a820";
+                px.fillRect(x + (l + k) * B / 2, piles.height - (l + 1) * B / 2, B / 2, B / 2);
+                px.fillStyle = "#fff2a0";
+                px.fillRect(x + (l + k) * B / 2, piles.height - (l + 1) * B / 2, B / 6, B / 8);
+            }
+            glints.push({ x: x + (l + 1) * B, y: piles.height - (l + 1) * B / 2, phase: rng() * 6 });
+        }
+        // Злитки поруч
+        px.fillStyle = "#d99a00";
+        px.fillRect(x + levels * B + B, piles.height - B / 2, B * 1.2, B / 2);
+        px.fillRect(x + levels * B + B * 1.3, piles.height - B, B * 1.2, B / 2);
+        px.fillStyle = "#fff2a0";
+        px.fillRect(x + levels * B + B, piles.height - B / 2, B * 1.2, B / 8);
+    }
+    return { W: W, H: H, wall: wall, piles: piles, glints: glints };
+}
+
+BackgroundRenderer.renderTreasury = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._treasury;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildTreasury(W, H, groundY, B);
+        this._treasury = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.wall, 0, 0);
+    const pw = st.piles.width;
+    const offset = Math.round(time * speed * 0.3) % pw;
+    const top = gY - st.piles.height;
+    for (let x = -offset; x < W; x += pw) {
+        ctx.drawImage(st.piles, x, top);
+        // Іскорки на монетах
+        for (const g of st.glints) {
+            const gx = x + g.x;
+            if (gx < -B || gx > W + B) {
+                continue;
+            }
+            const s = Math.sin(time * 3 + g.phase);
+            if (s > 0.7) {
+                const a = (s - 0.7) / 0.3;
+                const sz = Math.max(2, B / 5);
+                ctx.globalAlpha = a;
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(gx - sz / 2, top + g.y - sz * 1.5, sz, sz * 3);
+                ctx.fillRect(gx - sz * 1.5, top + g.y - sz / 2, sz * 3, sz);
+            }
+        }
+        ctx.globalAlpha = 1;
+    }
+    // Тепле світло
+    ctx.fillStyle = "rgba(255, 180, 60, 0.06)";
+    ctx.fillRect(0, 0, W, gY);
+};
+
+// ---------- 22. Лігво дракона ----------
+
+function buildDragonLair(W, H, groundY, B) {
+    const rng = pixelRng(2222);
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#0a0404"], [0.7, "#2a0a06"], [1, "#4a1808"]]);
+    const sx = sky.getContext("2d");
+    // Гора з печерою
+    const cols = Math.ceil(W / B) + 1;
+    const hs = periodicHeights(cols, 10, [{ amp: 5, k: 1, ph: 1.6 }, { amp: 1.5, k: 6, ph: 0.4 }]);
+    for (let c = 0; c < cols; c++) {
+        for (let r = 0; r < hs[c]; r++) {
+            sx.fillStyle = (r + c) % 2 === 0 ? "#2a1a14" : "#241610";
+            sx.fillRect(c * B, gY - (r + 1) * B, B, B);
+        }
+    }
+    const caveX = Math.round(W * 0.5 / B) * B;
+    sx.fillStyle = "#0a0402";
+    sx.fillRect(caveX - B * 3, gY - B * 5, B * 6, B * 5);
+    sx.fillRect(caveX - B * 2, gY - B * 6, B * 4, B);
+    // Гніздо з яйцями та скарбами
+    const stripW = Math.ceil(W * 1.3 / B) * B;
+    const nest = makeCanvas(stripW, B * 3);
+    const nx = nest.getContext("2d");
+    const eggs = [];
+    for (let x = B * 2; x < stripW - B * 6; x += B * (9 + Math.floor(rng() * 5))) {
+        nx.fillStyle = "#5a3a1e";
+        nx.fillRect(x, B * 2, B * 5, B);
+        nx.fillStyle = "#6e4a26";
+        nx.fillRect(x - B / 2, B * 2.5, B * 6, B / 2);
+        const colors = [["#39c66a", "#9dffb0"], ["#b06bff", "#e0c0ff"], ["#ff7a3d", "#ffc08a"]];
+        for (let e = 0; e < 3; e++) {
+            const col = colors[Math.floor(rng() * colors.length)];
+            const ex = x + B * 0.5 + e * B * 1.5;
+            nx.fillStyle = col[0];
+            nx.fillRect(ex, B * 0.8, B, B * 1.4);
+            nx.fillRect(ex + B / 6, B * 0.6, B * 0.66, B / 5);
+            nx.fillStyle = col[1];
+            nx.fillRect(ex + B / 5, B, B / 4, B / 4);
+            nx.fillRect(ex + B / 2, B * 1.6, B / 5, B / 5);
+            eggs.push({ x: ex + B / 2, y: B * 1.5, color: col[0], phase: rng() * 6 });
+        }
+        nx.fillStyle = "#ffcc33";
+        nx.fillRect(x + B * 4.8, B * 2.2, B / 2, B / 3);
+        nx.fillRect(x - B, B * 2.4, B / 2, B / 3);
+    }
+    return { W: W, H: H, sky: sky, nest: nest, eggs: eggs, caveX: caveX };
+}
+
+BackgroundRenderer.renderDragonLair = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._dragonLair;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildDragonLair(W, H, groundY, B);
+        this._dragonLair = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.sky, 0, 0);
+    // Дихання дракона в печері: очі світяться, іноді спалах вогню
+    const breath = Math.sin(time * 0.8) * 0.5 + 0.5;
+    ctx.fillStyle = "rgba(255, 90, 0, " + (0.15 + 0.25 * breath).toFixed(3) + ")";
+    ctx.fillRect(st.caveX - B * 3, gY - B * 5, B * 6, B * 5);
+    const blink = (time % 5) < 0.2;
+    if (!blink) {
+        ctx.fillStyle = "#ffcc00";
+        ctx.fillRect(st.caveX - B * 1.4, gY - B * 3.2, B * 0.8, B * 0.4);
+        ctx.fillRect(st.caveX + B * 0.6, gY - B * 3.2, B * 0.8, B * 0.4);
+    }
+    const fire = (time % 7) / 1.2;
+    if (fire < 1) {
+        ctx.fillStyle = "rgba(255, 160, 40, " + (0.35 * (1 - fire)).toFixed(3) + ")";
+        ctx.fillRect(0, 0, W, gY);
+        ctx.fillStyle = "rgba(255, 220, 80, " + (0.8 * (1 - fire)).toFixed(3) + ")";
+        for (let k = 0; k < 8; k++) {
+            ctx.fillRect(st.caveX - B + (k % 3) * B * 0.6, gY - B * 2.5 - k * B * 0.6 * fire * 4, B * 0.6, B * 0.6);
+        }
+    }
+    const nw = st.nest.width;
+    const offset = Math.round(time * speed * 0.3) % nw;
+    const top = gY - st.nest.height;
+    for (let x = -offset; x < W; x += nw) {
+        ctx.drawImage(st.nest, x, top);
+        // Яйця ледь світяться
+        for (const e of st.eggs) {
+            const ex = x + e.x;
+            if (ex < -B * 2 || ex > W + B * 2) {
+                continue;
+            }
+            ctx.globalAlpha = 0.08 + 0.1 * (Math.sin(time * 2 + e.phase) * 0.5 + 0.5);
+            ctx.fillStyle = e.color;
+            ctx.fillRect(ex - B, top + e.y - B, B * 2, B * 2);
+        }
+        ctx.globalAlpha = 1;
+    }
+    drawFallingPixels(ctx, W, gY, time, 30, 2222, {
+        color: "#ffae42", dir: -1, speedMin: 20, speedMax: 50, sizeMin: 2, sizeMax: 3,
+        sway: 1.5, swayAmp: B * 0.6, alpha: 0.7
+    });
+};
+
+// ---------- 24. Лицарський замок ----------
+
+function buildKnightCastle(W, H, groundY, B) {
+    const rng = pixelRng(2424);
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#070a1c"], [0.7, "#1a2248"], [1, "#2a3060"]]);
+    const sx = sky.getContext("2d");
+    drawStarsInto(sx, W, gY * 0.5, 60, rng, B);
+    sx.fillStyle = "#f4f1d0";
+    sx.fillRect(Math.round(W * 0.15), Math.round(H * 0.08), B * 3, B * 3);
+    // Стіна замку з зубцями та вежами в смузі
+    const stripW = Math.ceil(W * 1.3 / B) * B;
+    const wallH = B * 9;
+    const wall = makeCanvas(stripW, wallH + B * 5);
+    const wx = wall.getContext("2d");
+    const baseTop = wall.height - wallH;
+    const flags = [];
+    const torches = [];
+    for (let x = 0; x < stripW; x += B) {
+        for (let y = baseTop; y < wall.height; y += B / 2) {
+            wx.fillStyle = ((x / B) + (y / (B / 2))) % 2 === 0 ? "#4a4f63" : "#40455a";
+            wx.fillRect(x, y, B, B / 2 - 1);
+        }
+        if ((x / B) % 2 === 0) {
+            wx.fillStyle = "#4a4f63";
+            wx.fillRect(x, baseTop - B, B, B);
+        }
+    }
+    for (let x = B * 3; x < stripW - B * 6; x += B * (14 + Math.floor(rng() * 4))) {
+        // Вежа
+        wx.fillStyle = "#555a70";
+        wx.fillRect(x, baseTop - B * 4, B * 4, B * 4);
+        for (let k = 0; k < 4; k += 2) {
+            wx.fillRect(x + k * B, baseTop - B * 5, B, B);
+        }
+        wx.fillStyle = "#1a1e2e";
+        wx.fillRect(x + B * 1.5, baseTop - B * 2.5, B, B * 1.5);
+        wx.fillStyle = "#3a3f52";
+        wx.fillRect(x + B * 3.8, baseTop - B * 5, B / 6, B * 1.5);
+        flags.push({ x: x + B * 3.9, y: baseTop - B * 5, color: rng() < 0.5 ? "#e8173c" : "#2a6aff" });
+        // Факели на стіні
+        torches.push({ x: x - B * 3, y: baseTop + B * 2 });
+        wx.fillStyle = "#5b3a1e";
+        wx.fillRect(x - B * 3, baseTop + B * 2, B / 4, B * 0.8);
+    }
+    // Брама
+    wx.fillStyle = "#1a1210";
+    wx.fillRect(Math.round(stripW * 0.5), wall.height - B * 4, B * 3, B * 4);
+    wx.fillStyle = "#3a2a1a";
+    for (let k = 0; k < 3; k++) {
+        wx.fillRect(Math.round(stripW * 0.5) + k * B + B / 3, wall.height - B * 4, B / 6, B * 4);
+    }
+    return { W: W, H: H, sky: sky, wall: wall, flags: flags, torches: torches };
+}
+
+BackgroundRenderer.renderKnightCastle = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._knightCastle;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildKnightCastle(W, H, groundY, B);
+        this._knightCastle = st;
+    }
+    const gY = Math.round(groundY);
+    ctx.drawImage(st.sky, 0, 0);
+    const ww = st.wall.width;
+    const offset = Math.round(time * speed * 0.25) % ww;
+    const top = gY - st.wall.height;
+    for (let x = -offset; x < W; x += ww) {
+        ctx.drawImage(st.wall, x, top);
+        // Прапори майорять
+        for (let i = 0; i < st.flags.length; i++) {
+            const f = st.flags[i];
+            const fx = x + f.x;
+            if (fx < -B * 3 || fx > W + B) {
+                continue;
+            }
+            ctx.fillStyle = f.color;
+            for (let k = 0; k < 4; k++) {
+                const wave = Math.round(Math.sin(time * 5 + i + k * 0.8) * B * 0.12);
+                ctx.fillRect(fx + k * B * 0.4, top + f.y + wave, B * 0.4, B * 0.8);
+            }
+            ctx.fillStyle = "#ffe14d";
+            ctx.fillRect(fx + B * 0.5, top + f.y + B * 0.25 + Math.round(Math.sin(time * 5 + i + 1) * B * 0.12), B * 0.3, B * 0.3);
+        }
+        // Факели мерехтять
+        for (let i = 0; i < st.torches.length; i++) {
+            const t = st.torches[i];
+            const tx = x + t.x;
+            if (tx < -B * 2 || tx > W + B * 2) {
+                continue;
+            }
+            const fl = 0.75 + 0.25 * Math.sin(time * 11 + i * 3) * Math.sin(time * 7.1 + i);
+            ctx.globalAlpha = 0.12 * fl;
+            ctx.fillStyle = "#ffaa33";
+            ctx.fillRect(tx - B * 1.5, top + t.y - B * 1.5, B * 3.25, B * 3);
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = "#ffcc33";
+            ctx.fillRect(tx - B / 8, top + t.y - B / 2, B / 2, B / 2);
+            ctx.fillStyle = fl > 0.9 ? "#ffffff" : "#ff7a00";
+            ctx.fillRect(tx, top + t.y - B * 0.35, B / 4, B / 4);
+        }
+    }
+};
+
+// ---------- 29. Чорна діра ----------
+
+function buildBlackHole(W, H, groundY, B) {
+    const rng = pixelRng(2929);
+    const gY = Math.round(groundY);
+    const sky = makeSky(W, H, [[0, "#020108"], [1, "#0a0418"]]);
+    const sx = sky.getContext("2d");
+    drawStarsInto(sx, W, gY, 140, rng, B);
+    const particles = [];
+    for (let i = 0; i < 260; i++) {
+        particles.push({ r: 0.05 + rng() * 1.05, a: rng() * Math.PI * 2, speed: 0.4 + rng() * 0.6, hot: rng() });
+    }
+    return { W: W, H: H, sky: sky, particles: particles, cx: W * 0.62, cy: gY * 0.42, R: Math.min(W, gY) * 0.16 };
+}
+
+BackgroundRenderer.renderBlackHole = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._blackHole;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildBlackHole(W, H, groundY, B);
+        this._blackHole = st;
+    }
+    ctx.drawImage(st.sky, 0, 0);
+    const R = st.R;
+    const ps = Math.max(2, Math.round(B / 4));
+    // Суцільні світні смуги диска (половина позаду діри, половина попереду)
+    function drawBands(front) {
+        const bands = [[1.25, "rgba(255, 240, 200, 0.55)", 6], [1.6, "rgba(255, 160, 70, 0.4)", 10], [2.1, "rgba(255, 80, 120, 0.25)", 14], [2.6, "rgba(160, 60, 200, 0.15)", 16]];
+        for (const b of bands) {
+            ctx.strokeStyle = b[1];
+            ctx.lineWidth = b[2];
+            ctx.beginPath();
+            ctx.ellipse(st.cx, st.cy, R * b[0], R * b[0] * 0.28, 0, front ? 0 : Math.PI, front ? Math.PI : Math.PI * 2);
+            ctx.stroke();
+        }
+    }
+    // Акреційний диск: частинки обертаються, ближчі — швидше й гарячіші
+    function drawDisk(front) {
+        for (const p of st.particles) {
+            const ang = p.a + time * p.speed / p.r;
+            const sinA = Math.sin(ang);
+            if ((sinA > 0) !== front) {
+                continue;
+            }
+            const rr = R * (1.1 + p.r * 1.6);
+            const x = st.cx + Math.cos(ang) * rr;
+            const y = st.cy + sinA * rr * 0.28;
+            const heat = 1 - p.r / 1.1;
+            ctx.fillStyle = heat > 0.5 ? "#fff0c0" : p.hot > 0.5 ? "#ff9a3d" : "#ff4f7a";
+            ctx.globalAlpha = 0.5 + heat * 0.5;
+            ctx.fillRect(Math.round(x), Math.round(y), ps, ps);
+        }
+        ctx.globalAlpha = 1;
+    }
+    drawBands(false);
+    drawDisk(false);
+    // Світне кільце та сама діра
+    ctx.fillStyle = "rgba(255, 180, 90, 0.25)";
+    ctx.beginPath();
+    ctx.arc(st.cx, st.cy, R * 1.12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#000000";
+    ctx.beginPath();
+    ctx.arc(st.cx, st.cy, R, 0, Math.PI * 2);
+    ctx.fill();
+    drawBands(true);
+    drawDisk(true);
+    // Зорі, що затягуються спіраллю
+    for (let i = 0; i < 6; i++) {
+        const t = ((time * 0.12 + i / 6) % 1);
+        const ang = i * 1.1 + t * Math.PI * 3;
+        const rr = R * (4 - t * 3);
+        ctx.globalAlpha = 1 - t;
+        ctx.fillStyle = "#bfe9ff";
+        ctx.fillRect(Math.round(st.cx + Math.cos(ang) * rr), Math.round(st.cy + Math.sin(ang) * rr * 0.5), ps, ps);
+    }
+    ctx.globalAlpha = 1;
+};
+
+// ---------- 30. Тронна зала ----------
+
+function buildThroneRoom(W, H, groundY, B) {
+    const gY = Math.round(groundY);
+    const room = makeSky(W, H, [[0, "#1a0a14"], [1, "#2e1224"]]);
+    const rx = room.getContext("2d");
+    const cx = W / 2;
+    const backY = Math.round(gY * 0.35);
+    // Задня стіна з троном
+    rx.fillStyle = "#3a1a2e";
+    rx.fillRect(cx - W * 0.2, 0, W * 0.4, backY + B * 2);
+    rx.fillStyle = "#c98a00";
+    rx.fillRect(cx - B * 2, backY - B * 4, B * 4, B * 5);
+    rx.fillStyle = "#8a1a2a";
+    rx.fillRect(cx - B * 1.4, backY - B * 3.4, B * 2.8, B * 3);
+    rx.fillStyle = "#ffd700";
+    rx.fillRect(cx - B * 2, backY - B * 4.8, B / 2, B);
+    rx.fillRect(cx + B * 1.5, backY - B * 4.8, B / 2, B);
+    rx.fillRect(cx - B / 4, backY - B * 5, B / 2, B);
+    // Червона доріжка в перспективі
+    rx.fillStyle = "#a01830";
+    rx.beginPath();
+    rx.moveTo(cx - B * 1.5, backY + B);
+    rx.lineTo(cx + B * 1.5, backY + B);
+    rx.lineTo(cx + W * 0.18, gY);
+    rx.lineTo(cx - W * 0.18, gY);
+    rx.closePath();
+    rx.fill();
+    rx.fillStyle = "#ffcc33";
+    rx.fillRect(cx - W * 0.18, gY - 3, W * 0.36, 3);
+    // Колони обабіч
+    for (let i = 0; i < 4; i++) {
+        const t = (i + 1) / 5;
+        const k = t * t;
+        const px = W * 0.2 + k * W * 0.3;
+        const w = B * (0.6 + k * 1.6);
+        const h = backY + (gY - backY) * k;
+        for (const side of [-1, 1]) {
+            const x = cx + side * px - w / 2;
+            rx.fillStyle = "#6a5a70";
+            rx.fillRect(x, 0, w, h);
+            rx.fillStyle = "#8a7a90";
+            rx.fillRect(x, 0, w * 0.25, h);
+            // Прапор із гербом
+            rx.fillStyle = "#1a3a8a";
+            rx.fillRect(x + w * 0.1, h * 0.25, w * 0.8, h * 0.25);
+            rx.fillStyle = "#ffd700";
+            rx.fillRect(x + w * 0.4, h * 0.3, w * 0.2, h * 0.12);
+        }
+    }
+    return { W: W, H: H, room: room };
+}
+
+BackgroundRenderer.renderThroneRoom = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._throneRoom;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildThroneRoom(W, H, groundY, B);
+        this._throneRoom = st;
+    }
+    ctx.drawImage(st.room, 0, 0);
+    // Люстри зі свічками, що мерехтять і ледь гойдаються
+    for (let i = 0; i < 3; i++) {
+        const cx = W * (0.25 + i * 0.25) + Math.sin(time * 0.8 + i) * B * 0.3;
+        const cy = B * 3 + i % 2 * B;
+        ctx.fillStyle = "#c98a00";
+        ctx.fillRect(cx - B * 2, cy, B * 4, B / 3);
+        ctx.fillRect(cx - B / 12, 0, B / 6, cy);
+        for (let k = 0; k < 5; k++) {
+            const fx = cx - B * 1.8 + k * B * 0.9;
+            const fl = 0.7 + 0.3 * Math.sin(time * 9 + i * 5 + k * 2);
+            ctx.globalAlpha = 0.15 * fl;
+            ctx.fillStyle = "#ffcc55";
+            ctx.fillRect(fx - B * 0.6, cy - B * 1.2, B * 1.2, B * 1.2);
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = "#fff4d0";
+            ctx.fillRect(fx - B / 10, cy - B / 2, B / 5, B / 2);
+            ctx.fillStyle = fl > 0.9 ? "#ffffff" : "#ffaa33";
+            ctx.fillRect(fx - B / 10, cy - B * 0.75, B / 5, B / 4);
+        }
+    }
 };
 
 export { BackgroundRenderer };
