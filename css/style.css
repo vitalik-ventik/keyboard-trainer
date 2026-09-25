@@ -332,8 +332,10 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2.4vmin;
-    padding: 4.5vmin 6vmin;
+    gap: 1.5vmin;
+    padding: 3vmin 6vmin;
+    max-height: 96vh;
+    overflow-y: auto;
     border-radius: 2vmin;
     background: var(--panel-dark);
     border: 0.3vmin solid var(--neon-pink);
@@ -371,7 +373,7 @@ body {
 .speed-btn {
     --c: 0, 246, 255;
     position: relative;
-    padding: 1.6vmin 4.6vmin;
+    padding: 1.2vmin 4.6vmin;
     font-size: 2.8vmin;
     font-weight: 800;
     letter-spacing: 0.3vmin;
@@ -403,7 +405,9 @@ body {
 .option-btn.active-large,
 .speed-btn.active-slow,
 .speed-btn.active-normal,
-.speed-btn.active-fast {
+.speed-btn.active-fast,
+.option-btn.active-on,
+.option-btn.active-off {
     color: #ffffff;
     background: linear-gradient(180deg, rgba(var(--c), 0.3), rgba(var(--c), 0.1));
     border-color: rgb(var(--c));
@@ -421,6 +425,8 @@ body {
 #btnSpeedSlow { --c: 0, 246, 255; }
 #btnSpeedNormal { --c: 57, 255, 136; }
 #btnSpeedFast { --c: 255, 46, 166; }
+#btnCamOn { --c: 57, 255, 136; }
+#btnCamOff { --c: 255, 56, 96; }
 
 .option-row {
     display: flex;
@@ -432,7 +438,8 @@ body {
     color: #9fb4d8;
     max-width: 46vmin;
     text-align: center;
-    min-height: 4.2vmin;
+    min-height: 3.6vmin;
+    margin: 0;
 }
 
 .diff-hint {
@@ -440,7 +447,8 @@ body {
     color: #9fb4d8;
     max-width: 46vmin;
     text-align: center;
-    min-height: 4.2vmin;
+    min-height: 3.6vmin;
+    margin: 0;
 }
 
 .speed-row {
@@ -454,7 +462,8 @@ body {
     color: #9fb4d8;
     max-width: 46vmin;
     text-align: center;
-    min-height: 4.2vmin;
+    min-height: 3.6vmin;
+    margin: 0;
 }
 
 /* ---------- Текстові кнопки ---------- */
