@@ -3972,6 +3972,10 @@ export class Engine {
             }
         } else if (fx === "fling") {
             this.spawnDebris(10, Object.assign(base, { colors: ["#c8a8ff", "#8a6aff", "#ffffff"], angleMin: Math.PI * 0.2, angleMax: Math.PI * 0.8, speedMin: 30, speedMax: 110, sizeMin: 2, sizeMax: 4, gravity: -60, life: 1.0, outline: false, spin: 4 }));
+        } else if (fx === "plasma") {
+            this.spawnDebris(16, Object.assign(base, { colors: ["#7affd8", "#3affc0", "#ffffff"], angleMin: Math.PI * 0.1, angleMax: Math.PI * 0.9, speedMin: 60, speedMax: 200, sizeMin: 2, sizeMax: 4, gravity: -80, life: 1.0, outline: false, spin: 4 }));
+        } else if (fx === "shred") {
+            this.spawnDebris(10, Object.assign(base, { colors: colors.concat(["#dfe8f4"]), angleMin: Math.PI * 0.1, angleMax: Math.PI * 0.9, speedMin: 100, speedMax: 260, sizeMin: 2, sizeMax: 5, gravity: 800, life: 0.7 }));
         } else if (fx === "break") {
             this.spawnDebris(12, Object.assign(base, { angleMin: Math.PI * 0.15, angleMax: Math.PI * 0.85, speedMin: 100, speedMax: 240, sizeMin: 5, sizeMax: 9, gravity: 900, life: 0.8, spin: 6 }));
         }
@@ -4048,8 +4052,8 @@ export class Engine {
                 s.prev.pop();
             }
             if (!s.returning && s.t >= s.dur) {
-                if (s.kind === "bullet" && !s.last) {
-                    // Куля черги відколює шматок зверху
+                if ((s.kind === "bullet" || s.kind === "shuriken") && !s.last) {
+                    // Куля черги чи сюрикен відколює шматок зверху
                     s.spike.chunks = Math.max(s.spike.chunks || 0, s.index + 1);
                     this.spawnDebris(4, { x: s.spike.x, y: SPIKE_H * (1 - (s.index + 1) * 0.22), spread: SPIKE_W * 0.4, angleMin: Math.PI * 0.2, angleMax: Math.PI * 0.8, speedMin: 80, speedMax: 180, sizeMin: 3, sizeMax: 5, spin: 8, colors: SPIKE_STYLE_COLORS[this.spikeStyle] || [this.level.accentColor || "#ff2ea6"], gravity: 700, life: 0.5, outline: true });
                 } else {
