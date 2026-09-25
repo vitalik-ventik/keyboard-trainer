@@ -11,7 +11,7 @@ import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js"
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
-import { SHOP_ITEMS, SHOP_TYPES, computeReward, drawTrail, drawExplosion, drawAccessory } from "./shop.js";
+import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawTrail, drawExplosion, drawAccessory } from "./shop.js";
 
 // ---------- Полотно та адаптивність ----------
 
@@ -860,6 +860,48 @@ function renderCurrentSkinIcon() {
     activeSkinCache = activeSkinId;
 }
 
+// Перетворює вміст полотна на відтінки сірого (для ще не куплених скінів).
+// Працює через getImageData, тож не залежить від підтримки ctx.filter.
+function grayscaleCanvas(canvasEl) {
+    try {
+        const gctx = canvasEl.getContext("2d");
+        const img = gctx.getImageData(0, 0, canvasEl.width, canvasEl.height);
+        const d = img.data;
+        for (let i = 0; i < d.length; i += 4) {
+            const y = Math.round(d[i] * 0.3 + d[i + 1] * 0.59 + d[i + 2] * 0.11);
+            d[i] = y;
+            d[i + 1] = y;
+            d[i + 2] = y;
+        }
+        gctx.putImageData(img, 0, 0);
+    } catch (err) {
+        console.warn("Не вдалося знебарвити прев'ю скіна:", err);
+    }
+}
+
+// Нерухомий сірий кадр скіна (time = 0) на картці вибору скіна
+function drawStaticGraySkin(cardCanvas, renderType, psize) {
+    const pctx = cardCanvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
+    cardCanvas.width = Math.round(psize * dpr);
+    cardCanvas.height = Math.round(psize * dpr);
+    cardCanvas.style.width = psize + "px";
+    cardCanvas.style.height = psize + "px";
+    pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    pctx.save();
+    pctx.translate(psize / 2, psize / 2);
+    SKIN_RENDERERS[renderType](pctx, psize * 0.75, 0, {});
+    pctx.restore();
+    grayscaleCanvas(cardCanvas);
+}
+
+function addSkinSectionTitle(grid, text) {
+    const title = document.createElement("div");
+    title.className = "skins-section-title";
+    title.textContent = text;
+    grid.appendChild(title);
+}
+
 function buildSkinGrid() {
     var grid = skinsGridEl;
     if (!grid) return;
@@ -875,6 +917,7 @@ function buildSkinGrid() {
         }
     }
 
+    addSkinSectionTitle(grid, "Скіни рівнів");
     for (var i = 0; i < entries.length; i++) {
         var level = entries[i].level;
         var skin = entries[i].skin;
@@ -966,6 +1009,64 @@ function buildSkinGrid() {
             })(previewCanvas);
         }
     }
+    buildShopSkinSection(grid, activeSkinId);
+}
+
+// Скіни з магазину: куплені вибираються як звичайні, решта — сірі й ведуть до магазину
+function buildShopSkinSection(grid, activeSkinId) {
+    addSkinSectionTitle(grid, "Скіни з магазину");
+    for (const item of SHOP_ITEMS) {
+        if (item.type !== "skin") {
+            continue;
+        }
+        const owned = save.isOwned(item.id);
+        const card = document.createElement("div");
+        card.className = "skin-card" + (owned ? "" : " for-sale") + (item.renderType === activeSkinId ? " active" : "");
+        const previewCanvas = document.createElement("canvas");
+        previewCanvas.width = 80;
+        previewCanvas.height = 80;
+        previewCanvas.className = "skin-preview";
+        card.appendChild(previewCanvas);
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "skin-card-name";
+        nameSpan.textContent = item.name;
+        card.appendChild(nameSpan);
+        if (owned) {
+            card.addEventListener("click", function () {
+                save.setActiveSkin(item.renderType);
+                renderCurrentSkinIcon();
+                skinsModalEl.classList.add("hidden");
+            });
+            requestAnimationFrame(function () {
+                const pctx = previewCanvas.getContext("2d");
+                const dpr2 = window.devicePixelRatio || 1;
+                previewCanvas.width = Math.round(80 * dpr2);
+                previewCanvas.height = Math.round(80 * dpr2);
+                previewCanvas.style.width = "80px";
+                previewCanvas.style.height = "80px";
+                pctx.setTransform(dpr2, 0, 0, dpr2, 0, 0);
+                pctx.save();
+                pctx.translate(40, 40);
+                SKIN_RENDERERS[item.renderType](pctx, 60, performance.now(), {});
+                pctx.restore();
+            });
+        } else {
+            const hint = document.createElement("span");
+            hint.className = "sale-hint";
+            hint.textContent = "💎 " + item.price + " — у магазині";
+            card.appendChild(hint);
+            card.addEventListener("click", function () {
+                // Відкриваємо магазин одразу на вкладці скінів із цим товаром
+                skinsModalEl.classList.add("hidden");
+                activeShopType = "skin";
+                openShop();
+            });
+            requestAnimationFrame(function () {
+                drawStaticGraySkin(previewCanvas, item.renderType, 80);
+            });
+        }
+        grid.appendChild(card);
+    }
 }
 
 if (skinTriggerEl) {
@@ -1043,7 +1144,9 @@ function renderRewardBreakdown(el, reward, balanceBefore) {
 
 // ---------- Магазин ----------
 
-let activeShopType = "trail";
+let activeShopType = "skin";
+// Щойно куплений скін: його прев'ю «заливається» кольором знизу вгору
+let justBought = null;
 let confirmItemId = null;
 let shopPreviews = [];
 let shopAnimating = false;
@@ -1070,13 +1173,14 @@ function buildShop() {
     shopGridEl.innerHTML = "";
     shopPreviews = [];
     const balance = save.getCrystals();
-    const equipped = save.getEquipped(activeShopType);
+    const equipped = activeShopType === "skin" ? null : save.getEquipped(activeShopType);
+    const activeSkin = save.getActiveSkin();
     for (const item of SHOP_ITEMS) {
         if (item.type !== activeShopType) {
             continue;
         }
         const owned = save.isOwned(item.id);
-        const isEquipped = equipped === item.id;
+        const isEquipped = item.type === "skin" ? activeSkin === item.renderType : equipped === item.id;
         const card = document.createElement("div");
         card.className = "skin-card shop-card" + (isEquipped ? " active" : "");
 
@@ -1088,7 +1192,11 @@ function buildShop() {
         canvas.style.width = "150px";
         canvas.style.height = "100px";
         card.appendChild(canvas);
-        shopPreviews.push({ canvas: canvas, item: item, dpr: dpr });
+        const entry = { canvas: canvas, item: item, dpr: dpr, owned: owned, drawn: false, gray: null };
+        if (item.type === "skin" && (!owned || (justBought && justBought.id === item.id))) {
+            entry.gray = makeGraySkinSnapshot(item, dpr);
+        }
+        shopPreviews.push(entry);
 
         const name = document.createElement("span");
         name.className = "skin-card-name";
@@ -1129,6 +1237,9 @@ function buildShop() {
                 if (save.buyItem(item.id)) {
                     save.equipItem(item.id);
                     playSound("click");
+                    if (item.type === "skin") {
+                        justBought = { id: item.id, start: performance.now() };
+                    }
                 }
                 renderCurrentSkinIcon();
                 buildShop();
@@ -1143,8 +1254,104 @@ function buildShop() {
     }
 }
 
+// Сцена прев'ю скіна: темне тло, земля й кубик (з аксесуаром, якщо він одягнутий)
+function drawShopSkinScene(pctx, item, time, withAccessory) {
+    const w = 150;
+    const h = 100;
+    pctx.fillStyle = "#070b1c";
+    pctx.fillRect(0, 0, w, h);
+    const groundY = h * 0.84;
+    pctx.fillStyle = "#12203a";
+    pctx.fillRect(0, groundY, w, h - groundY);
+    pctx.fillStyle = "#00f6ff";
+    pctx.fillRect(0, groundY, w, 2);
+    const size = 44;
+    const hop = time > 0 ? Math.abs(Math.sin(time * 0.003)) * 6 : 0;
+    pctx.save();
+    pctx.translate(w / 2, groundY - size / 2 - hop);
+    SKIN_RENDERERS[item.renderType](pctx, size, time, {});
+    if (withAccessory) {
+        drawAccessory(pctx, save.getEquipped("accessory"), size, time);
+    }
+    pctx.restore();
+}
+
+// Сірий нерухомий знімок скіна для картки магазину
+function makeGraySkinSnapshot(item, dpr) {
+    const snap = document.createElement("canvas");
+    snap.width = Math.round(150 * dpr);
+    snap.height = Math.round(100 * dpr);
+    const sctx = snap.getContext("2d");
+    sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawShopSkinScene(sctx, item, 0, false);
+    grayscaleCanvas(snap);
+    return snap;
+}
+
+const BUY_POUR_MS = 1100;
+const BUY_BANNER_MS = 2600;
+
+// Прев'ю скіна: сірий кадр до покупки, живий кольоровий після,
+// а щойно куплений ще й «заливається» кольором із написом «Новий скін!»
+function drawShopSkinPreview(entry, now) {
+    const pctx = entry.canvas.getContext("2d");
+    if (!entry.owned) {
+        if (!entry.drawn && entry.gray) {
+            pctx.setTransform(1, 0, 0, 1, 0, 0);
+            pctx.drawImage(entry.gray, 0, 0);
+            entry.drawn = true;
+        }
+        return;
+    }
+    pctx.setTransform(entry.dpr, 0, 0, entry.dpr, 0, 0);
+    drawShopSkinScene(pctx, entry.item, now, true);
+    if (!justBought || justBought.id !== entry.item.id) {
+        return;
+    }
+    const elapsed = now - justBought.start;
+    if (elapsed > BUY_BANNER_MS) {
+        justBought = null;
+        return;
+    }
+    const k = Math.min(1, elapsed / BUY_POUR_MS);
+    if (k < 1 && entry.gray) {
+        // Сіра частина зверху зменшується — колір підіймається знизу
+        const grayH = Math.round(entry.gray.height * (1 - k));
+        if (grayH > 0) {
+            pctx.setTransform(1, 0, 0, 1, 0, 0);
+            pctx.drawImage(entry.gray, 0, 0, entry.gray.width, grayH, 0, 0, entry.gray.width, grayH);
+            pctx.setTransform(entry.dpr, 0, 0, entry.dpr, 0, 0);
+            pctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+            pctx.fillRect(0, grayH / entry.dpr - 1, 150, 2);
+        }
+    } else {
+        // Спалах і напис
+        const after = elapsed - BUY_POUR_MS;
+        const flash = Math.max(0, 1 - after / 300);
+        if (flash > 0) {
+            pctx.fillStyle = "rgba(255, 255, 255, " + (flash * 0.7).toFixed(2) + ")";
+            pctx.fillRect(0, 0, 150, 100);
+        }
+        const fade = Math.min(1, (BUY_BANNER_MS - elapsed) / 400);
+        pctx.globalAlpha = Math.max(0, fade);
+        pctx.font = "bold 15px 'Segoe UI', Arial";
+        pctx.textAlign = "center";
+        pctx.textBaseline = "middle";
+        pctx.lineWidth = 3;
+        pctx.strokeStyle = "#070b1c";
+        pctx.strokeText("Новий скін!", 75, 16);
+        pctx.fillStyle = "#ffcc33";
+        pctx.fillText("Новий скін!", 75, 16);
+        pctx.globalAlpha = 1;
+    }
+}
+
 // Живий попередній перегляд товару на кубику з поточним скіном
 function drawShopPreview(entry, now) {
+    if (entry.item.type === "skin") {
+        drawShopSkinPreview(entry, now);
+        return;
+    }
     const c = entry.canvas;
     const pctx = c.getContext("2d");
     const w = 150;

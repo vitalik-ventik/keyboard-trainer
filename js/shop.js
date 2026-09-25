@@ -8,7 +8,34 @@
 // ---------- Каталог ----------
 
 // Перший товар кожного типу безкоштовний і відкритий завжди — це «без прикрас»
+// Скіни (type: "skin") носять renderType — ключ малювальника з shop_skins.js;
+// надітий скін зберігається, як і скіни рівнів, у settings.activeSkin
 export const SHOP_ITEMS = [
+    { id: "shop_panda", type: "skin", name: "Кубик-панда", price: 200, renderType: "shop_panda" },
+    { id: "shop_dog", type: "skin", name: "Кубик-пес", price: 200, renderType: "shop_dog" },
+    { id: "shop_fox", type: "skin", name: "Кубик-лисичка", price: 250, renderType: "shop_fox" },
+    { id: "shop_penguin", type: "skin", name: "Кубик-пінгвін", price: 250, renderType: "shop_penguin" },
+    { id: "shop_owl", type: "skin", name: "Кубик-сова", price: 250, renderType: "shop_owl" },
+    { id: "shop_frog", type: "skin", name: "Кубик-жабка", price: 300, renderType: "shop_frog" },
+    { id: "shop_shark", type: "skin", name: "Кубик-акула", price: 300, renderType: "shop_shark" },
+    { id: "shop_villager", type: "skin", name: "Кубик-житель", price: 300, renderType: "shop_villager" },
+    { id: "shop_zombie", type: "skin", name: "Кубик-зомбі", price: 300, renderType: "shop_zombie" },
+    { id: "shop_creeper", type: "skin", name: "Кубик-кріпер", price: 350, renderType: "shop_creeper" },
+    { id: "shop_skeleton", type: "skin", name: "Кубик-скелет", price: 350, renderType: "shop_skeleton" },
+    { id: "shop_iron_golem", type: "skin", name: "Залізний голем", price: 400, renderType: "shop_iron_golem" },
+    { id: "shop_enderman", type: "skin", name: "Кубик-ендермен", price: 450, renderType: "shop_enderman" },
+    { id: "shop_ninja", type: "skin", name: "Кубик-ніндзя", price: 350, renderType: "shop_ninja" },
+    { id: "shop_firefighter", type: "skin", name: "Кубик-пожежник", price: 350, renderType: "shop_firefighter" },
+    { id: "shop_knight", type: "skin", name: "Кубик-лицар", price: 400, renderType: "shop_knight" },
+    { id: "shop_astronaut", type: "skin", name: "Кубик-астронавт", price: 400, renderType: "shop_astronaut" },
+    { id: "shop_wizard", type: "skin", name: "Кубик-чарівник", price: 450, renderType: "shop_wizard" },
+    { id: "shop_superhero", type: "skin", name: "Кубик-супергерой", price: 500, renderType: "shop_superhero" },
+    { id: "shop_robot", type: "skin", name: "Кубик-робот", price: 400, renderType: "shop_robot" },
+    { id: "shop_gamer", type: "skin", name: "Кубик-геймер", price: 450, renderType: "shop_gamer" },
+    { id: "shop_crystal_golem", type: "skin", name: "Кристальний голем", price: 500, renderType: "shop_crystal_golem" },
+    { id: "shop_ufo", type: "skin", name: "Кубик-НЛО", price: 550, renderType: "shop_ufo" },
+    { id: "shop_dragon", type: "skin", name: "Кубик-дракончик", price: 600, renderType: "shop_dragon" },
+
     { id: "trail_default", type: "trail", name: "Звичайний", price: 0 },
     { id: "trail_neon", type: "trail", name: "Неонова лінія", price: 80 },
     { id: "trail_bubbles", type: "trail", name: "Бульбашки", price: 100 },
@@ -38,6 +65,7 @@ export const SHOP_ITEMS = [
 ];
 
 export const SHOP_TYPES = [
+    { type: "skin", name: "Скіни" },
     { type: "trail", name: "Шлейфи" },
     { type: "explosion", name: "Вибухи" },
     { type: "accessory", name: "Аксесуари" }
@@ -49,6 +77,16 @@ export const DEFAULT_ITEMS = { trail: "trail_default", explosion: "boom_default"
 export function getShopItem(id) {
     for (const item of SHOP_ITEMS) {
         if (item.id === id) {
+            return item;
+        }
+    }
+    return null;
+}
+
+// Товар-скін за ключем малювальника (null — це не магазинний скін)
+export function getShopSkinByRenderType(renderType) {
+    for (const item of SHOP_ITEMS) {
+        if (item.type === "skin" && item.renderType === renderType) {
             return item;
         }
     }
