@@ -1747,3 +1747,23 @@ body {
     width: 100%;
     padding: 0 1vmin;
 }
+
+/* Вікно «Друге життя?» (сердечко) */
+.modal.revive-box {
+    border-color: #ff3a5a;
+    box-shadow: 0 0 24px rgba(255, 58, 90, 0.55), inset 0 0 30px rgba(255, 58, 90, 0.15);
+}
+
+.revive-box .neon-title {
+    text-shadow: 0 0 6px #ff3a5a, 0 0 18px #ff3a5a;
+}
+
+.revive-text {
+    font-size: 2.2vmin;
+    color: #ffe0e6;
+    text-align: center;
+}
+
+.revive-text b {
+    color: #ff6a84;
+}

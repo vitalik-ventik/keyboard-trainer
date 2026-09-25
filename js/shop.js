@@ -456,6 +456,57 @@ export function computeReward(run) {
     return { lines: lines, mult: settingsMult, weaponMult: weaponMult, accessoryMult: accessoryMult, half: false, total: Math.ceil(base * mult) };
 }
 
+// ---------- Сердечко: запасне життя ----------
+
+// Піксельне червоне сердечко, як у Minecraft (cx, cy — центр, size — розмір)
+export function drawHeartLife(ctx, cx, cy, size, time) {
+    const rows = [
+        "0110110",
+        "1221111",
+        "1211111",
+        "1111111",
+        "0111110",
+        "0011100",
+        "0001000"
+    ];
+    const p = size / 7;
+    const x0 = cx - size / 2;
+    const y0 = cy - size / 2;
+    // Легке «биття» сяйва
+    const glow = 0.2 + 0.15 * Math.sin((time || 0) * 0.005);
+    ctx.save();
+    ctx.globalAlpha *= glow;
+    ctx.fillStyle = "#ff3a5a";
+    ctx.beginPath();
+    ctx.arc(cx, cy, size * 0.62, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    for (let r = 0; r < rows.length; r++) {
+        for (let c = 0; c < rows[r].length; c++) {
+            const v = rows[r][c];
+            if (v === "0") {
+                continue;
+            }
+            ctx.fillStyle = v === "2" ? "#ffd0d8" : (r >= 4 ? "#c8102e" : "#ff2a4a");
+            ctx.fillRect(Math.round(x0 + c * p), Math.round(y0 + r * p), Math.ceil(p), Math.ceil(p));
+        }
+    }
+}
+
+// «1 сердечко», «2 сердечка», «5 сердечок»
+export function heartsText(n) {
+    const abs = Math.abs(Math.floor(n));
+    const last = abs % 10;
+    const lastTwo = abs % 100;
+    if (last === 1 && lastTwo !== 11) {
+        return n + " сердечко";
+    }
+    if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) {
+        return n + " сердечка";
+    }
+    return n + " сердечок";
+}
+
 // ---------- Золота монета: значок валюти ----------
 
 export function drawCoinIcon(ctx, x, y, s) {
@@ -838,9 +889,9 @@ export function drawAccessory(ctx, id, size, time) {
 // legendaryChance — окремий крихітний шанс легендарного предмета: він випадає навіть
 // без виконання умови (пройти Боса, золоті рамки) — справжня удача
 export const CHEST_TYPES = {
-    wood: { name: "Дерев'яний сундук", itemChance: 0.35, crystals: [15, 40], maxPrice: 200, rarityPower: 1.2, legendaryChance: 0.003 },
-    silver: { name: "Срібний сундук", itemChance: 0.55, crystals: [40, 100], maxPrice: 300, rarityPower: 0.8, legendaryChance: 0.01 },
-    gold: { name: "Золотий сундук", itemChance: 0.8, crystals: [100, 220], maxPrice: 450, rarityPower: 0.4, legendaryChance: 0.03 }
+    wood: { name: "Дерев'яний сундук", itemChance: 0.35, crystals: [15, 40], maxPrice: 200, rarityPower: 1.2, legendaryChance: 0.003, heartChance: 0.12 },
+    silver: { name: "Срібний сундук", itemChance: 0.55, crystals: [40, 100], maxPrice: 300, rarityPower: 0.8, legendaryChance: 0.01, heartChance: 0.18 },
+    gold: { name: "Золотий сундук", itemChance: 0.8, crystals: [100, 220], maxPrice: 450, rarityPower: 0.4, legendaryChance: 0.03, heartChance: 0.25 }
 };
 
 // Шанс сундука за повторну перемогу й гарантія: не більше 4 перемог поспіль без сундука
@@ -912,6 +963,10 @@ export function rollChest(type, isOwned, random, itemBonus) {
     const legendaries = SHOP_ITEMS.filter(function (item) { return item.legendary && !isOwned(item.id); });
     if (legendaries.length > 0 && rnd() < chest.legendaryChance) {
         return { kind: "item", id: legendaries[Math.floor(rnd() * legendaries.length) % legendaries.length].id };
+    }
+    // Сердечко — запасне життя (із золотого сундука іноді два)
+    if (rnd() < (chest.heartChance || 0)) {
+        return { kind: "heart", amount: type === "gold" && rnd() < 0.3 ? 2 : 1 };
     }
     const pool = chestItemPool(type, isOwned);
     if (pool.length > 0 && rnd() < Math.min(0.95, chest.itemChance + (itemBonus || 0))) {
