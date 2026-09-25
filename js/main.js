@@ -1456,8 +1456,11 @@ function renderRewardBreakdown(el, reward, balanceBefore) {
         return;
     }
     el.innerHTML = "";
+    // Спершу монети забігу й множники до них, потім разові бонуси рівня (без множників)
     for (const line of reward.lines) {
-        addBreakdownRow(el, "🪙 " + line.label, "+" + line.value);
+        if (!line.flat) {
+            addBreakdownRow(el, "🪙 " + line.label, "+" + line.value);
+        }
     }
     if (reward.mult !== 1) {
         addBreakdownRow(el, "Множник налаштувань", "×" + reward.mult);
@@ -1467,6 +1470,11 @@ function renderRewardBreakdown(el, reward, balanceBefore) {
     }
     if (reward.accessoryMult && reward.accessoryMult !== 1) {
         addBreakdownRow(el, "Бонус аксесуара", "×" + Math.round(reward.accessoryMult * 100) / 100);
+    }
+    for (const line of reward.lines) {
+        if (line.flat) {
+            addBreakdownRow(el, "🎖 " + line.label, "+" + line.value);
+        }
     }
     if (reward.half) {
         addBreakdownRow(el, "Вибух — лишається половина", "÷2");
