@@ -28,7 +28,7 @@ export const LEVELS_CONFIG = [
         id: 1,
         name: "Базова",
         levels: [
-            { id: 1,  leagueId: 1, name: "Перші кроки",             letters: ["А","П","Р","О"], speed: 165, spikeCount: 12, seed: 2001, bgTheme: "block_village",           accentColor: "#39c6ff", rhythmGroups: false, skin: { id: "skin_1_1", name: "Залізний голем", renderType: "iron_golem" } },
+            { id: 1,  leagueId: 1, name: "Перші кроки",             letters: ["А","П","Р","О"], speed: 165, spikeCount: 12, seed: 2001, bgTheme: "block_village",           accentColor: "#39c6ff", rhythmGroups: false, skin: { id: "skin_1_1", name: "Кубик-кіт", renderType: "block_cat" } },
             { id: 2,  leagueId: 1, name: "Сусіди центру",           letters: ["В","І","Л","Д"], speed: 172, spikeCount: 13, seed: 2002, bgTheme: "sunset_city",             accentColor: "#ff9ed0", rhythmGroups: false, skin: { id: "skin_1_2", name: "Серфер", renderType: "cyber_eye" } },
             { id: 3,  leagueId: 1, name: "Верхній центр",           letters: ["К","Е","Н","Г"], speed: 179, spikeCount: 14, seed: 2003, bgTheme: "cosmodrome",                 accentColor: "#39c6ff", rhythmGroups: false, skin: { id: "skin_1_3", name: "Прибулець", renderType: "retro_gamer" } },
             { id: 4,  leagueId: 1, name: "Нижній центр",            letters: ["М","И","Т","Ь"], speed: 186, spikeCount: 15, seed: 2004, bgTheme: "neon_highway",             accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_1_4", name: "Гонщик", renderType: "throne" } },
@@ -269,65 +269,63 @@ export const SKIN_RENDERERS = {
         drawSkinFrame(ctx, size, "#bffcff");
     },
 
-    iron_golem: function (ctx, size, time) {
-        // Залізний голем — охоронець кубічного селища: залізне обличчя з ліанами,
-        // великий ніс, очі, що світяться, і червоний мак, який погойдується
+    block_cat: function (ctx, size, time) {
+        // Кубик-кіт із пасхалки «Кубічного селища»: рудий смугастий, щурить зелені
+        // очі, ворушить вусами й смикає вушком
         var h = size / 2;
-        ctx.fillStyle = "#8a8a82";
+        ctx.fillStyle = "#ff9a3d";
         ctx.fillRect(-h, -h, size, size);
-        // Залізні плити з заклепками
-        ctx.fillStyle = "#a8a8a0";
-        ctx.fillRect(-h, -h, size, size * 0.12);
-        ctx.fillStyle = "#6e6e68";
-        ctx.fillRect(-h, h - size * 0.1, size, size * 0.1);
-        ctx.fillStyle = "#5a5a54";
-        var rivets = [[-0.4, -0.3], [0.36, -0.3], [-0.4, 0.34], [0.36, 0.34]];
-        for (var i = 0; i < rivets.length; i++) {
-            ctx.fillRect(size * rivets[i][0], size * rivets[i][1], size * 0.05, size * 0.05);
+        // Вушка у верхніх кутах
+        var twitch = (time % 4200) < 180 ? size * 0.04 : 0;
+        ctx.fillStyle = "#c86a1a";
+        ctx.fillRect(-h, -h - twitch, size * 0.24, size * 0.22);
+        ctx.fillRect(h - size * 0.24, -h, size * 0.24, size * 0.22);
+        ctx.fillStyle = "#ffb0b8";
+        ctx.fillRect(-h + size * 0.06, -h + size * 0.05 - twitch, size * 0.12, size * 0.12);
+        ctx.fillRect(h - size * 0.18, -h + size * 0.05, size * 0.12, size * 0.12);
+        // Смужки на лобі
+        ctx.fillStyle = "#c86a1a";
+        ctx.fillRect(-size * 0.04, -h, size * 0.08, size * 0.22);
+        ctx.fillRect(-size * 0.18, -h, size * 0.06, size * 0.14);
+        ctx.fillRect(size * 0.12, -h, size * 0.06, size * 0.14);
+        ctx.fillRect(-h, -size * 0.02, size * 0.1, size * 0.05);
+        ctx.fillRect(h - size * 0.1, -size * 0.02, size * 0.1, size * 0.05);
+        // Світла мордочка
+        ctx.fillStyle = "#fff0dc";
+        ctx.fillRect(-size * 0.24, size * 0.1, size * 0.48, size * 0.3);
+        // Зелені очі з вертикальними зіницями; кіт іноді повільно щурить їх
+        var squint = (time % 3600) < 420;
+        if (squint) {
+            ctx.fillStyle = "#3a2410";
+            ctx.fillRect(-size * 0.32, -size * 0.08, size * 0.2, size * 0.04);
+            ctx.fillRect(size * 0.12, -size * 0.08, size * 0.2, size * 0.04);
+        } else {
+            ctx.fillStyle = "#6aff5a";
+            ctx.fillRect(-size * 0.32, -size * 0.16, size * 0.2, size * 0.16);
+            ctx.fillRect(size * 0.12, -size * 0.16, size * 0.2, size * 0.16);
+            ctx.fillStyle = "#1a1a1a";
+            ctx.fillRect(-size * 0.24, -size * 0.16, size * 0.05, size * 0.16);
+            ctx.fillRect(size * 0.2, -size * 0.16, size * 0.05, size * 0.16);
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(-size * 0.3, -size * 0.14, size * 0.04, size * 0.04);
+            ctx.fillRect(size * 0.14, -size * 0.14, size * 0.04, size * 0.04);
         }
-        // Суворі брови
-        ctx.fillStyle = "#4a4a44";
-        ctx.fillRect(-size * 0.34, -size * 0.2, size * 0.28, size * 0.07);
-        ctx.fillRect(size * 0.06, -size * 0.2, size * 0.28, size * 0.07);
-        // Очі, що світяться
-        var glow = 0.5 + 0.5 * Math.sin(time * 0.004);
-        ctx.fillStyle = "rgba(255, 80, 40, " + (0.25 + 0.2 * glow).toFixed(3) + ")";
-        ctx.fillRect(-size * 0.32, -size * 0.16, size * 0.22, size * 0.18);
-        ctx.fillRect(size * 0.1, -size * 0.16, size * 0.22, size * 0.18);
-        ctx.fillStyle = "#ff2a1a";
-        ctx.fillRect(-size * 0.28, -size * 0.12, size * 0.14, size * 0.1);
-        ctx.fillRect(size * 0.14, -size * 0.12, size * 0.14, size * 0.1);
-        ctx.fillStyle = "rgba(255, 230, 120, " + (0.5 + 0.5 * glow).toFixed(3) + ")";
-        ctx.fillRect(-size * 0.24, -size * 0.1, size * 0.05, size * 0.05);
-        ctx.fillRect(size * 0.18, -size * 0.1, size * 0.05, size * 0.05);
-        // Великий ніс
-        ctx.fillStyle = "#74746c";
-        ctx.fillRect(-size * 0.07, -size * 0.1, size * 0.14, size * 0.3);
-        ctx.fillStyle = "#62625c";
-        ctx.fillRect(size * 0.03, -size * 0.1, size * 0.04, size * 0.3);
-        // Рот
-        ctx.fillStyle = "#4a4a44";
-        ctx.fillRect(-size * 0.16, size * 0.26, size * 0.32, size * 0.05);
-        // Ліани
-        ctx.fillStyle = "#3a8a2a";
-        ctx.fillRect(-h, -h + size * 0.1, size * 0.08, size * 0.34);
-        ctx.fillRect(-h + size * 0.06, -h + size * 0.34, size * 0.06, size * 0.06);
-        ctx.fillRect(h - size * 0.1, -h, size * 0.1, size * 0.18);
-        ctx.fillStyle = "#4aa83a";
-        ctx.fillRect(-h + size * 0.02, -h + size * 0.22, size * 0.08, size * 0.05);
-        // Мак, що погойдується
-        var sway = Math.sin(time * 0.003) * size * 0.03;
-        ctx.fillStyle = "#2f7a22";
-        ctx.fillRect(size * 0.3 + sway * 0.5, size * 0.12, size * 0.04, size * 0.26);
-        ctx.fillStyle = "#e8202a";
-        ctx.fillRect(size * 0.24 + sway, size * 0.02, size * 0.16, size * 0.12);
-        ctx.fillRect(size * 0.28 + sway, -size * 0.02, size * 0.08, size * 0.2);
-        ctx.fillStyle = "#1a1a1a";
-        ctx.fillRect(size * 0.3 + sway, size * 0.06, size * 0.04, size * 0.04);
-        drawSkinFrame(ctx, size, "#c8c8c0");
-    },
-
-    cyber_eye: function (ctx, size, time) {
+        // Рожевий носик і рот «:3»
+        ctx.fillStyle = "#ff7a9a";
+        ctx.fillRect(-size * 0.05, size * 0.1, size * 0.1, size * 0.06);
+        ctx.fillStyle = "#3a2410";
+        ctx.fillRect(-size * 0.01, size * 0.16, size * 0.02, size * 0.06);
+        ctx.fillRect(-size * 0.1, size * 0.22, size * 0.09, size * 0.03);
+        ctx.fillRect(size * 0.01, size * 0.22, size * 0.09, size * 0.03);
+        // Вуса, що ворушаться
+        var wig = Math.sin(time * 0.006) * size * 0.02;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(-h + size * 0.02, size * 0.12 - wig, size * 0.24, size * 0.02);
+        ctx.fillRect(-h + size * 0.02, size * 0.2 + wig, size * 0.24, size * 0.02);
+        ctx.fillRect(h - size * 0.26, size * 0.12 - wig, size * 0.24, size * 0.02);
+        ctx.fillRect(h - size * 0.26, size * 0.2 + wig, size * 0.24, size * 0.02);
+        drawSkinFrame(ctx, size, "#ffcf8a");
+    },    cyber_eye: function (ctx, size, time) {
         // Серфер на тлі заходу сонця: засмага, сонцезахисні окуляри, біляве волосся
         var h = size / 2;
         var sky = ctx.createLinearGradient(0, -h, 0, h);
@@ -2013,6 +2011,11 @@ export const save = {
     getActiveSkin() {
         if (!saveData) {
             this.load();
+        }
+        // Скін, якого більше немає в грі, замінюємо стартовим
+        const stored = saveData.settings.activeSkin;
+        if (stored && !SKIN_RENDERERS[stored]) {
+            return DEFAULT_SKIN;
         }
         // Поки гравець нічого не вибрав, кубик носить стартовий скін (завжди відкритий)
         return saveData.settings.activeSkin || DEFAULT_SKIN;
