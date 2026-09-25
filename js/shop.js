@@ -172,6 +172,40 @@ export function rewardMultiplier(difficulty, speed, hitWindow) {
     return Math.round(mult * 100) / 100;
 }
 
+// Бонуси аксесуарів: кожен дає один бонус — більше монет (coins), вищий шанс
+// сундука за повторну перемогу (chest) або вищий шанс речі в сундуку (item).
+// Дорожчий аксесуар — більший бонус
+export const ACCESSORY_PERKS = {
+    acc_cap: { coins: 0.05 },
+    acc_bow: { chest: 0.05 },
+    acc_glasses: { item: 0.05 },
+    acc_headphones: { coins: 0.1 },
+    acc_cowboy: { chest: 0.1 },
+    acc_horns: { item: 0.1 },
+    acc_pirate: { chest: 0.15 },
+    acc_halo: { item: 0.15 },
+    acc_crown: { coins: 0.15 }
+};
+
+export function accessoryPerk(accessoryId) {
+    return ACCESSORY_PERKS[accessoryId] || {};
+}
+
+// Підпис бонусу аксесуара для магазину: «🪙 +10% монет» тощо, або ""
+export function accessoryPerkText(accessoryId) {
+    const perk = accessoryPerk(accessoryId);
+    if (perk.coins) {
+        return "🪙 +" + Math.round(perk.coins * 100) + "% монет";
+    }
+    if (perk.chest) {
+        return "🎁 +" + Math.round(perk.chest * 100) + "% шанс сундука";
+    }
+    if (perk.item) {
+        return "✨ +" + Math.round(perk.item * 100) + "% шанс речі";
+    }
+    return "";
+}
+
 // Бонус монет за зброю: крутіша зброя — монети збираються швидше.
 // Без зброї ×1, до 200 — ×1.1, до 350 — ×1.2, дорожча — ×1.3, легендарна — ×1.5
 export function weaponCoinBonus(weaponId) {
@@ -197,7 +231,8 @@ export function computeReward(run) {
     const lines = [];
     const settingsMult = rewardMultiplier(run.difficulty, run.speed, run.hitWindow);
     const weaponMult = weaponCoinBonus(run.weaponId);
-    const mult = settingsMult * weaponMult;
+    const accessoryMult = 1 + (accessoryPerk(run.accessoryId).coins || 0);
+    const mult = settingsMult * weaponMult * accessoryMult;
     let base = 0;
     // +1 за кожен подоланий шип і ще +1, якщо це було «Ідеально»
     if (run.hits > 0) {
@@ -223,7 +258,7 @@ export function computeReward(run) {
     if (!run.won) {
         // Вибух: зберігається половина зібраного
         const total = Math.ceil(base * mult / 2);
-        return { lines: lines, mult: settingsMult, weaponMult: weaponMult, half: true, total: total };
+        return { lines: lines, mult: settingsMult, weaponMult: weaponMult, accessoryMult: accessoryMult, half: true, total: total };
     }
     const finish = FINISH_BONUS[run.leagueId] || 10;
     lines.push({ label: "Фініш", value: finish });
@@ -241,7 +276,7 @@ export function computeReward(run) {
         lines.push({ label: "Золота рамка", value: GOLD_BONUS });
         base += GOLD_BONUS;
     }
-    return { lines: lines, mult: settingsMult, weaponMult: weaponMult, half: false, total: Math.ceil(base * mult) };
+    return { lines: lines, mult: settingsMult, weaponMult: weaponMult, accessoryMult: accessoryMult, half: false, total: Math.ceil(base * mult) };
 }
 
 // ---------- Золота монета: значок валюти ----------
@@ -664,7 +699,8 @@ export function chestsForVictory(win, random) {
     }
     if (chests.length === 0) {
         const pity = (win.winsWithoutChest || 0) + 1 >= CHEST_PITY_WINS;
-        if (pity || rnd() < REPLAY_CHEST_CHANCE) {
+        // Аксесуар може підвищити шанс сундука (win.chestBonus)
+        if (pity || rnd() < REPLAY_CHEST_CHANCE + (win.chestBonus || 0)) {
             chests.push("wood");
         }
     }
@@ -691,7 +727,8 @@ export function chestItemPool(type, isOwned) {
 
 // Вміст сундука: { kind: "item", id } або { kind: "crystals", amount }.
 // Якщо купувати вже нічого (усе з пулу є) — завжди монети.
-export function rollChest(type, isOwned, random) {
+// itemBonus — добавка до шансу речі від аксесуара (0…1)
+export function rollChest(type, isOwned, random, itemBonus) {
     const rnd = random || Math.random;
     const chest = CHEST_TYPES[type] || CHEST_TYPES.wood;
     // Спершу — крихітний шанс легендарного предмета (будь-якого ще не купленого)
@@ -700,7 +737,7 @@ export function rollChest(type, isOwned, random) {
         return { kind: "item", id: legendaries[Math.floor(rnd() * legendaries.length) % legendaries.length].id };
     }
     const pool = chestItemPool(type, isOwned);
-    if (pool.length > 0 && rnd() < chest.itemChance) {
+    if (pool.length > 0 && rnd() < Math.min(0.95, chest.itemChance + (itemBonus || 0))) {
         let r = rnd();
         for (const p of pool) {
             r -= p.chance;
