@@ -130,9 +130,10 @@ function setState(next) {
     for (const key of Object.keys(overlays)) {
         overlays[key].classList.add("hidden");
     }
-    if (next === "SETTINGS") {
+    if (next === "SETTINGS" || next === "LEVEL_SELECT") {
+        // Налаштування й вибір рівня — вікна поверх меню
         overlays.MENU.classList.remove("hidden");
-        overlays.SETTINGS.classList.remove("hidden");
+        overlays[next].classList.remove("hidden");
     } else if (overlays[next]) {
         overlays[next].classList.remove("hidden");
     }
@@ -327,9 +328,12 @@ function buildLevelCards() {
             card.classList.add("boss-card");
         }
 
+        // Назва світу рівня; закриті рівні свою назву не показують
+        const number = level.leagueId + "-" + levelIdx;
+        const worldName = BackgroundRenderer.worldName(level.bgTheme) || level.name;
         const titleEl = document.createElement("div");
         titleEl.className = "level-title";
-        titleEl.textContent = level.leagueId + "-" + levelIdx + ": " + level.name;
+        titleEl.textContent = locked ? number : number + ": " + worldName;
         card.appendChild(titleEl);
 
         if (locked) {
@@ -341,7 +345,9 @@ function buildLevelCards() {
 
         const record = document.createElement("div");
         record.className = "level-record";
-        record.textContent = "Кращий: " + entry.bestPct + "% | HS: " + entry.highScore;
+        record.textContent = locked
+            ? "Рівень ще не відкрито"
+            : "Кращий: " + entry.bestPct + "% | HS: " + entry.highScore;
         card.appendChild(record);
 
         const achievement = save.getLevelAchievement(level.id);
@@ -506,6 +512,13 @@ btnCamOff.addEventListener("click", function () {
 
 btnLevelsBack.addEventListener("click", function () {
     setState("MENU");
+});
+
+// Клік поза вікном вибору рівня закриває його
+overlays.LEVEL_SELECT.addEventListener("click", function (e) {
+    if (e.target === overlays.LEVEL_SELECT) {
+        btnLevelsBack.click();
+    }
 });
 
 btnRetry.addEventListener("click", function () {
