@@ -12,6 +12,7 @@ import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
 import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawTrail, drawExplosion, drawAccessory } from "./shop.js";
+import { drawWeaponDemo } from "./weapons.js";
 
 // ---------- Полотно та адаптивність ----------
 
@@ -240,6 +241,7 @@ function handleGameOver() {
         const reward = computeReward({
             perfect: runState.runPerfect,
             series: runState.runSeries,
+            weapon: runState.weapon,
             won: false,
             difficulty: save.getDifficulty(),
             speed: save.getSpeed(),
@@ -274,6 +276,7 @@ function handleVictory() {
         const reward = computeReward({
             perfect: runState.runPerfect,
             series: runState.runSeries,
+            weapon: runState.weapon,
             won: true,
             leagueId: wonLevel ? wonLevel.leagueId : 1,
             firstClear: !paidBefore.first,
@@ -1379,10 +1382,60 @@ function drawShopSkinPreview(entry, now) {
     }
 }
 
+// Прев'ю зброї: шип під'їжджає, кубик із поточним скіном атакує
+function drawShopWeaponPreview(entry, now) {
+    const pctx = entry.canvas.getContext("2d");
+    const w = 150;
+    const h = 100;
+    pctx.setTransform(entry.dpr, 0, 0, entry.dpr, 0, 0);
+    pctx.fillStyle = "#070b1c";
+    pctx.fillRect(0, 0, w, h);
+    const groundY = h * 0.82;
+    pctx.fillStyle = "#12203a";
+    pctx.fillRect(0, groundY, w, h - groundY);
+    pctx.fillStyle = "#00f6ff";
+    pctx.fillRect(0, groundY, w, 2);
+    const skinFn = SKIN_RENDERERS[save.getActiveSkin()] || SKIN_RENDERERS.neon_base;
+    pctx.save();
+    pctx.beginPath();
+    pctx.rect(0, 0, w, h);
+    pctx.clip();
+    if (entry.item.id === "weapon_none") {
+        // Без зброї: кубик просто перестрибує шип
+        const cycle = 1800;
+        const ph = (now % cycle) / cycle;
+        const spikeX = w + 10 - ph * (w + 20);
+        pctx.fillStyle = "#4a1030";
+        pctx.strokeStyle = "#ff2ea6";
+        pctx.lineWidth = 2;
+        pctx.beginPath();
+        pctx.moveTo(spikeX - 13, groundY);
+        pctx.lineTo(spikeX, groundY - 28);
+        pctx.lineTo(spikeX + 13, groundY);
+        pctx.closePath();
+        pctx.fill();
+        pctx.stroke();
+        const d = spikeX - 30;
+        const hop = Math.abs(d) < 45 ? Math.cos(d / 45 * Math.PI / 2) * 42 : 0;
+        pctx.translate(30, groundY - 15 - hop);
+        pctx.rotate(hop > 0 ? (1 - d / 45) * Math.PI / 2 : 0);
+        skinFn(pctx, 30, now, {});
+    } else {
+        drawWeaponDemo(pctx, entry.item.id, w, h, now, function (c, size) {
+            skinFn(c, size, now, {});
+        });
+    }
+    pctx.restore();
+}
+
 // Живий попередній перегляд товару на кубику з поточним скіном
 function drawShopPreview(entry, now) {
     if (entry.item.type === "skin") {
         drawShopSkinPreview(entry, now);
+        return;
+    }
+    if (entry.item.type === "weapon") {
+        drawShopWeaponPreview(entry, now);
         return;
     }
     const c = entry.canvas;

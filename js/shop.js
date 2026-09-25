@@ -57,6 +57,17 @@ export const SHOP_ITEMS = [
     { id: "boom_fireworks", type: "explosion", name: "Феєрверк", price: 200 },
     { id: "boom_starfall", type: "explosion", name: "Зорепад", price: 250 },
 
+    { id: "weapon_none", type: "weapon", name: "Без зброї (стрибки)", price: 0 },
+    { id: "weapon_sword", type: "weapon", name: "Меч", price: 300 },
+    { id: "weapon_axe", type: "weapon", name: "Сокира-бумеранг", price: 350 },
+    { id: "weapon_bow", type: "weapon", name: "Лук", price: 400 },
+    { id: "weapon_pickaxe", type: "weapon", name: "Кирка", price: 400 },
+    { id: "weapon_ball", type: "weapon", name: "Футбольний м'яч", price: 450 },
+    { id: "weapon_pistol", type: "weapon", name: "Пістолет", price: 450 },
+    { id: "weapon_rifle", type: "weapon", name: "Автомат", price: 600 },
+    { id: "weapon_laser", type: "weapon", name: "Лазер", price: 700 },
+    { id: "weapon_rocket", type: "weapon", name: "Ракетниця", price: 900 },
+
     { id: "acc_none", type: "accessory", name: "Без аксесуара", price: 0 },
     { id: "acc_cap", type: "accessory", name: "Кепка", price: 60 },
     { id: "acc_bow", type: "accessory", name: "Бант", price: 70 },
@@ -73,11 +84,12 @@ export const SHOP_TYPES = [
     { type: "skin", name: "Скіни" },
     { type: "trail", name: "Шлейфи" },
     { type: "explosion", name: "Вибухи" },
-    { type: "accessory", name: "Аксесуари" }
+    { type: "accessory", name: "Аксесуари" },
+    { type: "weapon", name: "Зброя" }
 ];
 
 // Безкоштовний товар кожного типу (надітий за замовчуванням)
-export const DEFAULT_ITEMS = { trail: "trail_default", explosion: "boom_default", accessory: "acc_none" };
+export const DEFAULT_ITEMS = { trail: "trail_default", explosion: "boom_default", accessory: "acc_none", weapon: "weapon_none" };
 
 export function getShopItem(id) {
     for (const item of SHOP_ITEMS) {
@@ -143,7 +155,7 @@ export function computeReward(run) {
     const lines = [];
     const mult = rewardMultiplier(run.difficulty, run.speed, run.hitWindow);
     let base = 0;
-    lines.push({ label: "Ідеальні стрибки", value: run.perfect });
+    lines.push({ label: run.weapon ? "Ідеальні удари" : "Ідеальні стрибки", value: run.perfect });
     base += run.perfect;
     if (run.series > 0) {
         lines.push({ label: "Серії", value: run.series });
