@@ -109,7 +109,6 @@ body {
 }
 
 #mainMenu,
-#levelSelect,
 #gameoverScreen,
 #victoryScreen {
     background: rgba(3, 4, 12, 0.55);
@@ -822,11 +821,29 @@ body {
 
 /* ---------- Модальне вікно вибору скіна ---------- */
 
-.skins-modal-inner {
-    max-width: 95vw;
-    max-height: 88vh;
-    overflow-y: auto;
+/* ---------- Широкі вікна зі списком (скіни, рівні) ----------
+   Заголовок і кнопка «ЗАКРИТИ» стоять на місці, прокручується лише список */
+
+.list-modal {
+    width: min(94vw, 140vmin);
+    max-height: 92vh;
+    overflow: hidden;
     padding: 3vmin 4vmin;
+}
+
+.list-modal-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    overflow-y: auto;
+    padding: 1.5vmin;
+}
+
+.list-modal .level-grid {
+    width: 100%;
+    max-height: none;
+    overflow: visible;
+    padding: 0;
 }
 
 .skins-grid {
@@ -834,7 +851,6 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
     gap: 15px;
     width: 100%;
-    margin-bottom: 2.5vmin;
 }
 
 /* ---------- Картка скіна ---------- */

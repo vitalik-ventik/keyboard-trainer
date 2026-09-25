@@ -116,19 +116,25 @@
 
     <!-- Модальне вікно вибору скіна -->
     <div id="skins-modal" class="overlay modal-backdrop hidden">
-        <div class="modal skins-modal-inner">
+        <div class="modal list-modal">
             <h2 class="neon-title">ВИБІР СКІНА</h2>
-            <div class="skins-grid" id="skinsGrid"></div>
+            <div class="list-modal-scroll">
+                <div class="skins-grid" id="skinsGrid"></div>
+            </div>
             <button id="btnCloseSkins" class="text-btn" type="button">ЗАКРИТИ</button>
         </div>
     </div>
 
-    <!-- Екран вибору рівня -->
-    <div id="levelSelect" class="overlay hidden">
-        <h2 class="neon-title">ВИБІР РІВНЯ</h2>
-        <div id="leagueTabs" class="league-tabs"></div>
-        <div id="levelGrid" class="level-grid"></div>
-        <button id="btnLevelsBack" class="text-btn" type="button">НАЗАД</button>
+    <!-- Вікно вибору рівня (поверх меню, як налаштування) -->
+    <div id="levelSelect" class="overlay modal-backdrop hidden">
+        <div class="modal list-modal">
+            <h2 class="neon-title">ВИБІР РІВНЯ</h2>
+            <div id="leagueTabs" class="league-tabs"></div>
+            <div class="list-modal-scroll">
+                <div id="levelGrid" class="level-grid"></div>
+            </div>
+            <button id="btnLevelsBack" class="text-btn" type="button">ЗАКРИТИ</button>
+        </div>
     </div>
 
     <!-- Екран поразки -->
