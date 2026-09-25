@@ -43,7 +43,7 @@ export const WEAPON_SOUNDS = {
     weapon_pickaxe: { hit: { sound: "pickaxe", volume: 0.9 } },
     weapon_thunder: { hit: { sound: "thunder", duration: 1.8, volume: 0.75 } },
     weapon_bow: { fire: { sound: "bow", volume: 0.55 } },
-    weapon_ball: { fire: { sound: "soccer", volume: 0.6 } },
+    weapon_ball: { fire: { sound: "soccer", volume: 2.2 } },
     weapon_pistol: { fire: { sound: "gun", volume: 1.0 } },
     weapon_rifle: { fire: { sound: "machine_gun", duration: 0.4, volume: 0.3 } },
     weapon_flamethrower: { fire: { sound: "flamethrower", offset: 0.15, duration: 0.8, volume: 1.3 } },
