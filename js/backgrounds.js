@@ -5997,6 +5997,11 @@ const GROUND_BY_THEME = {
     pixel_nether: "lava"
 };
 
+// Яка пасхалка у світі (для підпису в preview)
+BackgroundRenderer.easterEggType = function (theme) {
+    return EASTER_EGG_BY_THEME[theme] || "comet";
+};
+
 BackgroundRenderer.setEffects = function (fx) {
     _fx = fx || { progress: 0, combo: 0, perfect: 0, eggT: null, weather: "clear", camY: 0, oops: 0 };
 };
