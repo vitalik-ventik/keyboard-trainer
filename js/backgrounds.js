@@ -3191,19 +3191,30 @@ function drawFarmBuilding(fx, kind, bx, farmH, B, windows, chimneys) {
         fx.fillStyle = "#2a2018";
         fx.fillRect(bx + B * 1.8, g - B * 1.5, B * 0.8, B * 1.5);
     } else if (kind === "church") {
+        // Церква: широка нава з двосхилим дахом і дзвіниця збоку з гострим шпилем
         fx.fillStyle = "#8a8a9a";
-        fx.fillRect(bx, g - B * 3, B * 3.4, B * 3);
-        fx.fillRect(bx + B * 1.1, g - B * 5.5, B * 1.2, B * 2.5);
-        fx.fillStyle = "#3a3448";
+        fx.fillRect(bx, g - B * 2.4, B * 4, B * 2.4);
+        fx.fillStyle = "#4a4458";
         for (let k = 0; k < 4; k++) {
-            fx.fillRect(bx + B * 1.1 + k * B * 0.15, g - B * 5.5 - (k + 1) * B * 0.45, B * 1.2 - k * B * 0.3, B * 0.45);
+            fx.fillRect(bx - B * 0.3 + k * B * 0.55, g - B * 2.4 - (k + 1) * B * 0.45, B * 4.6 - k * B * 1.1, B * 0.45);
+        }
+        const tx = bx + B * 4;
+        fx.fillStyle = "#9a9aaa";
+        fx.fillRect(tx, g - B * 4.2, B * 1.6, B * 4.2);
+        fx.fillStyle = "#5a5470";
+        for (let k = 0; k < 6; k++) {
+            const w = B * 1.9 - k * B * 0.32;
+            fx.fillRect(tx + (B * 1.6 - w) / 2, g - B * 4.2 - (k + 1) * B * 0.4, w, B * 0.4);
         }
         fx.fillStyle = "#c8b060";
-        fx.fillRect(bx + B * 1.65, g - B * 7.8, B * 0.12, B * 0.6);
-        fx.fillRect(bx + B * 1.5, g - B * 7.6, B * 0.42, B * 0.12);
-        windows.push({ x: bx + B * 1.4, y: g - B * 4.8 });
-        windows.push({ x: bx + B * 0.4, y: g - B * 2.2 });
-        windows.push({ x: bx + B * 2.4, y: g - B * 2.2 });
+        fx.fillRect(tx + B * 0.74, g - B * 7.4, B * 0.12, B * 0.8);
+        fx.fillRect(tx + B * 0.55, g - B * 7.15, B * 0.5, B * 0.12);
+        fx.fillStyle = "#2a2018";
+        fx.fillRect(bx + B * 1.6, g - B * 1.3, B * 0.8, B * 1.3);
+        fx.fillRect(bx + B * 1.7, g - B * 1.4, B * 0.6, B * 0.1);
+        windows.push({ x: tx + B * 0.5, y: g - B * 3.4 });
+        windows.push({ x: bx + B * 0.4, y: g - B * 1.8 });
+        windows.push({ x: bx + B * 2.9, y: g - B * 1.8 });
     } else if (kind === "silo") {
         fx.fillStyle = "#7a8090";
         fx.fillRect(bx, g - B * 5, B * 1.8, B * 5);
