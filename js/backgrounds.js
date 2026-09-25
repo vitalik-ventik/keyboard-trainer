@@ -5,6 +5,8 @@
 // на цілі пікселі. Тут також живуть частинки вибуху кубика.
 // ============================================================
 
+import { EGG_BY_THEME, EGG_DRAWERS } from "./easter_eggs.js";
+
 const MAX_PARTICLES = 50;
 const NEON_PALETTE = ["#00f6ff", "#ff2ea6", "#ffe14d", "#00ff88"];
 
@@ -5975,18 +5977,6 @@ let _fx = { progress: 0, combo: 0, perfect: 0, eggT: null, weather: "clear", cam
 // Світи просто неба: до кінця рівня в них настає ніч
 const DUSK_THEMES = new Set(["block_village", "night_harbor", "dino_valley", "sunset_city", "pirate_bay", "pixel_desert", "neon_highway", "sky_city", "twin_sun_planet", "stadium"]);
 
-// Пасхалка кожного світу (одна за рівень)
-const EASTER_EGG_BY_THEME = {
-    sunset_city: "ufo", neon_rooftops: "ufo", neon_highway: "ufo", secret_base: "ufo", cosmodrome: "ufo",
-    pixel_ocean: "whale", pirate_bay: "whale", night_harbor: "whale",
-    knight_castle: "dragon", dragon_lair: "dragon", pixel_nether: "dragon",
-    orbit_view: "meteors", black_hole: "meteors", pixel_islands: "meteors", twin_sun_planet: "meteors", block_village: "cat",
-    digital_forest: "deer", pixel_night: "deer", pixel_snow: "deer", storm_sky: "deer",
-    sea_fabricator: "whale", treasury: "cat",
-    crystal_cave: "cat", pixel_cave: "cat", jungle_temple: "deer",
-    dino_valley: "trex", luna_park: "balloons", sky_citadel: "meteors"
-};
-
 // Тип землі під шипами
 const GROUND_BY_THEME = {
     pixel_night: "grass", digital_forest: "grass", dino_valley: "grass", block_village: "grass", jungle_temple: "grass", storm_sky: "grass", stadium: "turf", twin_sun_planet: "alien",
@@ -5999,7 +5989,8 @@ const GROUND_BY_THEME = {
 
 // Яка пасхалка у світі (для підпису в preview)
 BackgroundRenderer.easterEggType = function (theme) {
-    return EASTER_EGG_BY_THEME[theme] || "comet";
+    const egg = EGG_BY_THEME[theme];
+    return egg ? egg.name : "Комета";
 };
 
 BackgroundRenderer.setEffects = function (fx) {
@@ -6044,7 +6035,8 @@ BackgroundRenderer.renderSceneEffects = function (ctx, bgTheme, W, H, groundY, t
         ctx.fillRect(0, 0, W, gY);
     }
     if (_fx.eggT !== null && _fx.eggT >= 0 && _fx.eggT <= 1) {
-        this.renderEasterEgg(ctx, EASTER_EGG_BY_THEME[bgTheme] || "comet", _fx.eggT, W, H, gY, time);
+        const egg = EGG_BY_THEME[bgTheme];
+        this.renderEasterEgg(ctx, egg ? egg.key : "comet", _fx.eggT, W, H, gY, time);
     }
 };
 
@@ -6090,6 +6082,12 @@ BackgroundRenderer.renderEasterEgg = function (ctx, type, t, W, H, gY, time) {
     const fade = Math.min(1, t * 6, (1 - t) * 6);
     ctx.save();
     ctx.globalAlpha = fade;
+    // Унікальні пасхалки рівнів живуть в easter_eggs.js
+    if (EGG_DRAWERS[type]) {
+        EGG_DRAWERS[type](ctx, t, W, H, gY, time, B);
+        ctx.restore();
+        return;
+    }
     if (type === "ufo") {
         const x = W * 1.1 - t * W * 1.3;
         const y = gY * 0.2 + Math.sin(time * 2) * B * 0.5;
@@ -8564,10 +8562,6 @@ Object.assign(THEME_RENDERERS, {
 SCENE_CACHE_KEYS.push("_pumpkinPastures", "_creeperWoods", "_redstoneMines", "_alienFreighter",
     "_hunterJungle", "_soggySwamp", "_dungeonDepths", "_alienHive");
 DUSK_THEMES.add("pumpkin_pastures");
-Object.assign(EASTER_EGG_BY_THEME, {
-    pumpkin_pastures: "cat", creeper_woods: "deer", redstone_mines: "cat", alien_freighter: "ufo",
-    hunter_jungle: "deer", soggy_swamp: "deer", dungeon_depths: "dragon", alien_hive: "meteors"
-});
 Object.assign(GROUND_BY_THEME, {
     pumpkin_pastures: "grass", creeper_woods: "grass", redstone_mines: "stone", hunter_jungle: "grass",
     soggy_swamp: "grass", dungeon_depths: "stone", alien_hive: "alien"
@@ -9293,10 +9287,6 @@ Object.assign(THEME_RENDERERS, {
 });
 SCENE_CACHE_KEYS.push("_desertTemple", "_fieryForge", "_planetColony", "_hunterShip", "_obsidianPeak");
 DUSK_THEMES.add("desert_temple");
-Object.assign(EASTER_EGG_BY_THEME, {
-    desert_temple: "cat", fiery_forge: "dragon", planet_colony: "ufo", hunter_ship: "meteors",
-    obsidian_peak: "dragon", hive_queen: "meteors"
-});
 Object.assign(GROUND_BY_THEME, {
     desert_temple: "sand", fiery_forge: "lava", planet_colony: "sand", obsidian_peak: "cloud", hive_queen: "alien"
 });
@@ -9651,7 +9641,6 @@ BackgroundRenderer.renderHangarBay = function (ctx, W, H, groundY, time, speed) 
 
 Object.assign(THEME_RENDERERS, { hangar_bay: "renderHangarBay" });
 SCENE_CACHE_KEYS.push("_hangarBay");
-EASTER_EGG_BY_THEME.hangar_bay = "ufo";
 FINISH_BY_THEME.hangar_bay = "portal";
 WORLD_NAMES.hangar_bay = "Ангар корабля";
 
