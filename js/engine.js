@@ -6,6 +6,7 @@
 
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
+import { KEYS } from "./keyboard.js";
 
 // ---------- Детермінований PRNG (фіксовані траси) ----------
 
@@ -63,18 +64,18 @@ export const LEVELS_CONFIG = [
         id: 3,
         name: "Складна",
         levels: [
-            { id: 25, leagueId: 3, name: "Верхній штурм",           letters: ["Й","Ц","У","К","Е","Н","Г","Ш","Щ","З","Х","Ї","Ф","І","В","А"], speed: 310, spikeCount: 38, seed: 2201, bgTheme: "equalizer", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_3_1", name: "Плазма", renderType: "plasma" } },
-            { id: 26, leagueId: 3, name: "Великий спуск",           letters: ["Ф","І","В","А","П","Р","О","Л","Д","Ж","Я","Ч","С","М","И","Т","Ь","Б"], speed: 325, spikeCount: 42, seed: 2202, bgTheme: "waterfall_cascade", accentColor: "#6644ff", rhythmGroups: false, skin: { id: "skin_3_2", name: "Вортекс", renderType: "vortex" } },
-            { id: 27, leagueId: 3, name: "Дворядний бар'єр",        letters: ["Й","Ц","У","К","Е","Н","Я","Ч","С","М","И","Т","Ь","Б","Ю","Є","Ґ"], speed: 340, spikeCount: 46, seed: 2203, bgTheme: "barrier_wall", accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_3_3", name: "Квантовий Бар'єр", renderType: "quantum_barrier" } },
-            { id: 28, leagueId: 3, name: "Хаотичний мікс",          letters: ["А","О","П","Р","В","Л","І","Д","Ф","Ж","К","Е","Н","Г","У","Ш","Ц","Щ"], speed: 360, spikeCount: 50, seed: 2204, bgTheme: "glitch_field", accentColor: "#7fff00", rhythmGroups: false, skin: { id: "skin_3_4", name: "Метеор", renderType: "meteor" } }
+            { id: 25, leagueId: 3, name: "Верхній штурм",           letters: ["Ц","У","К","Ф","В","П","Н","Ш","З","О","Д","Є"], speed: 310, spikeCount: 38, seed: 2201, bgTheme: "equalizer", accentColor: "#ff2ea6", rhythmGroups: false, skin: { id: "skin_3_1", name: "Плазма", renderType: "plasma" } },
+            { id: 26, leagueId: 3, name: "Великий спуск",           letters: ["І","А","Я","С","И","М","Р","Л","Ж","Ь","Ю","Ґ"], speed: 325, spikeCount: 42, seed: 2202, bgTheme: "waterfall_cascade", accentColor: "#6644ff", rhythmGroups: false, skin: { id: "skin_3_2", name: "Вортекс", renderType: "vortex" } },
+            { id: 27, leagueId: 3, name: "Три поверхи",             letters: ["Й","У","Е","Ф","А","Ч","М","Г","Щ","Х","Ї","Р","Т","Б"], speed: 340, spikeCount: 46, seed: 2203, bgTheme: "barrier_wall", accentColor: "#00f6ff", rhythmGroups: false, skin: { id: "skin_3_3", name: "Квантовий Бар'єр", renderType: "quantum_barrier" } },
+            { id: 28, leagueId: 3, name: "Хаотичний мікс",          letters: ["Ц","К","В","П","Я","С","И","Й","Н","Ш","З","Ї","О","Д","Є","Б"], speed: 360, spikeCount: 50, seed: 2204, bgTheme: "glitch_field", accentColor: "#7fff00", rhythmGroups: false, skin: { id: "skin_3_4", name: "Метеор", renderType: "meteor" } }
         ]
     },
     {
         id: 4,
         name: "Майстер",
         levels: [
-            { id: 29, leagueId: 4, name: "Половина Всесвіту",       letters: ["А","Б","В","Г","Д","Е","Ж","З","И","І","Ї","Й","К","Л","М","Н","О","П","Р","С","Т","У","Ф","Х","Ц","Ч","Ш","Щ"], speed: 390, spikeCount: 50, seed: 2301, bgTheme: "nebula_drift", accentColor: "#e5ff00", rhythmGroups: false, skin: { id: "skin_4_1", name: "Галактика", renderType: "galaxy" } },
-            { id: 30, leagueId: 4, name: "Гранд Мастер",            letters: ["К","Л","М","Н","О","П","Р","С","Т","У","Ф","Х","Ц","Ч","Ш","Щ","Ь","Ю","Я","Є","Ї","І","Ґ"], speed: 418, spikeCount: 55, seed: 2302, bgTheme: "grand_hex", accentColor: "#ff4400", rhythmGroups: false, skin: { id: "skin_4_2", name: "Корона Майстра", renderType: "master_crown" } }
+            { id: 29, leagueId: 4, name: "Серце клавіатури",        letters: ["Ц","У","К","Е","І","В","А","П","Ч","С","М","И","Н","Г","Ш","Щ","Р","О","Л","Д","Т","Ь","Б","Ю"], speed: 390, spikeCount: 50, seed: 2301, bgTheme: "nebula_drift", accentColor: "#e5ff00", rhythmGroups: false, skin: { id: "skin_4_1", name: "Галактика", renderType: "galaxy" } },
+            { id: 30, leagueId: 4, name: "Гранд Мастер",            letters: ["Й","Ц","У","К","Е","Ф","І","В","А","П","Я","Ч","С","М","И","Н","Г","Ш","З","Х","Р","О","Л","Д","Ж","Є","Т","Ь","Б","Ю"], speed: 418, spikeCount: 55, seed: 2302, bgTheme: "grand_hex", accentColor: "#ff4400", rhythmGroups: false, skin: { id: "skin_4_2", name: "Корона Майстра", renderType: "master_crown" } }
         ]
     },
     {
@@ -699,6 +700,12 @@ const LEFT_HAND_LETTERS = new Set([
     "Я","Ч","С","М","И"
 ]);
 
+// Стовпець кожної літери на клавіатурі (для уникнення стрибків «вгору-вниз» одним пальцем)
+const LETTER_COLUMN = {};
+for (const key of KEYS) {
+    LETTER_COLUMN[key.letter] = key.col;
+}
+
 // Ймовірність, що наступна літера буде з протилежного боку клавіатури
 const HAND_SWITCH_CHANCE = 0.7;
 
@@ -789,11 +796,28 @@ function generateTrack(level, effectiveSpeed, okPx) {
             bag = pool.slice();
             bags.set(pool, bag);
         }
-        let idx = Math.floor(rng() * bag.length);
-        // Не ставимо одну літеру двічі поспіль, якщо в мішку є інша
-        if (bag[idx] === lastLetter1 && bag.length > 1) {
-            idx = (idx + 1 + Math.floor(rng() * (bag.length - 1))) % bag.length;
+        // Спершу — літери з іншого стовпця, ніж попередня (не «одна під одною»),
+        // потім — будь-яка інша літера, і лише в крайньому разі — та сама
+        const lastColumn = lastLetter1 === null ? null : LETTER_COLUMN[lastLetter1];
+        let candidates = [];
+        for (let i = 0; i < bag.length; i++) {
+            if (bag[i] !== lastLetter1 && LETTER_COLUMN[bag[i]] !== lastColumn) {
+                candidates.push(i);
+            }
         }
+        if (candidates.length === 0) {
+            for (let i = 0; i < bag.length; i++) {
+                if (bag[i] !== lastLetter1) {
+                    candidates.push(i);
+                }
+            }
+        }
+        if (candidates.length === 0) {
+            for (let i = 0; i < bag.length; i++) {
+                candidates.push(i);
+            }
+        }
+        const idx = candidates[Math.floor(rng() * candidates.length)];
         return bag.splice(idx, 1)[0];
     }
 
