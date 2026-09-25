@@ -277,8 +277,16 @@ body {
 }
 
 .side-btn {
-    width: 15vmin;
-    height: 15vmin;
+    width: 17vmin;
+    height: 17vmin;
+}
+
+/* Довгі підписи бічних кнопок («НАЛАШТУВАННЯ») мають вміщатися в коло */
+.side-btn .btn-label {
+    font-size: 1.4vmin;
+    letter-spacing: 0.06vmin;
+    max-width: 14vmin;
+    text-align: center;
 }
 
 .side-btn .btn-icon {
@@ -537,6 +545,8 @@ body {
 }
 
 .level-card {
+    --c: 0, 246, 255;
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -545,38 +555,46 @@ body {
     min-height: auto;
     padding: 1.8vmin 1.2vmin;
     border-radius: 1.6vmin;
-    background: var(--panel-dark);
-    border: 0.3vmin solid var(--neon-cyan);
+    background:
+        linear-gradient(180deg, rgba(var(--c), 0.14), rgba(var(--c), 0.03) 60%),
+        var(--panel-dark);
+    border: 0.3vmin solid rgb(var(--c));
     box-shadow:
-        0 0 14px rgba(0, 246, 255, 0.45),
-        inset 0 0 20px rgba(0, 246, 255, 0.1);
+        0 0 0.5vmin rgba(var(--c), 0.9),
+        0 0 1.8vmin rgba(var(--c), 0.4),
+        inset 0 0 1.8vmin rgba(var(--c), 0.18);
     cursor: pointer;
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    transition: transform 0.15s ease;
+}
+
+/* Яскравий ореол при наведенні (анімується лише прозорість) */
+.level-card::after {
+    content: "";
+    position: absolute;
+    inset: -0.3vmin;
+    border-radius: 1.6vmin;
+    box-shadow: 0 0 3vmin rgba(var(--c), 0.75);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
 }
 
 .level-card:hover {
     transform: translateY(-0.6vmin);
-    box-shadow:
-        0 0 26px rgba(0, 246, 255, 0.85),
-        inset 0 0 24px rgba(0, 246, 255, 0.18);
+}
+
+.level-card:hover::after {
+    opacity: 1;
 }
 
 .level-card.boss-card {
-    border-color: var(--neon-pink);
-    box-shadow:
-        0 0 14px rgba(255, 46, 166, 0.5),
-        inset 0 0 20px rgba(255, 46, 166, 0.12);
-}
-
-.level-card.boss-card:hover {
-    box-shadow:
-        0 0 28px rgba(255, 46, 166, 0.9),
-        inset 0 0 24px rgba(255, 46, 166, 0.2);
+    --c: 255, 46, 166;
 }
 
 .level-card.locked {
-    border-color: var(--locked-gray);
-    background: rgba(18, 19, 28, 0.9);
+    --c: 90, 96, 120;
+    background: rgba(14, 15, 24, 0.9);
+    border-color: rgba(var(--c), 0.45);
     box-shadow: none;
     cursor: not-allowed;
     filter: grayscale(1);
@@ -617,7 +635,7 @@ body {
     font-size: 2.8vmin;
     font-weight: 800;
     color: #ffffff;
-    text-shadow: 0 0 10px var(--neon-cyan);
+    text-shadow: 0 0 0.6vmin rgb(var(--c)), 0 0 1.4vmin rgba(var(--c), 0.8);
     text-align: center;
     line-height: 1.3;
 }
@@ -748,22 +766,29 @@ body {
 /* ---------- Тригер вибору скіна ---------- */
 
 .skin-trigger {
+    --c: 0, 246, 255;
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 8px 18px;
     margin-bottom: 1.5vmin;
     border-radius: 12px;
-    background: rgba(0, 246, 255, 0.08);
-    border: 1px solid rgba(0, 246, 255, 0.3);
+    background: linear-gradient(180deg, rgba(var(--c), 0.16), rgba(var(--c), 0.04)), rgb(8, 10, 26);
+    border: 2px solid rgb(var(--c));
+    box-shadow:
+        0 0 0.5vmin rgba(var(--c), 0.8),
+        0 0 1.8vmin rgba(var(--c), 0.35),
+        inset 0 0 1.2vmin rgba(var(--c), 0.2);
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .skin-trigger:hover {
     transform: scale(1.05) rotate(2deg);
-    box-shadow: 0 0 16px rgba(0, 246, 255, 0.55);
-    background: rgba(0, 246, 255, 0.15);
+    box-shadow:
+        0 0 0.6vmin rgb(var(--c)),
+        0 0 2.8vmin rgba(var(--c), 0.65),
+        inset 0 0 1.6vmin rgba(var(--c), 0.3);
 }
 
 .active-skin-canvas {
@@ -775,8 +800,8 @@ body {
     font-size: 2.2vmin;
     font-weight: 700;
     letter-spacing: 0.3vmin;
-    color: var(--neon-cyan);
-    text-shadow: 0 0 6px rgba(0, 246, 255, 0.5);
+    color: #ffffff;
+    text-shadow: 0 0 0.6vmin rgb(var(--c)), 0 0 1.4vmin rgba(var(--c), 0.8);
 }
 
 /* ---------- Модальне вікно вибору скіна ---------- */
@@ -799,21 +824,27 @@ body {
 /* ---------- Картка скіна ---------- */
 
 .skin-card {
+    --c: 0, 246, 255;
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
     padding: 12px 8px;
     border-radius: 10px;
-    background: rgba(8, 10, 26, 0.85);
-    border: 2px solid rgba(0, 246, 255, 0.25);
+    background: linear-gradient(180deg, rgba(var(--c), 0.08), rgba(8, 10, 26, 0.9));
+    border: 2px solid rgba(var(--c), 0.4);
     cursor: pointer;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
 
 .skin-card:hover:not(.locked) {
-    border-color: var(--neon-cyan);
-    box-shadow: 0 0 14px rgba(0, 246, 255, 0.45);
+    border-color: rgb(var(--c));
+    background: linear-gradient(180deg, rgba(var(--c), 0.2), rgba(8, 10, 26, 0.9));
+    box-shadow:
+        0 0 0.5vmin rgb(var(--c)),
+        0 0 2vmin rgba(var(--c), 0.5),
+        inset 0 0 1.2vmin rgba(var(--c), 0.25);
     transform: translateY(-2px);
 }
 
@@ -834,10 +865,10 @@ body {
 /* ---------- Стани карток ---------- */
 
 .skin-card.locked {
+    --c: 100, 100, 120;
     opacity: 0.45;
     cursor: not-allowed;
-    border-color: rgba(100, 100, 120, 0.3);
-    position: relative;
+    border-color: rgba(var(--c), 0.3);
 }
 
 .skin-card.locked::after {
@@ -856,8 +887,18 @@ body {
 }
 
 .skin-card.active {
-    border-color: var(--neon-green);
-    box-shadow: 0 0 18px rgba(57, 255, 136, 0.7);
+    --c: 57, 255, 136;
+    border-color: rgb(var(--c));
+    background: linear-gradient(180deg, rgba(var(--c), 0.22), rgba(8, 10, 26, 0.9));
+    box-shadow:
+        0 0 0.6vmin rgb(var(--c)),
+        0 0 2.4vmin rgba(var(--c), 0.6),
+        inset 0 0 1.4vmin rgba(var(--c), 0.3);
+}
+
+.skin-card.active .skin-card-name {
+    color: #ffffff;
+    text-shadow: 0 0 0.6vmin rgb(var(--c));
 }
 
 .skin-card .unlock-hint {
@@ -871,41 +912,121 @@ body {
    Досягнення: срібні та золоті картки рівнів
    ============================================================ */
 
-@keyframes goldPulse {
+/* Рамка-градієнт із закругленими кутами: внутрішній фон у padding-box,
+   градієнт металу в border-box під прозорою рамкою */
+.level-card.perfect-silver,
+.skin-card.perfect-silver {
+    --c: 220, 228, 245;
+    --metal: linear-gradient(135deg, #ffffff, #9aa4b8 30%, #eef2f8 50%, #7b8497 70%, #ffffff);
+    border: 0.4vmin solid transparent;
+    background:
+        linear-gradient(180deg, rgba(220, 228, 245, 0.16), rgba(220, 228, 245, 0.02) 65%) padding-box,
+        linear-gradient(#0b0d20, #0b0d20) padding-box,
+        var(--metal) border-box;
+    box-shadow:
+        0 0 0.6vmin rgba(230, 236, 248, 0.8),
+        0 0 2vmin rgba(192, 200, 216, 0.45);
+}
+
+.level-card.perfect-gold,
+.skin-card.perfect-gold {
+    --c: 255, 215, 0;
+    --metal: linear-gradient(135deg, #fff7cc, #ffd700 25%, #b8860b 50%, #ffe680 70%, #8b6914);
+    border: 0.45vmin solid transparent;
+    background:
+        linear-gradient(180deg, rgba(255, 215, 0, 0.18), rgba(255, 215, 0, 0.02) 65%) padding-box,
+        linear-gradient(#0b0d20, #0b0d20) padding-box,
+        var(--metal) border-box;
+    box-shadow:
+        0 0 0.8vmin rgba(255, 215, 0, 0.9),
+        0 0 2.6vmin rgba(255, 180, 0, 0.5);
+}
+
+.level-card.perfect-silver .level-title,
+.skin-card.perfect-silver .skin-card-name {
+    text-shadow: 0 0 0.6vmin rgba(230, 236, 248, 0.9), 0 0 1.4vmin rgba(192, 200, 216, 0.6);
+}
+
+.level-card.perfect-gold .level-title,
+.skin-card.perfect-gold .skin-card-name {
+    text-shadow: 0 0 0.6vmin rgba(255, 215, 0, 0.9), 0 0 1.6vmin rgba(255, 180, 0, 0.7);
+}
+
+.level-card.perfect-silver:hover,
+.skin-card.perfect-silver:hover:not(.locked) {
+    box-shadow:
+        0 0 0.8vmin rgba(240, 244, 252, 0.95),
+        0 0 3vmin rgba(200, 210, 228, 0.7);
+}
+
+.level-card.perfect-gold:hover,
+.skin-card.perfect-gold:hover:not(.locked) {
+    box-shadow:
+        0 0 1vmin rgba(255, 225, 60, 1),
+        0 0 3.6vmin rgba(255, 190, 0, 0.75);
+}
+
+/* Відблиск, що час від часу пробігає по металевій картці */
+.level-card.perfect-silver::before,
+.level-card.perfect-gold::before,
+.skin-card.perfect-silver::before,
+.skin-card.perfect-gold::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(100deg, transparent 40%, rgba(255, 255, 255, 0.25) 50%, transparent 60%);
+    background-size: 300% 100%;
+    background-repeat: no-repeat;
+    animation: metal-shine 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.level-card.perfect-gold::before,
+.skin-card.perfect-gold::before {
+    background-image: linear-gradient(100deg, transparent 40%, rgba(255, 240, 170, 0.38) 50%, transparent 60%);
+    animation-duration: 3s;
+}
+
+/* Золотий ореол пульсує (лише прозорість — дешево) */
+.level-card.perfect-gold::after,
+.skin-card.perfect-gold::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 2.4vmin rgba(255, 215, 0, 0.45);
+    opacity: 0.3;
+    animation: gold-glow 2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.level-card.perfect-gold:hover::after {
+    animation: none;
+    opacity: 1;
+}
+
+@keyframes metal-shine {
+    0%, 55% {
+        background-position: 150% 0;
+    }
+    100% {
+        background-position: -50% 0;
+    }
+}
+
+@keyframes gold-glow {
     0%, 100% {
-        box-shadow:
-            0 0 14px rgba(255, 215, 0, 0.5),
-            0 0 28px rgba(255, 180, 0, 0.2),
-            inset 0 0 20px rgba(255, 215, 0, 0.08);
-        transform: scale(1);
+        opacity: 0.3;
     }
     50% {
-        box-shadow:
-            0 0 24px rgba(255, 215, 0, 0.85),
-            0 0 48px rgba(255, 180, 0, 0.45),
-            inset 0 0 32px rgba(255, 215, 0, 0.18);
-        transform: scale(1.03);
+        opacity: 1;
     }
 }
 
 @keyframes goldStarPulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.15); }
-}
-
-.level-card.perfect-silver {
-    border: 0.25vmin solid #b0b8c8;
-    box-shadow: 0 0 10px rgba(192, 200, 216, 0.5);
-}
-
-.level-card.perfect-gold {
-    border: 0.45vmin solid transparent;
-    border-image: linear-gradient(135deg, #ffd700, #b8860b, #ffd700, #8b6914) 1;
-    animation: goldPulse 2s ease-in-out infinite;
-}
-
-.level-card.perfect-gold:hover {
-    transform: translateY(-0.6vmin) scale(1.03);
 }
 
 .level-star {
@@ -919,7 +1040,7 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 0 8px rgba(192, 200, 216, 0.6);
+    filter: drop-shadow(0 0 0.5vmin rgba(230, 236, 248, 0.8));
 }
 
 .perfect-gold .level-star {
@@ -927,23 +1048,8 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 0 14px rgba(255, 215, 0, 0.8), 0 0 28px rgba(255, 180, 0, 0.4);
+    filter: drop-shadow(0 0 0.6vmin rgba(255, 215, 0, 0.9));
     animation: goldStarPulse 1.5s ease-in-out infinite;
-}
-
-/* ============================================================
-   Досягнення: срібні та золоті картки скінів
-   ============================================================ */
-
-.skin-card.perfect-silver {
-    border-color: #b0b8c8;
-    box-shadow: 0 0 10px rgba(192, 200, 216, 0.5);
-}
-
-.skin-card.perfect-gold {
-    border-color: #ffd700;
-    box-shadow: 0 0 16px rgba(255, 215, 0, 0.6), 0 0 28px rgba(255, 180, 0, 0.3);
-    animation: goldPulse 2s ease-in-out infinite;
 }
 
 /* ---------- Менше руху для тих, хто цього просить у системі ---------- */
@@ -951,7 +1057,11 @@ body {
 @media (prefers-reduced-motion: reduce) {
     .round-btn::before,
     .start-btn::after,
-    .action-btn:hover::before {
+    .action-btn:hover::before,
+    .perfect-silver::before,
+    .perfect-gold::before,
+    .perfect-gold::after,
+    .perfect-gold .level-star {
         animation: none;
     }
 }
