@@ -506,6 +506,14 @@ body {
     transform: scale(0.97);
 }
 
+/* Небезпечна дія (стерти прогрес) — червоний неон */
+.danger-btn {
+    --c: 255, 70, 90;
+    font-size: 1.8vmin;
+    margin: 0.6vmin auto 0;
+    display: block;
+}
+
 /* ---------- Вкладки ліг ---------- */
 
 .league-tabs {

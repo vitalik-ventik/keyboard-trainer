@@ -11,6 +11,7 @@
 // Скіни (type: "skin") носять renderType — ключ малювальника з shop_skins.js;
 // надітий скін зберігається, як і скіни рівнів, у settings.activeSkin
 export const SHOP_ITEMS = [
+    { id: "shop_night_dragon", type: "skin", name: "Чорний дракончик", price: 60, renderType: "shop_night_dragon" },
     { id: "shop_panda", type: "skin", name: "Кубик-панда", price: 100, renderType: "shop_panda" },
     { id: "shop_dog", type: "skin", name: "Кубик-пес", price: 100, renderType: "shop_dog" },
     { id: "shop_fox", type: "skin", name: "Кубик-лисичка", price: 120, renderType: "shop_fox" },
