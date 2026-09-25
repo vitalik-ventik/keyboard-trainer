@@ -12,7 +12,7 @@ import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
 import { EXTRA_LEVEL_SKINS } from "./level_skins_extra.js";
 import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, sanitizeAchievementData, localDayKey } from "./achievements.js";
 import { EGG_BY_THEME } from "./easter_eggs.js";
-import { getWeaponSpec, drawHeldWeapon, drawProjectile, drawBeam, beamTiming, drawStuckArrow, drawSpikeDestruction, DESTRUCTION_TIME, SWING_TIME, SWING_HIT, BOLT_TIME, MELEE_CONTACT, meleeTriggerGap, gravityLiftOffset, gravityGrabTime, GRAVITY_LIFT, getWeaponSound } from "./weapons.js";
+import { getWeaponSpec, drawHeldWeapon, drawProjectile, drawBeam, beamTiming, drawStuckArrow, drawSpikeDestruction, DESTRUCTION_TIME, SWING_TIME, SWING_HIT, BOLT_TIME, MELEE_CONTACT, meleeTriggerGap, gravityHoldOffset, gravityGrabTime, GRAVITY_LIFT, getWeaponSound } from "./weapons.js";
 
 // ---------- Детермінований PRNG (фіксовані траси) ----------
 
@@ -2735,6 +2735,8 @@ const SHAKE_TIME = 0.45;
 const TITLE_TIME = 2.6;
 // Реакція світу на помилку гравця (на рівні боса — рев демона)
 const OOPS_TIME = 0.7;
+// Гравітаційна гармата притягує шип до точки на стільки розмірів кубика попереду нього
+const GRAVITY_PULL_AHEAD = 1.6;
 const FINISH_OPEN_DISTANCE = 300;
 
 // Реакція світу на приземлення кубика
@@ -3900,11 +3902,13 @@ export class Engine {
             if (a.kind === "beam") {
                 const x1 = anchorX + CUBE_SIZE * 0.6 + CUBE_SIZE * 0.08;
                 const y1 = groundY - this.player.y - CUBE_SIZE / 2 - CUBE_SIZE * 0.03;
-                const x2 = anchorX + a.spike.x - camX;
+                let x2 = anchorX + a.spike.x - camX;
                 let y2 = groundY - SPIKE_H * 0.45;
                 if (this.weaponSpec.beam === "gravity" && a.spike.fx) {
-                    // Кінець променя тримає шип, що піднімається
-                    y2 += gravityLiftOffset((this.currentTime - a.spike.fx.t0) / 1000, SPIKE_H);
+                    // Кінець променя тримає шип, що піднімається й підтягується до кубика
+                    const hold = gravityHoldOffset((this.currentTime - a.spike.fx.t0) / 1000, SPIKE_H, anchorX + CUBE_SIZE * GRAVITY_PULL_AHEAD - x2);
+                    x2 += hold.dx;
+                    y2 += hold.dy;
                 }
                 const beamTime = a.time || beamTiming(this.weaponSpec).time;
                 drawBeam(ctx, this.weaponSpec.beam, x1, y1, x2, y2, a.t / beamTime, time, a.time ? a.hitAt / a.time : undefined);
@@ -4599,7 +4603,7 @@ export class Engine {
                     ctx.clip();
                     drawSpikeDestruction(ctx, spike.fx.kind, ft, screenX, groundY, spikeHalfWidth(spike.type), spikeTop, function (c) {
                         self.drawObstacleBody(c, spike, screenX, groundY, accentColor, false);
-                    });
+                    }, { pullX: anchorX + CUBE_SIZE * GRAVITY_PULL_AHEAD });
                     ctx.restore();
                 }
                 continue;
