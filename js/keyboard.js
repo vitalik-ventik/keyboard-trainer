@@ -61,9 +61,15 @@ const CONFIRM_CODES = new Set([
     "Space"
 ]);
 
-export function initKeyboardInput(onLetter, onConfirm) {
+export function initKeyboardInput(onLetter, onConfirm, onEscape) {
     window.addEventListener("keydown", function (event) {
         if (event.ctrlKey || event.altKey || event.metaKey) {
+            return;
+        }
+        if (event.code === "Escape") {
+            if (!event.repeat && typeof onEscape === "function") {
+                onEscape();
+            }
             return;
         }
         if (BLOCKED_CODES.has(event.code)) {
@@ -149,9 +155,8 @@ const COLORS = {
  * @param {{letter: string|null, timestamp: number}} wrongKeyError
  * @param {number} time — секунди від старту застосунку
  */
-export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyError, time) {
-    const group = new Set((groupLetters || []).map(function (l) { return l.toUpperCase(); }));
-    const targetUpper = (targetLetter || "").toUpperCase() || null;
+// Геометрія клавіатури в межах області area (спільна для кешованої клавіатури та пульсації цілі)
+function computeLayout(area) {
     const gap = Math.max(2, area.w * 0.006);
     const keyW = Math.min(
         (area.w - gap * 12) / 12,
@@ -160,6 +165,65 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyErro
     const keyH = Math.min((area.h - gap * 3) / 3, keyW * 1.05);
     const totalH = keyH * 3 + gap * 2;
     const startY = area.y + (area.h - totalH) / 2;
+    return { gap: gap, keyW: keyW, keyH: keyH, startY: startY };
+}
+
+function keyPosition(area, layout, key) {
+    const rowCount = ROW_COUNTS[key.row];
+    const rowWidth = rowCount * layout.keyW + (rowCount - 1) * layout.gap;
+    const rowStartX = area.x + (area.w - rowWidth) / 2 + key.row * layout.keyW * 0.18;
+    return {
+        x: rowStartX + key.col * (layout.keyW + layout.gap),
+        y: layout.startY + key.row * (layout.keyH + layout.gap)
+    };
+}
+
+/**
+ * Пульсуюче світіння навколо цільової клавіші. Малюється щокадру поверх кешованої
+ * клавіатури, тому анімація не вимагає перемальовувати всю клавіатуру.
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {{x:number, y:number, w:number, h:number}} area
+ * @param {string|null} targetLetter
+ * @param {number} time — секунди від старту застосунку
+ */
+export function drawTargetPulse(ctx, area, targetLetter, time) {
+    if (!targetLetter) {
+        return;
+    }
+    const targetUpper = targetLetter.toUpperCase();
+    const key = KEYS.find(function (k) { return k.letter === targetUpper; });
+    if (!key) {
+        return;
+    }
+    const layout = computeLayout(area);
+    const pos = keyPosition(area, layout, key);
+    const blink = (Math.sin(time * 6) + 1) / 2;
+    const spread = 3 + blink * Math.min(8, layout.keyW * 0.14);
+    ctx.save();
+    ctx.globalAlpha = 0.35 + 0.5 * blink;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = COLORS.TARGET_STROKE;
+    ctx.shadowBlur = COLORS.TARGET_GLOW + 8 * blink;
+    ctx.shadowColor = COLORS.TARGET_GLOW_COLOR;
+    roundRect(
+        ctx,
+        pos.x - spread,
+        pos.y - spread,
+        layout.keyW + spread * 2,
+        layout.keyH + spread * 2,
+        Math.min(8, layout.keyW * 0.16) + spread
+    );
+    ctx.stroke();
+    ctx.restore();
+}
+
+export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyError, time) {
+    const group = new Set((groupLetters || []).map(function (l) { return l.toUpperCase(); }));
+    const targetUpper = (targetLetter || "").toUpperCase() || null;
+    const layout = computeLayout(area);
+    const keyW = layout.keyW;
+    const keyH = layout.keyH;
 
     const now = time * 1000;
     let errLetter = null;
@@ -169,19 +233,15 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyErro
         }
     }
 
-    const blink = (Math.sin(time * 12) + 1) / 2;
-
     ctx.save();
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.font = "bold " + Math.floor(keyH * 0.44) + "px 'Segoe UI', Arial, sans-serif";
 
     for (const key of KEYS) {
-        const rowCount = ROW_COUNTS[key.row];
-        const rowWidth = rowCount * keyW + (rowCount - 1) * gap;
-        const rowStartX = area.x + (area.w - rowWidth) / 2 + key.row * keyW * 0.18;
-        const x = rowStartX + key.col * (keyW + gap);
-        const y = startY + key.row * (keyH + gap);
+        const pos = keyPosition(area, layout, key);
+        const x = pos.x;
+        const y = pos.y;
 
         let fill = COLORS.DEFAULT_FILL;
         let stroke = COLORS.DEFAULT_STROKE;
@@ -196,11 +256,10 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyErro
             glow = COLORS.ERROR_GLOW;
             glowColor = COLORS.ERROR_GLOW_COLOR;
         } else if (key.letter === targetUpper) {
-            const glowPulse = COLORS.TARGET_GLOW + 6 * blink;
             fill = COLORS.TARGET_FILL;
             stroke = COLORS.TARGET_STROKE;
             textColor = COLORS.TARGET_TEXT;
-            glow = glowPulse;
+            glow = COLORS.TARGET_GLOW;
             glowColor = COLORS.TARGET_GLOW_COLOR;
         } else if (group.has(key.letter)) {
             fill = COLORS.GROUP_FILL;

@@ -723,9 +723,40 @@ function pickObstacleType(rng, lastTypes) {
     return type;
 }
 
-function generateTrack(level) {
+// Час після приземлення, перш ніж наступний шип увійде в зону натискання
+const LANDING_REACTION_TIME = 0.12;
+
+// Максимальна відстань від центру шипа до точки приземлення після стрибка через нього.
+// Зазвичай кубик приземляється на SAFE_MARGIN за правим краєм шипа, але мінімальна
+// швидкість стрибка може зробити політ довшим.
+function landingOffset(type, effectiveSpeed) {
+    const halfW = spikeHalfWidth(type);
+    const minFlight = effectiveSpeed * 2 * MIN_JUMP_VELOCITY / GRAVITY;
+    return Math.max(halfW + SAFE_MARGIN, minFlight - halfW);
+}
+
+// Мінімальна відстань між центрами сусідніх шипів: кубик має приземлитися
+// до того, як наступний шип увійде в зону «ОК», і ще встигнути помітити літеру
+function minSpikeSpacing(prevType, nextType, effectiveSpeed, okPx) {
+    return landingOffset(prevType, effectiveSpeed) +
+        spikeHalfWidth(nextType) +
+        okPx +
+        effectiveSpeed * LANDING_REACTION_TIME;
+}
+
+function generateTrack(level, effectiveSpeed, okPx) {
     const rng = mulberry32(level.seed);
     const spikes = [];
+    const moveSpeed = effectiveSpeed || level.speed;
+    const windowPx = okPx || 0;
+
+    function placeAt(candidateX, obstacleType) {
+        if (spikes.length === 0) {
+            return candidateX;
+        }
+        const prev = spikes[spikes.length - 1];
+        return Math.max(candidateX, prev.x + minSpikeSpacing(prev.type, obstacleType, moveSpeed, windowPx));
+    }
     const baseGapTime = reactionTimeForLevel(level.id);
     let x = level.speed * 3.0;
     let lastLetter1 = null;
@@ -775,6 +806,7 @@ function generateTrack(level) {
                 if (lastTypes.length > 2) {
                     lastTypes.shift();
                 }
+                x = placeAt(x, obstacleType);
                 spikes.push({
                     x: x,
                     letter: pickLetter(),
@@ -796,6 +828,7 @@ function generateTrack(level) {
             if (lastTypes.length > 2) {
                 lastTypes.shift();
             }
+            x = placeAt(x, obstacleType);
             spikes.push({
                 x: x,
                 letter: pickLetter(),
@@ -1158,7 +1191,7 @@ export class Engine {
     reset() {
         BackgroundRenderer.reset();
         this.bgCache.reset();
-        const track = generateTrack(this.level);
+        const track = generateTrack(this.level, this.effectiveSpeed, this.okPx);
         this.spikes = track.spikes;
         this.finishX = track.finishX;
 
@@ -1314,17 +1347,17 @@ export class Engine {
         const upperLetter = letter.toUpperCase();
         const spike = this.nearestAheadSpike();
         if (!spike) {
-            if (this.difficulty === "HARD") {
-                this.explode();
-                return { result: "exploded", letter: letter };
-            }
+            // Після останнього шипа цілі немає — натискання ні на що не впливає навіть у HARD
             return { result: "no_target", letter: letter };
         }
         const gap = spike.x - spikeHalfWidth(spike.type) - this.player.x;
         const inWindow = gap > 0 && gap <= this.okPx && this.player.onGround;
         const correct = upperLetter === spike.letter.toUpperCase();
 
-        if (correct && !this.player.onGround) {
+        // У повітрі правильна літера запам'ятовується лише тоді, коли шип уже в зоні.
+        // Траса будується так, що приземлення завжди відбувається до початку зони
+        // наступного шипа, тож натискання в повітрі — це зарано (як і на землі).
+        if (correct && !this.player.onGround && gap > 0 && gap <= this.okPx) {
             this.jumpBuffer = spike;
             return { result: "correct", letter: letter };
         }
@@ -1343,10 +1376,6 @@ export class Engine {
             return { result: "exploded", letter: letter };
         }
 
-        const inPool = this.level.letters.some(function (l) { return l.toUpperCase() === upperLetter; });
-        if (!inPool) {
-            return { result: "wrong", letter: letter };
-        }
         return { result: "wrong", letter: letter };
     }
 
@@ -1506,14 +1535,15 @@ export class Engine {
         var camX = this.player.x;
 
         this.bgCache.setTheme(this.level.bgTheme);
-        if (this.bgCache.shouldUpdate()) {
-            this.bgCache.resize(W, H);
+        this.bgCache.resize(W, H);
+        if (this.bgCache.shouldUpdate(time)) {
             var self = this;
             this.bgCache.render(function (cacheCtx) {
                 BackgroundRenderer.render(cacheCtx, self.level.bgTheme, W, H, groundY, time, self.effectiveSpeed, self.level.accentColor, self.level.id);
-            });
+            }, time);
         }
         this.bgCache.drawImage(ctx);
+        this.renderWaves(ctx, W, groundY);
         this.renderGround(ctx, W, H, groundY, camX);
         this.renderHitWindow(ctx, W, groundY, anchorX, time);
         this.renderFinish(ctx, W, groundY, anchorX, camX);
@@ -1527,11 +1557,9 @@ export class Engine {
         }
     }
 
-    // ---------- Фони та хвилі ----------
+    // ---------- Хвилі стрибка ----------
 
-    renderBackground(ctx, W, H, groundY, time) {
-        BackgroundRenderer.render(ctx, this.level.bgTheme, W, H, groundY, time, this.effectiveSpeed, this.level.accentColor, this.level.id);
-
+    renderWaves(ctx, W, groundY) {
         const anchorX = W * PLAYER_ANCHOR;
         for (const wave of this.waves) {
             ctx.beginPath();
@@ -1603,6 +1631,20 @@ export class Engine {
         ctx.moveTo(spikeScreenX, groundY - 14);
         ctx.lineTo(spikeScreenX, groundY - hwH - 4);
         ctx.stroke();
+
+        // Контрольні маркери під зоною: жовтий — точка шипа, яка реально враховується
+        // в розрахунку (лівий край), зелений і синій — початок зон «Ідеально» та «ОК».
+        // Натискання зараховується, коли жовтий маркер лівіше синього (і лівіше зеленого для «Ідеально»).
+        const markerTop = botY + hwH + 4;
+        const markerH = 12;
+        const markerW = 3;
+        const spikeEdgeScreenX = (spike.x - spikeHalfWidth(spike.type) - this.player.x) + anchorX;
+        ctx.fillStyle = "rgb(0, 246, 255)";
+        ctx.fillRect(anchorX + okWidth - markerW / 2, markerTop, markerW, markerH);
+        ctx.fillStyle = "rgb(57, 255, 136)";
+        ctx.fillRect(anchorX + perfectWidth - markerW / 2, markerTop, markerW, markerH);
+        ctx.fillStyle = "rgb(255, 225, 77)";
+        ctx.fillRect(spikeEdgeScreenX - markerW / 2, markerTop, markerW, markerH);
     }
 
     renderFinish(ctx, W, groundY, anchorX, camX) {
