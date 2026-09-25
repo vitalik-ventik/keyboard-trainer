@@ -13,6 +13,7 @@ import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
 import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity } from "./shop.js";
 import { drawShopItemScene, drawShopSkinScene, drawChestScene, CHEST_SHAKE_MS, CHEST_OPEN_MS } from "./shop_preview.js";
+import { ACHIEVEMENTS, ACHIEVEMENT_GROUPS, achievementProgress, buildAchievementCard, buildAchievementToast } from "./achievements.js";
 
 // ---------- Полотно та адаптивність ----------
 
@@ -690,6 +691,10 @@ function handleEscape() {
         closeShop();
         return;
     }
+    if (achModalEl && !achModalEl.classList.contains("hidden")) {
+        closeAchievements();
+        return;
+    }
     if (!skinsModalEl.classList.contains("hidden")) {
         skinsModalEl.classList.add("hidden");
         return;
@@ -1155,6 +1160,7 @@ function noteRunForAchievements(runState, won) {
         weaponHits: runState.runWeaponHits,
         won: won,
         flawless: won && misses === 0,
+        leagueId: (ALL_LEVELS.find(function (l) { return l.id === runState.levelId; }) || { leagueId: 0 }).leagueId,
         eggTheme: runState.eggSeen ? runState.bgTheme : null,
         exploded: !won
     });
@@ -1169,7 +1175,103 @@ function announceAchievements(list) {
         achievementQueue.push(ach);
     }
     refreshChestButtons();
+    refreshAchievementBadge();
     showNextAchievementToast();
+}
+
+// ---------- Вікно «Досягнення» ----------
+
+const achTriggerEl = document.getElementById("ach-trigger");
+const achModalEl = document.getElementById("ach-modal");
+const achListEl = document.getElementById("achList");
+const achSummaryEl = document.getElementById("achSummary");
+const menuAchCountEl = document.getElementById("menuAchCount");
+const btnCloseAch = document.getElementById("btnCloseAch");
+
+function countDoneAchievements() {
+    let done = 0;
+    for (const ach of ACHIEVEMENTS) {
+        if (save.isAchievementDone(ach.id)) {
+            done++;
+        }
+    }
+    return done;
+}
+
+// Лічильник на кнопці в меню: «7 / 40»
+function refreshAchievementBadge() {
+    if (menuAchCountEl) {
+        menuAchCountEl.textContent = countDoneAchievements() + " / " + ACHIEVEMENTS.length;
+    }
+}
+
+// Список досягнень групами: отримані підсвічені, інші — з прогресом
+function buildAchievementList() {
+    if (!achListEl) {
+        return;
+    }
+    const snapshot = save.getAchievementSnapshot();
+    achListEl.innerHTML = "";
+    let chestsWon = 0;
+    for (const group of ACHIEVEMENT_GROUPS) {
+        const items = ACHIEVEMENTS.filter(function (a) { return a.group === group.id; });
+        if (items.length === 0) {
+            continue;
+        }
+        const doneInGroup = items.filter(function (a) { return save.isAchievementDone(a.id); }).length;
+        const heading = document.createElement("h3");
+        heading.className = "ach-group-title";
+        heading.textContent = group.name + " — " + doneInGroup + " / " + items.length;
+        achListEl.appendChild(heading);
+        const grid = document.createElement("div");
+        grid.className = "ach-grid";
+        for (const ach of items) {
+            const progress = achievementProgress(ach, snapshot);
+            // Уже отримане досягнення лишається отриманим, навіть якщо лічильник згодом змінився
+            if (save.isAchievementDone(ach.id)) {
+                progress.done = true;
+                progress.current = progress.target;
+                chestsWon++;
+            } else {
+                progress.done = false;
+            }
+            const chest = CHEST_TYPES[ach.chest];
+            grid.appendChild(buildAchievementCard(ach, progress, chest ? chest.name : "Сундук"));
+        }
+        achListEl.appendChild(grid);
+    }
+    if (achSummaryEl) {
+        achSummaryEl.textContent = "🏆 Отримано " + countDoneAchievements() + " з " + ACHIEVEMENTS.length + "   ·   🎁 сундуків за досягнення: " + chestsWon;
+    }
+}
+
+function openAchievements() {
+    buildAchievementList();
+    achModalEl.classList.remove("hidden");
+    const scroll = achModalEl.querySelector(".list-modal-scroll");
+    if (scroll) {
+        scroll.scrollTop = 0;
+    }
+}
+
+function closeAchievements() {
+    achModalEl.classList.add("hidden");
+}
+
+if (achTriggerEl) {
+    achTriggerEl.addEventListener("click", openAchievements);
+}
+
+if (btnCloseAch) {
+    btnCloseAch.addEventListener("click", closeAchievements);
+}
+
+if (achModalEl) {
+    achModalEl.addEventListener("click", function (e) {
+        if (e.target === achModalEl) {
+            closeAchievements();
+        }
+    });
 }
 
 // Плашки показуються по одній, щоб не накладатися
@@ -1180,27 +1282,7 @@ function showNextAchievementToast() {
     achievementToastBusy = true;
     const ach = achievementQueue.shift();
     const chest = CHEST_TYPES[ach.chest];
-    const toast = document.createElement("div");
-    toast.className = "ach-toast ach-" + ach.chest;
-    const icon = document.createElement("div");
-    icon.className = "ach-toast-icon";
-    icon.textContent = ach.icon;
-    const body = document.createElement("div");
-    body.className = "ach-toast-body";
-    const title = document.createElement("div");
-    title.className = "ach-toast-title";
-    title.textContent = "🏆 ДОСЯГНЕННЯ: " + ach.name;
-    const desc = document.createElement("div");
-    desc.className = "ach-toast-desc";
-    desc.textContent = ach.desc;
-    const reward = document.createElement("div");
-    reward.className = "ach-toast-reward";
-    reward.textContent = "🎁 Нагорода: " + (chest ? chest.name : "сундук");
-    body.appendChild(title);
-    body.appendChild(desc);
-    body.appendChild(reward);
-    toast.appendChild(icon);
-    toast.appendChild(body);
+    const toast = buildAchievementToast(ach, chest ? chest.name : "сундук");
     achievementToastsEl.appendChild(toast);
     // Звук лише на першій плашці пачки: наступні з'являються, поки він ще грає
     if (!achievementToastsEl.dataset.batch) {
@@ -1769,4 +1851,5 @@ loadAssets(function (loaded, total) {
     save.markPlayDay();
     announceAchievements(save.checkAchievements());
     refreshChestButtons();
+    refreshAchievementBadge();
 });

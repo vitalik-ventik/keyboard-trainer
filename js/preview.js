@@ -5,6 +5,7 @@ import { SHOP_ITEMS, SHOP_TYPES, CHEST_TYPES, REPLAY_CHEST_CHANCE, CHEST_PITY_WI
 import { drawShopItemScene, drawChestScene, CHEST_SHAKE_MS, CHEST_OPEN_MS } from "./shop_preview.js";
 import { loadAssets, unlockAudio, playSound, SOUND_NAMES, hasSound, soundDuration } from "./assets.js";
 import { WEAPON_SOUNDS, weaponDemoEvents } from "./weapons.js";
+import { ACHIEVEMENTS, ACHIEVEMENT_GROUPS, buildAchievementCard, buildAchievementToast } from "./achievements.js";
 
 const grid = document.getElementById("grid");
 const errorEl = document.getElementById("error");
@@ -553,6 +554,123 @@ function syncCardSound(c, nowMs) {
         }
     }
     c.lastNow = nowMs;
+}
+
+// ---------- Досягнення: усі картки й демонстрація плашки ----------
+
+const achSectionEl = document.getElementById("achSection");
+const achControlsEl = document.getElementById("achControls");
+const achToastsEl = document.getElementById("achievementToasts");
+// Як показати картки: усі отримані, усі в процесі (половина цілі), закриті чи впереміш
+const ACH_VIEW_MODES = [
+    { id: "mixed", label: "впереміш" },
+    { id: "done", label: "усі отримані" },
+    { id: "half", label: "усі в процесі (50%)" },
+    { id: "locked", label: "усі закриті (0)" }
+];
+// Цілі, що залежать від гри (усі рівні, усі пасхалки)
+const ACH_PREVIEW_TARGETS = {
+    totalLevels: ALL_LEVELS.length,
+    totalEggs: new Set(ALL_LEVELS.map(function (l) { return l.bgTheme; })).size
+};
+let achViewMode = "mixed";
+
+function previewAchievementProgress(ach, index) {
+    const target = ach.targetFromSnapshot ? ACH_PREVIEW_TARGETS[ach.targetFromSnapshot] : ach.target;
+    let mode = achViewMode;
+    if (mode === "mixed") {
+        mode = ["done", "half", "locked"][index % 3];
+    }
+    if (mode === "done") {
+        return { current: target, target: target, done: true };
+    }
+    if (mode === "half") {
+        return { current: Math.floor(target / 2), target: target, done: false };
+    }
+    return { current: 0, target: target, done: false };
+}
+
+function showPreviewAchievementToast(ach) {
+    if (!achToastsEl) {
+        return;
+    }
+    achToastsEl.innerHTML = "";
+    const chest = CHEST_TYPES[ach.chest];
+    const toast = buildAchievementToast(ach, chest ? chest.name : "Сундук");
+    achToastsEl.appendChild(toast);
+    enableAudio().then(function () {
+        playSound("achievement", { volume: 0.8, duration: 4 });
+    });
+    function hide() {
+        toast.classList.add("leaving");
+        setTimeout(function () { toast.remove(); }, 350);
+    }
+    toast.addEventListener("click", hide);
+    setTimeout(hide, 4200);
+}
+
+function buildAchievementSection() {
+    if (!achSectionEl) {
+        return;
+    }
+    achSectionEl.innerHTML = "";
+    let index = 0;
+    const totals = { wood: 0, silver: 0, gold: 0 };
+    for (const group of ACHIEVEMENT_GROUPS) {
+        const items = ACHIEVEMENTS.filter(function (a) { return a.group === group.id; });
+        if (items.length === 0) {
+            continue;
+        }
+        const heading = document.createElement("h3");
+        heading.className = "ach-group-title";
+        heading.textContent = group.name + " (" + items.length + ")";
+        achSectionEl.appendChild(heading);
+        const grid = document.createElement("div");
+        grid.className = "ach-grid";
+        for (const ach of items) {
+            const chest = CHEST_TYPES[ach.chest];
+            const card = buildAchievementCard(ach, previewAchievementProgress(ach, index), chest ? chest.name : "Сундук");
+            card.title = "id: " + ach.id + " — клацни, щоб побачити плашку";
+            card.addEventListener("click", function () {
+                showPreviewAchievementToast(ach);
+            });
+            grid.appendChild(card);
+            totals[ach.chest] = (totals[ach.chest] || 0) + 1;
+            index++;
+        }
+        achSectionEl.appendChild(grid);
+    }
+    const summary = document.createElement("p");
+    summary.className = "subtitle";
+    summary.textContent = "Разом " + ACHIEVEMENTS.length + " досягнень. Нагороди: дерев'яних сундуків — " + totals.wood +
+        ", срібних — " + totals.silver + ", золотих — " + totals.gold + ".";
+    achSectionEl.insertBefore(summary, achSectionEl.firstChild);
+}
+
+if (achControlsEl) {
+    const label = document.createElement("label");
+    label.textContent = "Показати картки: ";
+    const select = document.createElement("select");
+    for (const m of ACH_VIEW_MODES) {
+        const opt = document.createElement("option");
+        opt.value = m.id;
+        opt.textContent = m.label;
+        select.appendChild(opt);
+    }
+    select.addEventListener("change", function () {
+        achViewMode = select.value;
+        buildAchievementSection();
+    });
+    label.appendChild(select);
+    achControlsEl.appendChild(label);
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = "🎲 Випадкова плашка";
+    btn.addEventListener("click", function () {
+        showPreviewAchievementToast(ACHIEVEMENTS[Math.floor(Math.random() * ACHIEVEMENTS.length)]);
+    });
+    achControlsEl.appendChild(btn);
+    buildAchievementSection();
 }
 
 // ---------- Сундуки: зациклене відкривання з випадковою нагородою ----------

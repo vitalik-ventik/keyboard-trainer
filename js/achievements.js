@@ -9,6 +9,7 @@
 export const ACHIEVEMENT_GROUPS = [
     { id: "clear", name: "Проходження" },
     { id: "mastery", name: "Майстерність" },
+    { id: "flawless", name: "Без помилок" },
     { id: "combo", name: "Серії" },
     { id: "typing", name: "Набір" },
     { id: "eggs", name: "Пасхалки" },
@@ -34,7 +35,13 @@ export const ACHIEVEMENTS = [
     { id: "gold_5", group: "mastery", icon: "🟡", name: "Золота п'ятірка", desc: "Отримай 5 золотих рамок", chest: "silver", target: 5, value: function (s) { return s.golds; } },
     { id: "gold_15", group: "mastery", icon: "🏅", name: "Золотий збирач", desc: "Отримай 15 золотих рамок", chest: "silver", target: 15, value: function (s) { return s.golds; } },
     { id: "gold_all", group: "mastery", icon: "👑", name: "Усе в золоті", desc: "Отримай золоту рамку на кожному рівні", chest: "gold", target: 0, value: function (s) { return s.golds; }, targetFromSnapshot: "totalLevels" },
-    { id: "flawless", group: "mastery", icon: "✨", name: "Без жодної помилки", desc: "Пройди рівень, не натиснувши жодної зайвої літери", chest: "silver", target: 1, value: function (s) { return s.flawless; } },
+
+    // Без помилок: окреме досягнення на кожну лігу (рівень без жодної зайвої літери)
+    { id: "flawless", group: "flawless", icon: "✨", name: "Без помилок: Базова ліга", desc: "Пройди рівень Базової ліги без жодної зайвої літери", chest: "wood", target: 1, value: function (s) { return s.flawlessLeagues[1] ? 1 : 0; } },
+    { id: "flawless_2", group: "flawless", icon: "💫", name: "Без помилок: Середня ліга", desc: "Пройди рівень Середньої ліги без жодної зайвої літери", chest: "silver", target: 1, value: function (s) { return s.flawlessLeagues[2] ? 1 : 0; } },
+    { id: "flawless_3", group: "flawless", icon: "🌠", name: "Без помилок: Складна ліга", desc: "Пройди рівень Складної ліги без жодної зайвої літери", chest: "silver", target: 1, value: function (s) { return s.flawlessLeagues[3] ? 1 : 0; } },
+    { id: "flawless_4", group: "flawless", icon: "💎", name: "Без помилок: Майстер", desc: "Пройди рівень ліги Майстер без жодної зайвої літери", chest: "gold", target: 1, value: function (s) { return s.flawlessLeagues[4] ? 1 : 0; } },
+    { id: "flawless_5", group: "flawless", icon: "😇", name: "Без помилок: Бос", desc: "Здолай Боса без жодної зайвої літери", chest: "gold", target: 1, value: function (s) { return s.flawlessLeagues[5] ? 1 : 0; } },
 
     // Серії «Ідеально»
     { id: "combo_10", group: "combo", icon: "🔥", name: "Розігрів", desc: "10 «Ідеально» поспіль", chest: "wood", target: 10, value: function (s) { return s.bestCombo; } },
@@ -103,7 +110,8 @@ export function defaultAchievementData() {
             letters: 0,
             words: 0,
             bestCombo: 0,
-            flawless: 0,
+            // Ліги, в яких пройдено рівень без жодної помилки
+            flawlessLeagues: [],
             eggs: [],
             chestsOpened: 0,
             days: 0,
@@ -127,11 +135,16 @@ export function sanitizeAchievementData(raw) {
     }
     const st = raw.stats;
     if (st && typeof st === "object") {
-        for (const key of ["letters", "words", "bestCombo", "flawless", "chestsOpened", "days", "explosions", "weaponHits"]) {
+        for (const key of ["letters", "words", "bestCombo", "chestsOpened", "days", "explosions", "weaponHits"]) {
             const n = Number(st[key]);
             if (Number.isFinite(n) && n >= 0) {
                 clean.stats[key] = Math.min(Math.floor(n), 100000000);
             }
+        }
+        if (Array.isArray(st.flawlessLeagues)) {
+            clean.stats.flawlessLeagues = st.flawlessLeagues.filter(function (n, idx, arr) {
+                return Number.isInteger(n) && n >= 1 && n <= 9 && arr.indexOf(n) === idx;
+            });
         }
         if (Array.isArray(st.eggs)) {
             clean.stats.eggs = st.eggs.filter(function (e, idx, arr) {
@@ -151,4 +164,75 @@ export function localDayKey(date) {
     const mm = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
     return d.getFullYear() + "-" + mm + "-" + dd;
+}
+
+// Число з пробілами між тисячами: 12 450
+function groupDigits(n) {
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
+// Картка досягнення для вікна «Досягнення» та preview.
+// progress: { current, target, done }; chestName — назва сундука-нагороди
+export function buildAchievementCard(ach, progress, chestName) {
+    const card = document.createElement("div");
+    card.className = "ach-card ach-" + ach.chest + (progress.done ? " done" : "");
+    const icon = document.createElement("div");
+    icon.className = "ach-card-icon";
+    icon.textContent = ach.icon;
+    const body = document.createElement("div");
+    body.className = "ach-card-body";
+    const name = document.createElement("div");
+    name.className = "ach-card-name";
+    name.textContent = ach.name;
+    const desc = document.createElement("div");
+    desc.className = "ach-card-desc";
+    desc.textContent = ach.desc;
+    const bar = document.createElement("div");
+    bar.className = "ach-card-bar";
+    const fill = document.createElement("div");
+    fill.className = "ach-card-fill";
+    fill.style.width = Math.round(100 * Math.min(1, progress.current / Math.max(1, progress.target))) + "%";
+    bar.appendChild(fill);
+    const foot = document.createElement("div");
+    foot.className = "ach-card-foot";
+    const count = document.createElement("span");
+    count.textContent = progress.done ? "✅ Отримано" : groupDigits(progress.current) + " / " + groupDigits(progress.target);
+    const reward = document.createElement("span");
+    reward.className = "ach-card-reward";
+    reward.textContent = "🎁 " + chestName;
+    foot.appendChild(count);
+    foot.appendChild(reward);
+    body.appendChild(name);
+    body.appendChild(desc);
+    body.appendChild(bar);
+    body.appendChild(foot);
+    card.appendChild(icon);
+    card.appendChild(body);
+    return card;
+}
+
+// Спливаюча плашка нового досягнення
+export function buildAchievementToast(ach, chestName) {
+    const toast = document.createElement("div");
+    toast.className = "ach-toast ach-" + ach.chest;
+    const icon = document.createElement("div");
+    icon.className = "ach-toast-icon";
+    icon.textContent = ach.icon;
+    const body = document.createElement("div");
+    body.className = "ach-toast-body";
+    const title = document.createElement("div");
+    title.className = "ach-toast-title";
+    title.textContent = "🏆 ДОСЯГНЕННЯ: " + ach.name;
+    const desc = document.createElement("div");
+    desc.className = "ach-toast-desc";
+    desc.textContent = ach.desc;
+    const reward = document.createElement("div");
+    reward.className = "ach-toast-reward";
+    reward.textContent = "🎁 Нагорода: " + chestName;
+    body.appendChild(title);
+    body.appendChild(desc);
+    body.appendChild(reward);
+    toast.appendChild(icon);
+    toast.appendChild(body);
+    return toast;
 }
