@@ -1707,7 +1707,7 @@ function defaultSaveData() {
     }
     return {
         version: 1,
-        settings: { difficulty: "EASY", hitWindow: "normal", speed: "normal", activeSkin: null },
+        settings: { difficulty: "EASY", hitWindow: "normal", speed: "normal", activeSkin: null, cameraMotion: true },
         progress: { unlocked: 1, unlockedSkins: [], levels: levels }
     };
 }
@@ -1725,6 +1725,9 @@ function sanitizeSaveData(raw) {
     }
     if (raw.settings && (raw.settings.speed === "slow" || raw.settings.speed === "normal" || raw.settings.speed === "fast")) {
         clean.settings.speed = raw.settings.speed;
+    }
+    if (raw.settings && typeof raw.settings.cameraMotion === "boolean") {
+        clean.settings.cameraMotion = raw.settings.cameraMotion;
     }
     if (raw.settings && typeof raw.settings.activeSkin === "string" && raw.settings.activeSkin.length > 0) {
         clean.settings.activeSkin = raw.settings.activeSkin;
@@ -1911,6 +1914,22 @@ export const save = {
         return saveData.settings.speed || "normal";
     },
 
+    // Рух камери: стеження за стрибком і струс при вибуху
+    setCameraMotion(enabled) {
+        if (!saveData) {
+            this.load();
+        }
+        saveData.settings.cameraMotion = !!enabled;
+        this.persist();
+    },
+
+    getCameraMotion() {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.settings.cameraMotion !== false;
+    },
+
     getActiveSkin() {
         if (!saveData) {
             this.load();
@@ -1963,6 +1982,28 @@ const DEATH_DELAY = 1.2;
 const DEMO_RESTART_DELAY = 1.4;
 const PERFECT_FLASH_TIME = 0.35;
 const EASTER_EGG_DURATION = 5000;
+const SHAKE_TIME = 0.45;
+const TITLE_TIME = 2.6;
+const FINISH_OPEN_DISTANCE = 300;
+
+// Реакція світу на приземлення кубика
+const LANDING_FX = {
+    pixel_ocean: { kind: "bubbles", colors: ["rgba(200, 240, 255, 0.9)", "rgba(150, 220, 255, 0.8)"] },
+    night_harbor: { kind: "bubbles", colors: ["rgba(200, 240, 255, 0.9)"] },
+    pirate_bay: { kind: "splash", colors: ["#e8c07a", "#f5d89a"] },
+    digital_forest: { kind: "fireflies", colors: ["#c8ff5a", "#fff4a0"] },
+    pixel_night: { kind: "fireflies", colors: ["#c8ff5a", "#fff4a0"] },
+    pixel_snow: { kind: "splash", colors: ["#ffffff", "#e6f7ff"] },
+    pixel_desert: { kind: "splash", colors: ["#e8c07a", "#f5d89a"] },
+    stadium: { kind: "splash", colors: ["#2f8a3a", "#4fb55a"] },
+    pixel_cave: { kind: "pebbles", colors: ["#6a6a78", "#4a4a55"] },
+    crystal_cave: { kind: "pebbles", colors: ["#b35cff", "#5a4a70"] },
+    dragon_lair: { kind: "pebbles", colors: ["#5a3a2a", "#3a2a1a"] },
+    sunset_city: { kind: "sparks", colors: ["#ff2ea6", "#00f6ff", "#ffe14d"] },
+    neon_rooftops: { kind: "sparks", colors: ["#ff2ea6", "#00f6ff", "#39ff88"] },
+    neon_highway: { kind: "sparks", colors: ["#ff2ea6", "#00f6ff"] },
+    pixel_nether: { kind: "sparks", colors: ["#ff6a00", "#ffcc33"] }
+};
 
 function spikeHalfWidth(type) {
     if (type === "double_spike") {
@@ -2314,6 +2355,8 @@ export class Engine {
         this.okPx = this.effectiveSpeed * windows.okTime * multiplier;
         this.perfectPx = this.effectiveSpeed * windows.perfectTime * multiplier;
 
+        this.cameraMotion = save.getCameraMotion();
+
         this.scoreConfig = {
             difficulty: this.difficulty,
             hitWindow: this.hitWindowSetting,
@@ -2370,6 +2413,9 @@ export class Engine {
         // Пасхалка: з'являється один раз, коли гравець пройде випадкову частину рівня (30–70%)
         this.eggAt = 0.3 + mulberry32(this.level.seed + 7)() * 0.4;
         this.eggStart = null;
+        this.weather = BackgroundRenderer.pickWeather(this.level.bgTheme);
+        this.shakeTime = 0;
+        this.elapsed = 0;
     }
 
     // Тип скіна, яким зараз малюється кубик (вибраний гравцем або скін рівня)
@@ -2407,6 +2453,26 @@ export class Engine {
         });
         if (points > 0) {
             this.scorePopups.push({ x: spike.x, y: SPIKE_H + 50, text: "+" + points, life: 0.9, maxLife: 0.9 });
+        }
+    }
+
+    // Світ відповідає на приземлення: бульбашки, світлячки, сніг, пісок, камінці, іскри
+    spawnLandingReaction() {
+        const fx = LANDING_FX[this.level.bgTheme];
+        if (!fx) {
+            return;
+        }
+        const base = { x: this.player.x, spin: 3, outline: false, colors: fx.colors };
+        if (fx.kind === "bubbles") {
+            this.spawnDebris(6, Object.assign(base, { y: 6, spread: CUBE_SIZE, angleMin: Math.PI * 0.35, angleMax: Math.PI * 0.65, speedMin: 30, speedMax: 80, sizeMin: 3, sizeMax: 6, gravity: -160, life: 1.1 }));
+        } else if (fx.kind === "fireflies") {
+            this.spawnDebris(5, Object.assign(base, { y: 8, spread: CUBE_SIZE * 2, angleMin: Math.PI * 0.2, angleMax: Math.PI * 0.8, speedMin: 20, speedMax: 60, sizeMin: 3, sizeMax: 4, gravity: -40, life: 1.4 }));
+        } else if (fx.kind === "splash") {
+            this.spawnDebris(10, Object.assign(base, { y: 3, spread: CUBE_SIZE, angleMin: Math.PI * 0.1, angleMax: Math.PI * 0.9, speedMin: 60, speedMax: 170, sizeMin: 3, sizeMax: 5, gravity: 400, life: 0.6 }));
+        } else if (fx.kind === "pebbles") {
+            this.spawnDebris(4, Object.assign(base, { x: this.player.x + 60, y: 380, spread: 260, angleMin: -Math.PI * 0.55, angleMax: -Math.PI * 0.45, speedMin: 10, speedMax: 40, sizeMin: 4, sizeMax: 7, gravity: 900, life: 1.2, outline: true }));
+        } else if (fx.kind === "sparks") {
+            this.spawnDebris(7, Object.assign(base, { y: 4, spread: CUBE_SIZE, angleMin: Math.PI * 0.15, angleMax: Math.PI * 0.85, speedMin: 100, speedMax: 220, sizeMin: 2, sizeMax: 4, gravity: 500, life: 0.5 }));
         }
     }
 
@@ -2544,6 +2610,9 @@ export class Engine {
         const palette = isDemon
             ? ["#ff1111", "#ff4400", "#ffe14d"]
             : ["#00f6ff", "#ff2ea6", "#ffe14d", "#00ff88"];
+        if (this.cameraMotion) {
+            this.shakeTime = SHAKE_TIME;
+        }
         const count = isDemon ? 20 : 8;
         const gameX = this.player.x;
         const gameY = this.player.y + CUBE_SIZE / 2;
@@ -2663,6 +2732,8 @@ export class Engine {
             }
         }
         this.perfectFlash = Math.max(0, this.perfectFlash - dt);
+        this.shakeTime = Math.max(0, this.shakeTime - dt);
+        this.elapsed += dt;
         for (var si = this.scorePopups.length - 1; si >= 0; si--) {
             var sp = this.scorePopups[si];
             sp.life -= dt;
@@ -2713,6 +2784,7 @@ export class Engine {
                     life: 0.45,
                     outline: false
                 });
+                this.spawnLandingReaction();
                 this.consumeJumpBuffer();
             }
         }
@@ -2821,7 +2893,9 @@ export class Engine {
             progress: this.progressPct / 100,
             combo: this.combo,
             perfect: this.perfectFlash / PERFECT_FLASH_TIME,
-            eggT: eggT !== null && eggT <= 1 ? eggT : null
+            eggT: eggT !== null && eggT <= 1 ? eggT : null,
+            weather: this.weather,
+            camY: this.cameraMotion ? this.player.y * 0.35 : 0
         });
         if (this.bgCache.shouldUpdate(time)) {
             var self = this;
@@ -2829,9 +2903,16 @@ export class Engine {
                 BackgroundRenderer.render(cacheCtx, self.level.bgTheme, W, H, groundY, time, self.effectiveSpeed, self.level.accentColor, self.level.id);
             }, time);
         }
+        // Струс екрана після вибуху (лише ігрова сцена, клавіатура нерухома)
+        ctx.save();
+        if (this.shakeTime > 0) {
+            const amp = 9 * this.shakeTime / SHAKE_TIME;
+            ctx.translate((Math.random() - 0.5) * amp * 2, (Math.random() - 0.5) * amp * 2);
+        }
         this.bgCache.drawImage(ctx);
         this.renderWaves(ctx, W, groundY);
         this.renderGround(ctx, W, H, groundY, camX);
+        this.renderCubeLight(ctx, groundY, anchorX);
         this.renderHitWindow(ctx, W, groundY, anchorX, time);
         this.renderFinish(ctx, W, groundY, anchorX, camX);
         this.renderObstacles(ctx, W, groundY, anchorX, camX);
@@ -2841,9 +2922,69 @@ export class Engine {
         this.renderPerfectParticles(ctx, groundY, anchorX, camX);
         this.renderPerfectPopups(ctx, groundY, anchorX, camX);
         this.renderScorePopups(ctx, groundY, anchorX, camX);
+        ctx.restore();
         if (!this.demoMode) {
+            this.renderWorldTitle(ctx, W, H);
             this.renderProgressBar(ctx, W);
         }
+    }
+
+    // Світло від кубика кольору скіна підсвічує землю й найближчі шипи
+    renderCubeLight(ctx, groundY, anchorX) {
+        if (!this.player.alive) {
+            return;
+        }
+        let base = sampleSkinColors(this.getSkinRenderType())[0] || "rgb(0, 246, 255)";
+        if (base.charAt(0) === "#") {
+            base = "rgb(" + parseInt(base.slice(1, 3), 16) + ", " + parseInt(base.slice(3, 5), 16) + ", " + parseInt(base.slice(5, 7), 16) + ")";
+        }
+        const color = base.replace("rgb(", "rgba(").replace(")", ", 0.28)");
+        const cy = groundY - this.player.y - CUBE_SIZE / 2;
+        const r = 150;
+        const light = ctx.createRadialGradient(anchorX, cy, 10, anchorX, cy, r);
+        light.addColorStop(0, color);
+        light.addColorStop(1, base.replace("rgb(", "rgba(").replace(")", ", 0)"));
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.fillStyle = light;
+        ctx.fillRect(anchorX - r, cy - r, r * 2, r * 2);
+        ctx.restore();
+    }
+
+    // Заставка світу: назва плавно з'являється на початку рівня й зникає
+    renderWorldTitle(ctx, W, H) {
+        if (this.elapsed >= TITLE_TIME) {
+            return;
+        }
+        const name = BackgroundRenderer.worldName(this.level.bgTheme);
+        if (!name) {
+            return;
+        }
+        const t = this.elapsed;
+        const alpha = Math.min(1, t / 0.35, (TITLE_TIME - t) / 0.6);
+        const rise = (1 - Math.min(1, t / 0.35)) * 20;
+        const accent = this.level.accentColor || "#00f6ff";
+        const y = H * 0.24 + rise;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, alpha);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = "900 " + Math.round(H * 0.07) + "px 'Segoe UI', Arial, sans-serif";
+        // Піксельна «об'ємна» тінь
+        ctx.fillStyle = "rgba(5, 5, 20, 0.9)";
+        for (let k = 4; k >= 1; k--) {
+            ctx.fillText(name.toUpperCase(), W / 2 + k * 2, y + k * 2);
+        }
+        ctx.fillStyle = accent;
+        ctx.fillText(name.toUpperCase(), W / 2 + 2, y);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText(name.toUpperCase(), W / 2, y - 2);
+        if (this.leagueInfo) {
+            ctx.font = "bold " + Math.round(H * 0.028) + "px 'Segoe UI', Arial, sans-serif";
+            ctx.fillStyle = accent;
+            ctx.fillText(this.leagueInfo.levelNumber + " · " + this.leagueInfo.levelName, W / 2, y + H * 0.065);
+        }
+        ctx.restore();
     }
 
     // ---------- Хвилі стрибка ----------
@@ -2915,18 +3056,12 @@ export class Engine {
 
     renderFinish(ctx, W, groundY, anchorX, camX) {
         const screenX = this.finishX - camX + anchorX;
-        if (screenX < -60 || screenX > W + 60) {
+        if (screenX < -120 || screenX > W + 120) {
             return;
         }
-        var finishGrad = ctx.createLinearGradient(screenX - 8, 0, screenX + 8, 0);
-        finishGrad.addColorStop(0, "transparent");
-        finishGrad.addColorStop(0.5, "rgba(57, 255, 136, 0.6)");
-        finishGrad.addColorStop(1, "transparent");
-        ctx.fillStyle = finishGrad;
-        ctx.fillRect(screenX - 22, groundY - 170, 44, 170);
-        ctx.strokeStyle = "#39ff88";
-        ctx.lineWidth = 6;
-        ctx.strokeRect(screenX - 8, groundY - 170, 16, 170);
+        // Фініш у стилі світу «відчиняється», коли кубик підбігає
+        const open = Math.min(1, Math.max(0, 1 - (this.finishX - this.player.x) / FINISH_OPEN_DISTANCE));
+        BackgroundRenderer.renderFinishGate(ctx, this.level.bgTheme, screenX, groundY, open, this.currentTime / 1000);
     }
 
     // ---------- Перешкоди (3 типи) ----------

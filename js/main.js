@@ -67,6 +67,9 @@ const btnSpeedSlow = document.getElementById("btnSpeedSlow");
 const btnSpeedNormal = document.getElementById("btnSpeedNormal");
 const btnSpeedFast = document.getElementById("btnSpeedFast");
 const btnLevelsBack = document.getElementById("btnLevelsBack");
+const btnCamOn = document.getElementById("btnCamOn");
+const btnCamOff = document.getElementById("btnCamOff");
+const cameraHintEl = document.getElementById("cameraHint");
 const btnRetry = document.getElementById("btnRetry");
 const btnGoMenu = document.getElementById("btnGoMenu");
 const btnNext = document.getElementById("btnNext");
@@ -142,8 +145,28 @@ function setState(next) {
 
 // ---------- Демо-заставка меню ----------
 
-function createDemoEngine() {
-    demoEngine = new Engine(save.getLastPlayable(), "EASY", true, save.getHitWindow(), save.getSpeed());
+// Вітрина світів: фон меню по черзі показує вже відкриті світи
+const SHOWCASE_INTERVAL = 9;
+const SHOWCASE_FADE = 0.5;
+let demoLevelId = null;
+let demoAge = 0;
+
+function createDemoEngine(levelId) {
+    demoLevelId = levelId || save.getLastPlayable();
+    demoEngine = new Engine(demoLevelId, "EASY", true, save.getHitWindow(), save.getSpeed());
+    demoAge = 0;
+}
+
+function nextShowcaseLevel() {
+    const unlocked = save.getLastPlayable();
+    const current = ALL_LEVELS.find(function (l) { return l.id === demoLevelId; });
+    const candidates = ALL_LEVELS.filter(function (l) {
+        return l.id <= unlocked && (!current || l.bgTheme !== current.bgTheme);
+    });
+    if (candidates.length === 0) {
+        return demoLevelId;
+    }
+    return candidates[Math.floor(Math.random() * candidates.length)].id;
 }
 
 // ---------- Запуск рівня ----------
@@ -388,6 +411,18 @@ function refreshSpeedButtons() {
     speedHintEl.textContent = SPEED_HINTS[speed] || SPEED_HINTS.normal;
 }
 
+const CAMERA_HINTS = {
+    on: "УВІМК: камера стежить за стрибком, екран струшується при вибуху",
+    off: "ВИМК: камера нерухома — для тих, кого заколисує"
+};
+
+function refreshCameraButtons() {
+    const on = save.getCameraMotion();
+    btnCamOn.classList.toggle("active-on", on);
+    btnCamOff.classList.toggle("active-off", !on);
+    cameraHintEl.textContent = on ? CAMERA_HINTS.on : CAMERA_HINTS.off;
+}
+
 // ---------- Кнопки ----------
 
 btnStart.addEventListener("click", function () {
@@ -405,6 +440,7 @@ btnSettings.addEventListener("click", function () {
     refreshDifficultyButtons();
     refreshHitWindowButtons();
     refreshSpeedButtons();
+    refreshCameraButtons();
     setState("SETTINGS");
 });
 
@@ -452,6 +488,18 @@ btnSpeedNormal.addEventListener("click", function () {
 btnSpeedFast.addEventListener("click", function () {
     save.setSpeed("fast");
     refreshSpeedButtons();
+    createDemoEngine();
+});
+
+btnCamOn.addEventListener("click", function () {
+    save.setCameraMotion(true);
+    refreshCameraButtons();
+    createDemoEngine();
+});
+
+btnCamOff.addEventListener("click", function () {
+    save.setCameraMotion(false);
+    refreshCameraButtons();
     createDemoEngine();
 });
 
@@ -592,8 +640,22 @@ function frame(now) {
 
     if (state === "MENU" || state === "SETTINGS" || state === "LEVEL_SELECT") {
         if (demoEngine) {
+            demoAge += dt;
+            if (demoAge >= SHOWCASE_INTERVAL) {
+                createDemoEngine(nextShowcaseLevel());
+            }
             demoEngine.update(dt);
             demoEngine.render(ctx, W, H, time);
+            // Плавний перехід між світами: затемнення наприкінці й на початку показу
+            const fade = Math.max(
+                0,
+                1 - demoAge / SHOWCASE_FADE,
+                1 - (SHOWCASE_INTERVAL - demoAge) / SHOWCASE_FADE
+            );
+            if (fade > 0) {
+                ctx.fillStyle = "rgba(2, 3, 10, " + Math.min(1, fade).toFixed(3) + ")";
+                ctx.fillRect(0, 0, W, H);
+            }
         }
         return;
     }
