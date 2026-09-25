@@ -265,6 +265,7 @@ function handleGameOver() {
             hits: runState.runHits,
             words: runState.runWords,
             combos: runState.runCombos,
+            wordsMult: runState.wordsMult,
             perfect: runState.runPerfect,
             series: runState.runSeries,
             weapon: runState.weapon,
@@ -308,6 +309,7 @@ function handleVictory() {
             hits: runState.runHits,
             words: runState.runWords,
             combos: runState.runCombos,
+            wordsMult: runState.wordsMult,
             perfect: runState.runPerfect,
             series: runState.runSeries,
             weapon: runState.weapon,
@@ -1089,6 +1091,13 @@ function buildShopSkinSection(grid, activeSkinId) {
         nameSpan.className = "skin-card-name";
         nameSpan.textContent = (item.legendary ? "⭐ " : "") + item.name;
         card.appendChild(nameSpan);
+        // Бонус скіна з магазину
+        if (itemPerkText(item.id)) {
+            const perkSpan = document.createElement("span");
+            perkSpan.className = "weapon-coin-bonus";
+            perkSpan.textContent = itemPerkText(item.id);
+            card.appendChild(perkSpan);
+        }
         if (owned) {
             card.addEventListener("click", function () {
                 save.setActiveSkin(item.renderType);
