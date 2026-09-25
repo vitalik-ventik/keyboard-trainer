@@ -6,7 +6,7 @@
 // ============================================================
 
 import { loadAssets, unlockAudio, playSound, playMusic } from "./assets.js";
-import { LEVELS_CONFIG, ALL_LEVELS, Engine, save, SKIN_RENDERERS, drawAchievementFrame } from "./engine.js";
+import { LEVELS_CONFIG, ALL_LEVELS, Engine, save, SKIN_RENDERERS, drawAchievementFrame, DEFAULT_SKIN } from "./engine.js";
 import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
@@ -810,16 +810,21 @@ function buildSkinGrid() {
 
     var progress = save.getProgress();
     var activeSkinId = save.getActiveSkin();
-    var allLevels = ALL_LEVELS;
+    // Перший — стартовий скін, відкритий завжди; далі скіни рівнів, що відкриваються після проходження
+    var entries = [{ level: null, skin: { id: "skin_base", name: "Стандартний Неон", renderType: DEFAULT_SKIN } }];
+    for (var li = 0; li < ALL_LEVELS.length; li++) {
+        if (ALL_LEVELS[li].skin) {
+            entries.push({ level: ALL_LEVELS[li], skin: ALL_LEVELS[li].skin });
+        }
+    }
 
-    for (var i = 0; i < allLevels.length; i++) {
-        var level = allLevels[i];
-        var skin = level.skin;
-        if (!skin) continue;
+    for (var i = 0; i < entries.length; i++) {
+        var level = entries[i].level;
+        var skin = entries[i].skin;
 
-        var isUnlocked = (level.id === 1) || (progress.unlockedSkins && progress.unlockedSkins.indexOf(skin.id) !== -1);
+        var isUnlocked = !level || (progress.unlockedSkins && progress.unlockedSkins.indexOf(skin.id) !== -1);
         var isActive = (skin.renderType === activeSkinId);
-        var achievement = save.getLevelAchievement(level.id);
+        var achievement = level ? save.getLevelAchievement(level.id) : null;
 
         var card = document.createElement("div");
         card.className = "skin-card" + (isUnlocked ? "" : " locked") + (isActive ? " active" : "");
