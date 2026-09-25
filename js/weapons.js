@@ -29,7 +29,7 @@ export const WEAPON_SPECS = {
     // Легендарна зброя
     weapon_firesword: { mode: "melee", fx: "fireslice" },
     weapon_thunder:   { mode: "melee", bolt: true, fx: "zap" },
-    weapon_gravity:   { mode: "beam", beam: "gravity", time: 0.4, hit: 0.3, fx: "fling" }
+    weapon_gravity:   { mode: "beam", beam: "gravity", time: 0.73, hit: 0.18, fx: "fling" }
 };
 
 export function getWeaponSpec(id) {
@@ -50,8 +50,31 @@ export const DESTRUCTION_TIME = {
     burn: 1.4,
     fireslice: 0.9,
     zap: 0.6,
-    fling: 1.3
+    fling: 1.55
 };
+
+// Гравітаційна гармата: промінь летить до шипа зі швидкістю GRAVITY_BEAM_SPEED
+// (до близького шипа — майже миттєво, але не довше за GRAVITY_GRAB), потім GRAVITY_LIFT
+// тримає шип у повітрі; коли промінь гасне, шип одразу відлітає.
+export const GRAVITY_GRAB = 0.18;
+export const GRAVITY_LIFT = 0.55;
+export const GRAVITY_BEAM_SPEED = 1400;
+// Шип злітає швидко (за GRAVITY_RISE) і вище кубика, далі висить і погойдується
+const GRAVITY_RISE = 0.16;
+const GRAVITY_LIFT_RATIO = 1.35;
+
+// Час, за який промінь дотягнеться до шипа на відстані dist
+export function gravityGrabTime(dist) {
+    return Math.min(GRAVITY_GRAB, Math.max(0.03, dist / GRAVITY_BEAM_SPEED));
+}
+
+// На скільки піднято шип висотою h через ft секунд після захоплення (вгору — мінус)
+export function gravityLiftOffset(ft, h) {
+    const k = clamp01(ft / GRAVITY_RISE);
+    const rise = 1 - Math.pow(1 - k, 3);
+    const hover = ft > GRAVITY_RISE ? Math.sin((ft - GRAVITY_RISE) * 9) * 0.08 : 0;
+    return -h * GRAVITY_LIFT_RATIO * (rise + hover);
+}
 
 // Тривалість удару ближнього бою і момент, коли лезо торкається шипа
 export const SWING_TIME = 0.2;
@@ -614,18 +637,33 @@ function drawThunderBolt(ctx, x2, y2, t, time) {
     ctx.restore();
 }
 
-// Гравітаційний захват: хвиляста фіолетова «нитка» й кільця
-function drawGravityTether(ctx, x1, y1, x2, y2, t, time) {
-    const a = t < 0.15 ? t / 0.15 : Math.max(0, 1 - (t - 0.75) / 0.25);
+// Гравітаційний захват: промінь витягується з гармати до шипа, тримає його,
+// поки той піднімається, і гасне в мить кидка. t — від 0 до 1 за весь час променя.
+function drawGravityTether(ctx, x1, y1, x2, y2, t, time, grabFrac) {
+    const ext = clamp01(t / grabFrac);
+    const a = t > 0.94 ? clamp01((1 - t) / 0.06) : 1;
+    if (a <= 0) {
+        return;
+    }
+    const ex = x1 + (x2 - x1) * ext;
+    const ey = y1 + (y2 - y1) * ext;
     ctx.save();
-    ctx.strokeStyle = "rgba(170, 120, 255, " + (0.8 * a).toFixed(2) + ")";
-    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    // Широке сяйво й хвиляста серцевина
+    ctx.strokeStyle = "rgba(140, 90, 255, " + (0.3 * a).toFixed(2) + ")";
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(ex, ey);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(200, 170, 255, " + (0.9 * a).toFixed(2) + ")";
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
     const n = 20;
     for (let i = 0; i <= n; i++) {
         const k = i / n;
-        const px = x1 + (x2 - x1) * k;
-        const py = y1 + (y2 - y1) * k + Math.sin(k * 14 - time * 0.03) * 4 * Math.sin(Math.PI * k);
+        const px = x1 + (ex - x1) * k;
+        const py = y1 + (ey - y1) * k + Math.sin(k * 14 - time * 0.03) * 3.5 * Math.sin(Math.PI * k);
         if (i === 0) {
             ctx.moveTo(px, py);
         } else {
@@ -633,27 +671,42 @@ function drawGravityTether(ctx, x1, y1, x2, y2, t, time) {
         }
     }
     ctx.stroke();
+    // Кільця, що біжать від гармати до шипа
     for (let i = 0; i < 3; i++) {
         const k = ((time * 0.002) + i / 3) % 1;
+        if (k > ext) {
+            continue;
+        }
         const px = x1 + (x2 - x1) * k;
         const py = y1 + (y2 - y1) * k;
-        ctx.strokeStyle = "rgba(210, 180, 255, " + (0.7 * a * (1 - k)).toFixed(2) + ")";
+        ctx.strokeStyle = "rgba(220, 200, 255, " + (0.7 * a * (1 - k)).toFixed(2) + ")";
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.ellipse(px, py, 4, 8 + k * 6, 0, 0, Math.PI * 2);
         ctx.stroke();
     }
+    // Захват на кінці променя, коли він дотягнувся до шипа
+    if (ext >= 1) {
+        const pulse = 0.6 + 0.4 * Math.sin(time * 0.02);
+        const grip = ctx.createRadialGradient(ex, ey, 1, ex, ey, 22);
+        grip.addColorStop(0, "rgba(255, 255, 255, " + (0.8 * a * pulse).toFixed(2) + ")");
+        grip.addColorStop(0.4, "rgba(180, 140, 255, " + (0.5 * a).toFixed(2) + ")");
+        grip.addColorStop(1, "rgba(120, 80, 255, 0)");
+        ctx.fillStyle = grip;
+        ctx.fillRect(ex - 22, ey - 22, 44, 44);
+    }
     ctx.restore();
 }
 
 // Дія зброї на відстані: вигляд залежить від зброї
-export function drawBeam(ctx, kind, x1, y1, x2, y2, t, time) {
+// grabFrac — для гравітаційної гармати: частка часу, за яку промінь дотягується до шипа
+export function drawBeam(ctx, kind, x1, y1, x2, y2, t, time, grabFrac) {
     if (kind === "flame") {
         drawFlameStream(ctx, x1, y1, x2, y2, t, time);
     } else if (kind === "thunder") {
         drawThunderBolt(ctx, x2, y2, t, time);
     } else if (kind === "gravity") {
-        drawGravityTether(ctx, x1, y1, x2, y2, t, time);
+        drawGravityTether(ctx, x1, y1, x2, y2, t, time, grabFrac || GRAVITY_GRAB / (GRAVITY_GRAB + GRAVITY_LIFT));
     } else {
         drawLaserBeam(ctx, x1, y1, x2, y2, t, time);
     }
@@ -1026,38 +1079,50 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape)
         }
         ctx.stroke();
     } else if (kind === "fling") {
-        // Гравітаційна гармата: шип піднімається, крутиться й відлітає в небо зіркою
-        const lift = clamp01(t / 0.35);
+        // Гравітаційна гармата: поки тримає промінь — шип плавно піднімається й
+        // погойдується; щойно промінь гасне — шип одразу відлітає в небо й зникає зірочкою
         let dx = 0;
-        let dy = -lift * 26;
-        let spin = lift * 0.6;
+        const liftPx = h * GRAVITY_LIFT_RATIO;
+        let dy = gravityLiftOffset(t, h);
+        let spin = Math.sin(t * 14) * 0.12 * clamp01(t / 0.15);
         let scale = 1;
-        if (t > 0.35) {
-            const f = t - 0.35;
-            dx = f * 420;
-            dy = -26 - f * 520;
-            spin = 0.6 + f * 9;
-            scale = Math.max(0, 1 - f * 1.1);
+        const f = t - GRAVITY_LIFT;
+        if (f > 0) {
+            dx = f * 560 + f * f * 300;
+            dy = -liftPx - f * 680 - f * f * 400;
+            spin = f * 11;
+            scale = Math.max(0, 1 - f * 1.3);
         }
         if (scale > 0.02) {
-            const glow = ctx.createRadialGradient(x + dx, groundY - h * 0.4 + dy, 2, x + dx, groundY - h * 0.4 + dy, h * 0.9 * scale);
+            const cy = groundY - h * 0.4 + dy;
+            const glow = ctx.createRadialGradient(x + dx, cy, 2, x + dx, cy, h * 0.9 * scale);
             glow.addColorStop(0, "rgba(190, 150, 255, 0.55)");
             glow.addColorStop(1, "rgba(120, 80, 255, 0)");
             ctx.fillStyle = glow;
-            ctx.fillRect(x + dx - h, groundY - h * 1.4 + dy, h * 2, h * 2);
+            ctx.fillRect(x + dx - h, cy - h, h * 2, h * 2);
             ctx.save();
-            ctx.translate(x + dx, groundY - h * 0.4 + dy);
+            ctx.translate(x + dx, cy);
             ctx.rotate(spin);
             ctx.scale(scale, scale);
             ctx.translate(-x, -(groundY - h * 0.4));
             drawShape(ctx);
             ctx.restore();
         }
+        // Спалах-кільце в мить кидка
+        if (f > 0 && f < 0.25) {
+            const e = f / 0.25;
+            ctx.strokeStyle = "rgba(220, 200, 255, " + (1 - e).toFixed(2) + ")";
+            ctx.lineWidth = 3 * (1 - e) + 1;
+            ctx.beginPath();
+            ctx.arc(x, groundY - h * 0.4 - liftPx, 10 + e * 40, 0, Math.PI * 2);
+            ctx.stroke();
+        }
         // Зірочка там, де шип зник у небі
-        const star = t > 1.0 ? Math.sin(clamp01((t - 1.0) / 0.3) * Math.PI) : 0;
+        const star = f > 0.6 ? Math.sin(clamp01((f - 0.6) / 0.35) * Math.PI) : 0;
         if (star > 0) {
-            const sx = x + 0.65 * 420;
-            const sy = groundY - h * 0.4 - 26 - 0.65 * 520;
+            const sf = 0.72;
+            const sx = x + sf * 560 + sf * sf * 300;
+            const sy = groundY - h * 0.4 - liftPx - sf * 680 - sf * sf * 400;
             ctx.fillStyle = "rgba(255, 255, 255, " + star.toFixed(2) + ")";
             ctx.fillRect(sx - 1.5, sy - 9 * star, 3, 18 * star);
             ctx.fillRect(sx - 9 * star, sy - 1.5, 18 * star, 3);
@@ -1106,6 +1171,7 @@ export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
 
     // Коли шип буде знищено (hitAt) і як летить снаряд
     let hitAt = Infinity;
+    let demoBeam = null;
     let swingAt = -1;
     let flight = null;
     if (spec) {
@@ -1116,7 +1182,10 @@ export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
             swingAt = Math.max(press, (w + 10 - hw - cubeX - meleeTriggerGap(s, spikeSpeed)) / spikeSpeed);
             hitAt = swingAt + SWING_HIT;
         } else if (spec.mode === "beam") {
-            hitAt = press + beamTiming(spec).hit;
+            demoBeam = spec.beam === "gravity"
+                ? { hit: gravityGrabTime(spikeAt(press) - muzzleX), time: gravityGrabTime(spikeAt(press) - muzzleX) + GRAVITY_LIFT }
+                : beamTiming(spec);
+            hitAt = press + demoBeam.hit;
         } else {
             const tx = spikeAt(press);
             const dur = Math.max(0.08, (tx - muzzleX) / (spec.speed * 0.45));
@@ -1187,10 +1256,11 @@ export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
     if (spec && spec.bolt && u >= hitAt && u < hitAt + BOLT_TIME) {
         drawBeam(ctx, "thunder", spikeX, groundY - sh * 0.45, spikeX, groundY - sh * 0.45, (u - hitAt) / BOLT_TIME, time);
     }
-    if (spec && spec.mode === "beam") {
-        const bt = beamTiming(spec).time;
+    if (spec && spec.mode === "beam" && demoBeam) {
+        const bt = demoBeam.time;
         if (u >= press && u < press + bt) {
-            drawBeam(ctx, spec.beam, muzzleX + s * 0.08, muzzleY, spikeAt(press), groundY - sh * 0.45, (u - press) / bt, time);
+            const liftY = spec.beam === "gravity" && u > hitAt ? gravityLiftOffset(u - hitAt, sh) : 0;
+            drawBeam(ctx, spec.beam, muzzleX + s * 0.08, muzzleY, spikeAt(press), groundY - sh * 0.45 + liftY, (u - press) / bt, time, demoBeam.hit / demoBeam.time);
             recoil = 1 - (u - press) / bt;
         }
     }

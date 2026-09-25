@@ -9,7 +9,7 @@ import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
 import { DEFAULT_ITEMS, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
-import { getWeaponSpec, drawHeldWeapon, drawProjectile, drawBeam, beamTiming, drawStuckArrow, drawSpikeDestruction, DESTRUCTION_TIME, SWING_TIME, SWING_HIT, BOLT_TIME, MELEE_CONTACT, meleeTriggerGap } from "./weapons.js";
+import { getWeaponSpec, drawHeldWeapon, drawProjectile, drawBeam, beamTiming, drawStuckArrow, drawSpikeDestruction, DESTRUCTION_TIME, SWING_TIME, SWING_HIT, BOLT_TIME, MELEE_CONTACT, meleeTriggerGap, gravityLiftOffset, gravityGrabTime, GRAVITY_LIFT } from "./weapons.js";
 
 // ---------- Детермінований PRNG (фіксовані траси) ----------
 
@@ -3051,7 +3051,13 @@ export class Engine {
             // Замах одразу; удар — коли шип підійде на відстань руки
             this.attacks.push({ kind: "melee", spike: spike, stage: "wait", t: 0, hit: false });
         } else if (spec.mode === "beam") {
-            this.attacks.push({ kind: "beam", spike: spike, stage: "beam", t: 0, hit: false });
+            const beamAttack = { kind: "beam", spike: spike, stage: "beam", t: 0, hit: false };
+            if (spec.beam === "gravity") {
+                // Промінь гравітаційної гармати дотягується тим швидше, чим ближче шип
+                beamAttack.hitAt = gravityGrabTime(spike.x - muzzleX);
+                beamAttack.time = beamAttack.hitAt + GRAVITY_LIFT;
+            }
+            this.attacks.push(beamAttack);
             this.weaponRecoil = 1;
         } else {
             const count = spec.mode === "burst" ? spec.count : 1;
@@ -3161,7 +3167,7 @@ export class Engine {
                 }
             } else {
                 a.t += dt;
-                const timing = beamTiming(this.weaponSpec);
+                const timing = a.time ? { time: a.time, hit: a.hitAt } : beamTiming(this.weaponSpec);
                 // Поки діє струмінь чи промінь, зброя лишається «в роботі»
                 this.weaponRecoil = Math.max(this.weaponRecoil, 1 - a.t / timing.time);
                 if (!a.hit && a.t >= timing.hit) {
@@ -3279,8 +3285,13 @@ export class Engine {
                 const x1 = anchorX + CUBE_SIZE * 0.6 + CUBE_SIZE * 0.08;
                 const y1 = groundY - this.player.y - CUBE_SIZE / 2 - CUBE_SIZE * 0.03;
                 const x2 = anchorX + a.spike.x - camX;
-                const y2 = groundY - SPIKE_H * 0.45;
-                drawBeam(ctx, this.weaponSpec.beam, x1, y1, x2, y2, a.t / beamTiming(this.weaponSpec).time, time);
+                let y2 = groundY - SPIKE_H * 0.45;
+                if (this.weaponSpec.beam === "gravity" && a.spike.fx) {
+                    // Кінець променя тримає шип, що піднімається
+                    y2 += gravityLiftOffset((this.currentTime - a.spike.fx.t0) / 1000, SPIKE_H);
+                }
+                const beamTime = a.time || beamTiming(this.weaponSpec).time;
+                drawBeam(ctx, this.weaponSpec.beam, x1, y1, x2, y2, a.t / beamTime, time, a.time ? a.hitAt / a.time : undefined);
             } else if (a.kind === "bolt") {
                 const bx = anchorX + a.spike.x - camX;
                 const by = groundY - SPIKE_H * 0.45;
