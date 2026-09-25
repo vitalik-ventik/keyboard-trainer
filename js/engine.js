@@ -10,6 +10,8 @@ import { KEYS } from "./keyboard.js";
 import { DEFAULT_ITEMS, CHEST_TYPES, rollChest, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
 import { EXTRA_LEVEL_SKINS } from "./level_skins_extra.js";
+import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, sanitizeAchievementData, localDayKey } from "./achievements.js";
+import { EGG_BY_THEME } from "./easter_eggs.js";
 import { getWeaponSpec, drawHeldWeapon, drawProjectile, drawBeam, beamTiming, drawStuckArrow, drawSpikeDestruction, DESTRUCTION_TIME, SWING_TIME, SWING_HIT, BOLT_TIME, MELEE_CONTACT, meleeTriggerGap, gravityLiftOffset, gravityGrabTime, GRAVITY_LIFT, getWeaponSound } from "./weapons.js";
 
 // ---------- Детермінований PRNG (фіксовані траси) ----------
@@ -1902,7 +1904,9 @@ function defaultSaveData() {
             // Ще не відкриті сундуки та скільки перемог поспіль минуло без сундука
             chests: [],
             winsWithoutChest: 0
-        }
+        },
+        // Відкриті досягнення й лічильники для них
+        achievements: defaultAchievementData()
     };
 }
 
@@ -2001,6 +2005,7 @@ function sanitizeSaveData(raw) {
             clean.shop.winsWithoutChest = Math.max(0, Math.min(100, Math.floor(wins)));
         }
     }
+    clean.achievements = sanitizeAchievementData(raw.achievements);
     return clean;
 }
 
@@ -2425,6 +2430,7 @@ export const save = {
             return null;
         }
         const type = saveData.shop.chests.shift();
+        saveData.achievements.stats.chestsOpened++;
         const self = this;
         const result = rollChest(type, function (id) { return self.isOwned(id); });
         if (result.kind === "item") {
@@ -2474,6 +2480,163 @@ export const save = {
             return { met: golds >= leagueLevels.length, current: golds, target: leagueLevels.length, text: "Золото на всіх рівнях Ліги " + req.league };
         }
         return { met: false, current: 0, target: 1, text: "" };
+    },
+
+    // ---------- Досягнення ----------
+
+    // Підсумок забігу для лічильників досягнень.
+    // run: { hits, words, maxCombo, weaponHits, won, flawless, eggTheme, exploded }
+    recordRunForAchievements(run) {
+        if (!saveData) {
+            this.load();
+        }
+        const st = saveData.achievements.stats;
+        st.letters += Math.max(0, Math.floor(run.hits) || 0);
+        st.words += Math.max(0, Math.floor(run.words) || 0);
+        st.bestCombo = Math.max(st.bestCombo, Math.floor(run.maxCombo) || 0);
+        st.weaponHits += Math.max(0, Math.floor(run.weaponHits) || 0);
+        if (run.won && run.flawless) {
+            st.flawless++;
+        }
+        if (run.exploded) {
+            st.explosions++;
+        }
+        if (run.eggTheme && EGG_BY_THEME[run.eggTheme] && st.eggs.indexOf(run.eggTheme) === -1) {
+            st.eggs.push(run.eggTheme);
+        }
+        this.markPlayDay();
+    },
+
+    // Рахує різні дні, у які грали (не обов'язково поспіль)
+    markPlayDay() {
+        if (!saveData) {
+            this.load();
+        }
+        const st = saveData.achievements.stats;
+        const today = localDayKey();
+        if (st.lastDay !== today) {
+            st.lastDay = today;
+            st.days++;
+        }
+        this.persist();
+    },
+
+    // Знімок усього, від чого залежать досягнення
+    getAchievementSnapshot() {
+        if (!saveData) {
+            this.load();
+        }
+        const levels = saveData.progress.levels;
+        const st = saveData.achievements.stats;
+        const leagueDone = {};
+        const leagueLeft = {};
+        let clears = 0;
+        let silvers = 0;
+        let golds = 0;
+        const themes = [];
+        for (const level of ALL_LEVELS) {
+            const entry = levels[String(level.id)];
+            const cleared = !!entry && entry.bestPct === 100;
+            if (cleared) {
+                clears++;
+            }
+            if (entry && entry.perfect) {
+                silvers++;
+            }
+            if (entry && entry.perfect === "hard") {
+                golds++;
+            }
+            leagueLeft[level.leagueId] = (leagueLeft[level.leagueId] || 0) + (cleared ? 0 : 1);
+            if (EGG_BY_THEME[level.bgTheme] && themes.indexOf(level.bgTheme) === -1) {
+                themes.push(level.bgTheme);
+            }
+        }
+        for (const id of Object.keys(leagueLeft)) {
+            leagueDone[id] = leagueLeft[id] === 0;
+        }
+        const boss = levels[String(BOSS_LEVEL_ID)];
+        let mastered = 0;
+        for (const key of KEYS) {
+            const s = saveData.progress.letterStats[key.letter];
+            if (s && s.ok + s.miss >= 10 && s.miss / (s.ok + s.miss) < 0.1) {
+                mastered++;
+            }
+        }
+        let weapons = 0;
+        let legendary = 0;
+        let shopSkins = 0;
+        for (const id of saveData.shop.owned) {
+            const item = getShopItem(id);
+            if (!item) {
+                continue;
+            }
+            if (item.type === "weapon") {
+                weapons++;
+            }
+            if (item.type === "skin") {
+                shopSkins++;
+            }
+            if (item.legendary) {
+                legendary++;
+            }
+        }
+        return {
+            clears: clears,
+            leagueDone: leagueDone,
+            bossDone: !!boss && boss.bestPct === 100,
+            silvers: silvers,
+            golds: golds,
+            totalLevels: ALL_LEVELS.length,
+            flawless: st.flawless,
+            bestCombo: st.bestCombo,
+            letters: st.letters,
+            words: st.words,
+            masteredLetters: mastered,
+            eggs: st.eggs.filter(function (t) { return themes.indexOf(t) !== -1; }).length,
+            totalEggs: themes.length,
+            itemsOwned: saveData.shop.owned.length,
+            weaponsOwned: weapons,
+            skins: saveData.progress.unlockedSkins.length + shopSkins,
+            chestsOpened: st.chestsOpened,
+            legendaryOwned: legendary,
+            days: st.days,
+            explosions: st.explosions,
+            weaponHits: st.weaponHits
+        };
+    },
+
+    // Відкриває всі виконані досягнення, кладе сундуки-нагороди в чергу.
+    // Повертає масив щойно відкритих досягнень (порожній, якщо нових немає)
+    checkAchievements() {
+        if (!saveData) {
+            this.load();
+        }
+        const snapshot = this.getAchievementSnapshot();
+        const done = saveData.achievements.done;
+        const fresh = [];
+        for (const ach of ACHIEVEMENTS) {
+            if (done.indexOf(ach.id) !== -1) {
+                continue;
+            }
+            if (achievementProgress(ach, snapshot).done) {
+                done.push(ach.id);
+                if (CHEST_TYPES[ach.chest]) {
+                    saveData.shop.chests.push(ach.chest);
+                }
+                fresh.push(ach);
+            }
+        }
+        if (fresh.length > 0) {
+            this.persist();
+        }
+        return fresh;
+    },
+
+    isAchievementDone(id) {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.achievements.done.indexOf(id) !== -1;
     },
 
     // Кристали задним числом за рівні, пройдені ще до появи магазину:
@@ -3029,6 +3192,9 @@ export class Engine {
         this.runHits = 0;
         this.runPerfect = 0;
         this.runSeries = 0;
+        // Для досягнень: найдовша серія «Ідеально» та шипи, знищені зброєю
+        this.runMaxCombo = 0;
+        this.runWeaponHits = 0;
         this.boom = null;
         // Зброя з магазину: замість стрибка кубик знищує шип
         this.weaponId = save.getEquipped("weapon");
@@ -3150,6 +3316,11 @@ export class Engine {
             runWords: this.runWords,
             runPerfect: this.runPerfect,
             runSeries: this.runSeries,
+            runMaxCombo: this.runMaxCombo,
+            runWeaponHits: this.runWeaponHits,
+            // Пасхалку зараховуємо, якщо її показували хоча б секунду
+            eggSeen: this.eggStart !== null && this.currentTime - this.eggStart >= 1000,
+            bgTheme: this.level.bgTheme,
             weapon: !!this.weaponSpec,
             alive: this.player.alive,
             maxEasy: this.maxEasy,
@@ -3196,6 +3367,9 @@ export class Engine {
         if (!this.demoMode) {
             // Кристал за кожен подоланий шип; «Ідеально» — ще +1 і бонус за серію
             this.runHits++;
+            if (this.weaponSpec) {
+                this.runWeaponHits++;
+            }
             let gain = 1;
             let bonus = 0;
             if (perfect) {
@@ -3215,6 +3389,9 @@ export class Engine {
         }
         if (perfect) {
             this.combo++;
+            if (this.combo > this.runMaxCombo) {
+                this.runMaxCombo = this.combo;
+            }
             const count = 8 + Math.floor(Math.random() * 5);
             const isHard = this.difficulty === "HARD";
             const silverColors = ["#f0f4ff", "#c8d0e0", "#e8ecf2", "#d4dce8", "#88aacc"];

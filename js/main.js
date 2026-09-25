@@ -254,6 +254,7 @@ function handleGameOver() {
             difficulty: runState.difficulty
         });
         save.recordLetterStats(gameEngine.getLetterStats());
+        noteRunForAchievements(runState, false);
         // Вибух: зберігається половина кристалів, зібраних у забігу
         const balanceBefore = save.getCrystals();
         const reward = computeReward({
@@ -270,6 +271,7 @@ function handleGameOver() {
         save.addCrystals(reward.total);
         renderRewardBreakdown(gameoverCrystalsEl, reward, balanceBefore);
         refreshCrystalDisplays();
+        announceAchievements(save.checkAchievements());
     }
     const runState = gameEngine.getState();
     gameoverPctEl.textContent = Math.floor(runState.progressPct) + "%";
@@ -290,6 +292,7 @@ function handleVictory() {
             difficulty: runState.difficulty
         });
         save.recordLetterStats(gameEngine.getLetterStats());
+        noteRunForAchievements(runState, true);
         // Кристали: стрибки, серії, фініш і разові бонуси рівня
         const wonLevel = ALL_LEVELS.find(function (l) { return l.id === currentLevelId; });
         const achievementNow = save.getLevelAchievement(currentLevelId);
@@ -327,6 +330,8 @@ function handleVictory() {
         save.setWinsWithoutChest(drop.winsWithoutChest);
         save.addChests(drop.chests);
         refreshCrystalDisplays();
+        // Досягнення перевіряємо після всіх нарахувань: рамки, ліги, зібрані предмети
+        announceAchievements(save.checkAchievements());
     }
     refreshChestButtons();
     const runState = gameEngine.getState();
@@ -1125,6 +1130,104 @@ skinsModalEl.addEventListener("click", function (e) {
     }
 });
 
+// ---------- Досягнення: лічильники забігу й спливаючі плашки ----------
+
+const achievementToastsEl = document.getElementById("achievementToasts");
+const ACHIEVEMENT_TOAST_TIME = 4200;
+// Коли в черзі ще є плашки, кожна показується коротше
+const ACHIEVEMENT_TOAST_TIME_QUEUED = 2800;
+// Фанфара звучить раз на всю пачку досягнень і обрізається з затуханням
+const ACHIEVEMENT_SOUND_TIME = 4;
+const achievementQueue = [];
+let achievementToastBusy = false;
+
+// Передає підсумок забігу в лічильники досягнень
+function noteRunForAchievements(runState, won) {
+    const stats = gameEngine.getLetterStats();
+    let misses = 0;
+    for (const letter of Object.keys(stats)) {
+        misses += stats[letter].miss || 0;
+    }
+    save.recordRunForAchievements({
+        hits: runState.runHits,
+        words: runState.runWords,
+        maxCombo: runState.runMaxCombo,
+        weaponHits: runState.runWeaponHits,
+        won: won,
+        flawless: won && misses === 0,
+        eggTheme: runState.eggSeen ? runState.bgTheme : null,
+        exploded: !won
+    });
+}
+
+// Ставить щойно відкриті досягнення в чергу показу
+function announceAchievements(list) {
+    if (!list || list.length === 0) {
+        return;
+    }
+    for (const ach of list) {
+        achievementQueue.push(ach);
+    }
+    refreshChestButtons();
+    showNextAchievementToast();
+}
+
+// Плашки показуються по одній, щоб не накладатися
+function showNextAchievementToast() {
+    if (achievementToastBusy || achievementQueue.length === 0 || !achievementToastsEl) {
+        return;
+    }
+    achievementToastBusy = true;
+    const ach = achievementQueue.shift();
+    const chest = CHEST_TYPES[ach.chest];
+    const toast = document.createElement("div");
+    toast.className = "ach-toast ach-" + ach.chest;
+    const icon = document.createElement("div");
+    icon.className = "ach-toast-icon";
+    icon.textContent = ach.icon;
+    const body = document.createElement("div");
+    body.className = "ach-toast-body";
+    const title = document.createElement("div");
+    title.className = "ach-toast-title";
+    title.textContent = "🏆 ДОСЯГНЕННЯ: " + ach.name;
+    const desc = document.createElement("div");
+    desc.className = "ach-toast-desc";
+    desc.textContent = ach.desc;
+    const reward = document.createElement("div");
+    reward.className = "ach-toast-reward";
+    reward.textContent = "🎁 Нагорода: " + (chest ? chest.name : "сундук");
+    body.appendChild(title);
+    body.appendChild(desc);
+    body.appendChild(reward);
+    toast.appendChild(icon);
+    toast.appendChild(body);
+    achievementToastsEl.appendChild(toast);
+    // Звук лише на першій плашці пачки: наступні з'являються, поки він ще грає
+    if (!achievementToastsEl.dataset.batch) {
+        achievementToastsEl.dataset.batch = "1";
+        playSound("achievement", { volume: 0.8, duration: ACHIEVEMENT_SOUND_TIME });
+    }
+    const showTime = achievementQueue.length > 0 ? ACHIEVEMENT_TOAST_TIME_QUEUED : ACHIEVEMENT_TOAST_TIME;
+    let finished = false;
+    function finish() {
+        if (finished) {
+            return;
+        }
+        finished = true;
+        toast.classList.add("leaving");
+        setTimeout(function () {
+            toast.remove();
+            achievementToastBusy = false;
+            if (achievementQueue.length === 0) {
+                delete achievementToastsEl.dataset.batch;
+            }
+            showNextAchievementToast();
+        }, 350);
+    }
+    toast.addEventListener("click", finish);
+    setTimeout(finish, showTime);
+}
+
 // ---------- Кристали: відображення й розбивка нагороди ----------
 
 // Повідомлення в меню про кристали, нараховані задним числом за вже пройдені рівні
@@ -1307,6 +1410,8 @@ function buildShop() {
                     save.equipItem(item.id);
                     playSound("click");
                     justBought = { id: item.id, start: performance.now() };
+                    announceAchievements(save.checkAchievements());
+                    refreshChestButtons();
                 }
                 renderCurrentSkinIcon();
                 buildShop();
@@ -1552,6 +1657,9 @@ function startOpenChest() {
         return;
     }
     chestView.opened = opened;
+    // Відкритий сундук може дати досягнення («Скарбошукач», «Легенда», перша річ);
+    // сундук-нагорода стає в чергу й відкривається кнопкою «Наступний»
+    announceAchievements(save.checkAchievements());
     chestView.phase = "shaking";
     chestView.start = performance.now();
     chestResultEl.innerHTML = "&nbsp;";
@@ -1657,4 +1765,8 @@ loadAssets(function (loaded, total) {
 }).then(function () {
     createDemoEngine();
     setState("MENU");
+    // Сьогоднішній день гри й досягнення, вже виконані раніше (ліги, рамки, предмети)
+    save.markPlayDay();
+    announceAchievements(save.checkAchievements());
+    refreshChestButtons();
 });
