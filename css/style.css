@@ -1343,3 +1343,66 @@ body {
 .shop-modal-box .list-modal-scroll {
     align-self: stretch;
 }
+
+/* ---------- Сундуки ---------- */
+
+.chest-btn {
+    margin: 1vmin auto 0;
+    padding: 0.9vmin 2.4vmin;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 204, 51, 0.9);
+    background: linear-gradient(180deg, rgba(255, 190, 40, 0.35), rgba(60, 30, 5, 0.85));
+    color: #fff4c8;
+    font-size: 1.9vmin;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    box-shadow: 0 0 1.6vmin rgba(255, 190, 40, 0.5);
+    animation: chest-pulse 1.4s ease-in-out infinite;
+}
+
+.chest-btn.hidden {
+    display: none;
+}
+
+@keyframes chest-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+}
+
+.chest-modal-box {
+    align-items: center;
+    gap: 1.2vmin;
+    padding: 3vmin 4vmin;
+}
+
+.chest-modal-box canvas {
+    display: block;
+    border-radius: 10px;
+    background: radial-gradient(ellipse at 50% 70%, rgba(60, 40, 90, 0.9), rgba(5, 6, 15, 0.95));
+}
+
+.chest-result {
+    min-height: 2.6em;
+    text-align: center;
+    font-size: 2vmin;
+    font-weight: 700;
+    color: #fff4c8;
+}
+
+.chest-result .rarity {
+    display: block;
+    font-size: 1.5vmin;
+    font-weight: 600;
+}
+
+.chest-buttons {
+    display: flex;
+    gap: 1.2vmin;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.chest-buttons .hidden {
+    display: none;
+}

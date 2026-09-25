@@ -11,7 +11,7 @@ import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js"
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
-import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory } from "./shop.js";
+import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, drawCrystalIcon, CHEST_TYPES, chestsForVictory, drawChest, itemRarity } from "./shop.js";
 import { drawShopItemScene, drawShopSkinScene } from "./shop_preview.js";
 
 // ---------- Полотно та адаптивність ----------
@@ -152,6 +152,7 @@ function setState(next) {
     if (next === "MENU") {
         renderCurrentSkinIcon();
         refreshCrystalDisplays();
+        refreshChestButtons();
     }
 
     playMusic(STATE_MUSIC[next]);
@@ -242,6 +243,7 @@ function handleGameOver() {
         // Вибух: зберігається половина кристалів, зібраних у забігу
         const balanceBefore = save.getCrystals();
         const reward = computeReward({
+            hits: runState.runHits,
             perfect: runState.runPerfect,
             series: runState.runSeries,
             weapon: runState.weapon,
@@ -277,6 +279,7 @@ function handleVictory() {
         const achievementNow = save.getLevelAchievement(currentLevelId);
         const balanceBefore = save.getCrystals();
         const reward = computeReward({
+            hits: runState.runHits,
             perfect: runState.runPerfect,
             series: runState.runSeries,
             weapon: runState.weapon,
@@ -296,8 +299,19 @@ function handleVictory() {
             gold: achievementNow === "hard"
         });
         renderRewardBreakdown(victoryCrystalsEl, reward, balanceBefore);
+        // Сундуки за перемогу: перше проходження, нова рамка або щасливий повтор
+        const drop = chestsForVictory({
+            firstClear: !paidBefore.first,
+            leagueId: wonLevel ? wonLevel.leagueId : 1,
+            newSilver: !!achievementNow && !paidBefore.silver,
+            newGold: achievementNow === "hard" && !paidBefore.gold,
+            winsWithoutChest: save.getWinsWithoutChest()
+        });
+        save.setWinsWithoutChest(drop.winsWithoutChest);
+        save.addChests(drop.chests);
         refreshCrystalDisplays();
     }
+    refreshChestButtons();
     const runState = gameEngine.getState();
     victoryScoreEl.textContent = String(runState.score);
 
@@ -647,6 +661,10 @@ initKeyboardInput(
         }
     },
     function () {
+        if (!chestModalEl.classList.contains("hidden")) {
+            chestPrimaryAction();
+            return;
+        }
         if (state === "GAMEOVER") {
             btnRetry.click();
         } else if (state === "VICTORY") {
@@ -664,6 +682,10 @@ initKeyboardInput(
 
 // Esc: закриває відкрите вікно або повертає до головного меню (зокрема з рівня — без запису результату)
 function handleEscape() {
+    if (!chestModalEl.classList.contains("hidden")) {
+        closeChestModal();
+        return;
+    }
     if (!shopModalEl.classList.contains("hidden")) {
         closeShop();
         return;
@@ -1426,6 +1448,257 @@ if (btnCloseShop) {
 shopModalEl.addEventListener("click", function (e) {
     if (e.target === shopModalEl) {
         closeShop();
+    }
+});
+
+// ---------- Сундуки ----------
+
+const chestModalEl = document.getElementById("chest-modal");
+const chestCanvas = document.getElementById("chestCanvas");
+const chestTitleEl = document.getElementById("chestTitle");
+const chestResultEl = document.getElementById("chestResult");
+const btnChestOpen = document.getElementById("btnChestOpen");
+const btnChestEquip = document.getElementById("btnChestEquip");
+const btnChestNext = document.getElementById("btnChestNext");
+const btnChestClose = document.getElementById("btnChestClose");
+const btnVictoryChest = document.getElementById("btnVictoryChest");
+const btnMenuChests = document.getElementById("btnMenuChests");
+
+const CHEST_W = 380;
+const CHEST_H = 260;
+const CHEST_SHAKE_MS = 900;
+const CHEST_OPEN_MS = 450;
+
+// Стан вікна: який сундук показано, коли почали відкривати й що випало
+let chestView = null;
+let chestAnimating = false;
+
+// Кнопки «Відкрити сундук» на екрані перемоги та «Сундуки» в меню
+function refreshChestButtons() {
+    const count = save.getPendingChests().length;
+    const label = count > 1 ? "🎁 ВІДКРИТИ СУНДУКИ (" + count + ")" : "🎁 ВІДКРИТИ СУНДУК";
+    if (btnVictoryChest) {
+        btnVictoryChest.textContent = label;
+        btnVictoryChest.classList.toggle("hidden", count === 0);
+    }
+    if (btnMenuChests) {
+        btnMenuChests.textContent = count > 1 ? "🎁 СУНДУКИ: " + count : "🎁 СУНДУК ЧЕКАЄ!";
+        btnMenuChests.classList.toggle("hidden", count === 0);
+    }
+}
+
+function setChestButtons(phase) {
+    btnChestOpen.classList.toggle("hidden", phase !== "closed");
+    const revealed = phase === "reveal";
+    const result = chestView && chestView.opened ? chestView.opened.result : null;
+    const canEquip = revealed && result && result.kind === "item" && !chestView.equipped;
+    btnChestEquip.classList.toggle("hidden", !canEquip);
+    btnChestNext.classList.toggle("hidden", !(revealed && save.getPendingChests().length > 0));
+    btnChestClose.classList.toggle("hidden", !revealed);
+}
+
+// Показати наступний сундук із черги (ще закритий)
+function showNextChest() {
+    const pending = save.getPendingChests();
+    if (pending.length === 0) {
+        closeChestModal();
+        return;
+    }
+    const type = pending[0];
+    chestView = { type: type, phase: "closed", start: 0, opened: null, equipped: false };
+    chestTitleEl.textContent = CHEST_TYPES[type].name.toUpperCase();
+    chestResultEl.innerHTML = pending.length > 1 ? "Сундуків: " + pending.length : "&nbsp;";
+    setChestButtons("closed");
+}
+
+function openChestModal() {
+    if (save.getPendingChests().length === 0) {
+        return;
+    }
+    const dpr = window.devicePixelRatio || 1;
+    chestCanvas.width = Math.round(CHEST_W * dpr);
+    chestCanvas.height = Math.round(CHEST_H * dpr);
+    chestCanvas.style.width = CHEST_W + "px";
+    chestCanvas.style.height = CHEST_H + "px";
+    chestModalEl.classList.remove("hidden");
+    showNextChest();
+    if (!chestAnimating) {
+        chestAnimating = true;
+        requestAnimationFrame(animateChest);
+    }
+}
+
+function closeChestModal() {
+    chestModalEl.classList.add("hidden");
+    chestView = null;
+    refreshChestButtons();
+    refreshCrystalDisplays();
+    renderCurrentSkinIcon();
+}
+
+// Натиснули «Відкрити»: нагорода визначається й зберігається одразу, анімація — лише показ
+function startOpenChest() {
+    if (!chestView || chestView.phase !== "closed") {
+        return;
+    }
+    const opened = save.openNextChest();
+    if (!opened) {
+        closeChestModal();
+        return;
+    }
+    chestView.opened = opened;
+    chestView.phase = "shaking";
+    chestView.start = performance.now();
+    chestResultEl.innerHTML = "&nbsp;";
+    setChestButtons("shaking");
+    playSound("chest_shake");
+}
+
+// Enter у вікні сундука: відкрити → наступний → закрити
+function chestPrimaryAction() {
+    if (!chestView) {
+        return;
+    }
+    if (chestView.phase === "closed") {
+        startOpenChest();
+    } else if (chestView.phase === "reveal") {
+        if (save.getPendingChests().length > 0) {
+            showNextChest();
+        } else {
+            closeChestModal();
+        }
+    }
+}
+
+function showChestResult() {
+    const result = chestView.opened.result;
+    if (result.kind === "crystals") {
+        chestResultEl.innerHTML = "💎 +" + result.amount + " кристалів!";
+        playSound("chest_coins");
+    } else {
+        const item = getShopItem(result.id);
+        const rarity = itemRarity(item);
+        const typeName = (SHOP_TYPES.find(function (st) { return st.type === item.type; }) || { name: "" }).name;
+        chestResultEl.innerHTML = "";
+        chestResultEl.appendChild(document.createTextNode("Новий предмет: " + item.name + "!"));
+        const r = document.createElement("span");
+        r.className = "rarity";
+        r.style.color = rarity.color;
+        r.textContent = rarity.name + " · " + typeName;
+        chestResultEl.appendChild(r);
+        playSound("chest_item");
+    }
+    refreshCrystalDisplays();
+    setChestButtons("reveal");
+}
+
+function animateChest(now) {
+    if (chestModalEl.classList.contains("hidden") || !chestView) {
+        chestAnimating = false;
+        return;
+    }
+    const dpr = window.devicePixelRatio || 1;
+    const c = chestCanvas.getContext("2d");
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.clearRect(0, 0, CHEST_W, CHEST_H);
+    const cx = CHEST_W / 2;
+    const bottom = CHEST_H - 24;
+    const size = 130;
+    let shake = 0;
+    let open = 0;
+    let glow = 0;
+    let bob = Math.sin(now * 0.004) * 3;
+    if (chestView.phase === "shaking") {
+        const k = (now - chestView.start) / CHEST_SHAKE_MS;
+        shake = Math.sin(now * 0.08) * (2 + k * 9);
+        glow = k * 0.4;
+        bob = 0;
+        if (k >= 1) {
+            chestView.phase = "opening";
+            chestView.start = now;
+            playSound("chest_open");
+        }
+    } else if (chestView.phase === "opening") {
+        const k = Math.min(1, (now - chestView.start) / CHEST_OPEN_MS);
+        open = k;
+        glow = 0.4 + k * 0.6;
+        bob = 0;
+        if (k >= 1) {
+            chestView.phase = "reveal";
+            chestView.start = now;
+            showChestResult();
+        }
+    } else if (chestView.phase === "reveal") {
+        open = 1;
+        glow = 0.8 + 0.2 * Math.sin(now * 0.004);
+        bob = 0;
+    }
+    drawChest(c, chestView.type, cx, bottom + bob, size, shake, open, glow);
+
+    // Нагорода вилітає з сундука й зависає над ним
+    if (chestView.phase === "reveal" && chestView.opened) {
+        const k = Math.min(1, (now - chestView.start) / 500);
+        const ease = 1 - Math.pow(1 - k, 3);
+        const result = chestView.opened.result;
+        c.save();
+        c.globalAlpha = Math.min(1, k * 1.5);
+        if (result.kind === "crystals") {
+            const y = bottom - 90 - ease * 70;
+            drawCrystalIcon(c, cx - 30, y, 46 + ease * 10);
+            c.font = "900 30px 'Segoe UI', Arial";
+            c.textAlign = "left";
+            c.textBaseline = "middle";
+            c.lineWidth = 5;
+            c.strokeStyle = "#070b1c";
+            c.strokeText("+" + result.amount, cx - 2, y);
+            c.fillStyle = "#7df9ff";
+            c.fillText("+" + result.amount, cx - 2, y);
+        } else {
+            // Жива сценка предмета (як у магазині після покупки), у рамці кольору рідкості
+            const item = getShopItem(result.id);
+            const rarity = itemRarity(item);
+            const scale = 0.4 + ease * 0.75;
+            const w = 150 * scale;
+            const h = 100 * scale;
+            const x = cx - w / 2;
+            const y = bottom - 95 - ease * 60 - h / 2;
+            c.translate(x, y);
+            c.scale(scale, scale);
+            c.save();
+            c.beginPath();
+            c.rect(0, 0, 150, 100);
+            c.clip();
+            drawShopItemScene(c, item, now, { skinType: save.getActiveSkin(), accessory: save.getEquipped("accessory") });
+            c.restore();
+            c.strokeStyle = rarity.color;
+            c.lineWidth = 3 / scale;
+            c.strokeRect(0, 0, 150, 100);
+        }
+        c.restore();
+    }
+    requestAnimationFrame(animateChest);
+}
+
+if (btnVictoryChest) {
+    btnVictoryChest.addEventListener("click", openChestModal);
+}
+if (btnMenuChests) {
+    btnMenuChests.addEventListener("click", openChestModal);
+}
+btnChestOpen.addEventListener("click", startOpenChest);
+btnChestNext.addEventListener("click", showNextChest);
+btnChestClose.addEventListener("click", closeChestModal);
+btnChestEquip.addEventListener("click", function () {
+    if (chestView && chestView.opened && chestView.opened.result.kind === "item") {
+        save.equipItem(chestView.opened.result.id);
+        chestView.equipped = true;
+        renderCurrentSkinIcon();
+        setChestButtons("reveal");
+    }
+});
+chestModalEl.addEventListener("click", function (e) {
+    if (e.target === chestModalEl && chestView && chestView.phase !== "shaking" && chestView.phase !== "opening") {
+        closeChestModal();
     }
 });
 

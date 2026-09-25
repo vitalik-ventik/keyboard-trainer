@@ -21,8 +21,20 @@ const SOUND_FILES = {
     laser_gun: "sounds/laser_gun.wav",
     missile_boom: "sounds/missile_boom.wav",
     thunder: "sounds/thunder.wav",
-    gravi_sound: "sounds/gravi_sound.wav"
+    gravi_sound: "sounds/gravi_sound.wav",
+    // Сундук (тимчасові синтезовані звуки — можна замінити файлами з тими самими іменами)
+    chest_shake: "sounds/chest_shake.wav",
+    chest_open: "sounds/chest_open.wav",
+    chest_item: "sounds/chest_item.wav",
+    chest_coins: "sounds/chest_coins.wav"
 };
+
+// Звуки, яких може ще не бути в папці sounds/ — їх відсутність не вважається помилкою
+const OPTIONAL_SOUNDS = ["chest_shake", "chest_open", "chest_item", "chest_coins"];
+
+export function isOptionalSound(name) {
+    return OPTIONAL_SOUNDS.indexOf(name) !== -1;
+}
 
 // Список усіх звукових ефектів (для сторінки перевірки звуків у preview)
 export const SOUND_NAMES = Object.keys(SOUND_FILES);
@@ -76,7 +88,7 @@ function ensureContext() {
 }
 
 // Завантаження та декодування одного файлу; ніколи не кидає — повертає буфер або null
-async function loadOneBuffer(ctx, path) {
+async function loadOneBuffer(ctx, path, optional) {
     try {
         const response = await fetch(path);
         if (!response.ok) {
@@ -86,7 +98,9 @@ async function loadOneBuffer(ctx, path) {
         const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
         return audioBuffer;
     } catch (err) {
-        console.warn("Не вдалося завантажити аудіофайл «" + path + "» — гра продовжить без нього.", err);
+        if (!optional) {
+            console.warn("Не вдалося завантажити аудіофайл «" + path + "» — гра продовжить без нього.", err);
+        }
         return null;
     }
 }
@@ -101,7 +115,7 @@ export async function loadAssets(onProgress) {
     const ctx = ensureContext();
     const entries = [];
     for (const name of Object.keys(SOUND_FILES)) {
-        entries.push({ kind: "sounds", name: name, path: SOUND_FILES[name] });
+        entries.push({ kind: "sounds", name: name, path: SOUND_FILES[name], optional: isOptionalSound(name) });
     }
     for (const name of Object.keys(MUSIC_FILES)) {
         entries.push({ kind: "music", name: name, path: MUSIC_FILES[name] });
@@ -125,7 +139,7 @@ export async function loadAssets(onProgress) {
     }
 
     await Promise.all(entries.map(async (entry) => {
-        const buffer = await loadOneBuffer(ctx, entry.path);
+        const buffer = await loadOneBuffer(ctx, entry.path, entry.optional);
         registry[entry.kind][entry.name] = buffer;
         loaded++;
         if (typeof onProgress === "function") {
