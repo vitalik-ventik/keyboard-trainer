@@ -3386,6 +3386,7 @@ export class Engine {
             eggSeen: this.eggStart !== null && this.currentTime - this.eggStart >= 1000,
             bgTheme: this.level.bgTheme,
             weapon: !!this.weaponSpec,
+            weaponId: this.weaponSpec ? this.weaponId : null,
             alive: this.player.alive,
             maxEasy: this.maxEasy,
             maxHard: this.maxHard,

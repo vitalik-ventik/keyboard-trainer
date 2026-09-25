@@ -11,7 +11,7 @@ import { initKeyboardInput, drawKeyboard, drawTargetPulse } from "./keyboard.js"
 import { BackgroundRenderer } from "./backgrounds.js";
 import { FrameController, KeyboardCache, BackgroundQuality } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
-import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity, coinsText } from "./shop.js";
+import { SHOP_ITEMS, SHOP_TYPES, getShopItem, computeReward, drawAccessory, CHEST_TYPES, chestsForVictory, itemRarity, coinsText, weaponCoinBonus } from "./shop.js";
 import { drawShopItemScene, drawShopSkinScene, drawChestScene, CHEST_SHAKE_MS, CHEST_OPEN_MS } from "./shop_preview.js";
 import { ACHIEVEMENTS, ACHIEVEMENT_GROUPS, achievementProgress, buildAchievementCard, buildAchievementToast } from "./achievements.js";
 
@@ -268,6 +268,7 @@ function handleGameOver() {
             perfect: runState.runPerfect,
             series: runState.runSeries,
             weapon: runState.weapon,
+            weaponId: runState.weaponId,
             won: false,
             difficulty: save.getDifficulty(),
             speed: save.getSpeed(),
@@ -309,6 +310,7 @@ function handleVictory() {
             perfect: runState.runPerfect,
             series: runState.runSeries,
             weapon: runState.weapon,
+            weaponId: runState.weaponId,
             won: true,
             leagueId: wonLevel ? wonLevel.leagueId : 1,
             firstClear: !paidBefore.first,
@@ -1379,6 +1381,9 @@ function renderRewardBreakdown(el, reward, balanceBefore) {
     if (reward.mult !== 1) {
         addBreakdownRow(el, "Множник налаштувань", "×" + reward.mult);
     }
+    if (reward.weaponMult && reward.weaponMult !== 1) {
+        addBreakdownRow(el, "Бонус зброї", "×" + reward.weaponMult);
+    }
     if (reward.half) {
         addBreakdownRow(el, "Вибух — лишається половина", "÷2");
     }
@@ -1458,6 +1463,13 @@ function buildShop() {
         name.className = "skin-card-name";
         name.textContent = (item.legendary ? "⭐ " : "") + item.name;
         card.appendChild(name);
+        // Зброя дає бонус до монет — видно одразу на картці
+        if (item.type === "weapon" && weaponCoinBonus(item.id) > 1) {
+            const bonus = document.createElement("span");
+            bonus.className = "weapon-coin-bonus";
+            bonus.textContent = "🪙 монети ×" + weaponCoinBonus(item.id);
+            card.appendChild(bonus);
+        }
 
         const btn = document.createElement("button");
         btn.type = "button";
