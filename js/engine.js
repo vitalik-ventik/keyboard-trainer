@@ -1623,28 +1623,6 @@ export class Engine {
 
         ctx.fillStyle = "rgba(0, 246, 255, 0.2)";
         ctx.fillRect(anchorX, botY, okWidth, hwH);
-
-        const spikeScreenX = (spike.x - this.player.x) + anchorX;
-        ctx.strokeStyle = "rgba(255, 225, 77, 0.6)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(spikeScreenX, groundY - 14);
-        ctx.lineTo(spikeScreenX, groundY - hwH - 4);
-        ctx.stroke();
-
-        // Контрольні маркери під зоною: жовтий — точка шипа, яка реально враховується
-        // в розрахунку (лівий край), зелений і синій — початок зон «Ідеально» та «ОК».
-        // Натискання зараховується, коли жовтий маркер лівіше синього (і лівіше зеленого для «Ідеально»).
-        const markerTop = botY + hwH + 4;
-        const markerH = 12;
-        const markerW = 3;
-        const spikeEdgeScreenX = (spike.x - spikeHalfWidth(spike.type) - this.player.x) + anchorX;
-        ctx.fillStyle = "rgb(0, 246, 255)";
-        ctx.fillRect(anchorX + okWidth - markerW / 2, markerTop, markerW, markerH);
-        ctx.fillStyle = "rgb(57, 255, 136)";
-        ctx.fillRect(anchorX + perfectWidth - markerW / 2, markerTop, markerW, markerH);
-        ctx.fillStyle = "rgb(255, 225, 77)";
-        ctx.fillRect(spikeEdgeScreenX - markerW / 2, markerTop, markerW, markerH);
     }
 
     renderFinish(ctx, W, groundY, anchorX, camX) {
