@@ -51,11 +51,14 @@ export const LEVELS_CONFIG = [
             { id: 48, leagueId: 1, name: "Двічі поспіль",           words: ["ТТ","НН","ЛЛ","СС","ДД","ММ","ВАННА","ТОННА","МАННА","ВІДДІЛ","ПІДДОН","НЕТТО","БРУТТО"], combo: "doubles", speed: 214, spikeCount: 22, seed: 2033, tuneAs: 8, bgTheme: "machine_war", accentColor: "#ff2a3a", rhythmGroups: false, skin: { id: "skin_1_x11", name: "Кіборг", renderType: "endo_skull" } },
             { id: 9,  leagueId: 1, name: "Далекі кути",             letters: ["Я","Ч","Х","Ї"], speed: 221, spikeCount: 20, seed: 2009, bgTheme: "dino_valley",          accentColor: "#ff9a3d", rhythmGroups: false, skin: { id: "skin_1_9", name: "Динозаврик", renderType: "double_frame" } },
             { id: 10, leagueId: 1, name: "Остання літера",          letters: ["А","В","Є","Ґ"], speed: 228, spikeCount: 21, seed: 2010, bgTheme: "pixel_night",             accentColor: "#62c13a", rhythmGroups: false, skin: { id: "skin_1_10", name: "Нічна сова", renderType: "monolith" } },
+            { id: 49, leagueId: 1, name: "Далекі стрибки",          words: ["ЙХ","ФЖ","ЯЮ","ЦЗ","ІД","ЧБ","ЇЙ","ЄФ","ЮЯ","ХЦ","ЖІ","БЧ","ҐФ","ЙЄ"], combo: "farJumps", speed: 228, spikeCount: 24, seed: 2034, tuneAs: 10, bgTheme: "kaiju_bay", accentColor: "#39c6ff", rhythmGroups: false, skin: { id: "skin_1_x12", name: "Кайдзю", renderType: "kaiju_cube" } },
             { id: 36, leagueId: 1, name: "Слова з верхнім рядом",   words: ["КІНО","НЕБО","ГУСИ","ЗЕБРА","ЛИМОН","КОТИК","ШАПКА","ЦУКОР","МЕТРО","ПІСНЯ"], speed: 228, spikeCount: 22, seed: 2021, tuneAs: 10, bgTheme: "hunter_jungle", accentColor: "#ff3a2a", rhythmGroups: false, skin: { id: "skin_1_x5", name: "Мисливець", renderType: "jungle_hunter" } },
             { id: 11, leagueId: 1, name: "Середній ряд",            letters: ["В","А","П","Р","О","Л"], speed: 235, spikeCount: 22, seed: 2011, bgTheme: "secret_base",            accentColor: "#39ffd0", rhythmGroups: false, skin: { id: "skin_1_11", name: "Радар", renderType: "radar" } },
             { id: 12, leagueId: 1, name: "Верхній ряд",             letters: ["У","К","Е","Н","Г","Ш"], speed: 242, spikeCount: 23, seed: 2012, bgTheme: "luna_park",             accentColor: "#ff5ad8", rhythmGroups: false, skin: { id: "skin_1_12", name: "Клоун", renderType: "speed_arrow" } },
+            { id: 50, leagueId: 1, name: "Слова-послання",          words: ["БІЖИ","ТУТ","СВІТЛО","ДРУЗІ","ВЕЛИК","ВАФЛІ","РАЦІЯ","ДОПОМОЖИ","ІЗНАНКА","ТАЄМНИЦЯ","ЛІХТАРИК","ОБЕРЕЖНО"], speed: 242, spikeCount: 26, seed: 2035, tuneAs: 12, bgTheme: "strange_town", accentColor: "#ff3a3a", rhythmGroups: false, skin: { id: "skin_1_x13", name: "Рація", renderType: "walkie_cube" } },
             { id: 37, leagueId: 1, name: "Мізинці",                 letters: ["Й","Ф","Я","Х","Ж","Є","Ї"], speed: 242, spikeCount: 23, seed: 2022, tuneAs: 12, bgTheme: "soggy_swamp", accentColor: "#8ad86a", rhythmGroups: false, skin: { id: "skin_1_x6", name: "Болотяний дух", renderType: "swamp_stump" } },
             { id: 13, leagueId: 1, name: "Нижній ряд",              letters: ["С","М","И","Т","Ь","Б"], speed: 249, spikeCount: 24, seed: 2013, bgTheme: "sea_fabricator",          accentColor: "#39c6ff", rhythmGroups: false, skin: { id: "skin_1_13", name: "Дрон-будівельник", renderType: "neon_cross" } },
+            { id: 51, leagueId: 1, name: "Печатки",                 words: ["ТИГТИГ","ЗМІЗМІ","СОБСОБ","БИКБИК","КАБКАБ","МАВМАВ","ПІВПІВ","ДРАДРА","ЩУРЩУР","ЗАЄЗАЄ"], combo: "seals", speed: 249, spikeCount: 30, seed: 2036, tuneAs: 13, bgTheme: "leaf_village", accentColor: "#ff8a1a", rhythmGroups: false, skin: { id: "skin_1_x14", name: "Протектор", renderType: "headband_cube" } },
             { id: 14, leagueId: 1, name: "Широкий середній ряд",    letters: ["Ф","І","В","Ж","Є","Ґ"], speed: 256, spikeCount: 25, seed: 2014, bgTheme: "twin_sun_planet",      accentColor: "#ff5a8a", rhythmGroups: false, skin: { id: "skin_1_14", name: "Слиз", renderType: "liquid_gradient" } },
             { id: 38, leagueId: 1, name: "Тренування помилок",      letters: ["Ж","Є","Х","Ї","Щ","Ґ"], adaptive: { pool: ["Й","Ц","У","К","Е","Н","Г","Ш","Щ","З","Х","Ї","Ф","І","В","А","П","Р","О","Л","Д","Ж","Є","Ґ","Я","Ч","С","М","И","Т","Ь","Б","Ю"], count: 6 }, speed: 256, spikeCount: 24, seed: 2023, tuneAs: 14, bgTheme: "dungeon_depths", accentColor: "#5ac8ff", rhythmGroups: false, skin: { id: "skin_1_x7", name: "Страж підземелля", renderType: "dungeon_guard" } },
             { id: 15, leagueId: 1, name: "Широкий верхній ряд",     letters: ["Й","Ц","У","Щ","З","Х"], speed: 263, spikeCount: 26, seed: 2015, bgTheme: "sky_city",           accentColor: "#bfe0ff", rhythmGroups: false, skin: { id: "skin_1_15", name: "Крилатий", renderType: "winged" } },
@@ -121,7 +124,9 @@ export const BOSS_LEVEL_ID = 31;
 export const COMBO_KINDS = {
     syllables: { name: "Склади", unit: "Склад" },
     rolls: { name: "Перекати", unit: "Перекат" },
-    doubles: { name: "Двічі поспіль", unit: "Повтор" }
+    doubles: { name: "Двічі поспіль", unit: "Повтор" },
+    farJumps: { name: "Далекі стрибки", unit: "Стрибок" },
+    seals: { name: "Печатки", unit: "Печатка" }
 };
 
 export const ALL_LEVELS = LEVELS_CONFIG.reduce(function (acc, league) {
@@ -2755,6 +2760,9 @@ const LANDING_FX = {
     hive_queen: { kind: "splash", colors: ["#78ffbe", "#2a443c"] },
     hangar_bay: { kind: "sparks", colors: ["#ffcc33", "#ffffff"] },
     sponge_reef: { kind: "bubbles", colors: ["rgba(220, 245, 255, 0.9)", "rgba(170, 230, 255, 0.8)"] },
+    kaiju_bay: { kind: "splash", colors: ["#9ad0ff", "#ffffff"] },
+    strange_town: { kind: "pebbles", colors: ["#6a4a2a", "#ffcc5a"] },
+    leaf_village: { kind: "fireflies", colors: ["#7aff5a", "#ffe14d"] },
     ninja_temple: { kind: "fireflies", colors: ["#ffb0d0", "#ffe0ec"] },
     machine_war: { kind: "sparks", colors: ["#ff3a2a", "#ffcc33"] }
 };
@@ -2836,6 +2844,9 @@ const SPIKE_STYLE_BY_THEME = {
     hive_queen: "urchin",
     hangar_bay: "iron",
     sponge_reef: "urchin",
+    kaiju_bay: "crystal",
+    strange_town: "iron",
+    leaf_village: "iron",
     ninja_temple: "iron",
     machine_war: "iron"
 };
@@ -4137,7 +4148,9 @@ export class Engine {
             eggT: eggT !== null && eggT <= 1 ? eggT : null,
             weather: this.weather,
             camY: this.cameraMotion ? this.player.y * 0.35 : 0,
-            oops: this.oopsTime / OOPS_TIME
+            oops: this.oopsTime / OOPS_TIME,
+            // Літера, яку треба натиснути зараз (гірлянда з абеткою в «Дивному містечку»)
+            letter: this.getTargetLetter()
         });
         if (this.bgCache.shouldUpdate(time)) {
             var self = this;
