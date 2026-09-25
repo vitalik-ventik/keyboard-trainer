@@ -33,7 +33,10 @@ export const WEAPON_SPECS = {
     // Світлові мечі: зблизька рубають, здалеку летять, крутячись, як сокира, і повертаються
     weapon_saber_green: { mode: "axe", reach: 64, speed: 820, arc: 18, fx: "saber_green", saber: "#39ff5a" },
     weapon_saber_blue:  { mode: "axe", reach: 64, speed: 820, arc: 18, fx: "saber_blue", saber: "#3aa0ff" },
-    weapon_saber_red:   { mode: "axe", reach: 64, speed: 820, arc: 18, fx: "saber_red", saber: "#ff2a2a" }
+    weapon_saber_red:   { mode: "axe", reach: 64, speed: 820, arc: 18, fx: "saber_red", saber: "#ff2a2a" },
+    // Ліга 4: плазмова гармата стріляє сяйною кулею плазми, сюрикени летять віялом по три
+    weapon_plasma:   { mode: "shot", projectile: "plasma", speed: 1100, arc: 0, fx: "plasma" },
+    weapon_shuriken: { mode: "burst", projectile: "shuriken", speed: 1300, arc: 8, count: 3, gap: 0.08, fx: "shred" }
 };
 
 // Колір леза світлового меча для анімації розрізу
@@ -70,7 +73,9 @@ export const WEAPON_SOUNDS = {
     // Гудіння світлового меча: і на замах, і на кидок
     weapon_saber_green: { swing: { sound: "lightsaber", duration: 1.0, volume: 0.4 }, fire: { sound: "lightsaber", volume: 0.4 } },
     weapon_saber_blue: { swing: { sound: "lightsaber", duration: 1.0, volume: 0.4 }, fire: { sound: "lightsaber", volume: 0.4 } },
-    weapon_saber_red: { swing: { sound: "lightsaber", duration: 1.0, volume: 0.4 }, fire: { sound: "lightsaber", volume: 0.4 } }
+    weapon_saber_red: { swing: { sound: "lightsaber", duration: 1.0, volume: 0.4 }, fire: { sound: "lightsaber", volume: 0.4 } },
+    weapon_plasma: { fire: { sound: "laser_gun", volume: 0.6 }, hit: { sound: "thunder", duration: 0.5, volume: 0.3 } },
+    weapon_shuriken: { fire: { sound: "bow", volume: 0.45 }, hit: { sound: "sword", volume: 0.5 } }
 };
 
 // Звук зброї для події або null
@@ -100,7 +105,9 @@ export const DESTRUCTION_TIME = {
     saber_blue: 0.9,
     saber_red: 0.9,
     zap: 0.6,
-    fling: 1.7
+    fling: 1.7,
+    plasma: 0.9,
+    shred: 0.8
 };
 
 // Гравітаційна гармата: промінь летить до шипа зі швидкістю GRAVITY_BEAM_SPEED
@@ -411,6 +418,62 @@ function drawGravityGunShape(ctx, s, time) {
     ctx.fill();
 }
 
+// Плазмова гармата: масивний корпус, три сяйні котушки й ядро плазми біля дула
+function drawPlasmaGunShape(ctx, s, time) {
+    ctx.fillStyle = "#2e3440";
+    ctx.fillRect(-s * 0.1, -s * 0.16, s * 0.62, s * 0.26);
+    ctx.fillStyle = "#4a5466";
+    ctx.fillRect(-s * 0.1, -s * 0.16, s * 0.62, s * 0.05);
+    ctx.fillStyle = "#1a1d24";
+    ctx.fillRect(s * 0.02, s * 0.08, s * 0.12, s * 0.2);
+    for (let k = 0; k < 3; k++) {
+        const pulse = 0.5 + 0.5 * Math.sin(time * 0.012 - k * 1.2);
+        ctx.fillStyle = "rgba(60, 255, 200, " + (0.45 + 0.55 * pulse).toFixed(2) + ")";
+        ctx.fillRect(s * (0.06 + k * 0.13), -s * 0.2, s * 0.06, s * 0.34);
+    }
+    ctx.fillStyle = "#6a7488";
+    ctx.fillRect(s * 0.5, -s * 0.12, s * 0.14, s * 0.18);
+    const glow = 0.6 + 0.4 * Math.sin(time * 0.02);
+    ctx.fillStyle = "rgba(120, 255, 220, " + (0.35 * glow).toFixed(2) + ")";
+    ctx.beginPath();
+    ctx.arc(s * 0.66, -s * 0.03, s * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#d8fff4";
+    ctx.beginPath();
+    ctx.arc(s * 0.66, -s * 0.03, s * 0.05, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+// Сюрикен: чотирипроменева металева зірка з отвором посередині (центр 0,0, радіус r)
+export function drawShurikenShape(ctx, r, rot) {
+    ctx.save();
+    ctx.rotate(rot || 0);
+    ctx.fillStyle = "#b8c0cc";
+    ctx.beginPath();
+    for (let i = 0; i < 4; i++) {
+        const a = i * Math.PI / 2;
+        ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+        ctx.lineTo(Math.cos(a + Math.PI / 4) * r * 0.3, Math.sin(a + Math.PI / 4) * r * 0.3);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#eef2f8";
+    for (let i = 0; i < 4; i++) {
+        const a = i * Math.PI / 2;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+        ctx.lineTo(Math.cos(a + Math.PI / 4) * r * 0.3, Math.sin(a + Math.PI / 4) * r * 0.3);
+        ctx.closePath();
+        ctx.fill();
+    }
+    ctx.fillStyle = "#2a2e36";
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.14, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+}
+
 // Язик полум'я (основа в x, y; size — висота), колір від жовтого до червоного
 export function drawFlameTongue(ctx, x, y, size, time) {
     const sway = Math.sin(time * 0.017) * size * 0.2;
@@ -560,6 +623,11 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
             drawGravityGunShape(ctx, s, time);
         } else if (id === "weapon_rocket") {
             drawRocketLauncherShape(ctx, s, recoil <= 0);
+        } else if (id === "weapon_plasma") {
+            drawPlasmaGunShape(ctx, s, time);
+        } else if (id === "weapon_shuriken") {
+            // Сюрикен у руці повільно крутиться; після кидка в руці одразу з'являється наступний
+            drawShurikenShape(ctx, s * 0.26, time * 0.004 + recoil * 3);
         }
     }
     ctx.restore();
@@ -599,6 +667,40 @@ export function drawProjectile(ctx, kind, x, y, angle, age, s, prev, color) {
         drawSaberShape(ctx, s * 0.85, age * 1000, color || "#39ff5a");
     } else if (kind === "ball") {
         drawFootball(ctx, s * 0.2, age * 18);
+    } else if (kind === "shuriken") {
+        // Сюрикен шалено крутиться, за ним — тонка срібляста дуга обертання
+        ctx.strokeStyle = "rgba(223, 232, 244, 0.35)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, s * 0.28, age * 40, age * 40 + Math.PI * 0.8);
+        ctx.stroke();
+        drawShurikenShape(ctx, s * 0.26, age * 40);
+    } else if (kind === "plasma") {
+        // Куля плазми: сяйне ядро, що пульсує, і розріджений бірюзовий хвіст
+        ctx.restore();
+        ctx.save();
+        if (prev) {
+            for (let i = prev.length - 1; i >= 1; i--) {
+                const a = 0.5 * (1 - i / prev.length);
+                ctx.fillStyle = "rgba(60, 255, 200, " + a.toFixed(2) + ")";
+                ctx.beginPath();
+                ctx.arc(prev[i].x, prev[i].y, s * (0.13 - i * 0.012), 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        const pulse = 1 + Math.sin(age * 50) * 0.12;
+        ctx.fillStyle = "rgba(60, 255, 200, 0.35)";
+        ctx.beginPath();
+        ctx.arc(x, y, s * 0.24 * pulse, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#7affd8";
+        ctx.beginPath();
+        ctx.arc(x, y, s * 0.13 * pulse, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(x, y, s * 0.06, 0, Math.PI * 2);
+        ctx.fill();
     } else {
         ctx.rotate(angle);
         if (kind === "arrow") {
@@ -1155,6 +1257,73 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape,
             ctx.moveTo(x1 - 14, y1 + 6);
             ctx.lineTo(x2 + 14, y2 - 6);
             ctx.stroke();
+        }
+    } else if (kind === "plasma") {
+        // Плазма: шип наливається бірюзовим світлом і розсипається на іскри згори донизу
+        const charge = clamp01(t / 0.25);
+        const eat = clamp01((t - 0.25) / 0.6);
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x - hw - 20, groundY - h * (1 - eat), hw * 2 + 40, h * (1 - eat) + 4);
+        ctx.clip();
+        drawShape(ctx);
+        ctx.fillStyle = "rgba(60, 255, 200, " + (0.75 * charge).toFixed(2) + ")";
+        ctx.beginPath();
+        ctx.moveTo(x - hw, groundY);
+        ctx.lineTo(x, groundY - h);
+        ctx.lineTo(x + hw, groundY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+        // Край розпаду світиться білим
+        if (eat > 0 && eat < 1) {
+            const ey = groundY - h * (1 - eat);
+            ctx.fillStyle = "rgba(220, 255, 245, 0.9)";
+            ctx.fillRect(x - hw * eat, ey - 1.5, hw * 2 * eat, 3);
+        }
+        // Кільце розряду
+        if (t < 0.35) {
+            ctx.strokeStyle = "rgba(120, 255, 220, " + (1 - t / 0.35).toFixed(2) + ")";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(x, groundY - h * 0.45, h * (0.3 + t * 2.2), 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    } else if (kind === "shred") {
+        // Сюрикени: розріз навскіс, відрізаний шматок відлітає й падає
+        const fade = 1 - clamp01((t - 0.4) / 0.4);
+        // Перші два сюрикени вже відкололи верхівку (як кулі автомата, по 0.22 висоти),
+        // третій розрізає залишок: верхня смуга відлітає, нижня лишається
+        const cuts = [0.3];
+        const bands = [[0.56, 0.3], [0.3, -0.2]];
+        ctx.globalAlpha = fade;
+        for (let part = 0; part < 2; part++) {
+            const b = bands[part];
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(x - hw - 40, groundY - h * b[0], hw * 2 + 80, h * (b[0] - b[1]));
+            ctx.clip();
+            if (part === 0) {
+                const cy = groundY - h * (b[0] + b[1]) / 2;
+                ctx.translate(t * 60, -t * 60 + t * t * 320);
+                ctx.translate(x, cy);
+                ctx.rotate(t * 3);
+                ctx.translate(-x, -cy);
+            }
+            drawShape(ctx);
+            ctx.restore();
+        }
+        ctx.globalAlpha = 1;
+        if (t < 0.2) {
+            const a = 1 - t / 0.2;
+            ctx.strokeStyle = "rgba(255, 255, 255, " + a.toFixed(2) + ")";
+            ctx.lineWidth = 2.5;
+            for (const c of cuts) {
+                ctx.beginPath();
+                ctx.moveTo(x - hw * 1.4, groundY - h * c + 4);
+                ctx.lineTo(x + hw * 1.4, groundY - h * c - 4);
+                ctx.stroke();
+            }
         }
     } else if (kind === "fireslice") {
         // Вогняний меч: розріз навскіс, обидві половинки палають

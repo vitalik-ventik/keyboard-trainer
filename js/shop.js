@@ -103,6 +103,8 @@ export const SHOP_ITEMS = [
     { id: "weapon_saber_blue", type: "weapon", name: "Світловий меч (синій)", price: 2500, league: 3, bonus: 1.5 },
     { id: "weapon_saber_red", type: "weapon", name: "Світловий меч (червоний)", price: 2500, league: 3, bonus: 1.5 },
     { id: "weapon_rocket", type: "weapon", name: "Ракетниця", price: 3200, league: 3, bonus: 1.6 },
+    { id: "weapon_plasma", type: "weapon", name: "Плазмова гармата", price: 4000, league: 4, bonus: 1.65 },
+    { id: "weapon_shuriken", type: "weapon", name: "Сюрикени", price: 5000, league: 4, bonus: 1.7 },
     // Легендарна зброя: як легендарні скіни, купується лише після виконання умови
     { id: "weapon_firesword", type: "weapon", name: "Вогняний меч", price: 4000, bonus: 1.7, legendary: true, requirement: { kind: "clears", target: 15 } },
     { id: "weapon_thunder", type: "weapon", name: "Громовий молот", price: 5000, bonus: 1.8, legendary: true, requirement: { kind: "gold_count", target: 10 } },
@@ -470,7 +472,7 @@ export function itemPerkHint(itemId) {
 }
 
 // Бонус монет за зброю: кожна наступна зброя — помітна сходинка вгору.
-// Ліга 1: ×1.05 … ×1.25, Ліга 2: ×1.3 … ×1.45, Ліга 3: ×1.5 … ×1.6,
+// Ліга 1: ×1.05 … ×1.25, Ліга 2: ×1.3 … ×1.45, Ліга 3: ×1.5 … ×1.6, Ліга 4: ×1.65 … ×1.7,
 // легендарна: ×1.7 … ×1.9 (значення — у полі bonus товару)
 export function weaponCoinBonus(weaponId) {
     const item = weaponId ? getShopItem(weaponId) : null;
