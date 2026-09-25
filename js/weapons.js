@@ -29,8 +29,21 @@ export const WEAPON_SPECS = {
     // Легендарна зброя
     weapon_firesword: { mode: "melee", fx: "fireslice" },
     weapon_thunder:   { mode: "melee", bolt: true, fx: "zap" },
-    weapon_gravity:   { mode: "beam", beam: "gravity", time: 0.73, hit: 0.18, fx: "fling" }
+    weapon_gravity:   { mode: "beam", beam: "gravity", time: 0.73, hit: 0.18, fx: "fling" },
+    // Світлові мечі: зблизька рубають, здалеку летять, крутячись, як сокира, і повертаються
+    weapon_saber_green: { mode: "axe", reach: 64, speed: 820, arc: 18, fx: "saber_green", saber: "#39ff5a" },
+    weapon_saber_blue:  { mode: "axe", reach: 64, speed: 820, arc: 18, fx: "saber_blue", saber: "#3aa0ff" },
+    weapon_saber_red:   { mode: "axe", reach: 64, speed: 820, arc: 18, fx: "saber_red", saber: "#ff2a2a" }
 };
+
+// Колір леза світлового меча для анімації розрізу
+const SABER_FX_COLORS = { saber_green: "#39ff5a", saber_blue: "#3aa0ff", saber_red: "#ff2a2a" };
+
+// Чи зброя — світловий меч (для малювання в руці й у польоті)
+export function saberColor(id) {
+    const spec = WEAPON_SPECS[id];
+    return spec && spec.saber ? spec.saber : null;
+}
 
 // Звуки зброї за подіями: «fire» — постріл, кидок або промінь, «swing» — мах
 // ближнього бою, «hit» — шип знищено. sound — ключ із assets.js (SOUND_FILES),
@@ -53,7 +66,11 @@ export const WEAPON_SOUNDS = {
         fire: { sound: "missile_boom", offset: 0.15, duration: 0.6, volume: 0.75 },
         hit: { sound: "missile_boom", offset: 1.18, duration: 2.2, volume: 0.8 }
     },
-    weapon_gravity: { fire: { sound: "gravi_sound", volume: 0.75 } }
+    weapon_gravity: { fire: { sound: "gravi_sound", volume: 0.75 } },
+    // Гудіння світлового меча: і на замах, і на кидок
+    weapon_saber_green: { swing: { sound: "lightsaber", duration: 1.0, volume: 0.4 }, fire: { sound: "lightsaber", volume: 0.4 } },
+    weapon_saber_blue: { swing: { sound: "lightsaber", duration: 1.0, volume: 0.4 }, fire: { sound: "lightsaber", volume: 0.4 } },
+    weapon_saber_red: { swing: { sound: "lightsaber", duration: 1.0, volume: 0.4 }, fire: { sound: "lightsaber", volume: 0.4 } }
 };
 
 // Звук зброї для події або null
@@ -79,6 +96,9 @@ export const DESTRUCTION_TIME = {
     blast: 2.6,
     burn: 1.4,
     fireslice: 0.9,
+    saber_green: 0.9,
+    saber_blue: 0.9,
+    saber_red: 0.9,
     zap: 0.6,
     fling: 1.55
 };
@@ -266,6 +286,28 @@ function drawRocketLauncherShape(ctx, s, loaded) {
 }
 
 // Вогняний меч: розпечене лезо, по якому бігають язики полум'я
+// Світловий меч: металеве руків'я й лезо, що світиться й ледь тремтить
+function drawSaberShape(ctx, s, time, color) {
+    ctx.fillStyle = "#9aa0ac";
+    ctx.fillRect(-s * 0.06, -s * 0.04, s * 0.12, s * 0.28);
+    ctx.fillStyle = "#3a3e48";
+    ctx.fillRect(-s * 0.06, s * 0.04, s * 0.12, s * 0.04);
+    ctx.fillRect(-s * 0.06, s * 0.14, s * 0.12, s * 0.04);
+    ctx.fillStyle = "#e0303a";
+    ctx.fillRect(s * 0.03, 0, s * 0.03, s * 0.04);
+    const hum = 1 + Math.sin(time * 0.05) * 0.04;
+    const len = s * 1.05 * hum;
+    // Сяйво навколо леза
+    ctx.globalAlpha *= 0.35;
+    ctx.fillStyle = color;
+    ctx.fillRect(-s * 0.1, -len - s * 0.04, s * 0.2, len);
+    ctx.globalAlpha /= 0.35;
+    ctx.fillStyle = color;
+    ctx.fillRect(-s * 0.05, -len, s * 0.1, len - s * 0.04);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(-s * 0.02, -len + s * 0.02, s * 0.04, len - s * 0.08);
+}
+
 function drawFireSwordShape(ctx, s, time) {
     ctx.fillStyle = "#3a1a0a";
     ctx.fillRect(-s * 0.05, -s * 0.02, s * 0.1, s * 0.22);
@@ -441,7 +483,8 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
     const swing = pose && pose.swing >= 0 ? pose.swing : -1;
     const recoil = pose ? pose.recoil || 0 : 0;
     ctx.save();
-    if (id === "weapon_sword" || id === "weapon_axe" || id === "weapon_pickaxe" || id === "weapon_firesword" || id === "weapon_thunder") {
+    const saber = saberColor(id);
+    if (id === "weapon_sword" || id === "weapon_axe" || id === "weapon_pickaxe" || id === "weapon_firesword" || id === "weapon_thunder" || saber) {
         if (pose && pose.away) {
             ctx.restore();
             return;
@@ -452,17 +495,25 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
             const k = 1 - Math.pow(1 - swing, 3);
             angle = -0.9 + k * 2.6;
             // Дуга-слід удару
-            ctx.strokeStyle = id === "weapon_firesword"
-                ? "rgba(255, 150, 40, " + (0.85 * (1 - swing)).toFixed(2) + ")"
-                : "rgba(220, 245, 255, " + (0.8 * (1 - swing)).toFixed(2) + ")";
+            if (saber) {
+                ctx.strokeStyle = saber;
+                ctx.globalAlpha = 0.85 * (1 - swing);
+            } else {
+                ctx.strokeStyle = id === "weapon_firesword"
+                    ? "rgba(255, 150, 40, " + (0.85 * (1 - swing)).toFixed(2) + ")"
+                    : "rgba(220, 245, 255, " + (0.8 * (1 - swing)).toFixed(2) + ")";
+            }
             ctx.lineWidth = s * 0.14;
             ctx.beginPath();
             ctx.arc(s * 0.42, s * 0.12, s * 0.8, -Math.PI / 2 - 0.9, -Math.PI / 2 + angle);
             ctx.stroke();
+            ctx.globalAlpha = 1;
         }
         ctx.translate(s * 0.42, s * 0.12);
         ctx.rotate(angle);
-        if (id === "weapon_sword") {
+        if (saber) {
+            drawSaberShape(ctx, s, time, saber);
+        } else if (id === "weapon_sword") {
             drawSwordShape(ctx, s);
         } else if (id === "weapon_firesword") {
             drawFireSwordShape(ctx, s, time);
@@ -508,7 +559,7 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
 
 // kind: arrow / bullet / rocket / axe / ball. angle — напрям польоту, age — секунди польоту.
 // prev — попередні точки польоту (для диму ракети).
-export function drawProjectile(ctx, kind, x, y, angle, age, s, prev) {
+export function drawProjectile(ctx, kind, x, y, angle, age, s, prev, color) {
     ctx.save();
     if (kind === "rocket" && prev) {
         for (let i = 0; i < prev.length; i++) {
@@ -525,6 +576,17 @@ export function drawProjectile(ctx, kind, x, y, angle, age, s, prev) {
         ctx.rotate(age * 22);
         ctx.translate(0, s * 0.3);
         drawAxeShape(ctx, s);
+    } else if (kind === "saber") {
+        // Меч летить, обертаючись навколо центру, і лишає світлий слід
+        ctx.globalAlpha = 0.25;
+        ctx.fillStyle = color || "#39ff5a";
+        ctx.beginPath();
+        ctx.arc(0, 0, s * 0.62, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.rotate(age * 20);
+        ctx.translate(0, s * 0.45);
+        drawSaberShape(ctx, s * 0.85, age * 1000, color || "#39ff5a");
     } else if (kind === "ball") {
         drawFootball(ctx, s * 0.2, age * 18);
     } else {
@@ -1043,6 +1105,46 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape)
             ctx.ellipse(x, groundY - 2, hw, 5, 0, Math.PI, 0);
             ctx.fill();
         }
+    } else if (SABER_FX_COLORS[kind]) {
+        // Світловий меч: розріз навскіс, краї розрізу розжарені кольором леза
+        const color = SABER_FX_COLORS[kind];
+        const x1 = x - hw * 1.2;
+        const y1 = groundY - h * 0.25;
+        const x2 = x + hw * 1.2;
+        const y2 = groundY - h * 0.7;
+        const fade = 1 - clamp01((t - 0.45) / 0.45);
+        ctx.globalAlpha = fade;
+        ctx.save();
+        clipHalfPlane(ctx, x1, y1, x2, y2, -1);
+        ctx.translate(0, t * t * 30);
+        drawShape(ctx);
+        ctx.restore();
+        ctx.save();
+        clipHalfPlane(ctx, x1, y1, x2, y2, 1);
+        ctx.translate(t * 80, -t * 50 + t * t * 260);
+        ctx.translate(x, groundY - h * 0.6);
+        ctx.rotate(t * 2.4);
+        ctx.translate(-x, -(groundY - h * 0.6));
+        drawShape(ctx);
+        ctx.restore();
+        // Розжарений край на нижній половині поступово згасає
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = fade * (1 - clamp01(t / 0.7));
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        if (t < 0.25) {
+            const a = 1 - t / 0.25;
+            ctx.strokeStyle = "rgba(255, 255, 255, " + a.toFixed(2) + ")";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x1 - 14, y1 + 6);
+            ctx.lineTo(x2 + 14, y2 - 6);
+            ctx.stroke();
+        }
     } else if (kind === "fireslice") {
         // Вогняний меч: розріз навскіс, обидві половинки палають
         const x1 = x - hw * 1.2;
@@ -1296,24 +1398,24 @@ export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
             if (ft < 0) {
                 continue;
             }
-            const kind = spec.mode === "axe" ? "axe" : spec.projectile;
+            const kind = spec.mode === "axe" ? (spec.saber ? "saber" : "axe") : spec.projectile;
             let px;
             let py;
             if (ft <= flight.dur) {
                 const k = ft / flight.dur;
                 px = muzzleX + (flight.tx - muzzleX) * k;
                 py = muzzleY + (groundY - sh * 0.4 - muzzleY) * k - Math.sin(Math.PI * k) * (spec.arc || 0) * scale;
-            } else if (kind === "axe" && ft <= flight.dur + 0.32) {
+            } else if ((kind === "axe" || kind === "saber") && ft <= flight.dur + 0.32) {
                 const k = (ft - flight.dur) / 0.32;
                 px = flight.tx + (muzzleX - flight.tx) * k;
                 py = groundY - sh * 0.4 + (muzzleY - (groundY - sh * 0.4)) * k - Math.sin(Math.PI * k) * 20;
             } else {
                 continue;
             }
-            if (kind === "axe") {
+            if (kind === "axe" || kind === "saber") {
                 away = true;
             }
-            drawProjectile(ctx, kind, px, py, 0, ft, s, null);
+            drawProjectile(ctx, kind, px, py, 0, ft, s, null, spec.saber);
         }
     }
     if (spec && spec.bolt && u >= hitAt && u < hitAt + BOLT_TIME) {
