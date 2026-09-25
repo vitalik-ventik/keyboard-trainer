@@ -1658,8 +1658,21 @@ body {
 
 /* Бонус монет на картці зброї в магазині */
 .weapon-coin-bonus {
+    display: block;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
     font-size: 1.5vmin;
     font-weight: 800;
     color: #ffd84a;
     text-shadow: 0 0 0.6vmin rgba(255, 190, 60, 0.6);
+}
+
+/* У виборі скіна картки вужчі: бонус можна перенести на другий рядок, але по центру */
+#skins-modal .weapon-coin-bonus {
+    white-space: normal;
+    font-size: 1.35vmin;
 }

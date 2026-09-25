@@ -1482,7 +1482,7 @@ function buildShop() {
         if (item.type === "weapon" && weaponCoinBonus(item.id) > 1) {
             const bonus = document.createElement("span");
             bonus.className = "weapon-coin-bonus";
-            bonus.textContent = "🪙 монети ×" + weaponCoinBonus(item.id);
+            bonus.textContent = "🪙 Монети ×" + weaponCoinBonus(item.id);
             card.appendChild(bonus);
         }
         // Аксесуари, шлейфи й вибухи дають бонус: монети, сундуки, повільніша траса, ширша зона

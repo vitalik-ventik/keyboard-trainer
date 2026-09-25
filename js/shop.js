@@ -195,13 +195,13 @@ export function accessoryPerk(accessoryId) {
 export function accessoryPerkText(accessoryId) {
     const perk = accessoryPerk(accessoryId);
     if (perk.coins) {
-        return "🪙 +" + Math.round(perk.coins * 100) + "% монет";
+        return "🪙 Монети +" + Math.round(perk.coins * 100) + "%";
     }
     if (perk.chest) {
-        return "🎁 +" + Math.round(perk.chest * 100) + "% шанс сундука";
+        return "🎁 Сундуки +" + Math.round(perk.chest * 100) + "%";
     }
     if (perk.item) {
-        return "✨ +" + Math.round(perk.item * 100) + "% шанс речі";
+        return "✨ Речі +" + Math.round(perk.item * 100) + "%";
     }
     return "";
 }
@@ -243,7 +243,7 @@ export function itemPerkText(itemId) {
         return "🐢 Швидкість −" + Math.round(TRAIL_PERKS[itemId].slow * 100) + "%";
     }
     if (EXPLOSION_PERKS[itemId]) {
-        return "🎯 Зона стрибка +" + Math.round(EXPLOSION_PERKS[itemId].window * 100) + "%";
+        return "🎯 Зона +" + Math.round(EXPLOSION_PERKS[itemId].window * 100) + "%";
     }
     const item = getShopItem(itemId);
     if (item && item.type === "skin") {
@@ -280,16 +280,16 @@ export function skinPerk(renderType) {
 
 export function skinPerkText(perk) {
     if (perk === "series") {
-        return "🔥 Монети за серії ×" + SKIN_SERIES_MULT;
+        return "🔥 Серії ×" + SKIN_SERIES_MULT;
     }
     if (perk === "words") {
-        return "📝 Монети за слова ×" + SKIN_WORDS_MULT;
+        return "📝 Слова ×" + SKIN_WORDS_MULT;
     }
     if (perk === "perfect") {
-        return "💠 Зона «Ідеально» +" + Math.round(SKIN_PERFECT_BONUS * 100) + "%";
+        return "💠 Ідеально +" + Math.round(SKIN_PERFECT_BONUS * 100) + "%";
     }
     if (perk === "shield") {
-        return "🛡 Щит: 1 помилка за рівень";
+        return "🛡 Щит на 1 помилку";
     }
     return "";
 }
