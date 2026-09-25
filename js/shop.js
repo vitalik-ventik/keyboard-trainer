@@ -163,10 +163,10 @@ export function getShopSkinByRenderType(renderType) {
 // (у збереженні рахунок і далі зветься crystals — так зберігається старий прогрес)
 
 // Бонус за фініш і за перше проходження залежить від ліги
-const FINISH_BONUS = { 1: 10, 2: 15, 3: 20, 4: 30, 5: 50 };
-export const FIRST_CLEAR_BONUS = { 1: 10, 2: 25, 3: 40, 4: 60, 5: 100 };
-export const SILVER_BONUS = 15;
-export const GOLD_BONUS = 30;
+const FINISH_BONUS = { 1: 5, 2: 10, 3: 15, 4: 20, 5: 40 };
+export const FIRST_CLEAR_BONUS = { 1: 5, 2: 15, 3: 30, 4: 50, 5: 100 };
+export const SILVER_BONUS = 5;
+export const GOLD_BONUS = 10;
 
 // Бонус за серію ідеальних дій: на 3, 5, 10 і далі кожні +5
 export function seriesBonus(streak) {
@@ -1287,9 +1287,9 @@ export function drawAccessory(ctx, id, size, time) {
 // legendaryChance — окремий крихітний шанс легендарного предмета: він випадає навіть
 // без виконання умови (пройти Боса, золоті рамки) — справжня удача
 export const CHEST_TYPES = {
-    wood: { name: "Дерев'яний сундук", itemChance: 0.35, crystals: [15, 40], maxPrice: 300, rarityPower: 1.2, legendaryChance: 0.003, heartChance: 0.12 },
-    silver: { name: "Срібний сундук", itemChance: 0.55, crystals: [40, 100], maxPrice: 800, rarityPower: 0.8, legendaryChance: 0.01, heartChance: 0.18 },
-    gold: { name: "Золотий сундук", itemChance: 0.8, crystals: [100, 220], maxPrice: 2000, rarityPower: 0.4, legendaryChance: 0.03, heartChance: 0.25 }
+    wood: { name: "Дерев'яний сундук", itemChance: 0.25, crystals: [8, 20], maxPrice: 300, rarityPower: 1.2, legendaryChance: 0.003, heartChance: 0.12 },
+    silver: { name: "Срібний сундук", itemChance: 0.55, crystals: [20, 50], maxPrice: 800, rarityPower: 0.8, legendaryChance: 0.01, heartChance: 0.18 },
+    gold: { name: "Золотий сундук", itemChance: 0.8, crystals: [50, 110], maxPrice: 2000, rarityPower: 0.4, legendaryChance: 0.03, heartChance: 0.25 }
 };
 
 // Шанс сундука за повторну перемогу й гарантія: не більше 4 перемог поспіль без сундука
@@ -1317,10 +1317,6 @@ export function chestsForVictory(win, random) {
     const chests = [];
     if (win.firstClear) {
         chests.push(win.leagueId >= 4 ? "gold" : win.leagueId >= 2 ? "silver" : "wood");
-    }
-    // Нова золота рамка — дерев'яний сундук (за срібну — лише монети)
-    if (win.newGold) {
-        chests.push("wood");
     }
     if (chests.length === 0) {
         const pity = (win.winsWithoutChest || 0) + 1 >= CHEST_PITY_WINS;
