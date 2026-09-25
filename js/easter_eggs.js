@@ -51,7 +51,10 @@ export const EGG_BY_THEME = {
     pixel_islands: { key: "parrot", name: "Папуга-балакун" },
     black_hole: { key: "astronaut", name: "Астронавт" },
     sky_citadel: { key: "pegasus", name: "Пегас" },
-    pixel_nether: { key: "ghast", name: "Гаст" }
+    pixel_nether: { key: "ghast", name: "Гаст" },
+    sponge_reef: { key: "starfish", name: "Морська зірка" },
+    ninja_temple: { key: "skelbike", name: "Скелет на мотоциклі" },
+    machine_war: { key: "liquidcop", name: "Рідкий метал" }
 };
 
 // Малювальник прямокутників у одиницях блоку відносно точки (ox, oy).
@@ -100,6 +103,82 @@ function speechBubble(ctx, x, y, B, text, color) {
 }
 
 export const EGG_DRAWERS = {
+
+    // Рожева морська зірка в зелених шортах шкутильгає піском і махає рукою
+    starfish(ctx, t, W, H, gY, time, B) {
+        const x = crossLeft(t, W, B, 3) * 0.7 + W * 0.2;
+        const wave = Math.sin(time * 8) * 0.4;
+        const bob = Math.abs(Math.sin(time * 5)) * 0.15;
+        const p = painter(ctx, B, x, gY - bob * B, false);
+        const st = Math.sin(time * 5) > 0 ? 0.15 : -0.15;
+        p("#ff8aa0", -0.7 + st, -1.2, 0.5, 1.2);
+        p("#ff8aa0", 0.3 - st, -1.2, 0.5, 1.2);
+        p("#5ad85a", -0.8, -2.0, 1.7, 0.9);
+        p("#3aa83a", -0.8, -1.5, 1.7, 0.12);
+        p("#ff8aa0", -0.6, -3.2, 1.3, 1.3);
+        p("#ff8aa0", -0.3, -4.2, 0.7, 1.0);
+        p("#ff8aa0", -1.4, -3.0 + wave, 0.9, 0.45);
+        p("#ff8aa0", 0.6, -3.6 - wave, 0.9, 0.45);
+        p("#ffb0c0", -0.4, -3.1, 0.3, 0.3);
+        p("#ffffff", -0.35, -3.9, 0.3, 0.35);
+        p("#ffffff", 0.05, -3.9, 0.3, 0.35);
+        p("#1a1a1a", -0.28, -3.8, 0.12, 0.15);
+        p("#1a1a1a", 0.12, -3.8, 0.12, 0.15);
+        p("#c8406a", -0.3, -3.35, 0.6, 0.12);
+    },
+
+    // Скелет-воїн мчить на кістяному мотоциклі, з вихлопної труби — зелений дим
+    skelbike(ctx, t, W, H, gY, time, B) {
+        const x = W * 1.1 - t * W * 1.35;
+        const bump = Math.abs(Math.sin(time * 14)) * 0.1;
+        const p = painter(ctx, B, x, gY - bump * B, false);
+        const base = ctx.globalAlpha;
+        for (let k = 0; k < 5; k++) {
+            ctx.globalAlpha = base * (1 - k / 5) * 0.7;
+            p("#7aff5a", 3.4 + k * 0.7, -1.2 - k * 0.15, 0.5 + k * 0.1, 0.5 + k * 0.1);
+        }
+        ctx.globalAlpha = base;
+        p("#1a1a1a", -0.2, -1.0, 1.0, 1.0);
+        p("#1a1a1a", 2.4, -1.0, 1.0, 1.0);
+        p("#6a6a74", 0.1, -0.7, 0.4, 0.4);
+        p("#6a6a74", 2.7, -0.7, 0.4, 0.4);
+        p("#3a3a44", 0.3, -1.8, 2.8, 0.7);
+        p("#e8e0d0", 0.2, -2.1, 0.5, 0.3);
+        p("#8a8a94", 3.0, -1.4, 0.6, 0.2);
+        p("#e8e0d0", 1.4, -3.4, 0.9, 1.6);
+        p("#c8c0b0", 1.5, -3.2, 0.7, 0.12);
+        p("#c8c0b0", 1.5, -2.8, 0.7, 0.12);
+        p("#e8e0d0", 0.6, -3.0, 0.9, 0.25);
+        p("#e8e0d0", 1.1, -4.4, 1.0, 1.0);
+        p("#1a1a1a", 1.2, -4.1, 0.25, 0.25);
+        p("#1a1a1a", 1.6, -4.1, 0.25, 0.25);
+        p("#3a3a44", 1.0, -4.7, 1.2, 0.35);
+        p("#e8e0d0", 1.5, -1.8, 0.3, 0.8);
+    },
+
+    // Калюжа рідкого металу витягується в сріблясту фігуру, дивиться навколо й знову розтікається
+    liquidcop(ctx, t, W, H, gY, time, B) {
+        const x = W * 0.66;
+        const rise = t < 0.3 ? t / 0.3 : t > 0.75 ? (1 - t) / 0.25 : 1;
+        const shine = (time * 0.8) % 1;
+        const p = painter(ctx, B, x, gY, false);
+        p("#9aa4b4", -1.6 * (1 - rise * 0.5), -0.25, 3.2 * (1 - rise * 0.5), 0.25);
+        const h = 5 * rise;
+        if (h > 0.3) {
+            p("#aeb6c4", -0.55, -h * 0.45, 0.45, h * 0.45);
+            p("#aeb6c4", 0.1, -h * 0.45, 0.45, h * 0.45);
+            p("#c0c8d6", -0.7, -h * 0.82, 1.4, h * 0.4);
+            p("#aeb6c4", -1.0, -h * 0.8, 0.3, h * 0.35);
+            p("#aeb6c4", 0.7, -h * 0.8, 0.3, h * 0.35);
+            p("#c8d0de", -0.4, -h, 0.8, h * 0.18);
+            p("#ffffff", -0.6 + shine * 1.0, -h * 0.9, 0.12, h * 0.8);
+            if (rise > 0.9) {
+                const look = Math.sin(time * 2) * 0.1;
+                p("#5a6474", -0.25 + look, -h * 0.94, 0.15, 0.1);
+                p("#5a6474", 0.1 + look, -h * 0.94, 0.15, 0.1);
+            }
+        }
+    },
     // Курка ходить і клює зернятка
     chicken(ctx, t, W, H, gY, time, B) {
         const x = crossLeft(t, W, B, 3) * 0.6 + W * 0.3;
