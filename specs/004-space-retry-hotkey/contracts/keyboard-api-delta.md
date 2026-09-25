@@ -43,5 +43,6 @@ export function initKeyboardInput(onLetter, onConfirm);
 ## Зобов'язання js/main.js
 
 БЕЗ ЗМІН — файл не редагується. Наявний колбек confirm
-(GAMEOVER → `btnRetry.click()`, VICTORY → `btnRetryWin.click()`, інші
-стани — нічого) автоматично отримує нову клавішу.
+(GAMEOVER → `btnRetry.click()`, VICTORY → `btnNext.click()`, якщо кнопка
+видима, інакше `btnRetryWin.click()`; інші стани — нічого) автоматично
+отримує нову клавішу.
