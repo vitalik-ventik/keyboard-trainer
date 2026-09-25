@@ -147,6 +147,7 @@ const COLORS = {
  *  2. targetLetter — яскравий зелено-жовтий (найближча ціль)
  *  3. groupLetters — м'який неоново-блакитний (пул рівня)
  *  4. Усе інше — тьмяно-сірий (недоступно)
+ * Клавіші з виступами (А, О) додатково мають бурштинову позначку.
  *
  * @param {CanvasRenderingContext2D} ctx
  * @param {{x:number, y:number, w:number, h:number}} area
@@ -296,7 +297,37 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyErro
 
         ctx.fillStyle = textColor;
         ctx.fillText(key.letter, x + keyW / 2, y + keyH / 2 + 1);
+
+        if (BUMP_KEYS.has(key.letter)) {
+            drawBumpMark(ctx, x, y, keyW, keyH);
+        }
     }
 
+    ctx.restore();
+}
+
+// Клавіші з виступами (як F і J на англійській розкладці): від них рахують решту клавіш
+export const BUMP_KEYS = new Set(["А", "О"]);
+
+// Позначка виступу: тонка бурштинова рамка та опукла рисочка внизу клавіші,
+// як на справжній клавіатурі — видно, навіть коли клавіша не з поточного рівня
+function drawBumpMark(ctx, x, y, keyW, keyH) {
+    const inset = Math.max(2, keyW * 0.06);
+    ctx.save();
+    roundRect(ctx, x + inset, y + inset, keyW - inset * 2, keyH - inset * 2, Math.min(6, keyW * 0.12));
+    ctx.lineWidth = Math.max(1, keyW * 0.025);
+    ctx.strokeStyle = "rgba(255, 196, 90, 0.7)";
+    ctx.stroke();
+    const barW = keyW * 0.36;
+    const barH = Math.max(2, keyH * 0.07);
+    const barX = x + (keyW - barW) / 2;
+    const barY = y + keyH * 0.8;
+    // Тінь під рисочкою — ніби вона випукла
+    ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+    roundRect(ctx, barX, barY + barH * 0.6, barW, barH, barH / 2);
+    ctx.fill();
+    ctx.fillStyle = "#ffd27a";
+    roundRect(ctx, barX, barY, barW, barH, barH / 2);
+    ctx.fill();
     ctx.restore();
 }
