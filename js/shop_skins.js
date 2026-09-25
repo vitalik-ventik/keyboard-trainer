@@ -922,5 +922,136 @@ export const SHOP_SKIN_RENDERERS = {
             ctx.fill();
         }
         frame(ctx, s, "#8affb0");
+    },
+
+    // ---------- Легендарні ----------
+
+    // Вогняний фенікс: язики полум'я по краях, палаючі очі
+    shop_phoenix: function (ctx, s, time) {
+        // Полум'я довкола кубика, що мерехтить
+        for (var i = 0; i < 12; i++) {
+            var side = i % 4;
+            var pos = -0.36 + Math.floor(i / 4) * 0.36;
+            var flick = 0.12 + 0.08 * Math.abs(Math.sin(time * 0.009 + i * 1.7));
+            var col = i % 2 === 0 ? "#ff5a1a" : "#ffb81a";
+            if (side === 0) { tri(ctx, s, col, pos - 0.1, -0.48, pos + 0.1, -0.48, pos, -0.5 - flick); }
+            else if (side === 1) { tri(ctx, s, col, 0.48, pos - 0.1, 0.48, pos + 0.1, 0.5 + flick, pos); }
+            else if (side === 2) { tri(ctx, s, col, pos - 0.1, 0.48, pos + 0.1, 0.48, pos, 0.5 + flick * 0.6); }
+            else { tri(ctx, s, col, -0.48, pos - 0.1, -0.48, pos + 0.1, -0.5 - flick, pos); }
+        }
+        var body = ctx.createLinearGradient(0, s / 2, 0, -s / 2);
+        body.addColorStop(0, "#ffd23a");
+        body.addColorStop(0.45, "#ff7a1a");
+        body.addColorStop(1, "#c8101a");
+        ctx.fillStyle = body;
+        ctx.fillRect(-s / 2, -s / 2, s, s);
+        // Пір'я-гребінь
+        tri(ctx, s, "#ffe680", -0.16, -0.5, 0, -0.5, -0.1, -0.3);
+        tri(ctx, s, "#ffe680", 0, -0.5, 0.16, -0.5, 0.08, -0.3);
+        // Крила-смуги на щоках
+        tri(ctx, s, "#ffb81a", -0.5, 0.05, -0.2, 0.2, -0.5, 0.35);
+        tri(ctx, s, "#ffb81a", 0.5, 0.05, 0.2, 0.2, 0.5, 0.35);
+        // Палаючі очі
+        var glow = 0.6 + 0.4 * Math.sin(time * 0.01);
+        r(ctx, s, "#3a0a0a", -0.32, -0.18, 0.22, 0.14);
+        r(ctx, s, "#3a0a0a", 0.1, -0.18, 0.22, 0.14);
+        r(ctx, s, "rgba(255, 255, 160, " + glow.toFixed(2) + ")", -0.28, -0.15, 0.14, 0.08);
+        r(ctx, s, "rgba(255, 255, 160, " + glow.toFixed(2) + ")", 0.14, -0.15, 0.14, 0.08);
+        // Дзьоб
+        tri(ctx, s, "#ffe680", -0.08, 0.02, 0.08, 0.02, 0, 0.16);
+        tri(ctx, s, "#c88a0a", -0.03, 0.1, 0.03, 0.1, 0, 0.16);
+        // Іскри, що злітають угору
+        for (var k = 0; k < 6; k++) {
+            var ph = ((time * 0.0008) + k / 6) % 1;
+            var sx = -0.4 + ((k * 0.37) % 0.8) + Math.sin(ph * 9 + k) * 0.04;
+            var sy = 0.4 - ph * 1.1;
+            r(ctx, s, "rgba(255, " + Math.round(200 - ph * 120) + ", 40, " + (1 - ph).toFixed(2) + ")", sx, sy, 0.035, 0.035);
+        }
+        frame(ctx, s, "#ffe680");
+    },
+
+    // Кубик-райдуга: смуги всіх кольорів пливуть по кубику
+    shop_rainbow: function (ctx, s, time) {
+        var n = 7;
+        var shift = (time * 0.00012) % 1;
+        // Смуги зсуваються, тож малюємо їх лише в межах кубика
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(-s / 2, -s / 2, s, s);
+        ctx.clip();
+        for (var i = -1; i < n; i++) {
+            var hue = ((i / n + shift) % 1) * 360;
+            ctx.fillStyle = "hsl(" + hue.toFixed(0) + ", 95%, 58%)";
+            var y0 = -0.5 + ((i + shift * n) / n);
+            ctx.fillRect(-s / 2, y0 * s, s, s / n + 1);
+        }
+        ctx.restore();
+        // Усміхнене обличчя
+        r(ctx, s, "#ffffff", -0.3, -0.18, 0.16, 0.16);
+        r(ctx, s, "#ffffff", 0.14, -0.18, 0.16, 0.16);
+        r(ctx, s, "#1a1a2a", -0.24, -0.14, 0.08, 0.1);
+        r(ctx, s, "#1a1a2a", 0.2, -0.14, 0.08, 0.1);
+        r(ctx, s, "#1a1a2a", -0.2, 0.12, 0.4, 0.05);
+        r(ctx, s, "#1a1a2a", -0.24, 0.07, 0.05, 0.06);
+        r(ctx, s, "#1a1a2a", 0.19, 0.07, 0.05, 0.06);
+        // Блискітки
+        for (var k = 0; k < 4; k++) {
+            var tw = Math.max(0, Math.sin(time * 0.004 + k * 1.6));
+            var sx = [-0.36, 0.3, -0.3, 0.34][k];
+            var sy = [-0.38, -0.36, 0.34, 0.3][k];
+            r(ctx, s, "rgba(255, 255, 255, " + tw.toFixed(2) + ")", sx - 0.01, sy - 0.04, 0.02, 0.1);
+            r(ctx, s, "rgba(255, 255, 255, " + tw.toFixed(2) + ")", sx - 0.04, sy - 0.01, 0.1, 0.02);
+        }
+        var hueFrame = ((time * 0.05) % 360).toFixed(0);
+        frame(ctx, s, "hsl(" + hueFrame + ", 100%, 80%)");
+    },
+
+    // Золотий кубик: суцільне золото з діамантовими очима
+    shop_golden: function (ctx, s, time) {
+        var gold = ctx.createLinearGradient(-s / 2, -s / 2, s / 2, s / 2);
+        gold.addColorStop(0, "#fff7cc");
+        gold.addColorStop(0.3, "#ffd700");
+        gold.addColorStop(0.6, "#c8960a");
+        gold.addColorStop(1, "#8b6914");
+        ctx.fillStyle = gold;
+        ctx.fillRect(-s / 2, -s / 2, s, s);
+        // Карбований внутрішній квадрат
+        ctx.strokeStyle = "rgba(139, 105, 20, 0.7)";
+        ctx.lineWidth = Math.max(1, s * 0.03);
+        ctx.strokeRect(-0.36 * s, -0.36 * s, 0.72 * s, 0.72 * s);
+        // Діамантові очі, що переливаються
+        var hue = (time * 0.08) % 360;
+        for (var e = 0; e < 2; e++) {
+            var ex = e === 0 ? -0.2 : 0.2;
+            ctx.fillStyle = "hsl(" + ((hue + e * 60) % 360).toFixed(0) + ", 80%, 85%)";
+            ctx.beginPath();
+            ctx.moveTo(ex * s, -0.24 * s);
+            ctx.lineTo((ex + 0.1) * s, -0.12 * s);
+            ctx.lineTo(ex * s, 0);
+            ctx.lineTo((ex - 0.1) * s, -0.12 * s);
+            ctx.closePath();
+            ctx.fill();
+            r(ctx, s, "#ffffff", ex - 0.04, -0.18, 0.04, 0.04);
+        }
+        // Усмішка з темного золота
+        r(ctx, s, "#8b6914", -0.18, 0.14, 0.36, 0.05);
+        r(ctx, s, "#8b6914", -0.22, 0.09, 0.05, 0.06);
+        r(ctx, s, "#8b6914", 0.17, 0.09, 0.05, 0.06);
+        // Відблиск, що пробігає по золоту
+        var sweep = ((time * 0.0006) % 1.8) - 0.4;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(-s / 2, -s / 2, s, s);
+        ctx.clip();
+        ctx.fillStyle = "rgba(255, 255, 240, 0.55)";
+        ctx.beginPath();
+        ctx.moveTo((sweep - 0.5) * s, 0.5 * s);
+        ctx.lineTo((sweep - 0.35) * s, 0.5 * s);
+        ctx.lineTo((sweep + 0.35) * s, -0.5 * s);
+        ctx.lineTo((sweep + 0.2) * s, -0.5 * s);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+        frame(ctx, s, "#fff7cc");
     }
 };

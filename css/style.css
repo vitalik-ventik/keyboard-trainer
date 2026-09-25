@@ -1290,3 +1290,44 @@ body {
     color: #ffcc33;
     text-align: center;
 }
+
+/* ---------- Легендарні товари ---------- */
+
+.skin-card.legendary {
+    --c: 255, 196, 40;
+    border-style: solid;
+    border-color: rgba(255, 196, 40, 0.75);
+    background: linear-gradient(180deg, rgba(255, 170, 30, 0.2), rgba(26, 14, 6, 0.92));
+    box-shadow: 0 0 1.4vmin rgba(255, 180, 30, 0.35), inset 0 0 1.2vmin rgba(255, 200, 60, 0.18);
+}
+
+.skin-card.legendary .skin-card-name {
+    color: #ffd86a;
+}
+
+/* ---------- Кристали за вже пройдені рівні ---------- */
+
+.retro-notice {
+    margin: 0.6vmin auto 0;
+    padding: 0.8vmin 1.8vmin;
+    max-width: 90%;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 246, 255, 0.6);
+    background: rgba(0, 40, 60, 0.75);
+    color: #bff8ff;
+    font-size: 1.8vmin;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 0 1.6vmin rgba(0, 246, 255, 0.35);
+    animation: retro-pop 0.5s ease-out;
+}
+
+.retro-notice.hidden {
+    display: none;
+}
+
+@keyframes retro-pop {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}

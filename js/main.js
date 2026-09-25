@@ -1021,7 +1021,8 @@ function buildShopSkinSection(grid, activeSkinId) {
         }
         const owned = save.isOwned(item.id);
         const card = document.createElement("div");
-        card.className = "skin-card" + (owned ? "" : " for-sale") + (item.renderType === activeSkinId ? " active" : "");
+        card.className = "skin-card" + (owned ? "" : " for-sale") + (item.renderType === activeSkinId ? " active" : "") +
+            (item.legendary ? " legendary" : "");
         const previewCanvas = document.createElement("canvas");
         previewCanvas.width = 80;
         previewCanvas.height = 80;
@@ -1029,7 +1030,7 @@ function buildShopSkinSection(grid, activeSkinId) {
         card.appendChild(previewCanvas);
         const nameSpan = document.createElement("span");
         nameSpan.className = "skin-card-name";
-        nameSpan.textContent = item.name;
+        nameSpan.textContent = (item.legendary ? "⭐ " : "") + item.name;
         card.appendChild(nameSpan);
         if (owned) {
             card.addEventListener("click", function () {
@@ -1053,7 +1054,8 @@ function buildShopSkinSection(grid, activeSkinId) {
         } else {
             const hint = document.createElement("span");
             hint.className = "sale-hint";
-            hint.textContent = "💎 " + item.price + " — у магазині";
+            const reqProgress = save.getRequirementProgress(item);
+            hint.textContent = reqProgress.met ? "💎 " + item.price + " — у магазині" : requirementLabel(reqProgress);
             card.appendChild(hint);
             card.addEventListener("click", function () {
                 // Відкриваємо магазин одразу на вкладці скінів із цим товаром
@@ -1089,6 +1091,30 @@ skinsModalEl.addEventListener("click", function (e) {
 });
 
 // ---------- Кристали: відображення й розбивка нагороди ----------
+
+// Повідомлення в меню про кристали, нараховані задним числом за вже пройдені рівні
+function showRetroNotice(result) {
+    const el = document.getElementById("retroNotice");
+    if (!el || !result || result.total <= 0) {
+        return;
+    }
+    el.textContent = "💎 +" + result.total + " за вже пройдені рівні (" + result.levels + ")! Заглянь у магазин.";
+    el.classList.remove("hidden");
+    el.addEventListener("click", function () {
+        el.classList.add("hidden");
+    });
+    setTimeout(function () {
+        el.classList.add("hidden");
+    }, 12000);
+}
+
+// Текст замка легендарного товару: «🔒 Золоті рамки 3/10»
+function requirementLabel(progress) {
+    if (progress.target > 1) {
+        return "🔒 " + progress.text + " " + progress.current + "/" + progress.target;
+    }
+    return "🔒 " + progress.text;
+}
 
 function refreshCrystalDisplays() {
     const balance = String(save.getCrystals());
@@ -1132,7 +1158,8 @@ function renderRewardBreakdown(el, reward, balanceBefore) {
     const balanceAfter = balanceBefore + reward.total;
     addBreakdownRow(el, "Разом (усього " + balanceAfter + ")", "+" + reward.total + " 💎", "cb-total");
     const newlyAffordable = SHOP_ITEMS.filter(function (item) {
-        return item.price > balanceBefore && item.price <= balanceAfter && !save.isOwned(item.id);
+        return item.price > balanceBefore && item.price <= balanceAfter && !save.isOwned(item.id) &&
+            save.getRequirementProgress(item).met;
     });
     if (newlyAffordable.length > 0) {
         const note = document.createElement("span");
@@ -1182,7 +1209,8 @@ function buildShop() {
         const owned = save.isOwned(item.id);
         const isEquipped = item.type === "skin" ? activeSkin === item.renderType : equipped === item.id;
         const card = document.createElement("div");
-        card.className = "skin-card shop-card" + (isEquipped ? " active" : "");
+        card.className = "skin-card shop-card" + (isEquipped ? " active" : "") + (item.legendary ? " legendary" : "");
+        const reqProgress = save.getRequirementProgress(item);
 
         const canvas = document.createElement("canvas");
         canvas.className = "skin-preview";
@@ -1200,7 +1228,7 @@ function buildShop() {
 
         const name = document.createElement("span");
         name.className = "skin-card-name";
-        name.textContent = item.name;
+        name.textContent = (item.legendary ? "⭐ " : "") + item.name;
         card.appendChild(name);
 
         const btn = document.createElement("button");
@@ -1219,6 +1247,11 @@ function buildShop() {
                 renderCurrentSkinIcon();
                 buildShop();
             });
+        } else if (!reqProgress.met) {
+            // Легендарний товар ще закритий умовою
+            btn.classList.add("poor");
+            btn.textContent = requirementLabel(reqProgress);
+            btn.disabled = true;
         } else if (balance >= item.price) {
             if (confirmItemId === item.id) {
                 btn.classList.add("confirm");
@@ -1474,6 +1507,7 @@ shopModalEl.addEventListener("click", function (e) {
 // ---------- Старт застосунку ----------
 
 save.load();
+showRetroNotice(save.grantRetroactive());
 refreshCrystalDisplays();
 currentLevelId = save.getLastPlayable();
 currentLeagueId = (ALL_LEVELS.find(function (l) { return l.id === currentLevelId; }) || { leagueId: 1 }).leagueId;

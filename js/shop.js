@@ -36,6 +36,11 @@ export const SHOP_ITEMS = [
     { id: "shop_ufo", type: "skin", name: "Кубик-НЛО", price: 550, renderType: "shop_ufo" },
     { id: "shop_dragon", type: "skin", name: "Кубик-дракончик", price: 600, renderType: "shop_dragon" },
 
+    // Легендарні скіни: купуються лише після виконання умови (requirement)
+    { id: "shop_phoenix", type: "skin", name: "Вогняний фенікс", price: 1200, renderType: "shop_phoenix", legendary: true, requirement: { kind: "boss" } },
+    { id: "shop_rainbow", type: "skin", name: "Кубик-райдуга", price: 1500, renderType: "shop_rainbow", legendary: true, requirement: { kind: "gold_count", target: 10 } },
+    { id: "shop_golden", type: "skin", name: "Золотий кубик", price: 2000, renderType: "shop_golden", legendary: true, requirement: { kind: "gold_league", league: 1 } },
+
     { id: "trail_default", type: "trail", name: "Звичайний", price: 0 },
     { id: "trail_neon", type: "trail", name: "Неонова лінія", price: 80 },
     { id: "trail_bubbles", type: "trail", name: "Бульбашки", price: 100 },
@@ -97,7 +102,7 @@ export function getShopSkinByRenderType(renderType) {
 
 // Бонус за фініш і за перше проходження залежить від ліги
 const FINISH_BONUS = { 1: 10, 2: 15, 3: 20, 4: 30, 5: 50 };
-const FIRST_CLEAR_BONUS = { 1: 20, 2: 30, 3: 40, 4: 60, 5: 100 };
+export const FIRST_CLEAR_BONUS = { 1: 20, 2: 30, 3: 40, 4: 60, 5: 100 };
 export const SILVER_BONUS = 30;
 export const GOLD_BONUS = 60;
 

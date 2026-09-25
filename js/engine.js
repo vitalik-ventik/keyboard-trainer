@@ -7,7 +7,7 @@
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
 import { KEYS } from "./keyboard.js";
-import { DEFAULT_ITEMS, getShopItem, getShopSkinByRenderType, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
+import { DEFAULT_ITEMS, getShopItem, getShopSkinByRenderType, FIRST_CLEAR_BONUS, SILVER_BONUS, GOLD_BONUS, seriesBonus, drawTrail, drawExplosion, drawAccessory, drawCrystalIcon, EXPLOSION_DURATION } from "./shop.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
 
 // ---------- Детермінований PRNG (фіксовані траси) ----------
@@ -2133,6 +2133,10 @@ export const save = {
         if (!item || this.isOwned(itemId) || saveData.shop.crystals < item.price) {
             return false;
         }
+        // Легендарний товар продається лише після виконання умови
+        if (!this.getRequirementProgress(item).met) {
+            return false;
+        }
         saveData.shop.crystals -= item.price;
         saveData.shop.owned.push(itemId);
         this.persist();
@@ -2183,6 +2187,88 @@ export const save = {
             gold: current.gold || !!flags.gold
         };
         this.persist();
+    },
+
+    // Умова легендарного товару: { met, current, target, text }.
+    // Для звичайних товарів умова завжди виконана.
+    getRequirementProgress(item) {
+        if (!saveData) {
+            this.load();
+        }
+        const req = item && item.requirement;
+        if (!req) {
+            return { met: true, current: 0, target: 0, text: "" };
+        }
+        const levels = saveData.progress.levels;
+        if (req.kind === "boss") {
+            const boss = levels["31"];
+            const done = !!boss && boss.bestPct === 100;
+            return { met: done, current: done ? 1 : 0, target: 1, text: "Пройди Боса (5-1)" };
+        }
+        if (req.kind === "gold_count") {
+            let golds = 0;
+            for (const level of ALL_LEVELS) {
+                const entry = levels[String(level.id)];
+                if (entry && entry.perfect === "hard") {
+                    golds++;
+                }
+            }
+            return { met: golds >= req.target, current: Math.min(golds, req.target), target: req.target, text: "Золоті рамки" };
+        }
+        if (req.kind === "gold_league") {
+            const leagueLevels = ALL_LEVELS.filter(function (l) { return l.leagueId === req.league; });
+            let golds = 0;
+            for (const level of leagueLevels) {
+                const entry = levels[String(level.id)];
+                if (entry && entry.perfect === "hard") {
+                    golds++;
+                }
+            }
+            return { met: golds >= leagueLevels.length, current: golds, target: leagueLevels.length, text: "Золото на всіх рівнях Ліги " + req.league };
+        }
+        return { met: false, current: 0, target: 1, text: "" };
+    },
+
+    // Кристали задним числом за рівні, пройдені ще до появи магазину:
+    // перше проходження, срібна й золота рамки. Кожен бонус видається один раз
+    // (позначки в shop.paid), тож повторний виклик нічого не додає.
+    grantRetroactive() {
+        if (!saveData) {
+            this.load();
+        }
+        let total = 0;
+        let levelsCount = 0;
+        for (const level of ALL_LEVELS) {
+            const entry = saveData.progress.levels[String(level.id)];
+            if (!entry || entry.bestPct !== 100) {
+                continue;
+            }
+            const paid = this.getPaid(level.id);
+            let add = 0;
+            if (!paid.first) {
+                add += FIRST_CLEAR_BONUS[level.leagueId] || 0;
+            }
+            if (entry.perfect && !paid.silver) {
+                add += SILVER_BONUS;
+            }
+            if (entry.perfect === "hard" && !paid.gold) {
+                add += GOLD_BONUS;
+            }
+            if (add > 0) {
+                total += add;
+                levelsCount++;
+                saveData.shop.paid[String(level.id)] = {
+                    first: true,
+                    silver: paid.silver || !!entry.perfect,
+                    gold: paid.gold || entry.perfect === "hard"
+                };
+            }
+        }
+        if (total > 0) {
+            saveData.shop.crystals += total;
+            this.persist();
+        }
+        return { total: total, levels: levelsCount };
     }
 };
 
