@@ -6,7 +6,7 @@ function rand(min,max){return min+Math.random()*(max-min)}function randInt(min,m
 const SKY_WINDOW_COLORS=[[255,204,68],[255,102,34],[255,136,204],[136,221,255],[255,153,102],[170,204,255]];const SKY_ALPHA_LEVELS=19;let _skyStyles=null;const _skyBuckets=[];for(let i=0;i<SKY_WINDOW_COLORS.length*SKY_ALPHA_LEVELS;i++)_skyBuckets.push([]);
 function _skyWindowStyles(){if(_skyStyles)return _skyStyles;_skyStyles=[];for(const c of SKY_WINDOW_COLORS){for(let lv=0;lv<SKY_ALPHA_LEVELS;lv++){const a=Math.min(0.5,0.15+lv*0.02);_skyStyles.push("rgba("+c[0]+","+c[1]+","+c[2]+","+a.toFixed(2)+")")}}return _skyStyles}
 const BackgroundRenderer = {
-    init(W,H,groundY){_W=W;_H=H;_groundY=groundY;/* Дані, що залежать від розміру екрана, будуються заново */this._skyData=null;this._toxicTop=null;this._abyssBubs=null;this._sporeCells=null;this._triStars=null;this._waterMist=null;this._infernoEmbers=null;this._infernoSmoke=null;this._skyBg=null;this._pulsarHex=null;_particles=[];_raindrops=[];_matrixColumns=[];_sparks=[];_starsInitialized=!1;_matrixInitialized=!1;_cityBuildings=null;_landscapeSeed=Math.random()*1000},
+    init(W,H,groundY){_W=W;_H=H;_groundY=groundY;/* Дані, що залежать від розміру екрана, будуються заново */this._skyData=null;this._toxicTop=null;this._abyssBubs=null;this._sporeCells=null;this._triStars=null;this._waterMist=null;this._infernoEmbers=null;this._infernoSmoke=null;this._skyBg=null;this._pixelNight=null;this._pixelCave=null;this._pulsarHex=null;_particles=[];_raindrops=[];_matrixColumns=[];_sparks=[];_starsInitialized=!1;_matrixInitialized=!1;_cityBuildings=null;_landscapeSeed=Math.random()*1000},
     reset(){_particles=[];_raindrops=[];_matrixColumns=[];_sparks=[];_starsInitialized=!1;_matrixInitialized=!1;_cityBuildings=null;_rainTimer=0;_landscapeSeed=Math.random()*1000},
     getDimensions(){return{W:_W,H:_H,groundY:_groundY}},
     createParticles(x,y,count,palette){const colors=palette||NEON_PALETTE;for(let i=0;i<count;i++){if(_particles.length>=MAX_PARTICLES){let min=Infinity,mi=-1;for(let j=0;j<_particles.length;j++){if(_particles[j].life<min){min=_particles[j].life;mi=j}}if(mi>=0)_particles.splice(mi,1)}const a=rand(0,Math.PI*2),s=rand(80,200);_particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-rand(40,100),size:rand(2,4),life:rand(0.4,0.6),maxLife:0,color:colors[randInt(0,colors.length-1)],gravity:rand(300,500)})}for(let j=0;j<_particles.length;j++)if(_particles[j].maxLife===0)_particles[j].maxLife=_particles[j].life},
@@ -30,7 +30,7 @@ case"spore_field":this.renderSporeField(ctx,W,H,groundY,time,speed,hueShift);bre
 case"diamond_matrix":this.renderDiamondMatrix(ctx,W,H,groundY,time,speed,hueShift);break;case"waterfall_cascade":this.renderWaterfallCascade(ctx,W,H,groundY,time,speed,hueShift);break;
 case"barrier_wall":this.renderBarrierWall(ctx,W,H,groundY,time,speed,hueShift);break;case"glitch_field":this.renderGlitchField(ctx,W,H,groundY,time,speed,hueShift);break;
 case"nebula_drift":this.renderNebulaDrift(ctx,W,H,groundY,time,speed,hueShift);break;case"grand_hex":this.renderGrandHex(ctx,W,H,groundY,time,speed,hueShift);break;
-default:this.renderCyberGrid(ctx,W,H,groundY,time,speed,"#00f6ff");break;}}finally{ctx.fillStyle=saveFill;ctx.strokeStyle=saveStroke;ctx.globalAlpha=saveAlpha}},
+case"pixel_night":this.renderPixelNight(ctx,W,H,groundY,time,speed);break;case"pixel_cave":this.renderPixelCave(ctx,W,H,groundY,time,speed);break;default:this.renderCyberGrid(ctx,W,H,groundY,time,speed,"#00f6ff");break;}}finally{ctx.fillStyle=saveFill;ctx.strokeStyle=saveStroke;ctx.globalAlpha=saveAlpha}},
     renderStarfield(ctx, W, H, time, speed, hueShift) {ctx.fillStyle="#020412";ctx.fillRect(0,0,W,H);if(!_starsInitialized){_stars=[];for(var i=0;i<130;i++){var layer=Math.random();var z=layer<0.4?0.3:(layer<0.75?0.6:1.0);_stars.push({x:Math.random()*W,y:Math.random()*H*0.7,z:z,size:z*2.5,twinklePhase:Math.random()*Math.PI*2,twinkleSpeed:0.5+Math.random()*2,brightness:0.3+Math.random()*0.7})}_starsInitialized=true}for(var si=0;si<_stars.length;si++){var s=_stars[si];s.x-=speed*s.z*0.15*_step;if(s.x<-s.size){s.x=W+s.size;s.y=Math.random()*H*0.7}var alpha=s.brightness*(0.4+0.6*(Math.sin(time*s.twinkleSpeed+s.twinklePhase)*0.5+0.5));ctx.globalAlpha=alpha;ctx.fillStyle=s.z>0.7?"#cceeff":(s.z>0.4?"#88bbff":"#6699cc");ctx.fillRect(s.x-s.size/2,s.y-s.size/2,s.size,s.size)}ctx.globalAlpha=1},
     renderEnergyGrid(ctx, W, H, time, hueShift) {ctx.fillStyle="#040618";ctx.fillRect(0,0,W,H);var cx=W/2;var cy=H/2;for(var i=0;i<6;i++){var r=Math.min(W,H)*0.07+i*Math.min(W,H)*0.1+Math.min(W,H)*0.04*Math.sin(time*1.8+i*0.9);var hue=(time*50+i*40)%360;applyGlow(ctx,"hsl("+hue.toFixed(0)+",80%,55%)",10);ctx.strokeStyle="hsl("+hue.toFixed(0)+",80%,55%)";ctx.lineWidth=1.5;ctx.globalAlpha=0.5;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();clearGlow(ctx)}for(var i=0;i<10;i++){var angle=(i/10)*Math.PI*2+time*0.3;ctx.strokeStyle="hsl("+((time*40+i*30)%360).toFixed(0)+",70%,40%)";ctx.lineWidth=1;ctx.globalAlpha=0.25;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(angle)*Math.min(W,H)*0.65,cy+Math.sin(angle)*Math.min(W,H)*0.65);ctx.stroke()}ctx.globalAlpha=1},
     renderCyberColumns(ctx,W,H,groundY,time,speed,hueShift){var grad=ctx.createLinearGradient(0,0,W*0.15,0);grad.addColorStop(0,"#0a0a30");grad.addColorStop(0.3,"#050520");grad.addColorStop(0.7,"#050520");grad.addColorStop(1,"#0a0a30");ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);ctx.fillStyle="#020615";ctx.fillRect(0,0,W,H);var colW=W*0.06;var gap=W*0.04;var cols=Math.ceil(W/(colW+gap))+2;var offset=(time*speed*0.35)%(colW+gap);for(var i=0;i<cols;i++){var x=-colW+i*(colW+gap)+offset;var h=H*0.4+Math.sin(i*1.7+time*0.8)*H*0.15;var alpha=0.2+0.3*Math.abs(Math.sin(i*0.6+time*0.5));applyGlow(ctx,"#4466ff",8);var colGrad=ctx.createLinearGradient(x,groundY-h,x,groundY);colGrad.addColorStop(0,"rgba(30,60,200,0)");colGrad.addColorStop(0.3,"rgba(50,100,255,"+alpha.toFixed(2)+")");colGrad.addColorStop(1,"rgba(20,40,150,"+(alpha*0.4).toFixed(2)+")");ctx.fillStyle=colGrad;ctx.fillRect(x,groundY-h,colW,h);clearGlow(ctx)}},
@@ -72,6 +72,325 @@ default:this.renderCyberGrid(ctx,W,H,groundY,time,speed,"#00f6ff");break;}}final
 
 
 renderTriumphFlare(ctx,W,H,groundY,time,speed,hueShift){var g=ctx.createRadialGradient(W*0.5,H*0.35,0,W*0.5,H*0.35,Math.max(W,H)*0.6);g.addColorStop(0,"#1a0520");g.addColorStop(0.5,"#0c0218");g.addColorStop(1,"#040210");ctx.fillStyle=g;ctx.fillRect(0,0,W,H);var stars=this._triStars||[];if(stars.length===0){for(var i=0;i<8;i++)stars.push({x:W*(0.1+Math.random()*0.8),y:H*(0.1+Math.random()*0.5),h:(i*50+Math.random()*80)%360,sz:0.5+Math.random()*1.5,ph:Math.random()*Math.PI*2});this._triStars=stars;}for(var si=0;si<stars.length;si++){var s=stars[si];var fp=Math.sin(time*1.7+s.ph)*0.5+0.5;var alpha=0.04+fp*0.1;var rc=8+Math.floor(s.sz*6);for(var ri=0;ri<rc;ri++){var a=ri*Math.PI*2/rc+time*speed*0.00055;var len=Math.min(W,H)*(0.05+fp*0.08)*s.sz;var hue=(s.h+ri*20+time*20)%360;ctx.strokeStyle="hsla("+hue.toFixed(0)+",70%,50%,"+alpha.toFixed(2)+")";ctx.lineWidth=0.5+s.sz*0.3;ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(s.x+Math.cos(a)*len,s.y+Math.sin(a)*len);ctx.stroke();}var cg=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,Math.min(W,H)*0.02*s.sz+fp*2);cg.addColorStop(0,"rgba(255,255,255,"+(0.1+fp*0.2).toFixed(2)+")");cg.addColorStop(0.5,"rgba(255,200,255,0.06)");cg.addColorStop(1,"transparent");ctx.fillStyle=cg;ctx.beginPath();ctx.arc(s.x,s.y,Math.min(W,H)*0.02*s.sz+fp*2,0,Math.PI*2);ctx.fill();}},renderBarrierWall(ctx,W,H,groundY,time,speed,hueShift){ctx.fillStyle="#0a0308";ctx.fillRect(0,0,W,H);var ty=H*0.05;var by=H*0.6;var bw=120;var bh=70;var cols=Math.ceil(W/bw)+2;var rows1=Math.ceil((groundY*0.4)/bh)+1;var rows2=Math.ceil((H-by)/bh)+1;var off=(time*speed*0.018)%bw;for(var i=0;i<cols;i++){var bx=i*bw-off;for(var j=0;j<rows1;j++){var py=ty+j*bh;var gl=((i*7+j*13+Math.floor(time*3))%100)<6;ctx.fillStyle="hsla("+(gl?70:10).toFixed(0)+","+(gl?"80%":"50%")+","+(gl?35:18).toFixed(0)+"%,0.4)";ctx.fillRect(bx,py,bw-1,bh-1);if(gl){ctx.strokeStyle="rgba(255,200,255,0.2)";ctx.lineWidth=1;ctx.strokeRect(bx,py,bw-1,bh-1);}}}for(var i=0;i<cols;i++){var bx=i*bw-off;for(var j=0;j<rows2;j++){var py=by+j*bh;var gl=((i*7+j*13+Math.floor(time*2.5))%100)<5;ctx.fillStyle="hsla("+(gl?80:20).toFixed(0)+",70%,"+(gl?30:15).toFixed(0)+"%,0.3)";ctx.fillRect(bx,py,bw-1,bh-1);}}ctx.strokeStyle="rgba(255,50,0,0.4)";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,ty);ctx.lineTo(W,ty);ctx.moveTo(0,by);ctx.lineTo(W,by);ctx.stroke();},renderCyberGrid(ctx, W, H, groundY, time, speed, accentColor) {var grad = ctx.createLinearGradient(0, 0, 0, H);grad.addColorStop(0, "#020615");grad.addColorStop(1, "#0a1035");ctx.fillStyle = grad;ctx.fillRect(0, 0, W, H);var horizonY = H * 0.35;var vanishX = W / 2;var accent = accentColor || "#00f6ff";var spacing = W * 0.08;var cols = Math.ceil(W / spacing) + 8;var totalRange = cols * spacing;var halfRange = totalRange / 2;var continuousOffset = time * speed * 0.25;var r = parseInt(accent.slice(1,3),16);var g = parseInt(accent.slice(3,5),16);var b = parseInt(accent.slice(5,7),16);applyGlow(ctx, accent, 12);ctx.lineWidth = 1;var groups = 5;var visibleW = W * 4;for (var i = -cols; i < cols * 2; i++) {var rawX = vanishX + i * spacing - continuousOffset;rawX = vanishX + (((rawX - vanishX) % totalRange + totalRange) % totalRange - halfRange);if (rawX < vanishX - visibleW || rawX > vanishX + visibleW) continue;var dx = Math.abs(rawX - vanishX) / (W * 0.5);var t = 1 - Math.min(1, dx);var sy = horizonY + (groundY - horizonY) * (1 - t * t);var groupIdx = ((i % groups) + groups) % groups;var phase = groupIdx * (Math.PI * 2 / groups);var alpha = 0.25 + 0.55 * (Math.sin(time * 1.2 + phase) * 0.5 + 0.5);if (alpha < 0.02) continue;ctx.strokeStyle = "rgba(" + r + "," + g + "," + b + "," + alpha.toFixed(2) + ")";ctx.beginPath();ctx.moveTo(vanishX, horizonY);ctx.lineTo(rawX, sy);ctx.stroke()}var horizLines = 18;var horizAlpha = 0.18 + 0.07 * Math.sin(time * 0.8);ctx.strokeStyle = "rgba(" + r + "," + g + "," + b + "," + horizAlpha.toFixed(2) + ")";ctx.beginPath();for (var j = 0; j <= horizLines; j++) {var progress = j / horizLines;var y = horizonY + (groundY - horizonY) * progress * progress;ctx.moveTo(0, y);ctx.lineTo(W, y)}ctx.stroke();clearGlow(ctx);applyGlow(ctx, accent, 20);ctx.strokeStyle = accent;ctx.lineWidth = 3;ctx.beginPath();ctx.moveTo(0, horizonY);ctx.lineTo(W, horizonY);ctx.stroke();clearGlow(ctx)},
+};
+
+// ---------- Піксельні фони в стилі «блочного світу» ----------
+// Статичні шари (небо, пагорби, стіни печери) малюються один раз у буфери,
+// а щокадру лише копіюються зі зсувом на цілі пікселі — це дешево.
+
+// Детермінований генератор випадкових чисел, щоб світ виглядав однаково при кожному запуску
+function pixelRng(seed) {
+    let a = seed >>> 0;
+    return function () {
+        a = (a + 0x6D2B79F5) >>> 0;
+        let t = a;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+function pixelBlockSize(H) {
+    return Math.max(8, Math.round(H / 28));
+}
+
+// Смуга шириною stripW повторюється по горизонталі зі зсувом factor × пройденої відстані
+function drawScrollingStrip(ctx, strip, W, bottomY, time, speed, factor) {
+    const stripW = strip.width;
+    const offset = Math.round(time * speed * factor) % stripW;
+    const y = Math.round(bottomY) - strip.height;
+    for (let x = -offset; x < W; x += stripW) {
+        ctx.drawImage(strip, x, y);
+    }
+}
+
+function buildPixelNight(W, H, groundY, B) {
+    const rng = pixelRng(1010);
+    const gY = Math.round(groundY);
+
+    // Небо з місяцем
+    const sky = document.createElement("canvas");
+    sky.width = Math.ceil(W);
+    sky.height = Math.ceil(H);
+    const sx = sky.getContext("2d");
+    const grad = sx.createLinearGradient(0, 0, 0, gY);
+    grad.addColorStop(0, "#070b24");
+    grad.addColorStop(1, "#1d2a5c");
+    sx.fillStyle = grad;
+    sx.fillRect(0, 0, sky.width, sky.height);
+    const moonX = Math.round(W * 0.74 / B) * B;
+    const moonY = Math.round(H * 0.1 / B) * B;
+    sx.fillStyle = "rgba(240, 240, 200, 0.05)";
+    sx.fillRect(moonX - B * 2, moonY - B * 2, B * 7, B * 7);
+    sx.fillStyle = "rgba(240, 240, 200, 0.08)";
+    sx.fillRect(moonX - B, moonY - B, B * 5, B * 5);
+    sx.fillStyle = "#f4f1d0";
+    sx.fillRect(moonX, moonY, B * 3, B * 3);
+    sx.fillStyle = "#d8d4ae";
+    sx.fillRect(moonX + B * 0.5, moonY + B * 0.5, B * 0.75, B * 0.75);
+    sx.fillRect(moonX + B * 1.75, moonY + B * 1.5, B, B * 0.75);
+    sx.fillRect(moonX + B * 0.75, moonY + B * 2, B * 0.5, B * 0.5);
+
+    // Зірки (мерехтять щокадру)
+    const stars = [];
+    const half = B / 2;
+    for (let i = 0; i < 45; i++) {
+        const starX = Math.round(rng() * W / half) * half;
+        const starY = Math.round(rng() * gY * 0.55 / half) * half;
+        const phase = rng() * Math.PI * 2;
+        const speed = 0.8 + rng() * 2;
+        // Без зірок на місяці та його ореолі
+        if (starX > moonX - B * 3 && starX < moonX + B * 6 && starY > moonY - B * 3 && starY < moonY + B * 6) {
+            continue;
+        }
+        stars.push({ x: starX, y: starY, phase: phase, speed: speed });
+    }
+
+    // Хмари з блоків
+    const cloudCols = Math.ceil(W * 1.5 / B);
+    const clouds = document.createElement("canvas");
+    clouds.width = cloudCols * B;
+    clouds.height = B * 3;
+    const cx = clouds.getContext("2d");
+    cx.fillStyle = "rgba(200, 210, 240, 0.16)";
+    for (let c = 2; c < cloudCols - 8; c += 9 + Math.floor(rng() * 6)) {
+        const len = 4 + Math.floor(rng() * 4);
+        cx.fillRect(c * B, B, len * B, B);
+        cx.fillRect((c + 1) * B, 0, (len - 2) * B, B);
+        cx.fillRect((c + 1) * B, B * 2, (len - 1) * B, B);
+    }
+
+    // Періодичний рельєф: ціле число хвиль на ширину смуги, щоб смуга безшовно повторювалась
+    function heights(cols, base, waves) {
+        const hs = [];
+        for (let c = 0; c < cols; c++) {
+            let v = base;
+            for (const w of waves) {
+                v += w.amp * Math.sin(Math.PI * 2 * c * w.k / cols + w.ph);
+            }
+            hs.push(Math.max(1, Math.round(v)));
+        }
+        return hs;
+    }
+
+    // Далекі пагорби
+    const farCols = Math.ceil(W * 1.5 / B);
+    const farH = heights(farCols, 5, [{ amp: 2.5, k: 2, ph: 0.3 }, { amp: 1.2, k: 5, ph: 1.7 }]);
+    const farMax = Math.max.apply(null, farH);
+    const far = document.createElement("canvas");
+    far.width = farCols * B;
+    far.height = farMax * B;
+    const fx = far.getContext("2d");
+    for (let c = 0; c < farCols; c++) {
+        const top = far.height - farH[c] * B;
+        fx.fillStyle = "#141d3d";
+        fx.fillRect(c * B, top, B, far.height - top);
+        fx.fillStyle = "#1c2a55";
+        fx.fillRect(c * B, top, B, B * 0.5);
+    }
+
+    // Ближні пагорби з травою, землею та деревами
+    const nearCols = Math.ceil(W * 1.3 / B);
+    const nearH = heights(nearCols, 3, [{ amp: 1.5, k: 3, ph: 2 }, { amp: 1, k: 7, ph: 0.5 }]);
+    const nearMax = Math.max.apply(null, nearH) + 5;
+    const near = document.createElement("canvas");
+    near.width = nearCols * B;
+    near.height = nearMax * B;
+    const nx = near.getContext("2d");
+    const p = B / 4;
+    for (let c = 0; c < nearCols; c++) {
+        const hBlocks = nearH[c];
+        const top = near.height - hBlocks * B;
+        for (let r = 0; r < hBlocks; r++) {
+            const y = top + r * B;
+            if (r === 0) {
+                nx.fillStyle = "#2f7a22";
+                nx.fillRect(c * B, y, B, B);
+                nx.fillStyle = "#44a332";
+                nx.fillRect(c * B, y, B, p);
+                nx.fillStyle = "#2f7a22";
+                nx.fillRect(c * B + p, y + p, p, p);
+                nx.fillStyle = "#5a3b22";
+                nx.fillRect(c * B, y + p * 3, B, p);
+                nx.fillRect(c * B + p * 2, y + p * 2, p, p);
+            } else {
+                nx.fillStyle = (r + c) % 2 === 0 ? "#553820" : "#4a3019";
+                nx.fillRect(c * B, y, B, B);
+                nx.fillStyle = "#3d2714";
+                nx.fillRect(c * B + ((r * 3 + c) % 4) * p, y + ((r + c * 2) % 4) * p, p, p);
+            }
+        }
+        // Дерево на деяких вершинах
+        if (c % 11 === 4 && c + 1 < nearCols) {
+            nx.fillStyle = "#5b3a1e";
+            nx.fillRect(c * B, top - B * 3, B, B * 3);
+            nx.fillStyle = "#256319";
+            nx.fillRect((c - 1) * B, top - B * 5, B * 3, B * 2);
+            nx.fillRect(c * B, top - B * 6, B, B);
+            nx.fillStyle = "#347f24";
+            nx.fillRect((c - 1) * B + p, top - B * 5 + p, p * 2, p);
+            nx.fillRect((c + 1) * B, top - B * 4 - p * 2, p, p);
+        }
+    }
+
+    return { W: W, H: H, B: B, sky: sky, stars: stars, clouds: clouds, far: far, near: near };
+}
+
+function buildPixelCave(W, H, groundY, B) {
+    const rng = pixelRng(2323);
+    const gY = Math.round(groundY);
+    const cols = Math.ceil(W * 1.3 / B);
+    const rows = Math.ceil(gY / B) + 1;
+    const p = B / 4;
+
+    const wall = document.createElement("canvas");
+    wall.width = cols * B;
+    wall.height = rows * B;
+    const wx = wall.getContext("2d");
+    const stoneShades = ["#3a3a44", "#34343d", "#2e2e36"];
+    const ores = [];
+    const torches = [];
+    for (let c = 0; c < cols; c++) {
+        for (let r = 0; r < rows; r++) {
+            const x = c * B;
+            const y = r * B;
+            wx.fillStyle = stoneShades[Math.floor(rng() * stoneShades.length)];
+            wx.fillRect(x, y, B, B);
+            wx.fillStyle = "#26262d";
+            for (let k = 0; k < 3; k++) {
+                wx.fillRect(x + Math.floor(rng() * 4) * p, y + Math.floor(rng() * 4) * p, p, p);
+            }
+            // Руда: алмаз, золото або червона руда
+            const roll = rng();
+            let oreColor = null;
+            let kind = null;
+            if (roll < 0.015) {
+                oreColor = "#2fd3cf";
+                kind = "diamond";
+            } else if (roll < 0.03) {
+                oreColor = "#f2c84b";
+                kind = "gold";
+            } else if (roll < 0.04) {
+                oreColor = "#e0302a";
+                kind = "red";
+            }
+            if (oreColor) {
+                wx.fillStyle = oreColor;
+                wx.fillRect(x + p, y + p, p, p);
+                wx.fillRect(x + p * 2, y + p * 2, p, p);
+                wx.fillRect(x + p * 2, y, p, p);
+                wx.fillRect(x, y + p * 3, p, p);
+                if (kind !== "gold") {
+                    ores.push({ x: x, y: y, kind: kind, phase: rng() * Math.PI * 2 });
+                }
+            }
+        }
+    }
+    // Темні сталактити зверху та тінь по краях
+    wx.fillStyle = "#15151b";
+    for (let c = 0; c < cols; c++) {
+        const len = 1 + Math.floor((Math.sin(c * 1.7) + 1) * 1.5);
+        wx.fillRect(c * B, 0, B, len * B);
+    }
+    const shade = wx.createLinearGradient(0, 0, 0, wall.height);
+    shade.addColorStop(0, "rgba(0, 0, 0, 0.55)");
+    shade.addColorStop(0.5, "rgba(0, 0, 0, 0.15)");
+    shade.addColorStop(1, "rgba(0, 0, 0, 0.45)");
+    wx.fillStyle = shade;
+    wx.fillRect(0, 0, wall.width, wall.height);
+    // Факели на стінах
+    for (let c = 5; c < cols - 2; c += 12) {
+        const tx = c * B + p;
+        const ty = Math.round(gY * 0.45 / B) * B;
+        wx.fillStyle = "#6b4424";
+        wx.fillRect(tx, ty, p * 2, B);
+        torches.push({ x: tx, y: ty, phase: rng() * Math.PI * 2 });
+    }
+
+    // Лавове світіння біля землі
+    const lava = document.createElement("canvas");
+    lava.width = 1;
+    lava.height = B * 3;
+    const lx = lava.getContext("2d");
+    const lg = lx.createLinearGradient(0, 0, 0, lava.height);
+    lg.addColorStop(0, "rgba(255, 90, 0, 0)");
+    lg.addColorStop(1, "rgba(255, 90, 0, 0.35)");
+    lx.fillStyle = lg;
+    lx.fillRect(0, 0, 1, lava.height);
+
+    return { W: W, H: H, B: B, wall: wall, ores: ores, torches: torches, lava: lava };
+}
+
+BackgroundRenderer.renderPixelNight = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._pixelNight;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildPixelNight(W, H, groundY, B);
+        this._pixelNight = st;
+    }
+    ctx.drawImage(st.sky, 0, 0);
+    const starSize = Math.max(2, Math.round(B / 4));
+    ctx.fillStyle = "#ffffff";
+    for (const star of st.stars) {
+        ctx.globalAlpha = 0.35 + 0.65 * (Math.sin(time * star.speed + star.phase) * 0.5 + 0.5);
+        ctx.fillRect(star.x, star.y, starSize, starSize);
+    }
+    ctx.globalAlpha = 1;
+    drawScrollingStrip(ctx, st.clouds, W, Math.round(H * 0.3), time, speed, 0.04);
+    drawScrollingStrip(ctx, st.far, W, groundY, time, speed, 0.12);
+    drawScrollingStrip(ctx, st.near, W, groundY, time, speed, 0.3);
+};
+
+BackgroundRenderer.renderPixelCave = function (ctx, W, H, groundY, time, speed) {
+    const B = pixelBlockSize(H);
+    let st = this._pixelCave;
+    if (!st || st.W !== W || st.H !== H) {
+        st = buildPixelCave(W, H, groundY, B);
+        this._pixelCave = st;
+    }
+    ctx.fillStyle = "#0b0b10";
+    ctx.fillRect(0, 0, W, H);
+    const wallW = st.wall.width;
+    const offset = Math.round(time * speed * 0.2) % wallW;
+    const wallY = Math.round(groundY) - st.wall.height;
+    for (let x = -offset; x < W; x += wallW) {
+        ctx.drawImage(st.wall, x, wallY);
+    }
+    const p = B / 4;
+    // Пульсуюче світіння руди та факелів (позиції зсуваються разом зі стіною)
+    for (let copy = -offset; copy < W; copy += wallW) {
+        for (const ore of st.ores) {
+            const x = copy + ore.x;
+            if (x < -B * 2 || x > W + B) {
+                continue;
+            }
+            const pulse = Math.sin(time * (ore.kind === "red" ? 3 : 1.6) + ore.phase) * 0.5 + 0.5;
+            ctx.fillStyle = ore.kind === "red" ? "rgba(255, 40, 30, 0.22)" : "rgba(60, 240, 230, 0.18)";
+            ctx.globalAlpha = 0.3 + 0.7 * pulse;
+            ctx.fillRect(x - p, wallY + ore.y - p, B + p * 2, B + p * 2);
+        }
+        for (const torch of st.torches) {
+            const x = copy + torch.x;
+            if (x < -B * 3 || x > W + B * 3) {
+                continue;
+            }
+            const y = wallY + torch.y;
+            const flicker = 0.75 + 0.25 * Math.sin(time * 11 + torch.phase) * Math.sin(time * 7.3);
+            ctx.globalAlpha = 0.1 * flicker;
+            ctx.fillStyle = "#ffaa33";
+            ctx.fillRect(x - B * 2, y - B * 2, B * 4 + p * 2, B * 4);
+            ctx.globalAlpha = 0.14 * flicker;
+            ctx.fillRect(x - B, y - B, B * 2 + p * 2, B * 2);
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = "#ffcc33";
+            ctx.fillRect(x, y - p * 2, p * 2, p * 2);
+            ctx.fillStyle = flicker > 0.85 ? "#ffffff" : "#ff7a00";
+            ctx.fillRect(x + p * 0.5, y - p * 2.5, p, p);
+        }
+    }
+    ctx.globalAlpha = 0.7 + 0.3 * Math.sin(time * 1.3);
+    ctx.drawImage(st.lava, 0, Math.round(groundY) - st.lava.height, W, st.lava.height);
+    ctx.globalAlpha = 1;
 };
 
 export { BackgroundRenderer };
