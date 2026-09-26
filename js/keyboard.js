@@ -172,10 +172,25 @@ const COLORS = {
  * @param {number} time — секунди від старту застосунку
  */
 // Геометрія клавіатури в межах області area (спільна для кешованої клавіатури та пульсації цілі)
+// Зсув рядів, як на справжній клавіатурі (у ширинах клавіші): середній ряд
+// починається на ¼ клавіші правіше за верхній, нижній — на ¾. Тому, наприклад,
+// Я стоїть між Ф та І, а Ф — між Й та Ц
+const ROW_OFFSETS = [0, 0.25, 0.75];
+
+// Ширина всієї клавіатури в клавішах: найдовший ряд разом зі зсувом
+function layoutUnits() {
+    let units = 0;
+    for (let r = 0; r < ROW_COUNTS.length; r++) {
+        units = Math.max(units, ROW_OFFSETS[r] + ROW_COUNTS[r]);
+    }
+    return units;
+}
+
 function computeLayout(area) {
     const gap = Math.max(2, area.w * 0.006);
+    const units = layoutUnits();
     const keyW = Math.min(
-        (area.w - gap * 12) / 12,
+        (area.w - gap * (units - 1)) / units,
         (area.h - gap * 3) / 3 * 1.15
     );
     const keyH = Math.min((area.h - gap * 3) / 3, keyW * 1.05);
@@ -185,9 +200,11 @@ function computeLayout(area) {
 }
 
 function keyPosition(area, layout, key) {
-    const rowCount = ROW_COUNTS[key.row];
-    const rowWidth = rowCount * layout.keyW + (rowCount - 1) * layout.gap;
-    const rowStartX = area.x + (area.w - rowWidth) / 2 + key.row * layout.keyW * 0.18;
+    // Уся клавіатура центрується як один блок, а ряди зсуваються відносно його лівого краю
+    const unit = layout.keyW + layout.gap;
+    const blockWidth = layoutUnits() * unit - layout.gap;
+    const blockStartX = area.x + (area.w - blockWidth) / 2;
+    const rowStartX = blockStartX + ROW_OFFSETS[key.row] * unit;
     return {
         x: rowStartX + key.col * (layout.keyW + layout.gap),
         y: layout.startY + key.row * (layout.keyH + layout.gap)
