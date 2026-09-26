@@ -3,8 +3,8 @@
 // (плюс скіни з магазину й нових рівнів Ліги 1)
 // ============================================================
 
-import { EXTRA_LEVEL_SKINS } from "./level_skins_extra.js";
 import { SHOP_SKIN_RENDERERS } from "./shop_skins.js";
+import { EXTRA_LEVEL_SKINS } from "./level_skins_extra.js";
 import { drawPixelArt, drawSkinFrame, renderSkinGlow } from "./skins.js";
 
 export const SKIN_RENDERERS = {

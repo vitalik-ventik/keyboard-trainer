@@ -5,10 +5,10 @@
 // збереження — save.js, вигляд шипів — spike_styles.js
 // ============================================================
 
-import { BOLT_TIME, DESTRUCTION_TIME, GRAVITY_LIFT, MELEE_CONTACT, SWING_HIT, SWING_TIME, beamTiming, drawBeam, drawHeldWeapon, drawProjectile, drawSpikeDestruction, drawStuckArrow, getWeaponSound, getWeaponSpec, gravityGrabTime, gravityHoldOffset, meleeTriggerGap } from "./weapons.js";
-import { BackgroundCache } from "./cache.js";
 import { BackgroundRenderer } from "./backgrounds.js";
+import { BackgroundCache } from "./cache.js";
 import { EXPLOSION_DURATION, drawAccessory, drawCoinIcon, drawExplosion, drawHeartLife, drawTrail, explosionWindowBonus, seriesBonus, trailSlowdown } from "./shop.js";
+import { BOLT_TIME, DESTRUCTION_TIME, GRAVITY_LIFT, MELEE_CONTACT, SWING_HIT, SWING_TIME, beamTiming, drawBeam, drawHeldWeapon, drawProjectile, drawSpikeDestruction, drawStuckArrow, getWeaponSound, getWeaponSpec, gravityGrabTime, gravityHoldOffset, meleeTriggerGap } from "./weapons.js";
 import { ALL_LEVELS, COMBO_KINDS, getLevelById } from "./levels.js";
 import { activeSkinPerk, drawAchievementFrame, sampleSkinColors } from "./skins.js";
 import { SKIN_RENDERERS } from "./skin_renderers.js";

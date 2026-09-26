@@ -3,10 +3,10 @@
 // статистика літер і досягнення в localStorage
 // ============================================================
 
-import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, localDayKey, sanitizeAchievementData } from "./achievements.js";
-import { CHEST_TYPES, DEFAULT_ITEMS, FIRST_CLEAR_BONUS, GOLD_BONUS, SILVER_BONUS, accessoryPerk, getShopItem, getShopSkinByRenderType, rollChest, shopTierLeague } from "./shop.js";
-import { EGG_BY_THEME } from "./easter_eggs.js";
 import { KEYS } from "./keyboard.js";
+import { CHEST_TYPES, DEFAULT_ITEMS, FIRST_CLEAR_BONUS, GOLD_BONUS, SILVER_BONUS, accessoryPerk, getShopItem, getShopSkinByRenderType, rollChest, shopTierLeague } from "./shop.js";
+import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, localDayKey, sanitizeAchievementData } from "./achievements.js";
+import { EGG_BY_THEME } from "./easter_eggs.js";
 import { ALL_LEVELS, BOSS_LEVEL_ID, DEFAULT_SKIN, getLevelById, levelOrderIndex, nextLevelOf } from "./levels.js";
 import { activeSkinPerk } from "./skins.js";
 import { SKIN_RENDERERS } from "./skin_renderers.js";
