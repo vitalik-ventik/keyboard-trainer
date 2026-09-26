@@ -18,8 +18,6 @@ export const KEYS = [
     { code: "KeyP", letter: "З", row: 0, col: 9 },
     { code: "BracketLeft", letter: "Х", row: 0, col: 10 },
     { code: "BracketRight", letter: "Ї", row: 0, col: 11 },
-    // Ґ — на клавіші «\\», що на ноутбуках (зокрема Lenovo IdeaPad 320) стоїть у кінці верхнього ряду над Enter
-    { code: "Backslash", letter: "Ґ", row: 0, col: 12 },
     { code: "KeyA", letter: "Ф", row: 1, col: 0 },
     { code: "KeyS", letter: "І", row: 1, col: 1 },
     { code: "KeyD", letter: "В", row: 1, col: 2 },
@@ -128,7 +126,9 @@ function roundRect(ctx, x, y, w, h, r) {
     ctx.closePath();
 }
 
-const ROW_COUNTS = [13, 11, 9];
+// Ґ свідомо не показуємо й не використовуємо: вона рідкісна, а її клавіша
+// в різних виробників стоїть у різних місцях
+const ROW_COUNTS = [12, 11, 9];
 
 // ---------- Константи кольорів для розумної індикації ----------
 
