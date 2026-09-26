@@ -54,7 +54,7 @@ export const ACHIEVEMENTS = [
     { id: "letters_20000", group: "typing", icon: "📚", name: "Друкарська машинка", desc: "Набери 20 000 літер", chest: "gold", target: 20000, value: function (s) { return s.letters; } },
     { id: "words_100", group: "typing", icon: "📝", name: "Сто слів", desc: "Набери 100 слів", chest: "wood", target: 100, value: function (s) { return s.words; } },
     { id: "words_500", group: "typing", icon: "📖", name: "П'ятсот слів", desc: "Набери 500 слів", chest: "silver", target: 500, value: function (s) { return s.words; } },
-    { id: "all_letters", group: "typing", icon: "🔤", name: "Знавець абетки", desc: "Усі 33 літери з точністю понад 90%", chest: "silver", target: 33, value: function (s) { return s.masteredLetters; } },
+    { id: "all_letters", group: "typing", icon: "🔤", name: "Знавець абетки", desc: "Усі 32 літери клавіатури з точністю понад 90%", chest: "silver", target: 32, value: function (s) { return s.masteredLetters; } },
 
     // Пасхалки
     { id: "eggs_10", group: "eggs", icon: "🥚", name: "Уважне око", desc: "Побач 10 різних пасхалок", chest: "wood", target: 10, value: function (s) { return s.eggs; } },
