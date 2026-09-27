@@ -638,9 +638,9 @@ export class Engine {
         spike.chunks = 0;
         this.registerHit(perfect);
         const spec = this.weaponSpec;
-        const muzzleX = this.player.x + CUBE_SIZE * 0.6;
-        const muzzleY = CUBE_SIZE * 0.55;
-        const targetY = spike.type === "saw" ? SPIKE_H * 0.6 : SPIKE_H * 0.4;
+        const muzzleX = this.player.x + CUBE_SIZE * (spec.launch ? spec.launch[0] : 0.6);
+        const muzzleY = CUBE_SIZE * (spec.launch ? spec.launch[1] : 0.55);
+        const targetY = spike.type === "saw" ? SPIKE_H * 0.6 : SPIKE_H * (spec.aim || 0.4);
         if (spec.mode === "melee" || (spec.mode === "axe" && gap <= spec.reach)) {
             // Замах одразу; удар — коли шип підійде на відстань руки
             this.attacks.push({ kind: "melee", spike: spike, stage: "wait", t: 0, hit: false });

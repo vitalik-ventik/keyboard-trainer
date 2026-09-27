@@ -234,12 +234,13 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape,
             ctx.strokeRect(-7, -7, 14, 14);
         }
     } else if (kind === "homerun") {
-        // Бейсбольна бита: зірка удару, шип зі свистом крутиться вгору-вперед,
-        // меншає й зникає в небі зірочкою, спалахує «ХОУМ-РАН!»
+        // Бейсбольна бита б'є знизу-збоку: зірка удару біля основи шипа, шип летить
+        // уперед і полого вгору, крутячись назад, меншає й зникає вдалині зірочкою,
+        // спалахує «ХОУМ-РАН!»
         const fly = 0.75;
         const f = Math.min(t, fly);
-        const dx = f * 520 + f * f * 260;
-        const dy = -f * 520 + f * f * 120;
+        const dx = f * 620 + f * f * 200;
+        const dy = -f * 300 + f * f * 60;
         const scale = Math.max(0, 1 - f / fly);
         if (scale > 0.02) {
             // Смуги швидкості позаду шипа
@@ -247,7 +248,7 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape,
             for (let i = 0; i < 3; i++) {
                 ctx.save();
                 ctx.translate(x + dx, groundY - h * 0.4 + dy);
-                ctx.rotate(-0.7);
+                ctx.rotate(-0.42);
                 ctx.fillRect(-h * 0.6 - 26 - i * 10, -8 + i * 8, 22 * scale + 6, 2);
                 ctx.restore();
             }
@@ -263,7 +264,7 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape,
         if (t < 0.22) {
             const e = t / 0.22;
             const cx = x - hw * 0.6;
-            const cy = groundY - h * 0.45;
+            const cy = groundY - h * 0.28;
             const r = h * (0.35 + e * 0.5);
             ctx.fillStyle = "rgba(255, 236, 120, " + (1 - e * e).toFixed(2) + ")";
             ctx.beginPath();
@@ -282,8 +283,8 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape,
         // Зірочка-відблиск там, де шип зник у небі
         const star = t > fly - 0.05 ? Math.sin(clamp01((t - fly + 0.05) / 0.35) * Math.PI) : 0;
         if (star > 0) {
-            const sx = x + fly * 520 + fly * fly * 260;
-            const sy = groundY - h * 0.4 - fly * 520 + fly * fly * 120;
+            const sx = x + fly * 620 + fly * fly * 200;
+            const sy = groundY - h * 0.4 - fly * 300 + fly * fly * 60;
             ctx.fillStyle = "rgba(255, 255, 255, " + star.toFixed(2) + ")";
             ctx.fillRect(sx - 1.5, sy - 10 * star, 3, 20 * star);
             ctx.fillRect(sx - 10 * star, sy - 1.5, 20 * star, 3);
@@ -298,21 +299,23 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape,
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.lineWidth = 5;
+        ctx.lineJoin = "round";
         ctx.strokeStyle = "#2a0a0a";
         ctx.strokeText("ХОУМ-РАН!", 0, 0);
         ctx.fillStyle = "#ffd23f";
         ctx.fillText("ХОУМ-РАН!", 0, 0);
     } else if (kind === "goal") {
-        // М'яч: шип перекидається назад і відлітає, спалахує «ГОЛ!»
+        // М'яч влучає низом в основу шипа: шип підлітає вперед, перекидаючись назад, спалахує «ГОЛ!»
         ctx.save();
         ctx.globalAlpha = 1 - clamp01((t - 0.7) / 0.4);
-        ctx.translate(x + hw + t * 200, groundY - t * 260 + t * t * 240);
-        ctx.rotate(t * 7);
-        ctx.translate(-(x + hw), -groundY);
+        ctx.translate(x + t * 260, groundY - h * 0.4 - t * 300 + t * t * 280);
+        ctx.rotate(-t * 7);
+        ctx.translate(-x, -(groundY - h * 0.4));
         drawShape(ctx);
         ctx.restore();
+        // М'яч після удару відскакує від основи шипа трохи вперед і вгору
         ctx.save();
-        ctx.translate(x + 40 + t * 140, groundY - h * 0.5 - t * 60);
+        ctx.translate(x - hw * 0.3 + t * 90, groundY - 8 - t * 120 + t * t * 200);
         drawFootball(ctx, 8, t * 20);
         ctx.restore();
         const pop = t < 0.2 ? t / 0.2 : 1;
