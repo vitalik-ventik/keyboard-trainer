@@ -14,6 +14,7 @@ export const ACHIEVEMENT_GROUPS = [
     { id: "typing", name: "Набір" },
     { id: "eggs", name: "Пасхалки" },
     { id: "collect", name: "Колекція" },
+    { id: "pets", name: "Улюбленці" },
     { id: "days", name: "Завзятість" },
     { id: "fun", name: "Кумедні" }
 ];
@@ -67,6 +68,14 @@ export const ACHIEVEMENTS = [
     { id: "skins_10", group: "collect", icon: "🎨", name: "Модник", desc: "Збери 10 скінів", chest: "wood", target: 10, value: function (s) { return s.skins; } },
     { id: "chests_30", group: "collect", icon: "🎁", name: "Скарбошукач", desc: "Відкрий 30 сундуків", chest: "wood", target: 30, value: function (s) { return s.chestsOpened; } },
     { id: "legendary", group: "collect", icon: "⭐", name: "Легенда", desc: "Отримай легендарний предмет", chest: "silver", target: 1, value: function (s) { return s.legendaryOwned; } },
+
+    // Улюбленці
+    { id: "pet_first", group: "pets", icon: "🐾", name: "Найкращий друг", desc: "Отримай першого улюбленця", chest: "wood", target: 1, value: function (s) { return s.petsOwned; } },
+    { id: "pets_5", group: "pets", icon: "🏡", name: "Міні-зоопарк", desc: "Збери 5 улюбленців", chest: "wood", target: 5, value: function (s) { return s.petsOwned; } },
+    { id: "pets_15", group: "pets", icon: "🦒", name: "Великий зоопарк", desc: "Збери 15 улюбленців", chest: "silver", target: 15, value: function (s) { return s.petsOwned; } },
+    { id: "pack_full", group: "pets", icon: "🐕", name: "Повна зграя", desc: "Візьми з собою 5 улюбленців одночасно", chest: "silver", target: 5, value: function (s) { return s.petsEquipped; } },
+    { id: "pet_mutant", group: "pets", icon: "🧬", name: "Мутант!", desc: "Отримай мутованого улюбленця", chest: "silver", target: 1, value: function (s) { return s.petsMutated; } },
+    { id: "pet_secret", group: "pets", icon: "🥣", name: "Таємниця борщу", desc: "Знайди секретного улюбленця в золотому сундуку", chest: "gold", target: 1, value: function (s) { return s.petSecret; } },
 
     // Завзятість (дні не обов'язково поспіль)
     { id: "days_3", group: "days", icon: "📅", name: "Три дні", desc: "Грай у 3 різні дні", chest: "wood", target: 3, value: function (s) { return s.days; } },

@@ -10,6 +10,7 @@ import { drawShopItemScene, drawShopSkinScene } from "../shop_preview.js";
 import { announceAchievements } from "./achievements.js";
 import { refreshCrystalDisplays, requirementLabel } from "./coins.js";
 import { refreshChestButtons } from "./chests.js";
+import { showPetReveal } from "./pet_reveal.js";
 
 const skinTriggerEl = document.getElementById("skin-selector-trigger");
 const activeSkinCanvas = document.getElementById("active-skin-canvas");
@@ -523,6 +524,8 @@ function buildOwnedPetButton(btn, item, isEquipped) {
         btn.addEventListener("click", function () {
             save.equipPet(item.id, false);
             confirmItemId = null;
+            // «Повна зграя» — п'ять улюбленців одночасно
+            announceAchievements(save.checkAchievements());
             buildShop();
         });
         return;
@@ -555,8 +558,11 @@ function buildShop() {
         const isEquipped = item.type === "skin" ? activeSkin === item.renderType : isPet ? save.isPetEquipped(item.id) : equipped === item.id;
         const card = document.createElement("div");
         card.className = "skin-card shop-card" + (isEquipped ? " active" : "") + (item.legendary ? " legendary" : "") + (isPet ? " pet-card" : "");
+        // Секретного улюбленця до знахідки не видно: чорний силует і «???»
+        const hiddenSecret = isPet && item.secret && !owned;
         if (isPet) {
             card.style.setProperty("--rarity", petRarity(item).color);
+            card.classList.toggle("rarity-rainbow", !!petRarity(item).rainbow);
         }
         const reqProgress = save.getRequirementProgress(item);
 
@@ -577,12 +583,12 @@ function buildShop() {
 
         const name = document.createElement("span");
         name.className = "skin-card-name";
-        name.textContent = (item.legendary ? "⭐ " : "") + item.name;
+        name.textContent = hiddenSecret ? "???" : (item.legendary ? "⭐ " : "") + item.name;
         card.appendChild(name);
         if (isPet) {
             // Рідкість замість ліги, мутація й кожен бонус окремим рядком
             const rarity = document.createElement("span");
-            rarity.className = "pet-rarity";
+            rarity.className = "pet-rarity" + (petRarity(item).rainbow ? " rarity-rainbow" : "");
             rarity.textContent = petRarity(item).name + (item.move === "swim" ? " 💧" : "");
             if (item.move === "swim") {
                 rarity.dataset.tip = "💧 Плаває: у звичайних світах — у водяній бульбашці, у водяних — просто у хвилях";
@@ -595,8 +601,12 @@ function buildShop() {
                 mut.textContent = PET_MUTATIONS[mutationKey].icon + " " + PET_MUTATIONS[mutationKey].name;
                 card.appendChild(mut);
             }
-            for (const line of petPerkLines(item.id, mutationKey)) {
-                addPerkLabel(card, line.text, line.tip);
+            if (hiddenSecret) {
+                addPerkLabel(card, "✨ ??? — дуже сильні бонуси", "Секретного улюбленця не купиш — він лише іноді випадає із золотого сундука");
+            } else {
+                for (const line of petPerkLines(item.id, mutationKey)) {
+                    addPerkLabel(card, line.text, line.tip);
+                }
             }
         }
         // Зброя дає бонус до монет — видно одразу на картці
@@ -660,6 +670,10 @@ function buildShop() {
                     justBought = { id: item.id, start: performance.now() };
                     announceAchievements(save.checkAchievements());
                     refreshChestButtons();
+                    if (item.type === "pet") {
+                        // Новий улюбленець вилітає у вікні «Отримано!»
+                        showPetReveal(item.id, null);
+                    }
                 }
                 renderCurrentSkinIcon();
                 buildShop();
@@ -770,7 +784,8 @@ function drawShopItemLive(entry, now) {
     drawShopItemScene(pctx, entry.item, now, {
         skinType: save.getActiveSkin(),
         accessory: save.getEquipped("accessory"),
-        mutation: entry.item.type === "pet" && entry.owned ? save.getPetMutation(entry.item.id) : null
+        mutation: entry.item.type === "pet" && entry.owned ? save.getPetMutation(entry.item.id) : null,
+        silhouette: !!entry.item.secret && !entry.owned
     });
 }
 

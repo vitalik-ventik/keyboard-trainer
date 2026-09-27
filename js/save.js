@@ -730,7 +730,7 @@ export const save = {
                 return true;
             }
             const it = getShopItem(id);
-            return !!it && !it.legendary && !self.getRequirementProgress(it).met;
+            return !!it && !it.legendary && !it.secret && !self.getRequirementProgress(it).met;
         };
         let result = rollChest(type, unavailable, undefined, itemBonus, heartBonus);
         // Замість монет сундук іноді мутує одного з наявних улюбленців без мутації
@@ -799,6 +799,10 @@ export const save = {
             this.load();
         }
         const req = item && item.requirement;
+        if (item && item.secret) {
+            // Секретний улюбленець не продається — лише випадає із золотого сундука
+            return { met: false, current: 0, target: 1, text: "Лише із золотого сундука" };
+        }
         if (!req) {
             // Дорожчі звичайні товари відкриваються в наступних лігах
             const needLeague = shopTierLeague(item);
@@ -949,6 +953,9 @@ export const save = {
         let weapons = 0;
         let legendary = 0;
         let shopSkins = 0;
+        let petsOwned = 0;
+        let petsMutated = 0;
+        let petSecret = 0;
         for (const id of saveData.shop.owned) {
             const item = getShopItem(id);
             if (!item) {
@@ -959,6 +966,15 @@ export const save = {
             }
             if (item.type === "skin") {
                 shopSkins++;
+            }
+            if (item.type === "pet") {
+                petsOwned++;
+                if (saveData.shop.petMutations[id]) {
+                    petsMutated++;
+                }
+                if (item.secret) {
+                    petSecret++;
+                }
             }
             if (item.legendary) {
                 legendary++;
@@ -985,7 +1001,11 @@ export const save = {
             legendaryOwned: legendary,
             days: st.days,
             explosions: st.explosions,
-            weaponHits: st.weaponHits
+            weaponHits: st.weaponHits,
+            petsOwned: petsOwned,
+            petsEquipped: saveData.shop.pets.length,
+            petsMutated: petsMutated,
+            petSecret: petSecret
         };
     },
 

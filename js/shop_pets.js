@@ -43,7 +43,23 @@ export function petRarityColor(item, time) {
 //   perfect — ширша зона «Ідеально», shield — щит на одну помилку,
 //   consolation — «Утіха»: яка частка монет лишається після вибуху (замість половини)
 export const PET_PERKS = {
+    pet_hamster: { series: 0.15 },
     pet_puppy: { chest: 0.03 },
+    pet_slime: { window: 0.02, slow: 0.02 },
+    pet_bunny: { window: 0.03 },
+    pet_kitten: { item: 0.05, hearts: 0.03 },
+    pet_seal: { series: 0.2, coins: 0.02 },
+    pet_owl: { item: 0.08, words: 0.2 },
+    pet_ghost: { consolation: 0.7, hearts: 0.05 },
+    pet_octopus: { words: 0.3, chest: 0.05 },
+    pet_mini_dragon: { perfect: 0.1, series: 0.3 },
+    pet_ufo: { window: 0.06, slow: 0.04 },
+    pet_drone: { window: 0.08, perfect: 0.15 },
+    pet_bubliko: { coins: 0.06, perfect: 0.12, hearts: 0.05 },
+    pet_tapochkino: { coins: 0.1, window: 0.08, series: 0.3 },
+    pet_phoenix: { shield: true, consolation: 0.75 },
+    pet_klaviatoro: { coins: 0.1, words: 0.4, consolation: 0.75 },
+    pet_borshchelino: { coins: 0.12, chest: 0.1, item: 0.1, shield: true },
     pet_capybara: { consolation: 0.6 },
     pet_duck: { slow: 0.02 },
     pet_llama: { coins: 0.03 },
@@ -126,6 +142,9 @@ export const PET_MUTATION_KEYS = Object.keys(PET_MUTATIONS);
 
 // Шанс, що новий улюбленець випаде із сундука вже мутованим
 export const PET_MUTATION_CHANCE = 0.12;
+
+// Шанс секретного улюбленця в золотому сундуку (поки його ще немає)
+export const SECRET_PET_CHANCE = 0.02;
 
 // Шанс, що сундук замість монет мутує одного з уже наявних улюбленців без мутації
 export const PET_MUTATE_OWNED_CHANCE = { wood: 0.04, silver: 0.08, gold: 0.15 };

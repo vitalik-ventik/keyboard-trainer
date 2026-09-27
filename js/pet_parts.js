@@ -179,3 +179,24 @@ export function wagAngle(t, mood) {
     }
     return Math.sin(t * (mood === "happy" || mood === "combo" ? 0.03 : 0.012)) * 0.45;
 }
+
+// Настрій для очей: радість і смуток змінюють погляд, решта — звичайні очі
+export function eyeMood(o) {
+    return o.mood === "happy" || o.mood === "sad" ? o.mood : null;
+}
+
+// Пухнаста «хмарка» з кружечків: спершу спільний контур, потім заливка без внутрішніх ліній
+export function fluffCluster(ctx, circles, fill, s) {
+    ctx.fillStyle = PET_OUTLINE;
+    for (const c of circles) {
+        ctx.beginPath();
+        ctx.arc(c[0], c[1], c[2] + petLine(s) * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.fillStyle = fill;
+    for (const c of circles) {
+        ctx.beginPath();
+        ctx.arc(c[0], c[1], c[2], 0, Math.PI * 2);
+        ctx.fill();
+    }
+}

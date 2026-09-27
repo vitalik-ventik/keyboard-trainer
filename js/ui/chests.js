@@ -208,6 +208,7 @@ btnChestEquip.addEventListener("click", function () {
             save.equipItem(result.id);
         }
         chestView.equipped = true;
+        announceAchievements(save.checkAchievements());
         renderCurrentSkinIcon();
         setChestButtons("reveal");
     }

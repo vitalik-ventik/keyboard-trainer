@@ -97,8 +97,8 @@ function drawPetScene(pctx, item, now, opts) {
     pctx.restore();
     const size = 50;
     const happyT = ph >= 350 && ph < 1150 ? (ph - 350) / 800 : 0;
-    const swims = item.move === "swim";
-    const lift = (swims ? size * 0.3 : 0) + (happyT > 0 ? Math.sin(happyT * Math.PI) * 18 : 0);
+    const base = item.move === "swim" ? size * 0.3 : item.move === "fly" ? size * 0.55 : 0;
+    const lift = base + (happyT > 0 ? Math.sin(happyT * Math.PI) * 10 : 0);
     const x = 58;
     drawPetAura(pctx, item.id, x, groundY - 1, size, now);
     pctx.save();
@@ -108,7 +108,8 @@ function drawPetScene(pctx, item, now, opts) {
         moving: now > 0,
         happyT: happyT,
         mutation: opts.mutation || null,
-        water: false
+        water: false,
+        silhouette: !!opts.silhouette
     });
     pctx.restore();
     // Значок мутації в кутку
@@ -126,7 +127,8 @@ function drawPetScene(pctx, item, now, opts) {
 }
 
 // Жива сценка товару 150×100 (полотно вже масштабоване під dpr).
-// opts: { skinType — скін кубика, accessory — одягнутий аксесуар, mutation — мутація улюбленця }
+// opts: { skinType — скін кубика, accessory — одягнутий аксесуар, mutation — мутація улюбленця,
+//         silhouette — показати улюбленця чорним силуетом (секретний, ще не знайдений) }
 export function drawShopItemScene(pctx, item, now, opts) {
     if (item.type === "pet") {
         drawPetScene(pctx, item, now, opts);

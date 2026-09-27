@@ -41,9 +41,10 @@ function mutationFill(c, mutation, box, time) {
     return grad;
 }
 
-// Малює улюбленця через окреме полотно й перефарбовує лише його пікселі
+// Малює улюбленця через окреме полотно й перефарбовує лише його пікселі:
+// mutationKey — мутація, null — чорний силует (секретний улюбленець, якого ще не знайдено)
 function drawMutated(ctx, fn, size, time, o, mutationKey) {
-    const mutation = PET_MUTATIONS[mutationKey];
+    const mutation = mutationKey ? PET_MUTATIONS[mutationKey] : { alpha: 1, tint: "#05060d" };
     const m = ctx.getTransform();
     const scale = Math.max(0.5, Math.hypot(m.a, m.b));
     const box = size * 2.4;
@@ -233,7 +234,8 @@ function drawWaterline(ctx, size, time) {
 }
 
 // Улюбленець із центром у (0, 0), лапи на y = size / 2.
-// opts: { mood, moving, happyT, mutation, water — світ із водою (плавучим бульбашка не потрібна) }
+// opts: { mood, moving, happyT, mutation, water — світ із водою (плавучим бульбашка не потрібна),
+//         silhouette — чорний силует (ще не знайдений секретний улюбленець) }
 export function drawPet(ctx, id, size, time, opts) {
     const fn = PET_RENDERERS[id];
     if (!fn) {
@@ -244,12 +246,22 @@ export function drawPet(ctx, id, size, time, opts) {
     const swims = !!item && item.move === "swim";
     const bubble = swims && !o.water;
     ctx.save();
-    if (swims && time) {
+    if ((swims || (item && item.move === "fly")) && time) {
         ctx.translate(0, Math.sin(time * 0.004) * size * 0.05);
     }
     if (bubble) {
         drawBubbleBack(ctx, size);
         ctx.scale(0.8, 0.8);
+    }
+    if (o.silhouette) {
+        drawMutated(ctx, fn, size, time, o, null);
+        ctx.font = "900 " + Math.round(size * 0.5) + "px 'Segoe UI', Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#9cffe8";
+        ctx.fillText("?", 0, 0);
+        ctx.restore();
+        return;
     }
     if (o.mutation && PET_MUTATIONS[o.mutation]) {
         drawMutated(ctx, fn, size, time, o, o.mutation);

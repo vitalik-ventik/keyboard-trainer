@@ -4,7 +4,7 @@
 // ============================================================
 
 import { drawPet, drawPetAura, getShopItem, isWaterTheme } from "./shop.js";
-import { CUBE_SIZE } from "./game_constants.js";
+import { CUBE_SIZE, SPIKE_H } from "./game_constants.js";
 import { save } from "./save.js";
 
 // Розмір улюбленця й відстані в зграї (у пікселях траси)
@@ -31,6 +31,7 @@ class EnginePets {
                 id: list[i].id,
                 mutation: list[i].mutation,
                 swims: item.move === "swim",
+                flies: item.move === "fly",
                 offset: PET_FIRST_OFFSET + this.pets.length * PET_GAP,
                 y: 0,
                 happy: 0
@@ -79,7 +80,8 @@ class EnginePets {
         }
         for (const pet of this.pets) {
             if (this.player.alive) {
-                pet.y = this.petPathHeight(this.player.x - pet.offset);
+                // Летючі й так над шипами — стрибки кубика повторюють лише наполовину
+                pet.y = this.petPathHeight(this.player.x - pet.offset) * (pet.flies ? 0.5 : 1);
             } else {
                 // Після вибуху улюбленці опускаються на землю й сумують
                 pet.y = Math.max(0, pet.y - 320 * dt);
@@ -125,8 +127,12 @@ class EnginePets {
             const mood = this.petMood(pet);
             const happyT = mood === "happy" ? 1 - pet.happy / PET_HAPPY_TIME : 0;
             const x = anchorX - pet.offset;
-            // Плавучі тримаються трохи над землею (у бульбашці чи на хвилі)
+            // Плавучі тримаються трохи над землею (у бульбашці чи на хвилі),
+            // летючі — вище за шипи й трохи гойдаються
             let lift = pet.swims ? PET_SIZE * (this.petWater ? 0.15 : 0.35) : 0;
+            if (pet.flies) {
+                lift = this.player.alive ? SPIKE_H * 0.85 + Math.sin(time * 0.004 + i) * PET_SIZE * 0.12 : PET_SIZE * 0.2;
+            }
             if (happyT > 0) {
                 lift += Math.sin(happyT * Math.PI) * PET_SIZE * 0.6;
             }

@@ -1935,3 +1935,67 @@ body {
     border-color: rgb(57, 255, 136);
     box-shadow: 0 0 0.6vmin rgb(57, 255, 136), 0 0 2.4vmin rgba(57, 255, 136, 0.6);
 }
+
+/* Рідкість «Брейнрот»: рамка й підпис переливаються веселкою */
+@keyframes rarity-rainbow-border {
+    0% { border-color: #ff4a7a; box-shadow: 0 0 1.2vmin #ff4a7a; }
+    25% { border-color: #ffe14d; box-shadow: 0 0 1.2vmin #ffe14d; }
+    50% { border-color: #7dff8a; box-shadow: 0 0 1.2vmin #7dff8a; }
+    75% { border-color: #39c6ff; box-shadow: 0 0 1.2vmin #39c6ff; }
+    100% { border-color: #ff4a7a; box-shadow: 0 0 1.2vmin #ff4a7a; }
+}
+
+.shop-card.pet-card.rarity-rainbow {
+    animation: rarity-rainbow-border 3s linear infinite;
+}
+
+.pet-rarity.rarity-rainbow,
+.pet-reveal-rarity.rarity-rainbow {
+    background: linear-gradient(90deg, #ff4a7a, #ffe14d, #7dff8a, #39c6ff, #d68bff, #ff4a7a);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+    text-shadow: none;
+    animation: rarity-text-shift 2s linear infinite;
+}
+
+@keyframes rarity-text-shift {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+/* ---------- Вікно «Отримано!» ---------- */
+
+.pet-reveal {
+    z-index: 40;
+}
+
+.pet-reveal-box {
+    align-items: center;
+    gap: 1vmin;
+    padding: 3vmin 4vmin;
+    border-color: var(--rarity, #00f6ff);
+    box-shadow: 0 0 3vmin var(--rarity, #00f6ff);
+}
+
+.pet-reveal-box canvas {
+    display: block;
+    border-radius: 12px;
+    background: radial-gradient(ellipse at 50% 55%, rgba(60, 40, 110, 0.95), rgba(5, 6, 15, 0.95));
+}
+
+.pet-reveal-name {
+    margin: 0;
+    font-size: 3.4vmin;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 1vmin var(--rarity, #00f6ff);
+}
+
+.pet-reveal-rarity {
+    margin: 0;
+    font-size: 2vmin;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+}

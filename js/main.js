@@ -17,6 +17,7 @@ import { closeShop, renderCurrentSkinIcon, shopModalEl, skinsModalEl } from "./u
 import { achModalEl, announceAchievements, closeAchievements, noteRunForAchievements, refreshAchievementBadge } from "./ui/achievements.js";
 import { refreshCrystalDisplays, renderRewardBreakdown, showRetroNotice } from "./ui/coins.js";
 import { chestModalEl, chestPrimaryAction, closeChestModal, refreshChestButtons } from "./ui/chests.js";
+import { closePetReveal, isPetRevealOpen } from "./ui/pet_reveal.js";
 
 // ---------- Полотно та адаптивність ----------
 
@@ -727,6 +728,10 @@ initKeyboardInput(
 );
 
 function confirmResultScreen() {
+    if (isPetRevealOpen()) {
+        closePetReveal();
+        return;
+    }
     if (!chestModalEl.classList.contains("hidden")) {
         chestPrimaryAction();
         return;
@@ -812,6 +817,10 @@ document.getElementById("btnReviveNo").addEventListener("click", declineRevive);
 function handleEscape() {
     if (isReviveOpen()) {
         declineRevive();
+        return;
+    }
+    if (isPetRevealOpen()) {
+        closePetReveal();
         return;
     }
     if (!chestModalEl.classList.contains("hidden")) {
