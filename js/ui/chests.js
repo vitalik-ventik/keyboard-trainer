@@ -165,6 +165,9 @@ function showChestResult() {
             text = "Мутація! " + item.name + " тепер " + mutation.name.toLowerCase() + "!";
         } else if (item.type === "pet" && item.secret) {
             text = "🔮 СЕКРЕТНИЙ улюбленець: " + item.name + "!";
+            if (result.fusion) {
+                text += " 🏆 А ще — " + getShopItem(result.fusion).name + "!";
+            }
         } else if (item.type === "pet") {
             text = "Новий улюбленець: " + item.name + "!";
         }
@@ -177,6 +180,9 @@ function showChestResult() {
         if (result.kind === "item" && item.type === "pet" && item.secret) {
             // Секретний — велика подія: вікно «Отримано!» поверх сундука
             showPetReveal(result.id, result.mutation || null);
+            if (result.fusion) {
+                showPetReveal(result.fusion, null);
+            }
         } else {
             playSound("chest_item");
         }

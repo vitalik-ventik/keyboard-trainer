@@ -2,10 +2,10 @@
 // pet_renderers_10.js — малювальники улюбленців, частина 10: секретні улюбленці світів —
 // Лицар Беконіно, Пінгвіно Сноубордіно, Медузоні Тріоко, Кактусоні Мачете,
 // Острівоні Черепахоні, Чорнодіро Вакуумоні, Ангело Гусоні, Демоніно Лавіні
-// (збираються в PET_RENDERERS у pet_renderers.js)
+// та ультра-секретний Мега Брейнроті Фьюжн (збираються в PET_RENDERERS у pet_renderers.js)
 // ============================================================
 
-import { PET_OUTLINE, angryBrow, breathe, coolMood, eyeMood, fillEllipse, fillPoly, fillRoundRect, petEye, petLeg, petLimb, petLine, petMouth, runPhase, sneakerLegs } from "./pet_parts.js";
+import { PET_OUTLINE, angryBrow, breathe, coolMood, eyeMood, fillEllipse, fillPoly, fillRoundRect, petEye, petLeg, petLimb, petLine, petMouth, petSneaker, runPhase, sneakerLegs } from "./pet_parts.js";
 
 // ---------- Лицар Беконіно: смужка бекону в обладунках (Лицарський замок) ----------
 
@@ -580,6 +580,98 @@ function drawDemonino(ctx, s, t, o) {
     ctx.restore();
 }
 
+// ---------- Мега Брейнроті Фьюжн: гібрид усіх брейнротів (нагорода за всіх секретних) ----------
+
+function drawFusion(ctx, s, t, o) {
+    const b = breathe(t, s) * 2;
+    const hue = t ? (t * 0.15) % 360 : 200;
+    // Райдужний слід з іскор позаду
+    if (t) {
+        for (let i = 0; i < 6; i++) {
+            const k = ((t * 0.0015 + i / 6) % 1);
+            ctx.save();
+            ctx.globalAlpha = 1 - k;
+            fillEllipse(ctx, -s * (0.44 + k * 0.3), -s * 0.02 + b + Math.sin(k * 8 + i) * s * 0.06, s * 0.03 * (1 - k * 0.5), s * 0.03 * (1 - k * 0.5), "hsl(" + Math.round((hue + i * 60) % 360) + ", 95%, 62%)");
+            ctx.restore();
+        }
+    }
+    // Дальнє крило бомбардувальника
+    fillPoly(ctx, [[-s * 0.08, -s * 0.06 + b], [-s * 0.28, -s * 0.28 + b], [-s * 0.14, -s * 0.28 + b], [s * 0.08, -s * 0.06 + b]], "#8a96a8", s);
+    // Три лапи в кросівках теліпаються
+    const ph = t ? t * 0.02 : 0;
+    for (let i = 0; i < 3; i++) {
+        const lx = -s * 0.16 + i * s * 0.14;
+        const swing = Math.sin(ph + i * 2.1) * s * 0.04;
+        petLimb(ctx, lx, s * 0.1 + b, lx + swing, s * 0.26 + b, s * 0.045, "#4f9a3a", s);
+        petSneaker(ctx, lx + swing, s * 0.36 + b, s * 0.14, "hsl(" + Math.round((hue + i * 120) % 360) + ", 90%, 55%)", s, 0);
+    }
+    // Хвостовий плавець акули
+    ctx.save();
+    ctx.translate(-s * 0.36, b);
+    ctx.rotate(t ? Math.sin(t * 0.014) * 0.25 : 0);
+    fillPoly(ctx, [[0, 0], [-s * 0.16, -s * 0.18], [-s * 0.1, 0], [-s * 0.16, s * 0.12]], "#6c8fb0", s);
+    ctx.restore();
+    // Тіло: акула з крокодилячою спиною й райдужною смугою
+    fillEllipse(ctx, 0, b, s * 0.4, s * 0.17, "#6c8fb0", s);
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(0, b, s * 0.39, s * 0.16, 0, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.fillStyle = "#4f9a3a";
+    ctx.fillRect(-s * 0.42, -s * 0.2 + b, s * 0.84, s * 0.1);
+    ctx.fillStyle = "#2f6a24";
+    for (let i = 0; i < 6; i++) {
+        fillEllipse(ctx, -s * 0.3 + i * s * 0.1, -s * 0.12 + b, s * 0.03, s * 0.02, "#2f6a24");
+    }
+    const grad = ctx.createLinearGradient(-s * 0.4, 0, s * 0.4, 0);
+    for (let i = 0; i <= 6; i++) {
+        grad.addColorStop(i / 6, "hsl(" + Math.round((hue + i * 60) % 360) + ", 95%, 60%)");
+    }
+    ctx.fillStyle = grad;
+    ctx.fillRect(-s * 0.42, -s * 0.05 + b, s * 0.84, s * 0.035);
+    ctx.restore();
+    fillEllipse(ctx, s * 0.06, s * 0.08 + b, s * 0.3, s * 0.07, "#eef4fb");
+    // Зубаста усмішка
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.moveTo(s * 0.14, s * 0.04 + b);
+    ctx.quadraticCurveTo(s * 0.28, s * 0.13 + b, s * 0.4, s * 0.02 + b);
+    ctx.closePath();
+    ctx.fill();
+    ctx.lineWidth = petLine(s) * 0.7;
+    ctx.strokeStyle = PET_OUTLINE;
+    ctx.stroke();
+    ctx.beginPath();
+    for (let i = 0; i < 5; i++) {
+        const tx = s * (0.17 + i * 0.045);
+        ctx.moveTo(tx, s * 0.04 + b);
+        ctx.lineTo(tx + s * 0.02, s * 0.075 + b);
+    }
+    ctx.stroke();
+    // Око з сердитою бровою
+    petEye(ctx, s * 0.24, -s * 0.05 + b, s * 0.065, t, eyeMood(o), 99);
+    if (coolMood(o)) {
+        angryBrow(ctx, s * 0.24, -s * 0.05 + b, s * 0.065, s);
+    }
+    // Золотий ланцюг
+    for (let i = 0; i < 5; i++) {
+        const a = Math.PI * (0.2 + i * 0.15);
+        fillEllipse(ctx, s * 0.06 + Math.cos(a) * s * 0.1, s * 0.02 + b + Math.sin(a) * s * 0.1, s * 0.03, s * 0.022, "#ffcc33", s * 0.4);
+    }
+    // Ближнє крило з двигуном і пропелером
+    fillPoly(ctx, [[-s * 0.12, s * 0.0 + b], [-s * 0.32, s * 0.18 + b], [-s * 0.16, s * 0.18 + b], [s * 0.08, s * 0.02 + b]], "#a8b4c4", s);
+    fillRoundRect(ctx, -s * 0.12, s * 0.07 + b, s * 0.14, s * 0.07, s * 0.035, "#5a6478", s * 0.8);
+    const k = t ? Math.abs(Math.sin(t * 0.08)) : 0.8;
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    fillEllipse(ctx, s * 0.03, s * 0.105 + b, s * 0.02, s * (0.04 + k * 0.08), "#dfe6f0");
+    ctx.restore();
+    // Корона короля брейнротів
+    const cy = -s * 0.2 + b;
+    fillPoly(ctx, [[-s * 0.02, cy], [-s * 0.02, cy - s * 0.12], [s * 0.04, cy - s * 0.06], [s * 0.1, cy - s * 0.15], [s * 0.16, cy - s * 0.06], [s * 0.22, cy - s * 0.12], [s * 0.22, cy]], "#ffcc33", s * 0.8);
+    fillEllipse(ctx, s * 0.1, cy - s * 0.04, s * 0.025, s * 0.025, "hsl(" + Math.round(hue) + ", 95%, 60%)");
+}
+
 export const PET_RENDERERS_10 = {
     pet_bekonino: drawBekonino,
     pet_pingvino_snow: drawPingvinoSnow,
@@ -588,5 +680,6 @@ export const PET_RENDERERS_10 = {
     pet_ostrivoni: drawOstrivoni,
     pet_chornodiro: drawChornodiro,
     pet_angelo_gusoni: drawAngeloGusoni,
-    pet_demonino: drawDemonino
+    pet_demonino: drawDemonino,
+    pet_fusion: drawFusion
 };

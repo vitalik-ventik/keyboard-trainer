@@ -21,6 +21,8 @@ const CONFETTI_COLORS = ["#ff4a7a", "#ffe14d", "#39c6ff", "#7dff8a", "#d68bff", 
 
 let reveal = null;
 let revealAnimating = false;
+// Черга улюбленців, які чекають свого «Отримано!» (наприклад, ультра-секретний після останнього секретного)
+const revealQueue = [];
 
 function makeConfetti() {
     const pieces = [];
@@ -125,6 +127,10 @@ function showPetReveal(petId, mutation) {
     if (!item || !revealEl) {
         return;
     }
+    if (isPetRevealOpen()) {
+        revealQueue.push({ id: petId, mutation: mutation || null });
+        return;
+    }
     const dpr = window.devicePixelRatio || 1;
     revealCanvas.width = Math.round(REVEAL_W * dpr);
     revealCanvas.height = Math.round(REVEAL_H * dpr);
@@ -150,6 +156,10 @@ function showPetReveal(petId, mutation) {
 function closePetReveal() {
     revealEl.classList.add("hidden");
     reveal = null;
+    const next = revealQueue.shift();
+    if (next) {
+        showPetReveal(next.id, next.mutation);
+    }
 }
 
 function isPetRevealOpen() {

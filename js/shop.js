@@ -210,7 +210,9 @@ export const SHOP_ITEMS = [
     { id: "pet_ostrivoni", type: "pet", name: "Острівоні Черепахоні", price: 8000, rarity: "secret", move: "fly", secret: "world", world: "pixel_islands" },
     { id: "pet_chornodiro", type: "pet", name: "Чорнодіро Вакуумоні", price: 8000, rarity: "secret", move: "fly", secret: "world", world: "black_hole" },
     { id: "pet_angelo_gusoni", type: "pet", name: "Ангело Гусоні", price: 8000, rarity: "secret", move: "fly", secret: "world", world: "sky_citadel" },
-    { id: "pet_demonino", type: "pet", name: "Демоніно Лавіні", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "pixel_nether" }
+    { id: "pet_demonino", type: "pet", name: "Демоніно Лавіні", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "pixel_nether" },
+    // Ультра-секретний: з'являється сам, коли зібрано всіх інших секретних
+    { id: "pet_fusion", type: "pet", name: "Мега Брейнроті Фьюжн", price: 50000, rarity: "ultra", move: "fly", secret: "fusion" }
 ];
 
 export const SHOP_TYPES = [
