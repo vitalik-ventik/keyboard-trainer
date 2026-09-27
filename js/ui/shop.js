@@ -785,7 +785,8 @@ function drawShopItemLive(entry, now) {
         skinType: save.getActiveSkin(),
         accessory: save.getEquipped("accessory"),
         mutation: entry.item.type === "pet" && entry.owned ? save.getPetMutation(entry.item.id) : null,
-        silhouette: !!entry.item.secret && !entry.owned
+        silhouette: !!entry.item.secret && !entry.owned,
+        weapon: save.getEquipped("weapon")
     });
 }
 
@@ -796,7 +797,7 @@ function drawPetSlotPreview(entry, now) {
     pctx.clearRect(0, 0, 56, 56);
     pctx.save();
     pctx.translate(28, 30);
-    drawPet(pctx, entry.id, 34, now, { moving: false, mutation: entry.mutation });
+    drawPet(pctx, entry.id, 34, now, { moving: false, mutation: entry.mutation, weapon: save.getEquipped("weapon") });
     pctx.restore();
 }
 

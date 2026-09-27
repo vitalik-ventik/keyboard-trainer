@@ -1,6 +1,7 @@
 // ============================================================
 // engine_pets.js — методи Engine для улюбленців (підключаються в engine.js):
-// зграя біжить за кубиком, повторюючи його шлях, радіє «Ідеально», сумує після вибуху
+// зграя біжить за кубиком, повторюючи його шлях, радіє «Ідеально» й ударам зброї,
+// сумує після вибуху; спорядження під зброю малює pet_gear.js
 // ============================================================
 
 import { drawPet, drawPetAura, getShopItem, isWaterTheme } from "./shop.js";
@@ -90,7 +91,7 @@ class EnginePets {
         }
     }
 
-    // «Ідеально»: улюбленці по черзі підстрибують від радості
+    // «Ідеально» або удар зброєю: улюбленці по черзі підстрибують від радості
     cheerPets() {
         if (!this.pets) {
             return;
@@ -145,7 +146,8 @@ class EnginePets {
                 moving: this.player.alive,
                 happyT: happyT,
                 mutation: pet.mutation,
-                water: this.petWater
+                water: this.petWater,
+                weapon: this.weaponSpec ? this.weaponId : null
             });
             ctx.restore();
         }

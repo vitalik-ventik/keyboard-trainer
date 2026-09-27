@@ -8,6 +8,7 @@ import { getShopItem } from "./shop.js";
 import { PET_MUTATIONS, petRarityColor } from "./shop_pets.js";
 import { PET_RENDERERS } from "./pet_renderers.js";
 import { PET_OUTLINE } from "./pet_parts.js";
+import { drawPetGearBack, drawPetGearFront, gearLift, petGear } from "./pet_gear.js";
 
 // Одне спільне полотно для мутацій: улюбленці малюються по черзі, тож його вистачає
 let mutationCanvas = null;
@@ -235,7 +236,8 @@ function drawWaterline(ctx, size, time) {
 
 // Улюбленець із центром у (0, 0), лапи на y = size / 2.
 // opts: { mood, moving, happyT, mutation, water — світ із водою (плавучим бульбашка не потрібна),
-//         silhouette — чорний силует (ще не знайдений секретний улюбленець) }
+//         silhouette — чорний силует (ще не знайдений секретний улюбленець),
+//         weapon — зброя кубика: улюбленець вдягає спорядження під неї (pet_gear.js) }
 export function drawPet(ctx, id, size, time, opts) {
     const fn = PET_RENDERERS[id];
     if (!fn) {
@@ -245,14 +247,20 @@ export function drawPet(ctx, id, size, time, opts) {
     const item = getShopItem(id);
     const swims = !!item && item.move === "swim";
     const bubble = swims && !o.water;
+    const flies = !!item && item.move === "fly";
+    const gear = o.silhouette ? null : petGear(o.weapon);
     ctx.save();
-    if ((swims || (item && item.move === "fly")) && time) {
+    if (gear) {
+        ctx.translate(0, -gearLift(gear, size, time));
+    }
+    if ((swims || flies) && time) {
         ctx.translate(0, Math.sin(time * 0.004) * size * 0.05);
     }
     if (bubble) {
         drawBubbleBack(ctx, size);
         ctx.scale(0.8, 0.8);
     }
+    drawPetGearBack(ctx, id, gear, size, time);
     if (o.silhouette) {
         drawMutated(ctx, fn, size, time, o, null);
         ctx.font = "900 " + Math.round(size * 0.5) + "px 'Segoe UI', Arial";
@@ -268,6 +276,7 @@ export function drawPet(ctx, id, size, time, opts) {
     } else {
         fn(ctx, size, time, o);
     }
+    drawPetGearFront(ctx, id, gear, size, time, flies);
     if (bubble) {
         ctx.scale(1.25, 1.25);
         drawBubbleFront(ctx, size, time);

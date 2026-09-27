@@ -4,6 +4,7 @@
 // ============================================================
 
 import { playSound } from "../assets.js";
+import { save } from "../engine.js";
 import { PET_MUTATIONS, drawPet, getShopItem, petRarity, petRarityColor } from "../shop.js";
 
 const revealEl = document.getElementById("pet-reveal");
@@ -87,7 +88,8 @@ function drawReveal(now) {
         mood: k >= 1 ? "happy" : null,
         moving: false,
         happyT: k >= 1 ? ((t - REVEAL_IN_MS) % 1600) / 1600 : 0,
-        mutation: reveal.mutation
+        mutation: reveal.mutation,
+        weapon: save.getEquipped("weapon")
     });
     c.restore();
     // Конфеті

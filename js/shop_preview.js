@@ -109,7 +109,8 @@ function drawPetScene(pctx, item, now, opts) {
         happyT: happyT,
         mutation: opts.mutation || null,
         water: false,
-        silhouette: !!opts.silhouette
+        silhouette: !!opts.silhouette,
+        weapon: opts.weapon || null
     });
     pctx.restore();
     // Значок мутації в кутку
@@ -128,7 +129,8 @@ function drawPetScene(pctx, item, now, opts) {
 
 // Жива сценка товару 150×100 (полотно вже масштабоване під dpr).
 // opts: { skinType — скін кубика, accessory — одягнутий аксесуар, mutation — мутація улюбленця,
-//         silhouette — показати улюбленця чорним силуетом (секретний, ще не знайдений) }
+//         silhouette — показати улюбленця чорним силуетом (секретний, ще не знайдений),
+//         weapon — зброя кубика (улюбленець у спорядженні під неї) }
 export function drawShopItemScene(pctx, item, now, opts) {
     if (item.type === "pet") {
         drawPetScene(pctx, item, now, opts);

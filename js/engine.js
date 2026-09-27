@@ -360,8 +360,11 @@ export class Engine {
                 crystal: true
             });
         }
-        if (perfect) {
+        // Улюбленці радіють «Ідеально» й кожному шипу, розбитому зброєю
+        if (perfect || this.weaponSpec) {
             this.cheerPets();
+        }
+        if (perfect) {
             this.combo++;
             if (this.combo > this.runMaxCombo) {
                 this.runMaxCombo = this.combo;
