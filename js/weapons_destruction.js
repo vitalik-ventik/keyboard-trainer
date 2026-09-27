@@ -7,7 +7,8 @@ import { DESTRUCTION_TIME, GRAVITY_LIFT, GRAVITY_LIFT_RATIO, SABER_FX_COLORS, cl
 
 // ---------- Руйнування шипа ----------
 
-// Кругла півплощина для відсікання: усе з одного боку прямої (x1,y1)-(x2,y2)
+// Півплощина для відсікання: усе з одного боку прямої (x1,y1)-(x2,y2).
+// Для прямої, що йде зліва направо, side = 1 — половина під нею, side = -1 — над нею
 function clipHalfPlane(ctx, x1, y1, x2, y2, side) {
     const dx = x2 - x1;
     const dy = y2 - y1;
@@ -40,17 +41,19 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape,
         const y2 = groundY - h * 0.7;
         const fade = 1 - clamp01((t - 0.35) / 0.4);
         ctx.globalAlpha = fade;
+        // Кожен шматок спершу зсувається, а потім відсікається у своїх координатах:
+        // так він несе з собою саме свою частину шипа, а не весь шип
         ctx.save();
-        clipHalfPlane(ctx, x1, y1, x2, y2, -1);
         ctx.translate(0, t * t * 30);
+        clipHalfPlane(ctx, x1, y1, x2, y2, 1);
         drawShape(ctx);
         ctx.restore();
         ctx.save();
-        clipHalfPlane(ctx, x1, y1, x2, y2, 1);
         ctx.translate(t * 70, -t * 40 + t * t * 260);
         ctx.translate(x, groundY - h * 0.6);
         ctx.rotate(t * 2.2);
         ctx.translate(-x, -(groundY - h * 0.6));
+        clipHalfPlane(ctx, x1, y1, x2, y2, -1);
         drawShape(ctx);
         ctx.restore();
         ctx.globalAlpha = 1;
@@ -69,22 +72,24 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape,
         const ang = Math.min(1.5, t * t * 5);
         const fade = 1 - clamp01((t - 0.45) / 0.35);
         ctx.globalAlpha = fade;
+        // Половинка спершу повертається навколо свого нижнього кута, а потім
+        // відсікається у своїх координатах — так падає саме ця половина шипа
         ctx.save();
-        ctx.beginPath();
-        ctx.rect(x - 200, groundY - 300, 200, 320);
-        ctx.clip();
         ctx.translate(x - hw, groundY);
         ctx.rotate(-ang);
         ctx.translate(-(x - hw) - t * 10, -groundY);
+        ctx.beginPath();
+        ctx.rect(x - 200, groundY - 300, 200, 320);
+        ctx.clip();
         drawShape(ctx);
         ctx.restore();
         ctx.save();
-        ctx.beginPath();
-        ctx.rect(x, groundY - 300, 200, 320);
-        ctx.clip();
         ctx.translate(x + hw, groundY);
         ctx.rotate(ang);
         ctx.translate(-(x + hw) + t * 10, -groundY);
+        ctx.beginPath();
+        ctx.rect(x, groundY - 300, 200, 320);
+        ctx.clip();
         drawShape(ctx);
         ctx.restore();
         ctx.globalAlpha = 1;
@@ -301,16 +306,16 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape,
         const fade = 1 - clamp01((t - 0.45) / 0.45);
         ctx.globalAlpha = fade;
         ctx.save();
-        clipHalfPlane(ctx, x1, y1, x2, y2, -1);
         ctx.translate(0, t * t * 30);
+        clipHalfPlane(ctx, x1, y1, x2, y2, 1);
         drawShape(ctx);
         ctx.restore();
         ctx.save();
-        clipHalfPlane(ctx, x1, y1, x2, y2, 1);
         ctx.translate(t * 80, -t * 50 + t * t * 260);
         ctx.translate(x, groundY - h * 0.6);
         ctx.rotate(t * 2.4);
         ctx.translate(-x, -(groundY - h * 0.6));
+        clipHalfPlane(ctx, x1, y1, x2, y2, -1);
         drawShape(ctx);
         ctx.restore();
         // Розжарений край на нижній половині поступово згасає
@@ -373,9 +378,7 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape,
         for (let part = 0; part < 2; part++) {
             const b = bands[part];
             ctx.save();
-            ctx.beginPath();
-            ctx.rect(x - hw - 40, groundY - h * b[0], hw * 2 + 80, h * (b[0] - b[1]));
-            ctx.clip();
+            // Відрізаний шматок спершу летить, а потім відсікається у своїх координатах
             if (part === 0) {
                 const cy = groundY - h * (b[0] + b[1]) / 2;
                 ctx.translate(t * 60, -t * 60 + t * t * 320);
@@ -383,6 +386,9 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape,
                 ctx.rotate(t * 3);
                 ctx.translate(-x, -cy);
             }
+            ctx.beginPath();
+            ctx.rect(x - hw - 40, groundY - h * b[0], hw * 2 + 80, h * (b[0] - b[1]));
+            ctx.clip();
             drawShape(ctx);
             ctx.restore();
         }
@@ -407,16 +413,16 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape,
         const fade = 1 - clamp01((t - 0.45) / 0.45);
         ctx.globalAlpha = fade;
         ctx.save();
-        clipHalfPlane(ctx, x1, y1, x2, y2, -1);
         ctx.translate(0, t * t * 30);
+        clipHalfPlane(ctx, x1, y1, x2, y2, 1);
         drawShape(ctx);
         ctx.restore();
         ctx.save();
-        clipHalfPlane(ctx, x1, y1, x2, y2, 1);
         ctx.translate(t * 80, -t * 50 + t * t * 260);
         ctx.translate(x, groundY - h * 0.6);
         ctx.rotate(t * 2.6);
         ctx.translate(-x, -(groundY - h * 0.6));
+        clipHalfPlane(ctx, x1, y1, x2, y2, -1);
         drawShape(ctx);
         drawFlameTongue(ctx, x, groundY - h * 0.5, h * 0.5, t * 1000);
         ctx.restore();

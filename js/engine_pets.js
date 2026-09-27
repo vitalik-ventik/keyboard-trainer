@@ -8,10 +8,11 @@ import { drawPet, drawPetAura, getShopItem, isWaterTheme } from "./shop.js";
 import { CUBE_SIZE, SPIKE_H } from "./game_constants.js";
 import { save } from "./save.js";
 
-// Розмір улюбленця й відстані в зграї (у пікселях траси)
-const PET_SIZE = CUBE_SIZE * 0.62;
-const PET_FIRST_OFFSET = CUBE_SIZE * 1.3;
-const PET_GAP = PET_SIZE * 1.3;
+// Розмір улюбленця й відстані в зграї (у пікселях траси):
+// улюбленці помітно менші за кубик, як в інших іграх
+const PET_SIZE = CUBE_SIZE * 0.45;
+const PET_FIRST_OFFSET = CUBE_SIZE * 1.1;
+const PET_GAP = PET_SIZE * 1.4;
 // Скільки триває радість після «Ідеально» (с) і на скільки пізніше радіє кожен наступний
 const PET_HAPPY_TIME = 0.8;
 const PET_HAPPY_STAGGER = 0.12;
