@@ -4,7 +4,7 @@
 
 import { basePrice } from "./shop_rewards.js";
 import { SHOP_ITEMS } from "./shop.js";
-import { SECRET_PET_CHANCE, petRarity } from "./shop_pets.js";
+import { SECRET_PET_CHANCE, SECRET_PITY_MAX, SECRET_PITY_STEP, SECRET_WORLD_CHANCE, petRarity } from "./shop_pets.js";
 
 // ---------- Сундуки ----------
 
@@ -108,13 +108,6 @@ export function chestItemPool(type, isOwned) {
 export function rollChest(type, isOwned, random, itemBonus, heartBonus) {
     const rnd = random || Math.random;
     const chest = CHEST_TYPES[type] || CHEST_TYPES.wood;
-    // Секретний улюбленець — лише із золотого сундука
-    if (type === "gold") {
-        const secrets = SHOP_ITEMS.filter(function (item) { return item.secret && !isOwned(item.id); });
-        if (secrets.length > 0 && rnd() < SECRET_PET_CHANCE) {
-            return { kind: "item", id: secrets[Math.floor(rnd() * secrets.length) % secrets.length].id };
-        }
-    }
     // Спершу — крихітний шанс легендарного предмета (будь-якого ще не купленого)
     const legendaries = SHOP_ITEMS.filter(function (item) { return item.legendary && !isOwned(item.id); });
     if (legendaries.length > 0 && rnd() < chest.legendaryChance) {
@@ -143,6 +136,45 @@ export function rollChest(type, isOwned, random, itemBonus, heartBonus) {
     const lo = chest.crystals[0];
     const hi = chest.crystals[1];
     return { kind: "crystals", amount: Math.round(lo + rnd() * (hi - lo)) };
+}
+
+// Секретні улюбленці, яких ще можна знайти в сундуку type, виграному у світі world:
+// { chest: [товари], world: [товари] }. isOwned(id) — чи улюбленець уже є
+export function secretPetPool(type, world, isOwned) {
+    const pool = { chest: [], world: [] };
+    for (const item of SHOP_ITEMS) {
+        if (!item.secret || isOwned(item.id)) {
+            continue;
+        }
+        if (item.secret === type) {
+            pool.chest.push(item);
+        } else if (item.secret === "world" && world && item.world === world) {
+            pool.world.push(item);
+        }
+    }
+    return pool;
+}
+
+// Спроба знайти секретного улюбленця. pity — скільки сундуків поспіль його вже не було.
+// Повертає { available, id }: available — чи було кого знайти (тоді гарантія росте),
+// id — знайдений улюбленець або null
+export function rollSecretPet(type, world, isOwned, pity, random) {
+    const rnd = random || Math.random;
+    const pool = secretPetPool(type, world, isOwned);
+    const chestChance = pool.chest.length > 0 ? SECRET_PET_CHANCE[type] || 0 : 0;
+    const worldChance = pool.world.length > 0 ? SECRET_WORLD_CHANCE : 0;
+    const base = chestChance + worldChance;
+    if (base <= 0) {
+        return { available: false, id: null };
+    }
+    const misses = Math.max(0, pity || 0);
+    const sure = misses + 1 >= SECRET_PITY_MAX;
+    if (!sure && rnd() >= base + misses * SECRET_PITY_STEP) {
+        return { available: true, id: null };
+    }
+    // Улюбленець світу чи сундука — пропорційно їхнім шансам
+    const list = rnd() * base < worldChance ? pool.world : pool.chest;
+    return { available: true, id: list[Math.floor(rnd() * list.length) % list.length].id };
 }
 
 // Кольори сундуків: корпус, темні дошки, окуття

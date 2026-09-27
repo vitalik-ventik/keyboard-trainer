@@ -37,7 +37,24 @@ export const PET_ANCHORS = {
     pet_ufo: { head: [0.0, -0.28], w: 0.34, back: [-0.3, 0.04] },
     pet_drone: { head: [0.0, -0.2], w: 0.5, back: [-0.3, 0.02] },
     pet_phoenix: { head: [0.02, -0.26], w: 0.34, back: [-0.2, 0.02] },
-    pet_borshchelino: { head: [0.1, -0.46], w: 0.3, back: [-0.3, 0.2] }
+    pet_borshchelino: { head: [0.1, -0.46], w: 0.3, back: [-0.3, 0.2] },
+    pet_bobrani: { head: [0.24, -0.3], w: 0.34, back: [-0.1, -0.05] },
+    pet_tapko_sahur: { head: [0.0, -0.5], w: 0.38, back: [-0.18, -0.1] },
+    pet_banan_gangstero: { head: [0.02, -0.52], w: 0.32, back: [-0.18, 0.0] },
+    pet_hotdog: { head: [0.36, -0.24], w: 0.28, back: [-0.1, -0.06] },
+    pet_skibidino: { head: [0.08, -0.36], w: 0.3, back: [-0.34, -0.1] },
+    pet_kartoplino: { head: [0.0, -0.46], w: 0.5, back: [-0.26, 0.02] },
+    pet_akuloni: { head: [0.22, -0.14], w: 0.28, back: [-0.16, -0.1] },
+    pet_kavun_bomboni: { head: [0.02, -0.32], w: 0.46, back: [-0.26, 0.0] },
+    pet_ballerino: { head: [0.0, -0.4], w: 0.36, back: [-0.1, -0.02] },
+    pet_shimpanzini: { head: [0.02, -0.34], w: 0.34, back: [-0.2, 0.08] },
+    pet_pelmen_mafiozo: { head: [0.02, -0.4], w: 0.4, back: [-0.3, 0.05] },
+    pet_fridge: { head: [0.0, -0.54], w: 0.42, back: [-0.24, -0.1] },
+    pet_bombardino: { head: [0.2, -0.18], w: 0.2, back: [-0.12, -0.08] },
+    pet_traktorino: { head: [-0.11, -0.44], w: 0.34, back: [-0.3, -0.1] },
+    pet_goldoni: { head: [0.04, -0.34], w: 0.44, back: [-0.3, -0.05] },
+    pet_shaurmino: { head: [0.06, -0.44], w: 0.3, back: [-0.2, 0.0] },
+    pet_borgini: { head: [0.2, -0.34], w: 0.36, back: [-0.14, 0.02] }
 };
 
 const DEFAULT_ANCHOR = { head: [0, -0.35], w: 0.36, back: [-0.25, 0] };

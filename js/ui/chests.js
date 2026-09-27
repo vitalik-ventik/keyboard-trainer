@@ -7,6 +7,8 @@ import { save } from "../engine.js";
 import { CHEST_TYPES, PET_MUTATIONS, SHOP_TYPES, coinsText, getShopItem, heartsText, itemRarity } from "../shop.js";
 import { CHEST_OPEN_MS, CHEST_SHAKE_MS, drawChestScene } from "../shop_preview.js";
 import { renderCurrentSkinIcon } from "./shop.js";
+import { showPetReveal } from "./pet_reveal.js";
+import { BackgroundRenderer } from "../backgrounds.js";
 import { announceAchievements } from "./achievements.js";
 import { refreshCrystalDisplays } from "./coins.js";
 
@@ -68,7 +70,17 @@ function showNextChest() {
     const type = pending[0];
     chestView = { type: type, phase: "closed", start: 0, opened: null, equipped: false };
     chestTitleEl.textContent = CHEST_TYPES[type].name.toUpperCase();
-    chestResultEl.innerHTML = pending.length > 1 ? "Сундуків: " + pending.length : "&nbsp;";
+    // Сундук за перемогу пам'ятає світ — там живуть секретні улюбленці світу
+    const world = save.getNextChestWorld();
+    const worldName = world ? BackgroundRenderer.worldName(world) : null;
+    const parts = [];
+    if (worldName) {
+        parts.push("🌍 Зі світу «" + worldName + "»");
+    }
+    if (pending.length > 1) {
+        parts.push("Сундуків: " + pending.length);
+    }
+    chestResultEl.textContent = parts.length > 0 ? parts.join(" · ") : "\u00a0";
     setChestButtons("closed");
 }
 
@@ -151,6 +163,8 @@ function showChestResult() {
         let text = "Новий предмет: " + item.name + "!";
         if (result.kind === "mutation") {
             text = "Мутація! " + item.name + " тепер " + mutation.name.toLowerCase() + "!";
+        } else if (item.type === "pet" && item.secret) {
+            text = "🔮 СЕКРЕТНИЙ улюбленець: " + item.name + "!";
         } else if (item.type === "pet") {
             text = "Новий улюбленець: " + item.name + "!";
         }
@@ -160,7 +174,12 @@ function showChestResult() {
         r.style.color = rarity.color;
         r.textContent = rarity.name + " · " + typeName + (mutation ? " · " + mutation.icon + " " + mutation.name : "");
         chestResultEl.appendChild(r);
-        playSound("chest_item");
+        if (result.kind === "item" && item.type === "pet" && item.secret) {
+            // Секретний — велика подія: вікно «Отримано!» поверх сундука
+            showPetReveal(result.id, result.mutation || null);
+        } else {
+            playSound("chest_item");
+        }
     }
     refreshCrystalDisplays();
     setChestButtons("reveal");

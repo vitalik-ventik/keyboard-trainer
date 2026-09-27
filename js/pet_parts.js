@@ -203,3 +203,33 @@ export function fluffCluster(ctx, circles, fill, s) {
         ctx.fill();
     }
 }
+
+// Кінцівка-палиця з контуром (руки й ноги брейнротів): від (x1, y1) до (x2, y2), товщина w
+export function petLimb(ctx, x1, y1, x2, y2, w, fill, s) {
+    ctx.lineCap = "round";
+    ctx.strokeStyle = PET_OUTLINE;
+    ctx.lineWidth = w + petLine(s) * 1.4;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.strokeStyle = fill;
+    ctx.lineWidth = w;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+}
+
+// Ноги-палички в кросівках: xs — де ноги кріпляться до тіла (на висоті top),
+// ступні стоять на y = s / 2 і крокують із фазою бігу ph (сусідні ноги — у протифазі)
+export function sneakerLegs(ctx, s, xs, top, fill, stripe, ph) {
+    const w = s * 0.2;
+    for (let i = 0; i < xs.length; i++) {
+        const phase = ph ? ph + i * Math.PI : 0;
+        const swing = phase ? Math.sin(phase) * w * 0.35 : 0;
+        const lift = phase ? Math.max(0, Math.cos(phase)) * w * 0.25 : 0;
+        petLimb(ctx, xs[i], top, xs[i] + swing, s * 0.44 - lift, s * 0.06, fill, s);
+        petSneaker(ctx, xs[i], s * 0.5, w, stripe, s, phase);
+    }
+}

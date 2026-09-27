@@ -160,7 +160,25 @@ export const SHOP_ITEMS = [
     { id: "pet_tapochkino", type: "pet", name: "Тапочкіно Акуліно", price: 15000, league: 4, rarity: "mythic", move: "swim" },
     { id: "pet_phoenix", type: "pet", name: "Фенікс-пташеня", price: 7000, rarity: "legendary", move: "fly", legendary: true, requirement: { kind: "clears", target: 20 } },
     { id: "pet_klaviatoro", type: "pet", name: "Клавіаторо Равліко", price: 9000, rarity: "brainrot", move: "ground", legendary: true, requirement: { kind: "achievements", target: 20 } },
-    { id: "pet_borshchelino", type: "pet", name: "Борщеліно Драконіно", price: 20000, rarity: "secret", move: "fly", secret: true }
+    // Секретні улюбленці: не продаються, випадають лише із «свого» сундука (поле secret)
+    { id: "pet_bobrani", type: "pet", name: "Пилоріно Бобрані", price: 3000, rarity: "secret", move: "ground", secret: "wood" },
+    { id: "pet_tapko_sahur", type: "pet", name: "Тапко Тапкіні Сахуріно", price: 3000, rarity: "secret", move: "ground", secret: "wood" },
+    { id: "pet_banan_gangstero", type: "pet", name: "Банан Бананіно Гангстеро", price: 3000, rarity: "secret", move: "ground", secret: "wood" },
+    { id: "pet_hotdog", type: "pet", name: "Хот-Догоні Такса", price: 3000, rarity: "secret", move: "ground", secret: "wood" },
+    { id: "pet_skibidino", type: "pet", name: "Унітазо Скібідіно", price: 3000, rarity: "secret", move: "ground", secret: "wood" },
+    { id: "pet_kartoplino", type: "pet", name: "Картопліно Бульбоні", price: 3000, rarity: "secret", move: "ground", secret: "wood" },
+    { id: "pet_akuloni", type: "pet", name: "Акулоні Турбоні", price: 8000, rarity: "secret", move: "swim", secret: "silver" },
+    { id: "pet_kavun_bomboni", type: "pet", name: "Кавуноні Бомбоні", price: 8000, rarity: "secret", move: "ground", secret: "silver" },
+    { id: "pet_ballerino", type: "pet", name: "Капучино Балеріно", price: 8000, rarity: "secret", move: "ground", secret: "silver" },
+    { id: "pet_shimpanzini", type: "pet", name: "Шимпанзіні Бананіні", price: 8000, rarity: "secret", move: "ground", secret: "silver" },
+    { id: "pet_pelmen_mafiozo", type: "pet", name: "Пельменіно Мафіозо", price: 8000, rarity: "secret", move: "ground", secret: "silver" },
+    { id: "pet_fridge", type: "pet", name: "Фрідж Холодоні", price: 8000, rarity: "secret", move: "ground", secret: "silver" },
+    { id: "pet_borshchelino", type: "pet", name: "Борщеліно Драконіно", price: 20000, rarity: "secret", move: "fly", secret: "gold" },
+    { id: "pet_bombardino", type: "pet", name: "Бомбардіно Крокодило", price: 20000, rarity: "secret", move: "fly", secret: "gold" },
+    { id: "pet_traktorino", type: "pet", name: "Трактор Тракторіно Мегазорд", price: 20000, rarity: "secret", move: "ground", secret: "gold" },
+    { id: "pet_goldoni", type: "pet", name: "Голд Голдоні Слиткоіно", price: 20000, rarity: "secret", move: "ground", secret: "gold" },
+    { id: "pet_shaurmino", type: "pet", name: "Дракон Шаурміно", price: 20000, rarity: "secret", move: "ground", secret: "gold" },
+    { id: "pet_borgini", type: "pet", name: "Боргіні Кіборгіні", price: 20000, rarity: "secret", move: "ground", secret: "gold" }
 ];
 
 export const SHOP_TYPES = [
@@ -199,6 +217,6 @@ export function getShopSkinByRenderType(renderType) {
 export { ACCESSORY_PERKS, EXPLOSION_PERKS, FIRST_CLEAR_BONUS, GOLD_BONUS, LEAGUE_COIN_MULT, SHOP_SKIN_PERK_STEPS, SILVER_BONUS, SKIN_HEART_PERKS, SKIN_PERFECT_BONUS, SKIN_PERK_TIERS, SKIN_SERIES_MULT, SKIN_WORDS_MULT, TRAIL_PERKS, accessoryPerk, accessoryPerkText, basePrice, computeReward, explosionWindowBonus, itemPerkHint, itemPerkText, levelSkinPerkHint, rewardMultiplier, seriesBonus, shopSkinPerkValue, shopTabHints, skinPerk, skinPerkText, skinPerkValue, trailSlowdown, weaponCoinBonus } from "./shop_rewards.js";
 export { EXPLOSION_DURATION, coinsText, drawCoinIcon, drawExplosion, drawHeartLife, drawTrail, heartsText } from "./shop_effects.js";
 export { drawAccessory } from "./shop_accessories.js";
-export { MAX_PET_SLOTS, PET_MUTATIONS, SECRET_PET_CHANCE, PET_MUTATION_CHANCE, PET_MUTATE_OWNED_CHANCE, PET_PERK_CAPS, PET_PERK_HINTS, PET_RARITIES, PET_SLOTS, isWaterTheme, petPerk, petPerkHint, petPerkLines, petPerkText, petPerkTotals, petRarity, petRarityColor, petTotalsLines, rollPetMutation } from "./shop_pets.js";
+export { MAX_PET_SLOTS, PET_MUTATIONS, SECRET_CHEST_SOURCES, SECRET_PET_CHANCE, SECRET_PITY_MAX, SECRET_PITY_STEP, SECRET_WORLD_CHANCE, secretPetSource, PET_MUTATION_CHANCE, PET_MUTATE_OWNED_CHANCE, PET_PERK_CAPS, PET_PERK_HINTS, PET_RARITIES, PET_SLOTS, isWaterTheme, petPerk, petPerkHint, petPerkLines, petPerkText, petPerkTotals, petRarity, petRarityColor, petTotalsLines, rollPetMutation } from "./shop_pets.js";
 export { drawPet, drawPetAura } from "./pets_draw.js";
-export { CHEST_PITY_WINS, CHEST_TYPES, NON_SKIN_ITEM_KEEP, REPLAY_CHEST_CHANCE, chestItemPool, chestsForVictory, drawChest, itemRarity, rollChest, shopTierLeague } from "./shop_chests.js";
+export { CHEST_PITY_WINS, CHEST_TYPES, NON_SKIN_ITEM_KEEP, REPLAY_CHEST_CHANCE, chestItemPool, chestsForVictory, drawChest, itemRarity, rollChest, rollSecretPet, secretPetPool, shopTierLeague } from "./shop_chests.js";

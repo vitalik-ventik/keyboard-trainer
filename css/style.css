@@ -1906,6 +1906,14 @@ body {
     font-size: 1.35vmin;
 }
 
+.pet-secrets {
+    margin-top: 6px;
+    font-size: 1.5vmin;
+    font-weight: bold;
+    color: #9cffe8;
+    cursor: help;
+}
+
 .pet-totals {
     display: flex;
     flex-wrap: wrap;
