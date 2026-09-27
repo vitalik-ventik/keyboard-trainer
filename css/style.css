@@ -1805,3 +1805,133 @@ body {
 .revive-text b {
     color: #ff6a84;
 }
+
+/* ---------- Улюбленці в магазині ---------- */
+
+/* Картка улюбленця: рамка кольору рідкості */
+.shop-card.pet-card {
+    border-color: var(--rarity, #c8d0e0);
+    box-shadow: 0 0 1vmin color-mix(in srgb, var(--rarity, #c8d0e0) 45%, transparent);
+}
+
+.pet-rarity {
+    display: block;
+    font-size: 1.45vmin;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rarity, #c8d0e0);
+    text-shadow: 0 0 0.6vmin var(--rarity, #c8d0e0);
+}
+
+.pet-mutation {
+    display: block;
+    font-size: 1.45vmin;
+    font-weight: 800;
+    color: #ffe14d;
+}
+
+/* Панель зграї на всю ширину сітки */
+.pet-panel {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    border: 2px solid rgba(0, 246, 255, 0.45);
+    border-radius: 12px;
+    background: rgba(8, 14, 34, 0.75);
+}
+
+.pet-panel-title {
+    font-size: 1.9vmin;
+    font-weight: 900;
+    color: #eaf6ff;
+    letter-spacing: 0.04em;
+}
+
+.pet-slots {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.pet-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 92px;
+    padding: 6px;
+    border: 2px dashed rgba(140, 160, 200, 0.45);
+    border-radius: 10px;
+    font-size: 1.5vmin;
+    font-weight: 800;
+    color: #9aa0b4;
+    text-align: center;
+}
+
+.pet-slot.filled {
+    border: 2px solid var(--rarity, #c8d0e0);
+    background: rgba(0, 0, 0, 0.3);
+    color: #eaf6ff;
+    cursor: pointer;
+}
+
+.pet-slot.filled:hover {
+    box-shadow: 0 0 1.2vmin var(--rarity, #c8d0e0);
+}
+
+.pet-slot.free {
+    border-color: rgba(0, 246, 255, 0.55);
+    color: #7fefff;
+}
+
+.pet-slot.locked {
+    opacity: 0.5;
+}
+
+.pet-slot .shop-btn {
+    min-width: 0;
+    font-size: 12px;
+    padding: 5px 8px;
+}
+
+.pet-slot-name {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 1.35vmin;
+}
+
+.pet-totals {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 14px;
+    font-size: 1.5vmin;
+    color: #9aa0b4;
+}
+
+.pet-totals .weapon-coin-bonus {
+    display: inline-block;
+    width: auto;
+}
+
+.pet-totals-label {
+    font-weight: 900;
+    color: #eaf6ff;
+}
+
+.shop-btn.pet-remove {
+    cursor: pointer;
+    opacity: 1;
+}
+
+/* Улюбленець у зграї: зелена рамка «взято», як в одягнутих товарів */
+.shop-card.pet-card.active {
+    border-color: rgb(57, 255, 136);
+    box-shadow: 0 0 0.6vmin rgb(57, 255, 136), 0 0 2.4vmin rgba(57, 255, 136, 0.6);
+}

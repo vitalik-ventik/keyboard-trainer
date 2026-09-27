@@ -69,6 +69,7 @@ class EngineRender {
         this.renderHitWindow(ctx, W, groundY, anchorX, time);
         this.renderFinish(ctx, W, groundY, anchorX, camX);
         this.renderObstacles(ctx, W, groundY, anchorX, camX);
+        this.renderPets(ctx, groundY, anchorX);
         this.renderPlayer(ctx, groundY, anchorX);
         this.renderWeapons(ctx, groundY, anchorX, camX);
         BackgroundRenderer.renderParticles(ctx, groundY, anchorX, camX);

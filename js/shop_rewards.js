@@ -5,6 +5,7 @@
 
 import { shopTierLeague } from "./shop_chests.js";
 import { getShopItem, getShopSkinByRenderType } from "./shop.js";
+import { petPerkHint, petPerkText } from "./shop_pets.js";
 
 // ---------- Нарахування монет ----------
 // (у збереженні рахунок і далі зветься crystals — так зберігається старий прогрес)
@@ -153,6 +154,9 @@ export function itemPerkText(itemId) {
     if (item && item.type === "skin") {
         return skinPerkText(skinPerk(item.renderType), shopSkinPerkValue(item.renderType));
     }
+    if (item && item.type === "pet") {
+        return petPerkText(itemId);
+    }
     return accessoryPerkText(itemId);
 }
 
@@ -267,7 +271,10 @@ const PERK_HINTS = {
     chest: "🎁 Сундуки — вищий шанс отримати сундук за повторну перемогу рівня",
     item: "✨ Речі — у сундуку частіше випадає предмет замість монет (діє аксесуар, надягнутий, коли відкриваєш сундук)",
     hearts: "❤ Сердечка — у сундуку частіше випадає сердечко, запасне життя (діють скін і аксесуар, надягнуті, коли відкриваєш сундук)",
-    weapon: "🪙 Монети — з цією зброєю монети, зароблені в забігу, множаться: що дорожча зброя, то більший множник"
+    weapon: "🪙 Монети — з цією зброєю монети, зароблені в забігу, множаться: що дорожча зброя, то більший множник",
+    pack: "🐾 Зграя — перше місце для улюбленця безкоштовне, ще чотири можна купити. Однакові бонуси кількох улюбленців складаються, але не більше за межу",
+    consolation: "🧸 Утіха — після вибуху лишається більша частка монет забігу, а не половина. Не складається: діє найбільша",
+    mutation: "🧬 Мутації — улюбленець із сундука буває золотим, алмазним, лавовим, цукерковим чи райдужним: його бонуси сильніші (×1.25, райдужний — ×1.5). Сундук може й мутувати улюбленця, який уже є"
 };
 
 // Які пояснення показати внизу вкладки магазину
@@ -276,7 +283,8 @@ const TAB_HINTS = {
     trail: ["slow"],
     explosion: ["zone"],
     accessory: ["coins", "chest", "item", "hearts"],
-    weapon: ["weapon"]
+    weapon: ["weapon"],
+    pet: ["pack", "consolation", "mutation"]
 };
 
 // Пояснення бонусу скіна рівня: вид бонусу й як його посилити рамкою
@@ -315,6 +323,9 @@ export function itemPerkHint(itemId) {
     if (item.type === "weapon" && weaponCoinBonus(itemId) > 1) {
         return PERK_HINTS.weapon;
     }
+    if (item.type === "pet") {
+        return petPerkHint(itemId);
+    }
     const perk = accessoryPerk(itemId);
     if (perk.coins) {
         return PERK_HINTS.coins;
@@ -343,14 +354,16 @@ export function weaponCoinBonus(weaponId) {
 }
 
 // Підсумок забігу: рядки для екрана результату та загальна сума.
-// run: { hits, perfect, series, won, leagueId, firstClear, newSilver, newGold, difficulty, speed, hitWindow, weaponId }
+// run: { hits, perfect, series, won, leagueId, firstClear, newSilver, newGold, difficulty, speed, hitWindow, weaponId,
+//        petCoins — бонус монет зграї улюбленців (0…1), consolation — частка монет після вибуху (0.5 без «Утіхи») }
 export function computeReward(run) {
     const lines = [];
     const settingsMult = rewardMultiplier(run.difficulty, run.speed, run.hitWindow);
     const weaponMult = weaponCoinBonus(run.weaponId);
     const accessoryMult = 1 + (accessoryPerk(run.accessoryId).coins || 0);
+    const petMult = Math.round((1 + (run.petCoins || 0)) * 100) / 100;
     const leagueMult = LEAGUE_COIN_MULT[run.leagueId] || 1;
-    const mult = settingsMult * weaponMult * accessoryMult * leagueMult;
+    const mult = settingsMult * weaponMult * accessoryMult * petMult * leagueMult;
     let base = 0;
     // +1 за кожен подоланий шип і ще +1, якщо це було «Ідеально»
     if (run.hits > 0) {
@@ -375,15 +388,16 @@ export function computeReward(run) {
         base += run.combos * wordsMult;
     }
     if (!run.won) {
-        // Вибух: зберігається половина зібраного
-        const total = Math.ceil(base * mult / 2);
-        return { lines: lines, mult: settingsMult, weaponMult: weaponMult, accessoryMult: accessoryMult, leagueMult: leagueMult, half: true, total: total };
+        // Вибух: зберігається половина зібраного («Утіха» улюбленця — більша частка)
+        const keep = Math.max(0.5, Math.min(0.75, run.consolation || 0.5));
+        const total = Math.ceil(base * mult * keep);
+        return { lines: lines, mult: settingsMult, weaponMult: weaponMult, accessoryMult: accessoryMult, petMult: petMult, leagueMult: leagueMult, half: true, keep: keep, total: total };
     }
     const finish = FINISH_BONUS[run.leagueId] || 10;
     lines.push({ label: "Фініш", value: finish });
     base += finish;
     // Разові бонуси рівня (перше проходження, рамки) не множаться:
-    // множники налаштувань, зброї, аксесуара й ліги діють лише на монети, зароблені в забігу
+    // множники налаштувань, зброї, аксесуара, улюбленців і ліги діють лише на монети, зароблені в забігу
     let flat = 0;
     if (run.firstClear) {
         const first = FIRST_CLEAR_BONUS[run.leagueId] || 20;
@@ -398,5 +412,5 @@ export function computeReward(run) {
         lines.push({ label: "Золота рамка", value: GOLD_BONUS, flat: true });
         flat += GOLD_BONUS;
     }
-    return { lines: lines, mult: settingsMult, weaponMult: weaponMult, accessoryMult: accessoryMult, leagueMult: leagueMult, half: false, total: Math.ceil(base * mult) + flat };
+    return { lines: lines, mult: settingsMult, weaponMult: weaponMult, accessoryMult: accessoryMult, petMult: petMult, leagueMult: leagueMult, half: false, total: Math.ceil(base * mult) + flat };
 }

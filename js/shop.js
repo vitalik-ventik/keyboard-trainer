@@ -2,7 +2,8 @@
 // shop.js — золоті монети та магазин: каталог товарів (SHOP_ITEMS, SHOP_TYPES)
 // і точка входу для всього магазинного. Нарахування монет — shop_rewards.js,
 // сердечко, монета, шлейфи й вибухи — shop_effects.js, аксесуари — shop_accessories.js,
-// сундуки — shop_chests.js. Скіни магазину — shop_skins.js.
+// сундуки — shop_chests.js, улюбленці (рідкості, бонуси, місця, мутації) — shop_pets.js,
+// їх малювання — pets_draw.js. Скіни магазину — shop_skins.js.
 // ============================================================
 
 // ---------- Каталог ----------
@@ -126,7 +127,22 @@ export const SHOP_ITEMS = [
     { id: "acc_ninja_band", type: "accessory", name: "Пов'язка ніндзя", price: 5000, league: 3 },
     { id: "acc_cyber_visor", type: "accessory", name: "Кібер-візор", price: 5600, league: 3 },
     { id: "acc_heart_orbit", type: "accessory", name: "Орбіта сердець", price: 12000, league: 4 },
-    { id: "acc_diamond_crown", type: "accessory", name: "Діамантова корона", price: 15000, league: 4 }
+    { id: "acc_diamond_crown", type: "accessory", name: "Діамантова корона", price: 15000, league: 4 },
+
+    // Улюбленці бігають за кубиком. rarity — рідкість (показується замість ліги),
+    // league — з якої ліги продається, move — "ground" (біжить) або "swim" (пливе в бульбашці).
+    // Безкоштовного улюбленця немає: перше місце в зграї просто порожнє
+    { id: "pet_puppy", type: "pet", name: "Цуценя", price: 120, league: 1, rarity: "common", move: "ground" },
+    { id: "pet_capybara", type: "pet", name: "Капібара", price: 150, league: 1, rarity: "common", move: "ground" },
+    { id: "pet_duck", type: "pet", name: "Каченя в кружечку", price: 180, league: 1, rarity: "common", move: "swim" },
+    { id: "pet_llama", type: "pet", name: "Лама", price: 220, league: 1, rarity: "common", move: "ground" },
+    { id: "pet_alpaca", type: "pet", name: "Альпака", price: 320, league: 1, rarity: "rare", move: "ground" },
+    { id: "pet_turtle", type: "pet", name: "Черепашка", price: 380, league: 1, rarity: "rare", move: "swim" },
+    { id: "pet_jellyfish", type: "pet", name: "Медуза", price: 450, league: 1, rarity: "rare", move: "swim" },
+    { id: "pet_dolphin", type: "pet", name: "Дельфінчик", price: 1200, league: 2, rarity: "epic", move: "swim" },
+    { id: "pet_kavunotto", type: "pet", name: "Кавунотто Крокодило", price: 1500, league: 2, rarity: "epic", move: "ground" },
+    { id: "pet_pelmenino", type: "pet", name: "Пельменіно Пінгвіно", price: 5000, league: 3, rarity: "legendary", move: "ground" },
+    { id: "pet_capibaro_mandarino", type: "pet", name: "Капібаро Мандаріно", price: 12000, league: 4, rarity: "mythic", move: "ground" }
 ];
 
 export const SHOP_TYPES = [
@@ -134,10 +150,12 @@ export const SHOP_TYPES = [
     { type: "trail", name: "Шлейфи" },
     { type: "explosion", name: "Вибухи" },
     { type: "accessory", name: "Аксесуари" },
-    { type: "weapon", name: "Зброя" }
+    { type: "weapon", name: "Зброя" },
+    { type: "pet", name: "Улюбленці" }
 ];
 
-// Безкоштовний товар кожного типу (надітий за замовчуванням)
+// Безкоштовний товар кожного типу (надітий за замовчуванням).
+// Улюбленців тут немає: їх може бути кілька, вони зберігаються окремим списком (save.getEquippedPets)
 export const DEFAULT_ITEMS = { trail: "trail_default", explosion: "boom_default", accessory: "acc_none", weapon: "weapon_none" };
 
 export function getShopItem(id) {
@@ -163,4 +181,6 @@ export function getShopSkinByRenderType(renderType) {
 export { ACCESSORY_PERKS, EXPLOSION_PERKS, FIRST_CLEAR_BONUS, GOLD_BONUS, LEAGUE_COIN_MULT, SHOP_SKIN_PERK_STEPS, SILVER_BONUS, SKIN_HEART_PERKS, SKIN_PERFECT_BONUS, SKIN_PERK_TIERS, SKIN_SERIES_MULT, SKIN_WORDS_MULT, TRAIL_PERKS, accessoryPerk, accessoryPerkText, basePrice, computeReward, explosionWindowBonus, itemPerkHint, itemPerkText, levelSkinPerkHint, rewardMultiplier, seriesBonus, shopSkinPerkValue, shopTabHints, skinPerk, skinPerkText, skinPerkValue, trailSlowdown, weaponCoinBonus } from "./shop_rewards.js";
 export { EXPLOSION_DURATION, coinsText, drawCoinIcon, drawExplosion, drawHeartLife, drawTrail, heartsText } from "./shop_effects.js";
 export { drawAccessory } from "./shop_accessories.js";
+export { MAX_PET_SLOTS, PET_MUTATIONS, PET_MUTATION_CHANCE, PET_MUTATE_OWNED_CHANCE, PET_PERK_CAPS, PET_PERK_HINTS, PET_RARITIES, PET_SLOTS, isWaterTheme, petPerk, petPerkHint, petPerkLines, petPerkText, petPerkTotals, petRarity, petRarityColor, petTotalsLines, rollPetMutation } from "./shop_pets.js";
+export { drawPet, drawPetAura } from "./pets_draw.js";
 export { CHEST_PITY_WINS, CHEST_TYPES, NON_SKIN_ITEM_KEEP, REPLAY_CHEST_CHANCE, chestItemPool, chestsForVictory, drawChest, itemRarity, rollChest, shopTierLeague } from "./shop_chests.js";

@@ -1,14 +1,14 @@
 // ============================================================
 // engine.js — ігрова логіка: клас Engine (стан забігу, фізика кубика, введення,
 // колізії, бали, демо-режим, статистика літер, update). Методи зброї й рендера —
-// engine_weapons.js, engine_render.js, engine_render_objects.js. Константи й бали —
+// engine_weapons.js, engine_render.js, engine_render_objects.js, улюбленці — engine_pets.js. Константи й бали —
 // game_constants.js, рівні — levels.js, траси — track.js, скіни — skins.js і
 // skin_renderers.js, збереження — save.js, вигляд шипів — spike_styles.js
 // ============================================================
 
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
-import { EXPLOSION_DURATION, explosionWindowBonus, seriesBonus, trailSlowdown } from "./shop.js";
+import { EXPLOSION_DURATION, explosionWindowBonus, petPerkTotals, seriesBonus, trailSlowdown } from "./shop.js";
 import { GRAVITY_LIFT, getWeaponSpec, gravityGrabTime } from "./weapons.js";
 import { COMBO_KINDS, getLevelById } from "./levels.js";
 import { activeSkinPerk, sampleSkinColors } from "./skins.js";
@@ -20,6 +20,7 @@ import { SPIKE_STYLE_BY_THEME, SPIKE_STYLE_COLORS } from "./spike_styles.js";
 import { EngineWeapons } from "./engine_weapons.js";
 import { EngineRender } from "./engine_render.js";
 import { EngineRenderObjects } from "./engine_render_objects.js";
+import { EnginePets } from "./engine_pets.js";
 
 // ---------- Клас Engine ----------
 
@@ -37,9 +38,11 @@ export class Engine {
             this.adaptiveFromStats = !!weak;
         }
         this.effectiveSpeed = this.level.speed * (SPEED_MULTIPLIERS[speed] ?? 1.0);
-        // Бонуси з магазину (лише в справжній грі): шлейф сповільнює трасу, вибух розширює зону стрибка
-        const trailSlow = demoMode ? 0 : trailSlowdown(save.getEquipped("trail"));
-        const windowBonus = demoMode ? 0 : explosionWindowBonus(save.getEquipped("explosion"));
+        // Бонуси з магазину (лише в справжній грі): шлейф сповільнює трасу, вибух розширює зону стрибка,
+        // зграя улюбленців додає свої бонуси (у межах зграї)
+        this.petPerks = demoMode ? petPerkTotals([]) : save.getPetPerks();
+        const trailSlow = demoMode ? 0 : trailSlowdown(save.getEquipped("trail")) + this.petPerks.slow;
+        const windowBonus = demoMode ? 0 : explosionWindowBonus(save.getEquipped("explosion")) + this.petPerks.window;
         this.effectiveSpeed *= 1 - trailSlow;
         this.difficulty = difficulty === "HARD" ? "HARD" : "EASY";
         this.demoMode = !!demoMode;
@@ -65,7 +68,10 @@ export class Engine {
         if (this.skinPerk === "perfect") {
             this.perfectPx = Math.min(this.okPx * 0.9, this.perfectPx * (1 + this.skinPerkValue));
         }
-        this.shieldReady = this.skinPerk === "shield";
+        if (this.petPerks.perfect > 0) {
+            this.perfectPx = Math.min(this.okPx * 0.9, this.perfectPx * (1 + this.petPerks.perfect));
+        }
+        this.shieldReady = this.skinPerk === "shield" || this.petPerks.shield;
         this.shieldFlash = 0;
         // Пропозиція сердечка: гра на паузі, доки гравець не вирішить
         this.onReviveOffer = null;
@@ -138,6 +144,7 @@ export class Engine {
         this.eggAt = 0.3 + mulberry32(this.level.seed + 7)() * 0.4;
         this.eggStart = null;
         this.weather = BackgroundRenderer.pickWeather(this.level.bgTheme);
+        this.initPets();
         this.shakeTime = 0;
         this.oopsTime = 0;
         this.elapsed = 0;
@@ -338,6 +345,9 @@ export class Engine {
                 if (bonus > 0 && this.skinPerk === "series") {
                     bonus = Math.round(bonus * this.skinPerkValue);
                 }
+                if (bonus > 0 && this.petPerks.series > 0) {
+                    bonus = Math.round(bonus * (1 + this.petPerks.series));
+                }
                 this.runSeries += bonus;
                 gain += 1 + bonus;
             }
@@ -351,6 +361,7 @@ export class Engine {
             });
         }
         if (perfect) {
+            this.cheerPets();
             this.combo++;
             if (this.combo > this.runMaxCombo) {
                 this.runMaxCombo = this.combo;
@@ -391,9 +402,10 @@ export class Engine {
         }
     }
 
-    // Множник монет за слова й комбінації (бонус скіна)
+    // Множник монет за слова й комбінації (бонус скіна й улюбленців)
     wordsMult() {
-        return this.skinPerk === "words" ? this.skinPerkValue : 1;
+        const skin = this.skinPerk === "words" ? this.skinPerkValue : 1;
+        return Math.round(skin * (1 + this.petPerks.words) * 100) / 100;
     }
 
     // Щит легендарного скіна: пробачає одну помилку чи зіткнення за рівень.
@@ -812,6 +824,7 @@ export class Engine {
         if (this.weaponSpec) {
             this.updateWeapons(dt);
         }
+        this.updatePets(dt);
 
         if (!this.player.alive) {
             this.deathTimer += dt;
@@ -957,7 +970,8 @@ export class Engine {
 }
 
 // Методи Engine розкладено по файлах: зброя — engine_weapons.js, рендер кадру й HUD —
-// engine_render.js, малювання перешкод, кубика й ефектів — engine_render_objects.js.
+// engine_render.js, малювання перешкод, кубика й ефектів — engine_render_objects.js,
+// улюбленці — engine_pets.js.
 // Вони описані як класи-частини й переносяться в Engine.prototype тими самими
 // неперелічуваними властивостями, які мають звичайні методи класу.
 function installMethods(target, part) {
@@ -971,6 +985,7 @@ function installMethods(target, part) {
 installMethods(Engine, EngineWeapons);
 installMethods(Engine, EngineRender);
 installMethods(Engine, EngineRenderObjects);
+installMethods(Engine, EnginePets);
 
 // Реекспорт для сумісності: main.js, preview.js і shop_preview.js імпортують це з engine.js
 export { ALL_LEVELS, BOSS_LEVEL_ID, COMBO_KINDS, DEFAULT_SKIN, LEVELS_CONFIG, levelOrderIndex, nextLevelOf } from "./levels.js";

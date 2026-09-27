@@ -271,6 +271,8 @@ function handleGameOver() {
             weapon: runState.weapon,
             weaponId: runState.weaponId,
             accessoryId: save.getEquipped("accessory"),
+            petCoins: save.getPetPerks().coins,
+            consolation: save.getPetPerks().consolation,
             won: false,
             difficulty: save.getDifficulty(),
             speed: save.getSpeed(),
@@ -315,6 +317,7 @@ function handleVictory() {
             weapon: runState.weapon,
             weaponId: runState.weaponId,
             accessoryId: save.getEquipped("accessory"),
+            petCoins: save.getPetPerks().coins,
             won: true,
             leagueId: wonLevel ? wonLevel.leagueId : 1,
             firstClear: !paidBefore.first,
@@ -338,7 +341,7 @@ function handleVictory() {
             newSilver: !!achievementNow && !paidBefore.silver,
             newGold: achievementNow === "hard" && !paidBefore.gold,
             winsWithoutChest: save.getWinsWithoutChest(),
-            chestBonus: accessoryPerk(save.getEquipped("accessory")).chest || 0
+            chestBonus: (accessoryPerk(save.getEquipped("accessory")).chest || 0) + save.getPetPerks().chest
         });
         save.setWinsWithoutChest(drop.winsWithoutChest);
         save.addChests(drop.chests);

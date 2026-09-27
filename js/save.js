@@ -4,7 +4,7 @@
 // ============================================================
 
 import { KEYS } from "./keyboard.js";
-import { CHEST_TYPES, DEFAULT_ITEMS, FIRST_CLEAR_BONUS, GOLD_BONUS, SILVER_BONUS, accessoryPerk, getShopItem, getShopSkinByRenderType, rollChest, shopTierLeague } from "./shop.js";
+import { CHEST_TYPES, DEFAULT_ITEMS, FIRST_CLEAR_BONUS, GOLD_BONUS, MAX_PET_SLOTS, PET_MUTATE_OWNED_CHANCE, PET_MUTATION_CHANCE, PET_MUTATIONS, PET_SLOTS, SILVER_BONUS, accessoryPerk, getShopItem, getShopSkinByRenderType, petPerkTotals, rollChest, rollPetMutation, shopTierLeague } from "./shop.js";
 import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, localDayKey, sanitizeAchievementData } from "./achievements.js";
 import { EGG_BY_THEME } from "./easter_eggs.js";
 import { ALL_LEVELS, BOSS_LEVEL_ID, DEFAULT_SKIN, getLevelById, levelOrderIndex, nextLevelOf } from "./levels.js";
@@ -37,7 +37,12 @@ function defaultSaveData() {
             chests: [],
             winsWithoutChest: 0,
             // Сердечка — запасні життя з сундуків
-            hearts: 0
+            hearts: 0,
+            // Улюбленці: скільки місць у зграї відкрито, хто біжить за кубиком (по порядку)
+            // і мутації улюбленців { id: "gold" | "diamond" | "rainbow" | "lava" | "candy" }
+            petSlots: 1,
+            pets: [],
+            petMutations: {}
         },
         // Відкриті досягнення й лічильники для них
         achievements: defaultAchievementData()
@@ -141,6 +146,27 @@ function sanitizeSaveData(raw) {
         const wins = Number(raw.shop.winsWithoutChest);
         if (Number.isFinite(wins)) {
             clean.shop.winsWithoutChest = Math.max(0, Math.min(100, Math.floor(wins)));
+        }
+        const slots = Number(raw.shop.petSlots);
+        if (Number.isFinite(slots)) {
+            clean.shop.petSlots = Math.max(1, Math.min(MAX_PET_SLOTS, Math.floor(slots)));
+        }
+        const isOwnedPet = function (id) {
+            const item = typeof id === "string" ? getShopItem(id) : null;
+            return !!item && item.type === "pet" && clean.shop.owned.indexOf(id) !== -1;
+        };
+        if (Array.isArray(raw.shop.pets)) {
+            clean.shop.pets = raw.shop.pets.filter(function (id, idx, arr) {
+                return isOwnedPet(id) && arr.indexOf(id) === idx;
+            }).slice(0, clean.shop.petSlots);
+        }
+        if (raw.shop.petMutations && typeof raw.shop.petMutations === "object") {
+            for (const id of Object.keys(raw.shop.petMutations)) {
+                const mutation = raw.shop.petMutations[id];
+                if (isOwnedPet(id) && typeof mutation === "string" && PET_MUTATIONS[mutation]) {
+                    clean.shop.petMutations[id] = mutation;
+                }
+            }
         }
     }
     clean.achievements = sanitizeAchievementData(raw.achievements);
@@ -503,6 +529,10 @@ export const save = {
         if (!item || !this.isOwned(itemId)) {
             return false;
         }
+        if (item.type === "pet") {
+            // Улюбленець стає на вільне місце в зграї
+            return this.equipPet(itemId, false);
+        }
         if (item.type === "skin") {
             // Скін одягається так само, як скіни рівнів
             saveData.settings.activeSkin = item.renderType;
@@ -511,6 +541,110 @@ export const save = {
         }
         this.persist();
         return true;
+    },
+
+    // ---------- Улюбленці ----------
+
+    getPetSlots() {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.shop.petSlots;
+    },
+
+    // Наступне місце для купівлі: { index, price, league, open — чи дійшов гравець до його ліги } або null
+    getNextPetSlot() {
+        if (!saveData) {
+            this.load();
+        }
+        const index = saveData.shop.petSlots;
+        if (index >= MAX_PET_SLOTS) {
+            return null;
+        }
+        const slot = PET_SLOTS[index];
+        const reached = (getLevelById(saveData.progress.unlocked) || { leagueId: 1 }).leagueId;
+        return { index: index, price: slot.price, league: slot.league, open: reached >= slot.league };
+    },
+
+    // Купівля ще одного місця: true — куплено
+    buyPetSlot() {
+        if (!saveData) {
+            this.load();
+        }
+        const next = this.getNextPetSlot();
+        if (!next || !next.open || saveData.shop.crystals < next.price) {
+            return false;
+        }
+        saveData.shop.crystals -= next.price;
+        saveData.shop.petSlots++;
+        this.persist();
+        return true;
+    },
+
+    // Улюбленці, що біжать за кубиком: [{ id, mutation }] по порядку місць
+    getEquippedPets() {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.shop.pets.map(function (id) {
+            return { id: id, mutation: saveData.shop.petMutations[id] || null };
+        });
+    },
+
+    isPetEquipped(petId) {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.shop.pets.indexOf(petId) !== -1;
+    },
+
+    // Взяти улюбленця в зграю. Якщо місць немає: replaceIfFull — замінити останнього, інакше false
+    equipPet(petId, replaceIfFull) {
+        if (!saveData) {
+            this.load();
+        }
+        const item = getShopItem(petId);
+        if (!item || item.type !== "pet" || !this.isOwned(petId)) {
+            return false;
+        }
+        if (this.isPetEquipped(petId)) {
+            return true;
+        }
+        if (saveData.shop.pets.length >= saveData.shop.petSlots) {
+            if (!replaceIfFull) {
+                return false;
+            }
+            saveData.shop.pets[saveData.shop.pets.length - 1] = petId;
+        } else {
+            saveData.shop.pets.push(petId);
+        }
+        this.persist();
+        return true;
+    },
+
+    unequipPet(petId) {
+        if (!saveData) {
+            this.load();
+        }
+        const idx = saveData.shop.pets.indexOf(petId);
+        if (idx === -1) {
+            return false;
+        }
+        saveData.shop.pets.splice(idx, 1);
+        this.persist();
+        return true;
+    },
+
+    getPetMutation(petId) {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.shop.petMutations[petId] || null;
+    },
+
+    // Сумарні бонуси зграї (з межами) — для забігу, нагороди й сундуків
+    getPetPerks() {
+        return petPerkTotals(this.getEquippedPets());
     },
 
     // Разові бонуси рівня: перше проходження, срібна й золота рамки
@@ -571,7 +705,8 @@ export const save = {
     },
 
     // Відкриває перший сундук у черзі: предмет одразу стає купленим, монети — на рахунок.
-    // Повертає { type, result: { kind: "item", id } | { kind: "crystals", amount } } або null
+    // Повертає { type, result } або null; result — { kind: "item", id, mutation? } | { kind: "crystals", amount } |
+    // { kind: "heart", amount } | { kind: "mutation", id, mutation } (мутував улюбленець, який уже є)
     openNextChest() {
         if (!saveData) {
             this.load();
@@ -585,9 +720,10 @@ export const save = {
         // Аксесуар може підвищити шанс, що з сундука випаде річ;
         // скін і аксесуар із бонусом «сердечка» — шанс сердечка
         const accPerk = accessoryPerk(this.getEquipped("accessory"));
-        const itemBonus = accPerk.item || 0;
+        const petPerks = this.getPetPerks();
+        const itemBonus = (accPerk.item || 0) + petPerks.item;
         const skin = activeSkinPerk(this.getActiveSkin());
-        const heartBonus = (accPerk.hearts || 0) + (skin && skin.kind === "hearts" ? skin.value : 0);
+        const heartBonus = (accPerk.hearts || 0) + (skin && skin.kind === "hearts" ? skin.value : 0) + petPerks.hearts;
         // Звичайні товари, ще не відкриті за лігою, із сундука не випадають
         const unavailable = function (id) {
             if (self.isOwned(id)) {
@@ -596,9 +732,27 @@ export const save = {
             const it = getShopItem(id);
             return !!it && !it.legendary && !self.getRequirementProgress(it).met;
         };
-        const result = rollChest(type, unavailable, undefined, itemBonus, heartBonus);
+        let result = rollChest(type, unavailable, undefined, itemBonus, heartBonus);
+        // Замість монет сундук іноді мутує одного з наявних улюбленців без мутації
+        if (result.kind === "crystals") {
+            const plain = saveData.shop.owned.filter(function (id) {
+                const it = getShopItem(id);
+                return !!it && it.type === "pet" && !saveData.shop.petMutations[id];
+            });
+            if (plain.length > 0 && Math.random() < (PET_MUTATE_OWNED_CHANCE[type] || 0)) {
+                result = { kind: "mutation", id: plain[Math.floor(Math.random() * plain.length) % plain.length], mutation: rollPetMutation() };
+            }
+        }
         if (result.kind === "item") {
             saveData.shop.owned.push(result.id);
+            // Новий улюбленець іноді випадає вже мутованим
+            const dropped = getShopItem(result.id);
+            if (dropped && dropped.type === "pet" && Math.random() < PET_MUTATION_CHANCE) {
+                result.mutation = rollPetMutation();
+                saveData.shop.petMutations[result.id] = result.mutation;
+            }
+        } else if (result.kind === "mutation") {
+            saveData.shop.petMutations[result.id] = result.mutation;
         } else if (result.kind === "heart") {
             saveData.shop.hearts = Math.min(99, (saveData.shop.hearts || 0) + result.amount);
         } else {

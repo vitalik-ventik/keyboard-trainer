@@ -1,11 +1,11 @@
 // ============================================================
 // ui/shop.js — вікно вибору скіна та магазин: вкладки, картки товарів,
-// прев'ю, підказки бонусів, купівля й екіпірування
+// прев'ю, підказки бонусів, купівля й екіпірування, місця для улюбленців
 // ============================================================
 
 import { playSound } from "../assets.js";
 import { ALL_LEVELS, DEFAULT_SKIN, LEVELS_CONFIG, SKIN_RENDERERS, drawAchievementFrame, levelSkinPerk, save } from "../engine.js";
-import { SHOP_ITEMS, SHOP_TYPES, drawAccessory, itemPerkHint, itemPerkText, levelSkinPerkHint, shopTabHints, skinPerkText, weaponCoinBonus } from "../shop.js";
+import { MAX_PET_SLOTS, PET_MUTATIONS, SHOP_ITEMS, SHOP_TYPES, drawAccessory, drawPet, getShopItem, itemPerkHint, itemPerkText, levelSkinPerkHint, petPerkLines, petRarity, petTotalsLines, shopTabHints, skinPerkText, weaponCoinBonus } from "../shop.js";
 import { drawShopItemScene, drawShopSkinScene } from "../shop_preview.js";
 import { announceAchievements } from "./achievements.js";
 import { refreshCrystalDisplays, requirementLabel } from "./coins.js";
@@ -337,7 +337,11 @@ let activeShopType = "skin";
 let justBought = null;
 let confirmItemId = null;
 let shopPreviews = [];
+// Мініатюри улюбленців у ряду місць зграї
+let petSlotPreviews = [];
 let shopAnimating = false;
+// Ключ підтвердження купівлі місця для улюбленця
+const PET_SLOT_CONFIRM = "pet_slot";
 
 function buildShopTabs() {
     shopTabsEl.innerHTML = "";
@@ -391,13 +395,155 @@ function buildShopLegend() {
     el.classList.toggle("hidden", el.childElementCount === 0);
 }
 
+// Підпис бонусу з підказкою
+function addPerkLabel(parent, text, tip) {
+    const perk = document.createElement("span");
+    perk.className = "weapon-coin-bonus";
+    perk.textContent = text;
+    if (tip) {
+        perk.dataset.tip = tip;
+    }
+    parent.appendChild(perk);
+}
+
+// Панель зграї над картками улюбленців: місця (зайняті, вільні, на продаж) і сумарні бонуси
+function buildPetPanel(balance) {
+    const panel = document.createElement("div");
+    panel.className = "pet-panel";
+    const title = document.createElement("div");
+    title.className = "pet-panel-title";
+    title.textContent = "🐾 Твоя зграя — улюбленці біжать за кубиком";
+    panel.appendChild(title);
+    const row = document.createElement("div");
+    row.className = "pet-slots";
+    const slots = save.getPetSlots();
+    const equipped = save.getEquippedPets();
+    const next = save.getNextPetSlot();
+    for (let i = 0; i < MAX_PET_SLOTS; i++) {
+        const cell = document.createElement("div");
+        cell.className = "pet-slot";
+        if (i < slots && equipped[i]) {
+            const pet = equipped[i];
+            const item = getShopItem(pet.id);
+            cell.classList.add("filled");
+            cell.style.setProperty("--rarity", petRarity(item).color);
+            const canvas = document.createElement("canvas");
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = Math.round(56 * dpr);
+            canvas.height = Math.round(56 * dpr);
+            canvas.style.width = "56px";
+            canvas.style.height = "56px";
+            cell.appendChild(canvas);
+            const name = document.createElement("span");
+            name.className = "pet-slot-name";
+            name.textContent = item.name;
+            cell.appendChild(name);
+            cell.dataset.tip = "Натисни, щоб зняти улюбленця з цього місця";
+            cell.addEventListener("click", function () {
+                save.unequipPet(pet.id);
+                buildShop();
+            });
+            petSlotPreviews.push({ canvas: canvas, dpr: dpr, id: pet.id, mutation: pet.mutation });
+        } else if (i < slots) {
+            cell.classList.add("free");
+            cell.textContent = "+ вільне місце";
+        } else if (next && i === next.index) {
+            cell.classList.add("for-sale");
+            if (!next.open) {
+                cell.textContent = "🔒 Відкриється в Лізі " + next.league;
+            } else {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "shop-btn";
+                if (balance >= next.price) {
+                    btn.textContent = confirmItemId === PET_SLOT_CONFIRM ? "ТОЧНО? 🪙 " + next.price : "МІСЦЕ 🪙 " + next.price;
+                    if (confirmItemId === PET_SLOT_CONFIRM) {
+                        btn.classList.add("confirm");
+                    }
+                    btn.addEventListener("click", function () {
+                        if (confirmItemId !== PET_SLOT_CONFIRM) {
+                            confirmItemId = PET_SLOT_CONFIRM;
+                            buildShop();
+                            return;
+                        }
+                        confirmItemId = null;
+                        if (save.buyPetSlot()) {
+                            playSound("click");
+                        }
+                        buildShop();
+                    });
+                } else {
+                    btn.classList.add("poor");
+                    btn.textContent = "Місце: ще " + (next.price - balance) + " 🪙";
+                    btn.disabled = true;
+                }
+                cell.appendChild(btn);
+            }
+        } else {
+            cell.classList.add("locked");
+            cell.textContent = "🔒";
+        }
+        row.appendChild(cell);
+    }
+    panel.appendChild(row);
+    const totals = document.createElement("div");
+    totals.className = "pet-totals";
+    const lines = petTotalsLines(equipped);
+    if (lines.length === 0) {
+        totals.textContent = "Візьми улюбленця — бонуси зграї з'являться тут";
+    } else {
+        const label = document.createElement("span");
+        label.className = "pet-totals-label";
+        label.textContent = "Бонуси зграї:";
+        totals.appendChild(label);
+        for (const line of lines) {
+            addPerkLabel(totals, line.text, line.tip);
+        }
+    }
+    panel.appendChild(totals);
+    shopGridEl.appendChild(panel);
+}
+
+// Кнопка картки улюбленця: зняти, взяти з собою або «місця зайняті»
+function buildOwnedPetButton(btn, item, isEquipped) {
+    if (isEquipped) {
+        btn.classList.add("equipped", "pet-remove");
+        btn.textContent = "✓ ЗНЯТИ";
+        btn.dataset.tip = "Улюбленець у зграї — натисни, щоб зняти";
+        btn.addEventListener("click", function () {
+            save.unequipPet(item.id);
+            confirmItemId = null;
+            buildShop();
+        });
+        return;
+    }
+    if (save.getEquippedPets().length < save.getPetSlots()) {
+        btn.classList.add("equip");
+        btn.textContent = "ВЗЯТИ З СОБОЮ";
+        btn.addEventListener("click", function () {
+            save.equipPet(item.id, false);
+            confirmItemId = null;
+            buildShop();
+        });
+        return;
+    }
+    btn.classList.add("poor");
+    btn.textContent = "МІСЦЯ ЗАЙНЯТІ";
+    btn.dataset.tip = "Зніми когось зі зграї (натисни на нього вгорі) або купи ще одне місце";
+    btn.disabled = true;
+}
+
 function buildShop() {
     refreshCrystalDisplays();
     buildShopTabs();
     buildShopLegend();
     shopGridEl.innerHTML = "";
     shopPreviews = [];
+    petSlotPreviews = [];
     const balance = save.getCrystals();
+    if (activeShopType === "pet") {
+        buildPetPanel(balance);
+    }
     const equipped = activeShopType === "skin" ? null : save.getEquipped(activeShopType);
     const activeSkin = save.getActiveSkin();
     for (const item of SHOP_ITEMS) {
@@ -405,9 +551,13 @@ function buildShop() {
             continue;
         }
         const owned = save.isOwned(item.id);
-        const isEquipped = item.type === "skin" ? activeSkin === item.renderType : equipped === item.id;
+        const isPet = item.type === "pet";
+        const isEquipped = item.type === "skin" ? activeSkin === item.renderType : isPet ? save.isPetEquipped(item.id) : equipped === item.id;
         const card = document.createElement("div");
-        card.className = "skin-card shop-card" + (isEquipped ? " active" : "") + (item.legendary ? " legendary" : "");
+        card.className = "skin-card shop-card" + (isEquipped ? " active" : "") + (item.legendary ? " legendary" : "") + (isPet ? " pet-card" : "");
+        if (isPet) {
+            card.style.setProperty("--rarity", petRarity(item).color);
+        }
         const reqProgress = save.getRequirementProgress(item);
 
         const canvas = document.createElement("canvas");
@@ -429,6 +579,26 @@ function buildShop() {
         name.className = "skin-card-name";
         name.textContent = (item.legendary ? "⭐ " : "") + item.name;
         card.appendChild(name);
+        if (isPet) {
+            // Рідкість замість ліги, мутація й кожен бонус окремим рядком
+            const rarity = document.createElement("span");
+            rarity.className = "pet-rarity";
+            rarity.textContent = petRarity(item).name + (item.move === "swim" ? " 💧" : "");
+            if (item.move === "swim") {
+                rarity.dataset.tip = "💧 Плаває: у звичайних світах — у водяній бульбашці, у водяних — просто у хвилях";
+            }
+            card.appendChild(rarity);
+            const mutationKey = owned ? save.getPetMutation(item.id) : null;
+            if (mutationKey) {
+                const mut = document.createElement("span");
+                mut.className = "pet-mutation";
+                mut.textContent = PET_MUTATIONS[mutationKey].icon + " " + PET_MUTATIONS[mutationKey].name;
+                card.appendChild(mut);
+            }
+            for (const line of petPerkLines(item.id, mutationKey)) {
+                addPerkLabel(card, line.text, line.tip);
+            }
+        }
         // Зброя дає бонус до монет — видно одразу на картці
         if (item.type === "weapon" && weaponCoinBonus(item.id) > 1) {
             const bonus = document.createElement("span");
@@ -438,7 +608,7 @@ function buildShop() {
             card.appendChild(bonus);
         }
         // Аксесуари, шлейфи й вибухи дають бонус: монети, сундуки, повільніша траса, ширша зона
-        if (itemPerkText(item.id)) {
+        if (!isPet && itemPerkText(item.id)) {
             const perk = document.createElement("span");
             perk.className = "weapon-coin-bonus";
             perk.textContent = itemPerkText(item.id);
@@ -449,7 +619,9 @@ function buildShop() {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "shop-btn";
-        if (isEquipped) {
+        if (isPet && owned) {
+            buildOwnedPetButton(btn, item, isEquipped);
+        } else if (isEquipped) {
             btn.classList.add("equipped");
             btn.textContent = "ОДЯГНУТО";
             btn.disabled = true;
@@ -504,7 +676,7 @@ function buildShop() {
 
 // Момент, який показує сірий знімок некупленого товару: кубик зі шлейфом,
 // перша мить вибуху, кубик з аксесуаром, кубик зі зброєю перед атакою
-const GRAY_FRAME_TIME = { skin: 0, trail: 500, explosion: 780, accessory: 0, weapon: 500 };
+const GRAY_FRAME_TIME = { skin: 0, trail: 500, explosion: 780, accessory: 0, weapon: 500, pet: 0 };
 
 // Сірий нерухомий знімок товару для картки магазину
 function makeGraySnapshot(item, dpr) {
@@ -528,7 +700,8 @@ const BOUGHT_TEXT = {
     trail: "Новий шлейф!",
     explosion: "Новий вибух!",
     accessory: "Новий аксесуар!",
-    weapon: "Нова зброя!"
+    weapon: "Нова зброя!",
+    pet: "Новий улюбленець!"
 };
 
 const BUY_POUR_MS = 1100;
@@ -594,7 +767,22 @@ function drawShopPreview(entry, now) {
 function drawShopItemLive(entry, now) {
     const pctx = entry.canvas.getContext("2d");
     pctx.setTransform(entry.dpr, 0, 0, entry.dpr, 0, 0);
-    drawShopItemScene(pctx, entry.item, now, { skinType: save.getActiveSkin(), accessory: save.getEquipped("accessory") });
+    drawShopItemScene(pctx, entry.item, now, {
+        skinType: save.getActiveSkin(),
+        accessory: save.getEquipped("accessory"),
+        mutation: entry.item.type === "pet" && entry.owned ? save.getPetMutation(entry.item.id) : null
+    });
+}
+
+// Мініатюра улюбленця в ряду місць зграї
+function drawPetSlotPreview(entry, now) {
+    const pctx = entry.canvas.getContext("2d");
+    pctx.setTransform(entry.dpr, 0, 0, entry.dpr, 0, 0);
+    pctx.clearRect(0, 0, 56, 56);
+    pctx.save();
+    pctx.translate(28, 30);
+    drawPet(pctx, entry.id, 34, now, { moving: false, mutation: entry.mutation });
+    pctx.restore();
 }
 
 function animateShop(now) {
@@ -604,6 +792,9 @@ function animateShop(now) {
     }
     for (const entry of shopPreviews) {
         drawShopPreview(entry, now);
+    }
+    for (const entry of petSlotPreviews) {
+        drawPetSlotPreview(entry, now);
     }
     requestAnimationFrame(animateShop);
 }

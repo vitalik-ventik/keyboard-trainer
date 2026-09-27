@@ -4,6 +4,7 @@
 
 import { basePrice } from "./shop_rewards.js";
 import { SHOP_ITEMS } from "./shop.js";
+import { petRarity } from "./shop_pets.js";
 
 // ---------- Сундуки ----------
 
@@ -24,6 +25,11 @@ export const CHEST_PITY_WINS = 5;
 
 // Рідкість предмета за базовою ціною (без коефіцієнта ліги) — для підпису під нагородою
 export function itemRarity(item) {
+    // Улюбленці мають власну шкалу рідкості
+    if (item && item.type === "pet") {
+        const rarity = petRarity(item);
+        return { name: rarity.name, color: rarity.color };
+    }
     if (item && item.legendary) {
         return { name: "⭐ ЛЕГЕНДАРНИЙ", color: "#ffcc33" };
     }
