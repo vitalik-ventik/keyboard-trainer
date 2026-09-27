@@ -194,7 +194,23 @@ export const SHOP_ITEMS = [
     { id: "pet_klouno", type: "pet", name: "Клоуно Страшиліно", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "luna_park" },
     { id: "pet_roboakulo", type: "pet", name: "Робоакуло Заводоні", price: 8000, rarity: "secret", move: "swim", secret: "world", world: "sea_fabricator" },
     { id: "pet_dvoholovo", type: "pet", name: "Двоголово Інопланетоні", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "twin_sun_planet" },
-    { id: "pet_dyryzhabloni", type: "pet", name: "Дирижаблоні Китоні", price: 8000, rarity: "secret", move: "fly", secret: "world", world: "sky_city" }
+    { id: "pet_dyryzhabloni", type: "pet", name: "Дирижаблоні Китоні", price: 8000, rarity: "secret", move: "fly", secret: "world", world: "sky_city" },
+    { id: "pet_golkiperoni", type: "pet", name: "Голкіпероні М'ячоні", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "stadium" },
+    { id: "pet_ninja_ravlino", type: "pet", name: "Ніндзя Равліно", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "neon_rooftops" },
+    { id: "pet_yakorino", type: "pet", name: "Якоріно Крабоні", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "night_harbor" },
+    { id: "pet_krakeno", type: "pet", name: "Кракено Піратоні", price: 8000, rarity: "secret", move: "swim", secret: "world", world: "pirate_bay" },
+    { id: "pet_mimik", type: "pet", name: "Мімік Сундуконі", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "treasury" },
+    { id: "pet_astronavto", type: "pet", name: "Астронавто Котоні", price: 8000, rarity: "secret", move: "fly", secret: "world", world: "orbit_view" },
+    { id: "pet_drakon_skarboni", type: "pet", name: "Дракончик Скарбоні", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "dragon_lair" },
+    { id: "pet_krotoni", type: "pet", name: "Кротоні Бурові", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "pixel_cave" },
+    { id: "pet_bekonino", type: "pet", name: "Лицар Беконіно", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "knight_castle" },
+    { id: "pet_pingvino_snow", type: "pet", name: "Пінгвіно Сноубордіно", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "pixel_snow" },
+    { id: "pet_meduzoni", type: "pet", name: "Медузоні Тріоко", price: 8000, rarity: "secret", move: "swim", secret: "world", world: "pixel_ocean" },
+    { id: "pet_kaktusoni", type: "pet", name: "Кактусоні Мачете", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "pixel_desert" },
+    { id: "pet_ostrivoni", type: "pet", name: "Острівоні Черепахоні", price: 8000, rarity: "secret", move: "fly", secret: "world", world: "pixel_islands" },
+    { id: "pet_chornodiro", type: "pet", name: "Чорнодіро Вакуумоні", price: 8000, rarity: "secret", move: "fly", secret: "world", world: "black_hole" },
+    { id: "pet_angelo_gusoni", type: "pet", name: "Ангело Гусоні", price: 8000, rarity: "secret", move: "fly", secret: "world", world: "sky_citadel" },
+    { id: "pet_demonino", type: "pet", name: "Демоніно Лавіні", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "pixel_nether" }
 ];
 
 export const SHOP_TYPES = [

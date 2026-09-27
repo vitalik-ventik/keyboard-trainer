@@ -69,7 +69,23 @@ export const PET_ANCHORS = {
     pet_klouno: { head: [0.0, -0.38], w: 0.38, back: [-0.2, 0.0] },
     pet_roboakulo: { head: [0.22, -0.14], w: 0.28, back: [-0.16, -0.1] },
     pet_dvoholovo: { head: [0.2, -0.3], w: 0.24, back: [-0.2, 0.1] },
-    pet_dyryzhabloni: { head: [0.1, -0.26], w: 0.3, back: [-0.2, -0.1] }
+    pet_dyryzhabloni: { head: [0.1, -0.26], w: 0.3, back: [-0.2, -0.1] },
+    pet_golkiperoni: { head: [0.1, -0.3], w: 0.4, back: [-0.24, 0.0] },
+    pet_ninja_ravlino: { head: [0.29, -0.18], w: 0.24, back: [-0.12, -0.1] },
+    pet_yakorino: { head: [0.02, -0.3], w: 0.3, back: [-0.2, 0.06] },
+    pet_krakeno: { head: [0.0, -0.36], w: 0.5, back: [-0.26, -0.04] },
+    pet_mimik: { head: [0.04, -0.28], w: 0.5, back: [-0.3, 0.1] },
+    pet_astronavto: { head: [0.02, -0.4], w: 0.36, back: [-0.28, 0.0] },
+    pet_drakon_skarboni: { head: [0.28, -0.22], w: 0.3, back: [-0.1, -0.2] },
+    pet_krotoni: { head: [0.16, -0.26], w: 0.34, back: [-0.2, 0.04] },
+    pet_bekonino: { head: [0.0, -0.46], w: 0.36, back: [-0.22, 0.0] },
+    pet_pingvino_snow: { head: [0.02, -0.25], w: 0.36, back: [-0.2, 0.04] },
+    pet_meduzoni: { head: [0.0, -0.3], w: 0.5, back: [-0.28, -0.04] },
+    pet_kaktusoni: { head: [0.0, -0.48], w: 0.32, back: [-0.18, -0.06] },
+    pet_ostrivoni: { head: [0.32, -0.02], w: 0.18, back: [-0.2, 0.0] },
+    pet_chornodiro: { head: [0.0, -0.2], w: 0.4, back: [-0.3, 0.0] },
+    pet_angelo_gusoni: { head: [0.22, -0.36], w: 0.2, back: [-0.14, 0.0] },
+    pet_demonino: { head: [0.0, -0.3], w: 0.5, back: [-0.3, -0.02] }
 };
 
 const DEFAULT_ANCHOR = { head: [0, -0.35], w: 0.36, back: [-0.25, 0] };
