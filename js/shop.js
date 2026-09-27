@@ -178,7 +178,23 @@ export const SHOP_ITEMS = [
     { id: "pet_traktorino", type: "pet", name: "Трактор Тракторіно Мегазорд", price: 20000, rarity: "secret", move: "ground", secret: "gold" },
     { id: "pet_goldoni", type: "pet", name: "Голд Голдоні Слиткоіно", price: 20000, rarity: "secret", move: "ground", secret: "gold" },
     { id: "pet_shaurmino", type: "pet", name: "Дракон Шаурміно", price: 20000, rarity: "secret", move: "ground", secret: "gold" },
-    { id: "pet_borgini", type: "pet", name: "Боргіні Кіборгіні", price: 20000, rarity: "secret", move: "ground", secret: "gold" }
+    { id: "pet_borgini", type: "pet", name: "Боргіні Кіборгіні", price: 20000, rarity: "secret", move: "ground", secret: "gold" },
+    // Секретні улюбленці світів: випадають лише із сундуків, виграних у своєму світі (поле world)
+    { id: "pet_kubo_kriperino", type: "pet", name: "Кубо Кріперіно", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "block_village" },
+    { id: "pet_flamingo", type: "pet", name: "Фламінго Рожевіно", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "sunset_city" },
+    { id: "pet_raptor_raketoni", type: "pet", name: "Раптор Ракетоні", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "cosmodrome" },
+    { id: "pet_motocyclino", type: "pet", name: "Мотоцикліно Ящероні", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "neon_highway" },
+    { id: "pet_idol", type: "pet", name: "Ідол Кам'яно", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "jungle_temple" },
+    { id: "pet_glitcho", type: "pet", name: "Глітчо Лисоні", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "digital_forest" },
+    { id: "pet_gromoni", type: "pet", name: "Громоні Хмароні", price: 8000, rarity: "secret", move: "fly", secret: "world", world: "storm_sky" },
+    { id: "pet_kristalozavr", type: "pet", name: "Кристалозавр", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "crystal_cave" },
+    { id: "pet_tirex", type: "pet", name: "Тірекс Мікроні", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "dino_valley" },
+    { id: "pet_skeletoni", type: "pet", name: "Скелетоні Скейтоні", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "pixel_night" },
+    { id: "pet_agent_homiakoni", type: "pet", name: "Агент Хом'яконі", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "secret_base" },
+    { id: "pet_klouno", type: "pet", name: "Клоуно Страшиліно", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "luna_park" },
+    { id: "pet_roboakulo", type: "pet", name: "Робоакуло Заводоні", price: 8000, rarity: "secret", move: "swim", secret: "world", world: "sea_fabricator" },
+    { id: "pet_dvoholovo", type: "pet", name: "Двоголово Інопланетоні", price: 8000, rarity: "secret", move: "ground", secret: "world", world: "twin_sun_planet" },
+    { id: "pet_dyryzhabloni", type: "pet", name: "Дирижаблоні Китоні", price: 8000, rarity: "secret", move: "fly", secret: "world", world: "sky_city" }
 ];
 
 export const SHOP_TYPES = [

@@ -509,7 +509,7 @@ function buildPetPanel(balance) {
     const secretLine = document.createElement("div");
     secretLine.className = "pet-secrets";
     secretLine.textContent = "🔮 Секретні: " + found + "/" + secrets.length;
-    secretLine.dataset.tip = "Секретних не купиш: кожен живе у своєму сундуку — 🪵 дерев'яному, 🥈 срібному чи 🥇 золотому";
+    secretLine.dataset.tip = "Секретних не купиш: кожен живе у своєму сундуку — 🪵 дерев'яному, 🥈 срібному чи 🥇 золотому — або у своєму світі 🌍 (рівні з 🔮 у виборі рівня)";
     panel.appendChild(secretLine);
     shopGridEl.appendChild(panel);
 }
@@ -619,7 +619,7 @@ function buildShop() {
                 card.appendChild(mut);
             }
             if (hiddenSecret) {
-                addPerkLabel(card, "✨ ??? — дуже сильні бонуси", "Секретного улюбленця не купиш. " + source.text);
+                addPerkLabel(card, "✨ ??? — дуже сильні бонуси", "Секретного улюбленця не купиш. " + source.text + (item.secret === "world" ? " — випадає із сундуків, виграних у цьому світі" : ""));
             } else {
                 for (const line of petPerkLines(item.id, mutationKey)) {
                     addPerkLabel(card, line.text, line.tip);

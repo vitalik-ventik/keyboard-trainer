@@ -12,7 +12,7 @@ import { drawKeyboard, drawTargetPulse, initKeyboardInput } from "./keyboard.js"
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundQuality, FrameController, KeyboardCache } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
-import { accessoryPerk, chestsForVictory, computeReward, drawHeartLife, heartsText } from "./shop.js";
+import { SHOP_ITEMS, accessoryPerk, chestsForVictory, computeReward, drawHeartLife, heartsText } from "./shop.js";
 import { closeShop, renderCurrentSkinIcon, shopModalEl, skinsModalEl } from "./ui/shop.js";
 import { achModalEl, announceAchievements, closeAchievements, noteRunForAchievements, refreshAchievementBadge } from "./ui/achievements.js";
 import { refreshCrystalDisplays, renderRewardBreakdown, showRetroNotice } from "./ui/coins.js";
@@ -461,6 +461,19 @@ function buildLevelCards() {
             star.textContent = "★";
             card.insertBefore(star, card.firstChild);
             card.classList.add(achievement === "hard" ? "perfect-gold" : "perfect-silver");
+        }
+
+        // У світі ховається секретний улюбленець: випадає лише із сундуків цього рівня
+        const worldPet = locked ? null : SHOP_ITEMS.find(function (it) { return it.secret === "world" && it.world === level.bgTheme; });
+        if (worldPet) {
+            const found = save.isOwned(worldPet.id);
+            const badge = document.createElement("div");
+            badge.className = "level-secret" + (found ? " found" : "");
+            badge.textContent = "🔮";
+            badge.dataset.tip = found
+                ? "Секретного улюбленця цього світу знайдено: " + worldPet.name
+                : "Тут ховається секретний улюбленець! Він випадає лише із сундуків, виграних у цьому світі";
+            card.appendChild(badge);
         }
 
         const lettersPreview = document.createElement("div");

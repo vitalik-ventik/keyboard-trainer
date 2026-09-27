@@ -87,7 +87,23 @@ export const PET_PERKS = {
     pet_traktorino: { shield: true, window: 0.08, slow: 0.04 },
     pet_goldoni: { coins: 0.15, chest: 0.08, item: 0.08 },
     pet_shaurmino: { words: 0.5, consolation: 0.75, hearts: 0.06 },
-    pet_borgini: { shield: true, perfect: 0.2, window: 0.1 }
+    pet_borgini: { shield: true, perfect: 0.2, window: 0.1 },
+    // Секретні улюбленці світів
+    pet_kubo_kriperino: { words: 0.3, chest: 0.05 },
+    pet_flamingo: { perfect: 0.14, consolation: 0.65 },
+    pet_raptor_raketoni: { coins: 0.08, series: 0.3 },
+    pet_motocyclino: { slow: 0.04, window: 0.06 },
+    pet_idol: { item: 0.1, hearts: 0.05 },
+    pet_glitcho: { window: 0.07, perfect: 0.1 },
+    pet_gromoni: { series: 0.4, coins: 0.05 },
+    pet_kristalozavr: { shield: true, hearts: 0.04 },
+    pet_tirex: { words: 0.35, consolation: 0.65 },
+    pet_skeletoni: { perfect: 0.12, slow: 0.03, series: 0.2 },
+    pet_agent_homiakoni: { chest: 0.08, item: 0.06 },
+    pet_klouno: { consolation: 0.7, series: 0.3 },
+    pet_roboakulo: { coins: 0.08, slow: 0.04 },
+    pet_dvoholovo: { words: 0.3, perfect: 0.1, window: 0.04 },
+    pet_dyryzhabloni: { slow: 0.05, hearts: 0.06, coins: 0.04 }
 };
 
 // Межі зграї: однакові бонуси кількох улюбленців складаються, але не більше за межу.
@@ -167,7 +183,7 @@ export const PET_MUTATION_CHANCE = 0.12;
 // ("wood" | "silver" | "gold"), або "world": тоді поле world — тема світу, і улюбленець
 // випадає з будь-якого сундука, виграного в цьому світі. Випадає лише той, кого ще немає
 export const SECRET_PET_CHANCE = { wood: 0.01, silver: 0.015, gold: 0.02 };
-export const SECRET_WORLD_CHANCE = 0.03;
+export const SECRET_WORLD_CHANCE = 0.05;
 
 // М'яка гарантія: кожен сундук без секретного (коли в ньому ще є кого знайти) додає
 // до шансу SECRET_PITY_STEP, а SECRET_PITY_MAX-й такий сундук поспіль дає секретного напевно
@@ -187,7 +203,7 @@ export function secretPetSource(item, worldName) {
         return null;
     }
     if (item.secret === "world") {
-        return { icon: "🌍", text: "Лише із сундука, виграного у світі «" + (worldName || item.world) + "»" };
+        return { icon: "🌍", text: "Лише зі світу «" + (worldName || item.world) + "»" };
     }
     return SECRET_CHEST_SOURCES[item.secret] || SECRET_CHEST_SOURCES.gold;
 }
