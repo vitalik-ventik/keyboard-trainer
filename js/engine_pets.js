@@ -9,9 +9,9 @@ import { CUBE_SIZE, SPIKE_H } from "./game_constants.js";
 import { save } from "./save.js";
 
 // Розмір улюбленця й відстані в зграї (у пікселях траси):
-// улюбленці помітно менші за кубик, як в інших іграх
-const PET_SIZE = CUBE_SIZE * 0.6;
-const PET_FIRST_OFFSET = CUBE_SIZE * 1.25;
+// улюбленці трохи менші за кубик
+const PET_SIZE = CUBE_SIZE * 0.7;
+const PET_FIRST_OFFSET = CUBE_SIZE * 1.35;
 const PET_GAP = PET_SIZE * 1.3;
 // Скільки триває радість після «Ідеально» (с) і на скільки пізніше радіє кожен наступний
 const PET_HAPPY_TIME = 0.8;
