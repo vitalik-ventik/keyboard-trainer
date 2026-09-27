@@ -87,15 +87,16 @@ function drawPetScene(pctx, item, now, opts) {
     pctx.fillRect(0, groundY, w, 2);
     const cycle = 2600;
     const ph = now > 0 ? now % cycle : 0;
-    const cubeSize = 26;
+    const cubeSize = 36;
     const cubeHop = ph < 500 ? Math.sin(ph / 500 * Math.PI) * 26 : 0;
     const skinFn = SKIN_RENDERERS[opts.skinType] || SKIN_RENDERERS.neon_base;
     pctx.save();
-    pctx.translate(122, groundY - cubeSize / 2 - cubeHop);
+    pctx.translate(114, groundY - cubeSize / 2 - cubeHop);
     pctx.rotate(ph < 500 ? ph / 500 * Math.PI / 2 : 0);
     skinFn(pctx, cubeSize, now, {});
     pctx.restore();
-    const size = 50;
+    // Улюбленець трохи менший за кубик — як на трасі, але великий, щоб роздивитися
+    const size = 34;
     const happyT = ph >= 350 && ph < 1150 ? (ph - 350) / 800 : 0;
     const base = item.move === "swim" ? size * 0.3 : item.move === "fly" ? size * 0.55 : 0;
     const lift = base + (happyT > 0 ? Math.sin(happyT * Math.PI) * 10 : 0);
