@@ -103,7 +103,23 @@ export const PET_PERKS = {
     pet_klouno: { consolation: 0.7, series: 0.3 },
     pet_roboakulo: { coins: 0.08, slow: 0.04 },
     pet_dvoholovo: { words: 0.3, perfect: 0.1, window: 0.04 },
-    pet_dyryzhabloni: { slow: 0.05, hearts: 0.06, coins: 0.04 }
+    pet_dyryzhabloni: { slow: 0.05, hearts: 0.06, coins: 0.04 },
+    pet_golkiperoni: { shield: true, perfect: 0.08 },
+    pet_ninja_ravlino: { perfect: 0.14, slow: 0.03 },
+    pet_yakorino: { consolation: 0.7, hearts: 0.05 },
+    pet_krakeno: { item: 0.1, chest: 0.06 },
+    pet_mimik: { chest: 0.1, coins: 0.06 },
+    pet_astronavto: { slow: 0.05, window: 0.05 },
+    pet_drakon_skarboni: { coins: 0.1, item: 0.06 },
+    pet_krotoni: { item: 0.08, words: 0.25 },
+    pet_bekonino: { shield: true, series: 0.25 },
+    pet_pingvino_snow: { slow: 0.04, series: 0.3 },
+    pet_meduzoni: { window: 0.07, consolation: 0.65 },
+    pet_kaktusoni: { words: 0.35, perfect: 0.08 },
+    pet_ostrivoni: { hearts: 0.07, slow: 0.03 },
+    pet_chornodiro: { slow: 0.06, coins: 0.05 },
+    pet_angelo_gusoni: { hearts: 0.06, consolation: 0.7 },
+    pet_demonino: { series: 0.4, words: 0.3 }
 };
 
 // Межі зграї: однакові бонуси кількох улюбленців складаються, але не більше за межу.
