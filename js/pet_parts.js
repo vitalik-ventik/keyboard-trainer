@@ -144,17 +144,20 @@ export function petMouth(ctx, x, y, w, s, mood) {
     ctx.stroke();
 }
 
-// Лапка: округлий стовпчик, що ходить уперед-назад із фазою бігу
+// Лапка: округлий стовпчик, що ходить уперед-назад із фазою бігу.
+// Уперед (праворуч, куди біжить улюбленець) лапка йде піднятою, а назад — по землі,
+// відштовхуючись: зсув sin(phase) росте, коли cos(phase) > 0, — саме тоді вона й піднята
 export function petLeg(ctx, x, top, w, h, phase, fill, s) {
     const swing = Math.sin(phase) * w * 0.7;
-    const lift = Math.max(0, -Math.cos(phase)) * h * 0.25;
+    const lift = Math.max(0, Math.cos(phase)) * h * 0.25;
     fillRoundRect(ctx, x - w / 2 + swing, top - lift, w, h, w * 0.45, fill, s);
 }
 
 // Кросівка брейнрота: біла з кольоровою смужкою
 export function petSneaker(ctx, x, y, w, stripe, s, phase) {
     const swing = phase ? Math.sin(phase) * w * 0.35 : 0;
-    const lift = phase ? Math.max(0, -Math.cos(phase)) * w * 0.25 : 0;
+    // Як у petLeg: крок уперед — у повітрі, назад — по землі
+    const lift = phase ? Math.max(0, Math.cos(phase)) * w * 0.25 : 0;
     const bx = x + swing;
     const by = y - lift;
     ctx.beginPath();
