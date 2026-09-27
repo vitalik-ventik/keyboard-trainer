@@ -233,6 +233,75 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape,
             ctx.lineWidth = 1.5;
             ctx.strokeRect(-7, -7, 14, 14);
         }
+    } else if (kind === "homerun") {
+        // Бейсбольна бита: зірка удару, шип зі свистом крутиться вгору-вперед,
+        // меншає й зникає в небі зірочкою, спалахує «ХОУМ-РАН!»
+        const fly = 0.75;
+        const f = Math.min(t, fly);
+        const dx = f * 520 + f * f * 260;
+        const dy = -f * 520 + f * f * 120;
+        const scale = Math.max(0, 1 - f / fly);
+        if (scale > 0.02) {
+            // Смуги швидкості позаду шипа
+            ctx.fillStyle = "rgba(255, 255, 255, " + (0.6 * scale).toFixed(2) + ")";
+            for (let i = 0; i < 3; i++) {
+                ctx.save();
+                ctx.translate(x + dx, groundY - h * 0.4 + dy);
+                ctx.rotate(-0.7);
+                ctx.fillRect(-h * 0.6 - 26 - i * 10, -8 + i * 8, 22 * scale + 6, 2);
+                ctx.restore();
+            }
+            ctx.save();
+            ctx.translate(x + dx, groundY - h * 0.4 + dy);
+            ctx.rotate(-t * 16);
+            ctx.scale(scale, scale);
+            ctx.translate(-x, -(groundY - h * 0.4));
+            drawShape(ctx);
+            ctx.restore();
+        }
+        // Зірка удару в мить контакту
+        if (t < 0.22) {
+            const e = t / 0.22;
+            const cx = x - hw * 0.6;
+            const cy = groundY - h * 0.45;
+            const r = h * (0.35 + e * 0.5);
+            ctx.fillStyle = "rgba(255, 236, 120, " + (1 - e * e).toFixed(2) + ")";
+            ctx.beginPath();
+            for (let i = 0; i < 16; i++) {
+                const a = i * Math.PI / 8;
+                const rr = i % 2 === 0 ? r : r * 0.45;
+                ctx.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = "rgba(255, 255, 255, " + (1 - e * e).toFixed(2) + ")";
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        // Зірочка-відблиск там, де шип зник у небі
+        const star = t > fly - 0.05 ? Math.sin(clamp01((t - fly + 0.05) / 0.35) * Math.PI) : 0;
+        if (star > 0) {
+            const sx = x + fly * 520 + fly * fly * 260;
+            const sy = groundY - h * 0.4 - fly * 520 + fly * fly * 120;
+            ctx.fillStyle = "rgba(255, 255, 255, " + star.toFixed(2) + ")";
+            ctx.fillRect(sx - 1.5, sy - 10 * star, 3, 20 * star);
+            ctx.fillRect(sx - 10 * star, sy - 1.5, 20 * star, 3);
+        }
+        const pop = t < 0.18 ? t / 0.18 : 1;
+        const textA = 1 - clamp01((t - 0.95) / 0.3);
+        ctx.globalAlpha = textA;
+        ctx.translate(x, groundY - h - 46 - t * 12);
+        ctx.rotate(-0.08);
+        ctx.scale(0.5 + pop * 0.6, 0.5 + pop * 0.6);
+        ctx.font = "900 22px 'Segoe UI', Arial, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = "#2a0a0a";
+        ctx.strokeText("ХОУМ-РАН!", 0, 0);
+        ctx.fillStyle = "#ffd23f";
+        ctx.fillText("ХОУМ-РАН!", 0, 0);
     } else if (kind === "goal") {
         // М'яч: шип перекидається назад і відлітає, спалахує «ГОЛ!»
         ctx.save();

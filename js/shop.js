@@ -94,6 +94,7 @@ export const SHOP_ITEMS = [
     { id: "weapon_sword", type: "weapon", name: "Меч", price: 200, league: 1, bonus: 1.05 },
     { id: "weapon_axe", type: "weapon", name: "Сокира-бумеранг", price: 300, league: 1, bonus: 1.1 },
     { id: "weapon_pickaxe", type: "weapon", name: "Кирка", price: 400, league: 1, bonus: 1.15 },
+    { id: "weapon_bat", type: "weapon", name: "Бейсбольна бита", price: 450, league: 1, bonus: 1.17 },
     { id: "weapon_bow", type: "weapon", name: "Лук", price: 500, league: 1, bonus: 1.2 },
     { id: "weapon_ball", type: "weapon", name: "Футбольний м'яч", price: 600, league: 1, bonus: 1.25 },
     { id: "weapon_pistol", type: "weapon", name: "Пістолет", price: 1350, league: 2, bonus: 1.3 },
