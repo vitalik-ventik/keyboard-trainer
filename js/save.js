@@ -799,6 +799,11 @@ export const save = {
         }
         if (result.kind === "item") {
             saveData.shop.owned.push(result.id);
+            // Останній секретний відкриває ультра-секретного Мега Брейнроті Фьюжн
+            const fusion = this.grantFusionIfReady();
+            if (fusion) {
+                result.fusion = fusion;
+            }
             // Новий улюбленець іноді випадає вже мутованим
             const dropped = getShopItem(result.id);
             if (dropped && dropped.type === "pet" && Math.random() < PET_MUTATION_CHANCE) {
@@ -814,6 +819,31 @@ export const save = {
         }
         this.persist();
         return { type: type, result: result };
+    },
+
+    // Скільки звичайних секретних (не ультра-секретного) знайдено: { found, total }
+    getSecretProgress() {
+        if (!saveData) {
+            this.load();
+        }
+        const others = SHOP_ITEMS.filter(function (it) { return it.type === "pet" && !!it.secret && it.secret !== "fusion"; });
+        const found = others.filter(function (it) { return saveData.shop.owned.indexOf(it.id) !== -1; }).length;
+        return { found: found, total: others.length };
+    },
+
+    // Коли зібрано всіх секретних — видати ультра-секретного (без збереження, його робить виклик).
+    // Повертає id виданого улюбленця або null
+    grantFusionIfReady() {
+        const fusion = SHOP_ITEMS.find(function (it) { return it.secret === "fusion"; });
+        if (!fusion || saveData.shop.owned.indexOf(fusion.id) !== -1) {
+            return null;
+        }
+        const progress = this.getSecretProgress();
+        if (progress.found < progress.total) {
+            return null;
+        }
+        saveData.shop.owned.push(fusion.id);
+        return fusion.id;
     },
 
     // Знайдений секретний улюбленець цього сундука чи світу ще без мутації (або null)
@@ -870,6 +900,10 @@ export const save = {
         const req = item && item.requirement;
         if (item && item.secret) {
             // Секретний улюбленець не продається — лише випадає із сундука чи світу
+            if (item.secret === "fusion") {
+                const progress = this.getSecretProgress();
+                return { met: false, current: progress.found, target: progress.total, text: "Збери всіх секретних" };
+            }
             const source = secretPetSource(item, BackgroundRenderer.worldName(item.world));
             return { met: false, current: 0, target: 1, text: source.text };
         }

@@ -16,7 +16,8 @@ export const PET_RARITIES = {
     legendary: { name: "Легендарний", color: "#ffcc33" },
     mythic: { name: "Міфічний", color: "#ff4a5a" },
     brainrot: { name: "Брейнрот", color: "#ff6bd6", rainbow: true },
-    secret: { name: "Секретний", color: "#9cffe8" }
+    secret: { name: "Секретний", color: "#9cffe8" },
+    ultra: { name: "Ультра-секрет", color: "#ffe14d", rainbow: true }
 };
 
 export function petRarity(item) {
@@ -119,7 +120,9 @@ export const PET_PERKS = {
     pet_ostrivoni: { hearts: 0.07, slow: 0.03 },
     pet_chornodiro: { slow: 0.06, coins: 0.05 },
     pet_angelo_gusoni: { hearts: 0.06, consolation: 0.7 },
-    pet_demonino: { series: 0.4, words: 0.3 }
+    pet_demonino: { series: 0.4, words: 0.3 },
+    // Ультра-секретний — усе потроху
+    pet_fusion: { coins: 0.15, series: 0.4, words: 0.4, perfect: 0.15, consolation: 0.75, shield: true }
 };
 
 // Межі зграї: однакові бонуси кількох улюбленців складаються, але не більше за межу.
@@ -217,6 +220,9 @@ export const SECRET_CHEST_SOURCES = {
 export function secretPetSource(item, worldName) {
     if (!item || !item.secret) {
         return null;
+    }
+    if (item.secret === "fusion") {
+        return { icon: "🏆", text: "Нагорода за всіх інших секретних" };
     }
     if (item.secret === "world") {
         return { icon: "🌍", text: "Лише зі світу «" + (worldName || item.world) + "»" };

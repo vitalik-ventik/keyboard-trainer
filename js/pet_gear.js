@@ -85,7 +85,8 @@ export const PET_ANCHORS = {
     pet_ostrivoni: { head: [0.32, -0.02], w: 0.18, back: [-0.2, 0.0] },
     pet_chornodiro: { head: [0.0, -0.2], w: 0.4, back: [-0.3, 0.0] },
     pet_angelo_gusoni: { head: [0.22, -0.36], w: 0.2, back: [-0.14, 0.0] },
-    pet_demonino: { head: [0.0, -0.3], w: 0.5, back: [-0.3, -0.02] }
+    pet_demonino: { head: [0.0, -0.3], w: 0.5, back: [-0.3, -0.02] },
+    pet_fusion: { head: [0.1, -0.3], w: 0.28, back: [-0.16, -0.12] }
 };
 
 const DEFAULT_ANCHOR = { head: [0, -0.35], w: 0.36, back: [-0.25, 0] };
