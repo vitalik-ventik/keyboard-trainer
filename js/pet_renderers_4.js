@@ -5,35 +5,7 @@
 // (збираються в PET_RENDERERS у pet_renderers.js)
 // ============================================================
 
-import { PET_OUTLINE, breathe, eyeMood, fillEllipse, fillRoundRect, petEye, petLeg, petLimb, petLine, petMouth, runPhase, sneakerLegs } from "./pet_parts.js";
-
-// Сердита брова над оком: брейнроти дивляться «круто»
-function angryBrow(ctx, x, y, r, s) {
-    ctx.strokeStyle = PET_OUTLINE;
-    ctx.lineWidth = Math.max(1, petLine(s) * 0.9);
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.moveTo(x - r * 1.0, y - r * 1.5);
-    ctx.lineTo(x + r * 0.9, y - r * 1.05);
-    ctx.stroke();
-}
-
-// Контурований багатокутник
-function fillPoly(ctx, points, fill, s) {
-    ctx.beginPath();
-    ctx.moveTo(points[0][0], points[0][1]);
-    for (let i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i][0], points[i][1]);
-    }
-    ctx.closePath();
-    ctx.fillStyle = fill;
-    ctx.fill();
-    if (s) {
-        ctx.lineWidth = petLine(s);
-        ctx.strokeStyle = PET_OUTLINE;
-        ctx.stroke();
-    }
-}
+import { PET_OUTLINE, angryBrow, breathe, eyeMood, fillEllipse, fillRoundRect, petEye, petLeg, petLimb, petLine, petMouth, runPhase, sneakerLegs } from "./pet_parts.js";
 
 // ---------- Пилоріно Бобрані: бобер із бензопилою замість хвоста ----------
 

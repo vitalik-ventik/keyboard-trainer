@@ -76,6 +76,8 @@ export const ACHIEVEMENTS = [
     { id: "pack_full", group: "pets", icon: "🐕", name: "Повна зграя", desc: "Візьми з собою 5 улюбленців одночасно", chest: "silver", target: 5, value: function (s) { return s.petsEquipped; } },
     { id: "pet_mutant", group: "pets", icon: "🧬", name: "Мутант!", desc: "Отримай мутованого улюбленця", chest: "silver", target: 1, value: function (s) { return s.petsMutated; } },
     { id: "pet_secret", group: "pets", icon: "🔮", name: "Перша таємниця", desc: "Знайди секретного улюбленця в сундуку", chest: "silver", target: 1, value: function (s) { return s.petSecret; } },
+    { id: "secret_world", group: "pets", icon: "🌍", name: "Мандрівник", desc: "Знайди секретного улюбленця світу", chest: "silver", target: 1, value: function (s) { return s.petSecretWorld; } },
+    { id: "secrets_world_5", group: "pets", icon: "🗺️", name: "Дослідник світів", desc: "Знайди 5 секретних улюбленців світів", chest: "gold", target: 5, value: function (s) { return s.petSecretWorld; } },
     { id: "secrets_3", group: "pets", icon: "🕶️", name: "Банда брейнротів", desc: "Знайди 3 секретних улюбленців", chest: "gold", target: 3, value: function (s) { return s.petSecret; } },
     { id: "secrets_8", group: "pets", icon: "🧪", name: "Лабораторія брейнротів", desc: "Знайди 8 секретних улюбленців", chest: "gold", target: 8, value: function (s) { return s.petSecret; } },
     { id: "secrets_all", group: "pets", icon: "🏆", name: "Усі таємниці", desc: "Знайди всіх секретних улюбленців", chest: "gold", target: 0, value: function (s) { return s.petSecret; }, targetFromSnapshot: "totalSecrets" },

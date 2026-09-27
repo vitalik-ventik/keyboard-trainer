@@ -1069,6 +1069,28 @@ body {
     50% { transform: scale(1.15); }
 }
 
+.level-secret {
+    position: absolute;
+    top: 0.8vmin;
+    right: 1vmin;
+    font-size: 2.2vmin;
+    line-height: 1;
+    cursor: help;
+    filter: drop-shadow(0 0 0.6vmin rgba(156, 255, 232, 0.9));
+    animation: level-secret-pulse 1.6s ease-in-out infinite;
+}
+
+.level-secret.found {
+    opacity: 0.45;
+    filter: none;
+    animation: none;
+}
+
+@keyframes level-secret-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.18); }
+}
+
 .level-star {
     font-size: 3vmin;
     line-height: 1;

@@ -1026,6 +1026,7 @@ export const save = {
         let petsOwned = 0;
         let petsMutated = 0;
         let petSecret = 0;
+        let petSecretWorld = 0;
         for (const id of saveData.shop.owned) {
             const item = getShopItem(id);
             if (!item) {
@@ -1044,6 +1045,9 @@ export const save = {
                 }
                 if (item.secret) {
                     petSecret++;
+                }
+                if (item.secret === "world") {
+                    petSecretWorld++;
                 }
             }
             if (item.legendary) {
@@ -1076,6 +1080,7 @@ export const save = {
             petsEquipped: saveData.shop.pets.length,
             petsMutated: petsMutated,
             petSecret: petSecret,
+            petSecretWorld: petSecretWorld,
             totalSecrets: SHOP_ITEMS.filter(function (it) { return it.type === "pet" && !!it.secret; }).length
         };
     },
