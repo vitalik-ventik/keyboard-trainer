@@ -68,6 +68,12 @@ class EngineWeapons {
             this.spawnDebris(16, Object.assign(base, { colors: ["#7affd8", "#3affc0", "#ffffff"], angleMin: Math.PI * 0.1, angleMax: Math.PI * 0.9, speedMin: 60, speedMax: 200, sizeMin: 2, sizeMax: 4, gravity: -80, life: 1.0, outline: false, spin: 4 }));
         } else if (fx === "shred") {
             this.spawnDebris(10, Object.assign(base, { colors: colors.concat(["#dfe8f4"]), angleMin: Math.PI * 0.1, angleMax: Math.PI * 0.9, speedMin: 100, speedMax: 260, sizeMin: 2, sizeMax: 5, gravity: 800, life: 0.7 }));
+        } else if (fx === "homerun") {
+            // Бита: тріски дерева й іскри удару летять уперед
+            this.spawnDebris(10, Object.assign(base, { colors: ["#f6cf8e", "#c8883a", "#ffffff", "#ffe680"], angleMin: Math.PI * 0.1, angleMax: Math.PI * 0.55, speedMin: 160, speedMax: 340, sizeMin: 2, sizeMax: 4, gravity: 700, life: 0.6, outline: false, spin: 12 }));
+            if (this.cameraMotion) {
+                this.shakeTime = Math.max(this.shakeTime, SHAKE_TIME * 0.3);
+            }
         } else if (fx === "break") {
             this.spawnDebris(12, Object.assign(base, { angleMin: Math.PI * 0.15, angleMax: Math.PI * 0.85, speedMin: 100, speedMax: 240, sizeMin: 5, sizeMax: 9, gravity: 900, life: 0.8, spin: 6 }));
         }

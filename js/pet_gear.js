@@ -97,6 +97,7 @@ export const WEAPON_GEAR = {
     weapon_axe: "knight",
     weapon_firesword: "fire_knight",
     weapon_pickaxe: "miner",
+    weapon_bat: "baseball",
     weapon_bow: "archer",
     weapon_ball: "ball",
     weapon_pistol: "soldier",
@@ -241,6 +242,15 @@ function firefighterHelmet(ctx, x, y, w, s) {
     ctx.fillStyle = "#ffd23f";
     ctx.fill();
     ctx.stroke();
+}
+
+// Бейсболка (бита): червоний купол, козирок уперед і гудзик на маківці
+function baseballCap(ctx, x, y, w, s) {
+    fillRoundRect(ctx, x + w * 0.1, y - w * 0.07, w * 0.62, w * 0.1, w * 0.05, "#b81e2e", s * 0.8);
+    domeHelmet(ctx, x, y, w, "#e02a3a", null, s);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.fillRect(x + w * 0.02, y - w * 0.3, w * 0.22, w * 0.2);
+    fillEllipse(ctx, x, y - w * 0.43, w * 0.06, w * 0.04, "#b81e2e", s * 0.5);
 }
 
 function antennae(ctx, x, y, w, s, t, rgb) {
@@ -389,6 +399,8 @@ export function drawPetGearFront(ctx, petId, gear, s, t, flies) {
         knightHelmet(ctx, hx, hy + w * 0.12, w, s, t, gear === "fire_knight");
     } else if (gear === "miner") {
         minerHelmet(ctx, hx, hy + w * 0.12, w, s, t);
+    } else if (gear === "baseball") {
+        baseballCap(ctx, hx, hy + w * 0.12, w, s);
     } else if (gear === "soldier") {
         soldierHelmet(ctx, hx, hy + w * 0.12, w, s);
     } else if (gear === "firefighter") {

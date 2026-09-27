@@ -60,6 +60,48 @@ function drawPickaxeShape(ctx, s) {
     ctx.fillRect(-s * 0.08, -s * 0.68, s * 0.16, s * 0.06);
 }
 
+// Бейсбольна бита в стилі Roblox: дерев'яна, товщає до кінця, з обмоткою на руків'ї
+function drawBatShape(ctx, s) {
+    const wood = ctx.createLinearGradient(-s * 0.1, 0, s * 0.1, 0);
+    wood.addColorStop(0, "#e0a45a");
+    wood.addColorStop(0.45, "#f6cf8e");
+    wood.addColorStop(1, "#b8783a");
+    ctx.fillStyle = wood;
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.035, s * 0.16);
+    ctx.lineTo(-s * 0.045, -s * 0.2);
+    ctx.quadraticCurveTo(-s * 0.1, -s * 0.46, -s * 0.1, -s * 0.74);
+    ctx.quadraticCurveTo(-s * 0.1, -s * 0.86, 0, -s * 0.86);
+    ctx.quadraticCurveTo(s * 0.1, -s * 0.86, s * 0.1, -s * 0.74);
+    ctx.quadraticCurveTo(s * 0.1, -s * 0.46, s * 0.045, -s * 0.2);
+    ctx.lineTo(s * 0.035, s * 0.16);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "#6a3a14";
+    ctx.lineWidth = Math.max(1, s * 0.03);
+    ctx.stroke();
+    // Волокна дерева
+    ctx.strokeStyle = "rgba(120, 70, 30, 0.45)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.04, -s * 0.3);
+    ctx.quadraticCurveTo(-s * 0.06, -s * 0.55, -s * 0.05, -s * 0.78);
+    ctx.moveTo(s * 0.03, -s * 0.34);
+    ctx.quadraticCurveTo(s * 0.05, -s * 0.6, s * 0.04, -s * 0.8);
+    ctx.stroke();
+    // Червона обмотка руків'я й набалдашник
+    ctx.fillStyle = "#d8283a";
+    ctx.fillRect(-s * 0.045, -s * 0.06, s * 0.09, s * 0.2);
+    ctx.fillStyle = "#8a1422";
+    for (let i = 0; i < 3; i++) {
+        ctx.fillRect(-s * 0.045, -s * 0.04 + i * s * 0.065, s * 0.09, s * 0.018);
+    }
+    ctx.fillStyle = "#6a3a14";
+    ctx.beginPath();
+    ctx.ellipse(0, s * 0.17, s * 0.07, s * 0.035, 0, 0, Math.PI * 2);
+    ctx.fill();
+}
+
 function drawBowShape(ctx, s, pull) {
     ctx.strokeStyle = "#a86a2a";
     ctx.lineWidth = Math.max(2, s * 0.08);
@@ -388,7 +430,7 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
     const recoil = pose ? pose.recoil || 0 : 0;
     ctx.save();
     const saber = saberColor(id);
-    if (id === "weapon_sword" || id === "weapon_axe" || id === "weapon_pickaxe" || id === "weapon_firesword" || id === "weapon_thunder" || saber) {
+    if (id === "weapon_sword" || id === "weapon_axe" || id === "weapon_pickaxe" || id === "weapon_bat" || id === "weapon_firesword" || id === "weapon_thunder" || saber) {
         if (pose && pose.away) {
             ctx.restore();
             return;
@@ -425,6 +467,8 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
             drawThunderHammerShape(ctx, s, time);
         } else if (id === "weapon_axe") {
             drawAxeShape(ctx, s);
+        } else if (id === "weapon_bat") {
+            drawBatShape(ctx, s);
         } else {
             drawPickaxeShape(ctx, s);
         }

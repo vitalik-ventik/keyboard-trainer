@@ -13,6 +13,7 @@ const SOUND_FILES = {
     fire_sword: "sounds/fire_sword.wav",
     axe: "sounds/axe.wav",
     pickaxe: "sounds/pickaxe.wav",
+    bat: "sounds/bat.wav",
     bow: "sounds/bow.wav",
     soccer: "sounds/soccer.wav",
     gun: "sounds/gun.wav",
