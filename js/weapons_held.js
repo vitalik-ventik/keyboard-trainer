@@ -403,6 +403,38 @@ export function drawFootball(ctx, r, rot) {
     ctx.restore();
 }
 
+// Бита в руці: у спокої лежить на плечі, у замаху відведена назад, удар — бейсбольний
+// мах уздовж землі: бита йде з-за спини низом повз кубик і закінчує вперед-угору.
+// Мах відбувається «вглиб екрана», тому посередині бита вкорочується (дивиться на глядача)
+function drawBatSwing(ctx, s, raise, swing) {
+    const px = s * 0.3;
+    const py = s * 0.1;
+    let angle = -0.45 - raise * 0.75;
+    let len = 1;
+    if (swing >= 0) {
+        const k = 1 - Math.pow(1 - swing, 3);
+        // Напрям кінця біти: dx — уздовж землі (назад → уперед), dy — вгору/вниз (вниз — плюс)
+        const dx = -Math.cos(Math.PI * k) * 0.9;
+        const dy = -0.45 + k * 0.05 + Math.sin(Math.PI * k) * 0.55;
+        angle = Math.atan2(dx, -dy);
+        len = Math.max(0.3, Math.hypot(dx, dy));
+        // Плаский слід маху — сплюснений еліпс, що йде знизу вгору
+        ctx.save();
+        ctx.translate(px, py);
+        ctx.rotate(-0.28);
+        ctx.strokeStyle = "rgba(255, 236, 190, " + (0.75 * (1 - swing)).toFixed(2) + ")";
+        ctx.lineWidth = s * 0.12;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, s * 0.82, s * 0.24, 0, Math.PI * 0.95, Math.PI * (0.95 - 0.95 * k), true);
+        ctx.stroke();
+        ctx.restore();
+    }
+    ctx.translate(px, py);
+    ctx.rotate(angle);
+    ctx.scale(1, len);
+    drawBatShape(ctx, s);
+}
+
 // Спалах пострілу біля дула
 function drawMuzzleFlash(ctx, x, y, size, strength) {
     if (strength <= 0) {
@@ -430,7 +462,7 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
     const recoil = pose ? pose.recoil || 0 : 0;
     ctx.save();
     const saber = saberColor(id);
-    if (id === "weapon_sword" || id === "weapon_axe" || id === "weapon_pickaxe" || id === "weapon_bat" || id === "weapon_firesword" || id === "weapon_thunder" || saber) {
+    if (id === "weapon_sword" || id === "weapon_axe" || id === "weapon_pickaxe" || id === "weapon_firesword" || id === "weapon_thunder" || saber) {
         if (pose && pose.away) {
             ctx.restore();
             return;
@@ -467,11 +499,11 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
             drawThunderHammerShape(ctx, s, time);
         } else if (id === "weapon_axe") {
             drawAxeShape(ctx, s);
-        } else if (id === "weapon_bat") {
-            drawBatShape(ctx, s);
         } else {
             drawPickaxeShape(ctx, s);
         }
+    } else if (id === "weapon_bat") {
+        drawBatSwing(ctx, s, raise, swing);
     } else if (id === "weapon_bow") {
         ctx.translate(s * 0.62, 0);
         drawBowShape(ctx, s, recoil > 0 ? 1 - recoil : 0.3);

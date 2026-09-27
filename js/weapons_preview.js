@@ -44,8 +44,9 @@ function planWeaponDemo(id, w, h, time) {
     if (spec && spec.mode === "axe" && Math.floor(time / 1000 / cycle) % 2 === 1) {
         press = (w + 10 - hw - cubeX - spec.reach * scale * 0.7) / spikeSpeed;
     }
-    const muzzleX = cubeX + s * 0.6;
-    const muzzleY = groundY - s * 0.55;
+    const muzzleX = cubeX + s * (spec && spec.launch ? spec.launch[0] : 0.6);
+    const muzzleY = groundY - s * (spec && spec.launch ? spec.launch[1] : 0.55);
+    const aimY = groundY - sh * (spec && spec.aim ? spec.aim : 0.4);
 
     // Коли шип буде знищено (hitAt) і як летить снаряд
     let hitAt = Infinity;
@@ -75,7 +76,7 @@ function planWeaponDemo(id, w, h, time) {
     return {
         spec: spec, groundY: groundY, s: s, scale: scale, cubeX: cubeX, hw: hw, sh: sh,
         cycle: cycle, u: u, spikeSpeed: spikeSpeed, spikeAt: spikeAt, press: press,
-        muzzleX: muzzleX, muzzleY: muzzleY, hitAt: hitAt, demoBeam: demoBeam,
+        muzzleX: muzzleX, muzzleY: muzzleY, aimY: aimY, hitAt: hitAt, demoBeam: demoBeam,
         swingAt: swingAt, flight: flight
     };
 }
@@ -102,7 +103,7 @@ export function weaponDemoEvents(id, time) {
 // drawCube(ctx, size) малює кубик гравця в локальних координатах.
 export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
     const plan = planWeaponDemo(id, w, h, time);
-    const { spec, groundY, s, scale, cubeX, hw, sh, u, spikeAt, press, muzzleX, muzzleY, hitAt, demoBeam, swingAt, flight } = plan;
+    const { spec, groundY, s, scale, cubeX, hw, sh, u, spikeAt, press, muzzleX, muzzleY, aimY, hitAt, demoBeam, swingAt, flight } = plan;
     const spikeX = u < hitAt ? spikeAt(u) : spikeAt(hitAt);
 
     // Шип або його руйнування
@@ -148,7 +149,7 @@ export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
             if (ft <= flight.dur) {
                 const k = ft / flight.dur;
                 px = muzzleX + (flight.tx - muzzleX) * k;
-                py = muzzleY + (groundY - sh * 0.4 - muzzleY) * k - Math.sin(Math.PI * k) * (spec.arc || 0) * scale;
+                py = muzzleY + (aimY - muzzleY) * k - Math.sin(Math.PI * k) * (spec.arc || 0) * scale;
             } else if ((kind === "axe" || kind === "saber") && ft <= flight.dur + 0.32) {
                 const k = (ft - flight.dur) / 0.32;
                 px = flight.tx + (muzzleX - flight.tx) * k;

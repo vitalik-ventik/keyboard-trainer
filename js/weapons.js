@@ -10,7 +10,8 @@
 // mode:
 //   melee — замах одразу, удар, коли шип підʼїде майже впритул (bolt — ще й блискавка з неба)
 //   axe   — якщо шип ближче за reach, рубає впритул, як меч; інакше кидає бумеранг
-//   shot  — снаряд летить до шипа (speed — пікселів за секунду, arc — висота дуги)
+//   shot  — снаряд летить до шипа (speed — пікселів за секунду, arc — висота дуги,
+//           launch — звідки вилітає [x, y] у частках кубика, aim — куди влучає в частках висоти шипа)
 //   burst — черга з кількох куль, кожна відколює шматок
 //   beam  — дія на відстані без снаряда: промінь лазера, струмінь вогнемета,
 //           блискавка молота, захват гравітаційної гармати (beam — вигляд,
@@ -23,7 +24,9 @@ export const WEAPON_SPECS = {
     weapon_pickaxe: { mode: "melee", fx: "break" },
     // Бейсбольна бита, як у Roblox: удар «хоум-ран» відправляє шип у небо
     weapon_bat:     { mode: "melee", fx: "homerun" },
-    weapon_ball:    { mode: "shot", projectile: "ball", speed: 620, arc: 46, fx: "goal" },
+    // М'яч б'ють з землі: летить низом від ноги кубика (launch — частки розміру кубика
+    // вперед і вгору від центру-низу) і влучає в основу шипа (aim — частка висоти шипа)
+    weapon_ball:    { mode: "shot", projectile: "ball", speed: 620, arc: 6, launch: [0.72, 0.2], aim: 0.3, fx: "goal" },
     weapon_pistol:  { mode: "shot", projectile: "bullet", speed: 1900, arc: 0, fx: "pop" },
     weapon_rifle:   { mode: "burst", projectile: "bullet", speed: 2100, arc: 0, count: 4, gap: 0.07, fx: "crumble" },
     weapon_flamethrower: { mode: "beam", beam: "flame", time: 0.6, hit: 0.28, fx: "burn" },
