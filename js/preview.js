@@ -1,7 +1,7 @@
 // preview.js — сторінка перегляду всіх фонів і скінів (preview.html)
 import { LEVELS_CONFIG, ALL_LEVELS, SKIN_RENDERERS, drawAchievementFrame } from "./engine.js";
 import { BackgroundRenderer } from "./backgrounds.js";
-import { SHOP_ITEMS, SHOP_TYPES, CHEST_TYPES, REPLAY_CHEST_CHANCE, CHEST_PITY_WINS, chestItemPool, rollChest, getShopItem, itemRarity, coinsText, heartsText, weaponCoinBonus, itemPerkText } from "./shop.js";
+import { PET_MUTATIONS, PET_MUTATION_KEYS, petRarity, secretPetSource, SHOP_ITEMS, SHOP_TYPES, CHEST_TYPES, REPLAY_CHEST_CHANCE, CHEST_PITY_WINS, chestItemPool, rollChest, getShopItem, itemRarity, coinsText, heartsText, weaponCoinBonus, itemPerkText } from "./shop.js";
 import { drawShopItemScene, drawChestScene, CHEST_SHAKE_MS, CHEST_OPEN_MS } from "./shop_preview.js";
 import { loadAssets, unlockAudio, playSound, SOUND_NAMES, hasSound, soundDuration } from "./assets.js";
 import { WEAPON_SOUNDS, weaponDemoEvents } from "./weapons.js";
@@ -283,6 +283,65 @@ const REQUIREMENT_TEXT = {
 const shopCards = [];
 const shopSectionsEl = document.getElementById("shopSections");
 
+// Вигляд улюбленців у прев'ю: мутація ("" — без, "cycle" — по черзі), зброя кубика
+// (спорядження улюбленців) і силует секретних, яких ще не знайдено
+const petView = { mutation: "", weapon: "", silhouette: false };
+// Скільки мілісекунд показується кожна мутація в режимі «по черзі»
+const PET_MUTATION_CYCLE_MS = 1500;
+
+function petMutationAt(nowMs) {
+    if (petView.mutation === "cycle") {
+        return PET_MUTATION_KEYS[Math.floor(nowMs / PET_MUTATION_CYCLE_MS) % PET_MUTATION_KEYS.length];
+    }
+    return petView.mutation || null;
+}
+
+function addPetSelect(parent, label, options, onChange) {
+    const wrap = document.createElement("label");
+    wrap.textContent = label + " ";
+    const select = document.createElement("select");
+    for (const opt of options) {
+        const o = document.createElement("option");
+        o.value = opt.value;
+        o.textContent = opt.text;
+        select.appendChild(o);
+    }
+    select.addEventListener("change", function () {
+        onChange(select.value);
+    });
+    wrap.appendChild(select);
+    parent.appendChild(wrap);
+}
+
+// Перемикачі над улюбленцями: мутація, спорядження під зброю, силует секретних
+function buildPetControls() {
+    const controls = document.createElement("div");
+    controls.className = "ach-controls";
+    const mutationOptions = [{ value: "", text: "без мутації" }];
+    for (const key of PET_MUTATION_KEYS) {
+        mutationOptions.push({ value: key, text: PET_MUTATIONS[key].icon + " " + PET_MUTATIONS[key].name });
+    }
+    mutationOptions.push({ value: "cycle", text: "🔁 усі по черзі" });
+    addPetSelect(controls, "Мутація:", mutationOptions, function (v) { petView.mutation = v; });
+    const weaponOptions = [{ value: "", text: "без зброї" }];
+    for (const item of SHOP_ITEMS) {
+        if (item.type === "weapon" && item.price > 0) {
+            weaponOptions.push({ value: item.id, text: item.name });
+        }
+    }
+    addPetSelect(controls, "Спорядження під зброю:", weaponOptions, function (v) { petView.weapon = v; });
+    const silhouette = document.createElement("label");
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.addEventListener("change", function () {
+        petView.silhouette = box.checked;
+    });
+    silhouette.appendChild(box);
+    silhouette.appendChild(document.createTextNode(" Секретні — силуетом (як до знахідки)"));
+    controls.appendChild(silhouette);
+    return controls;
+}
+
 const shopObserver = new IntersectionObserver(function (entries) {
     for (const entry of entries) {
         const card = shopCards.find(function (c) { return c.element === entry.target; }) ||
@@ -299,6 +358,9 @@ if (shopSectionsEl) {
         title.className = "shop-type-title";
         title.textContent = type.name;
         shopSectionsEl.appendChild(title);
+        if (type.type === "pet") {
+            shopSectionsEl.appendChild(buildPetControls());
+        }
         const list = document.createElement("div");
         list.className = "shop-items";
         shopSectionsEl.appendChild(list);
@@ -320,7 +382,8 @@ if (shopSectionsEl) {
             meta.className = "shop-item-meta";
             meta.textContent = (item.price > 0 ? "🪙 " + item.price : "безкоштовно") + " · " + item.id +
                 (item.type === "weapon" && weaponCoinBonus(item.id) > 1 ? " · монети ×" + weaponCoinBonus(item.id) : "") +
-                (itemPerkText(item.id) ? " · " + itemPerkText(item.id) : "");
+                (itemPerkText(item.id) ? " · " + itemPerkText(item.id) : "") +
+                (item.type === "pet" ? " · " + petRarity(item).name + (item.secret ? " (" + secretPetSource(item, BackgroundRenderer.worldName(item.world)).text + ")" : "") : "");
             card.appendChild(canvas);
             card.appendChild(name);
             card.appendChild(meta);
@@ -357,7 +420,14 @@ if (shopSectionsEl) {
 function renderShopCard(c, nowMs) {
     c.ctx.setTransform(DPR * SHOP_SCALE, 0, 0, DPR * SHOP_SCALE, 0, 0);
     try {
-        drawShopItemScene(c.ctx, c.item, nowMs, { skinType: "neon_base", accessory: null });
+        const isPet = c.item.type === "pet";
+        drawShopItemScene(c.ctx, c.item, nowMs, {
+            skinType: "neon_base",
+            accessory: null,
+            mutation: isPet ? petMutationAt(nowMs) : null,
+            silhouette: isPet && petView.silhouette && !!c.item.secret,
+            weapon: isPet && petView.weapon ? petView.weapon : null
+        });
     } catch (err) {
         if (!c.errorShown) {
             c.errorShown = true;
