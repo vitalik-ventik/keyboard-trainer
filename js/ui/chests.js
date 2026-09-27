@@ -4,7 +4,7 @@
 
 import { playSound } from "../assets.js";
 import { save } from "../engine.js";
-import { CHEST_TYPES, SHOP_TYPES, coinsText, getShopItem, heartsText, itemRarity } from "../shop.js";
+import { CHEST_TYPES, PET_MUTATIONS, SHOP_TYPES, coinsText, getShopItem, heartsText, itemRarity } from "../shop.js";
 import { CHEST_OPEN_MS, CHEST_SHAKE_MS, drawChestScene } from "../shop_preview.js";
 import { renderCurrentSkinIcon } from "./shop.js";
 import { announceAchievements } from "./achievements.js";
@@ -48,8 +48,12 @@ function setChestButtons(phase) {
     btnChestOpen.classList.toggle("hidden", phase !== "closed");
     const revealed = phase === "reveal";
     const result = chestView && chestView.opened ? chestView.opened.result : null;
-    const canEquip = revealed && result && result.kind === "item" && !chestView.equipped;
+    // Улюбленця, що мутував, теж можна одразу взяти в зграю (якщо він ще не в ній)
+    const canEquip = revealed && result && !chestView.equipped &&
+        (result.kind === "item" || (result.kind === "mutation" && !save.isPetEquipped(result.id)));
     btnChestEquip.classList.toggle("hidden", !canEquip);
+    const resultItem = result && result.id ? getShopItem(result.id) : null;
+    btnChestEquip.textContent = resultItem && resultItem.type === "pet" ? "ВЗЯТИ В ЗГРАЮ" : "ОДЯГНУТИ";
     btnChestNext.classList.toggle("hidden", !(revealed && save.getPendingChests().length > 0));
     btnChestClose.classList.toggle("hidden", !revealed);
 }
@@ -142,12 +146,19 @@ function showChestResult() {
         const item = getShopItem(result.id);
         const rarity = itemRarity(item);
         const typeName = (SHOP_TYPES.find(function (st) { return st.type === item.type; }) || { name: "" }).name;
+        const mutation = result.mutation ? PET_MUTATIONS[result.mutation] : null;
         chestResultEl.innerHTML = "";
-        chestResultEl.appendChild(document.createTextNode("Новий предмет: " + item.name + "!"));
+        let text = "Новий предмет: " + item.name + "!";
+        if (result.kind === "mutation") {
+            text = "Мутація! " + item.name + " тепер " + mutation.name.toLowerCase() + "!";
+        } else if (item.type === "pet") {
+            text = "Новий улюбленець: " + item.name + "!";
+        }
+        chestResultEl.appendChild(document.createTextNode(text));
         const r = document.createElement("span");
         r.className = "rarity";
         r.style.color = rarity.color;
-        r.textContent = rarity.name + " · " + typeName;
+        r.textContent = rarity.name + " · " + typeName + (mutation ? " · " + mutation.icon + " " + mutation.name : "");
         chestResultEl.appendChild(r);
         playSound("chest_item");
     }
@@ -187,9 +198,17 @@ btnChestOpen.addEventListener("click", startOpenChest);
 btnChestNext.addEventListener("click", showNextChest);
 btnChestClose.addEventListener("click", closeChestModal);
 btnChestEquip.addEventListener("click", function () {
-    if (chestView && chestView.opened && chestView.opened.result.kind === "item") {
-        save.equipItem(chestView.opened.result.id);
+    const result = chestView && chestView.opened ? chestView.opened.result : null;
+    if (result && (result.kind === "item" || result.kind === "mutation")) {
+        const item = getShopItem(result.id);
+        if (item && item.type === "pet") {
+            // Зграя повна — новий улюбленець стає на останнє місце
+            save.equipPet(result.id, true);
+        } else {
+            save.equipItem(result.id);
+        }
         chestView.equipped = true;
+        announceAchievements(save.checkAchievements());
         renderCurrentSkinIcon();
         setChestButtons("reveal");
     }

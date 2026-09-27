@@ -81,13 +81,20 @@ function renderRewardBreakdown(el, reward, balanceBefore) {
     if (reward.accessoryMult && reward.accessoryMult !== 1) {
         addBreakdownRow(el, "Бонус аксесуара", "×" + Math.round(reward.accessoryMult * 100) / 100);
     }
+    if (reward.petMult && reward.petMult !== 1) {
+        addBreakdownRow(el, "Бонус улюбленців", "×" + reward.petMult);
+    }
     for (const line of reward.lines) {
         if (line.flat) {
             addBreakdownRow(el, "🎖 " + line.label, "+" + line.value);
         }
     }
     if (reward.half) {
-        addBreakdownRow(el, "Вибух — лишається половина", "÷2");
+        if (reward.keep && reward.keep > 0.5) {
+            addBreakdownRow(el, "Вибух — 🧸 Утіха улюбленця", Math.round(reward.keep * 100) + "%");
+        } else {
+            addBreakdownRow(el, "Вибух — лишається половина", "÷2");
+        }
     }
     const balanceAfter = balanceBefore + reward.total;
     addBreakdownRow(el, "Разом (усього " + balanceAfter + ")", "+" + reward.total + " 🪙", "cb-total");

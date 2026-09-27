@@ -17,6 +17,7 @@ import { closeShop, renderCurrentSkinIcon, shopModalEl, skinsModalEl } from "./u
 import { achModalEl, announceAchievements, closeAchievements, noteRunForAchievements, refreshAchievementBadge } from "./ui/achievements.js";
 import { refreshCrystalDisplays, renderRewardBreakdown, showRetroNotice } from "./ui/coins.js";
 import { chestModalEl, chestPrimaryAction, closeChestModal, refreshChestButtons } from "./ui/chests.js";
+import { closePetReveal, isPetRevealOpen } from "./ui/pet_reveal.js";
 
 // ---------- Полотно та адаптивність ----------
 
@@ -271,6 +272,8 @@ function handleGameOver() {
             weapon: runState.weapon,
             weaponId: runState.weaponId,
             accessoryId: save.getEquipped("accessory"),
+            petCoins: save.getPetPerks().coins,
+            consolation: save.getPetPerks().consolation,
             won: false,
             difficulty: save.getDifficulty(),
             speed: save.getSpeed(),
@@ -315,6 +318,7 @@ function handleVictory() {
             weapon: runState.weapon,
             weaponId: runState.weaponId,
             accessoryId: save.getEquipped("accessory"),
+            petCoins: save.getPetPerks().coins,
             won: true,
             leagueId: wonLevel ? wonLevel.leagueId : 1,
             firstClear: !paidBefore.first,
@@ -338,7 +342,7 @@ function handleVictory() {
             newSilver: !!achievementNow && !paidBefore.silver,
             newGold: achievementNow === "hard" && !paidBefore.gold,
             winsWithoutChest: save.getWinsWithoutChest(),
-            chestBonus: accessoryPerk(save.getEquipped("accessory")).chest || 0
+            chestBonus: (accessoryPerk(save.getEquipped("accessory")).chest || 0) + save.getPetPerks().chest
         });
         save.setWinsWithoutChest(drop.winsWithoutChest);
         save.addChests(drop.chests);
@@ -724,6 +728,10 @@ initKeyboardInput(
 );
 
 function confirmResultScreen() {
+    if (isPetRevealOpen()) {
+        closePetReveal();
+        return;
+    }
     if (!chestModalEl.classList.contains("hidden")) {
         chestPrimaryAction();
         return;
@@ -809,6 +817,10 @@ document.getElementById("btnReviveNo").addEventListener("click", declineRevive);
 function handleEscape() {
     if (isReviveOpen()) {
         declineRevive();
+        return;
+    }
+    if (isPetRevealOpen()) {
+        closePetReveal();
         return;
     }
     if (!chestModalEl.classList.contains("hidden")) {

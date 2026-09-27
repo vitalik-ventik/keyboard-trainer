@@ -4,6 +4,7 @@
 
 import { basePrice } from "./shop_rewards.js";
 import { SHOP_ITEMS } from "./shop.js";
+import { SECRET_PET_CHANCE, petRarity } from "./shop_pets.js";
 
 // ---------- Сундуки ----------
 
@@ -24,6 +25,11 @@ export const CHEST_PITY_WINS = 5;
 
 // Рідкість предмета за базовою ціною (без коефіцієнта ліги) — для підпису під нагородою
 export function itemRarity(item) {
+    // Улюбленці мають власну шкалу рідкості
+    if (item && item.type === "pet") {
+        const rarity = petRarity(item);
+        return { name: rarity.name, color: rarity.color };
+    }
     if (item && item.legendary) {
         return { name: "⭐ ЛЕГЕНДАРНИЙ", color: "#ffcc33" };
     }
@@ -83,7 +89,7 @@ export function chestItemPool(type, isOwned) {
     const chest = CHEST_TYPES[type] || CHEST_TYPES.wood;
     const pool = [];
     for (const item of SHOP_ITEMS) {
-        if (item.price <= 0 || item.legendary || basePrice(item) > chest.maxPrice || isOwned(item.id)) {
+        if (item.price <= 0 || item.legendary || item.secret || basePrice(item) > chest.maxPrice || isOwned(item.id)) {
             continue;
         }
         pool.push({ item: item, weight: 1 / Math.pow(basePrice(item), chest.rarityPower), keep: item.type === "skin" ? 1 : NON_SKIN_ITEM_KEEP });
@@ -102,6 +108,13 @@ export function chestItemPool(type, isOwned) {
 export function rollChest(type, isOwned, random, itemBonus, heartBonus) {
     const rnd = random || Math.random;
     const chest = CHEST_TYPES[type] || CHEST_TYPES.wood;
+    // Секретний улюбленець — лише із золотого сундука
+    if (type === "gold") {
+        const secrets = SHOP_ITEMS.filter(function (item) { return item.secret && !isOwned(item.id); });
+        if (secrets.length > 0 && rnd() < SECRET_PET_CHANCE) {
+            return { kind: "item", id: secrets[Math.floor(rnd() * secrets.length) % secrets.length].id };
+        }
+    }
     // Спершу — крихітний шанс легендарного предмета (будь-якого ще не купленого)
     const legendaries = SHOP_ITEMS.filter(function (item) { return item.legendary && !isOwned(item.id); });
     if (legendaries.length > 0 && rnd() < chest.legendaryChance) {

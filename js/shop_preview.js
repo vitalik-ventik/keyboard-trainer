@@ -4,7 +4,7 @@
 // ============================================================
 
 import { SKIN_RENDERERS } from "./engine.js";
-import { drawTrail, drawExplosion, drawAccessory, drawCoinIcon, drawHeartLife, drawChest, getShopItem, itemRarity } from "./shop.js";
+import { drawTrail, drawExplosion, drawAccessory, drawCoinIcon, drawHeartLife, drawChest, drawPet, drawPetAura, getShopItem, itemRarity, PET_MUTATIONS } from "./shop.js";
 import { drawWeaponDemo } from "./weapons.js";
 
 // Сценка скіна: темне тло, земля й кубик (з аксесуаром, якщо його передано)
@@ -73,9 +73,69 @@ function drawWeaponScene(pctx, item, now, opts) {
     pctx.restore();
 }
 
+// Сценка улюбленця: кубик із поточним скіном стрибає, улюбленець біжить позаду
+// й підстрибує слідом від радості. time = 0 — нерухомий кадр (для сірого знімка)
+function drawPetScene(pctx, item, now, opts) {
+    const w = 150;
+    const h = 100;
+    pctx.fillStyle = "#070b1c";
+    pctx.fillRect(0, 0, w, h);
+    const groundY = h * 0.84;
+    pctx.fillStyle = "#12203a";
+    pctx.fillRect(0, groundY, w, h - groundY);
+    pctx.fillStyle = "#00f6ff";
+    pctx.fillRect(0, groundY, w, 2);
+    const cycle = 2600;
+    const ph = now > 0 ? now % cycle : 0;
+    const cubeSize = 26;
+    const cubeHop = ph < 500 ? Math.sin(ph / 500 * Math.PI) * 26 : 0;
+    const skinFn = SKIN_RENDERERS[opts.skinType] || SKIN_RENDERERS.neon_base;
+    pctx.save();
+    pctx.translate(122, groundY - cubeSize / 2 - cubeHop);
+    pctx.rotate(ph < 500 ? ph / 500 * Math.PI / 2 : 0);
+    skinFn(pctx, cubeSize, now, {});
+    pctx.restore();
+    const size = 50;
+    const happyT = ph >= 350 && ph < 1150 ? (ph - 350) / 800 : 0;
+    const base = item.move === "swim" ? size * 0.3 : item.move === "fly" ? size * 0.55 : 0;
+    const lift = base + (happyT > 0 ? Math.sin(happyT * Math.PI) * 10 : 0);
+    const x = 58;
+    drawPetAura(pctx, item.id, x, groundY - 1, size, now);
+    pctx.save();
+    pctx.translate(x, groundY - size / 2 - lift);
+    drawPet(pctx, item.id, size, now, {
+        mood: happyT > 0 ? "happy" : null,
+        moving: now > 0,
+        happyT: happyT,
+        mutation: opts.mutation || null,
+        water: false,
+        silhouette: !!opts.silhouette,
+        weapon: opts.weapon || null
+    });
+    pctx.restore();
+    // Значок мутації в кутку
+    const mutation = opts.mutation ? PET_MUTATIONS[opts.mutation] : null;
+    if (mutation) {
+        pctx.font = "bold 11px 'Segoe UI', Arial";
+        pctx.textAlign = "left";
+        pctx.textBaseline = "top";
+        pctx.lineWidth = 3;
+        pctx.strokeStyle = "#070b1c";
+        pctx.strokeText(mutation.icon + " " + mutation.name, 5, 5);
+        pctx.fillStyle = "#ffe14d";
+        pctx.fillText(mutation.icon + " " + mutation.name, 5, 5);
+    }
+}
+
 // Жива сценка товару 150×100 (полотно вже масштабоване під dpr).
-// opts: { skinType — скін кубика, accessory — одягнутий аксесуар }
+// opts: { skinType — скін кубика, accessory — одягнутий аксесуар, mutation — мутація улюбленця,
+//         silhouette — показати улюбленця чорним силуетом (секретний, ще не знайдений),
+//         weapon — зброя кубика (улюбленець у спорядженні під неї) }
 export function drawShopItemScene(pctx, item, now, opts) {
+    if (item.type === "pet") {
+        drawPetScene(pctx, item, now, opts);
+        return;
+    }
     if (item.type === "skin") {
         drawShopSkinScene(pctx, item, now, opts.accessory);
         return;
@@ -164,7 +224,8 @@ export const CHEST_OPEN_MS = 450;
 
 // Сценка сундука W×H. openT — мс від натискання «Відкрити» (null — ще закритий):
 // 0…CHEST_SHAKE_MS трусіння, далі відкривання, потім нагорода вилітає й зависає.
-// result — { kind: "crystals", amount } або { kind: "item", id }.
+// result — { kind: "crystals", amount }, { kind: "heart", amount }, { kind: "item", id, mutation? }
+// або { kind: "mutation", id, mutation } (мутував улюбленець, який уже є).
 // opts: { skinType, accessory } — для живої сценки предмета.
 export function drawChestScene(c, W, H, type, openT, result, now, opts) {
     c.clearRect(0, 0, W, H);
@@ -235,7 +296,7 @@ export function drawChestScene(c, W, H, type, openT, result, now, opts) {
             c.beginPath();
             c.rect(0, 0, 150, 100);
             c.clip();
-            drawShopItemScene(c, item, now, opts || {});
+            drawShopItemScene(c, item, now, Object.assign({}, opts || {}, { mutation: result.mutation || null }));
             c.restore();
             c.strokeStyle = rarity.color;
             c.lineWidth = 3 / scale;
