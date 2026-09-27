@@ -1853,6 +1853,11 @@ body {
     color: #ffe14d;
 }
 
+/* Мутація з поясненням у підказці */
+.pet-mutation[data-tip] {
+    cursor: help;
+}
+
 /* Панель зграї на всю ширину сітки */
 .pet-panel {
     grid-column: 1 / -1;

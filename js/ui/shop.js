@@ -6,7 +6,7 @@
 import { playSound } from "../assets.js";
 import { BackgroundRenderer } from "../backgrounds.js";
 import { ALL_LEVELS, DEFAULT_SKIN, LEVELS_CONFIG, SKIN_RENDERERS, drawAchievementFrame, levelSkinPerk, save } from "../engine.js";
-import { MAX_PET_SLOTS, PET_MUTATIONS, SHOP_ITEMS, secretPetSource, SHOP_TYPES, drawAccessory, drawPet, getShopItem, itemPerkHint, itemPerkText, levelSkinPerkHint, petPerkLines, petRarity, petTotalsLines, shopTabHints, skinPerkText, weaponCoinBonus } from "../shop.js";
+import { MAX_PET_SLOTS, PET_MUTATIONS, SHOP_ITEMS, secretPetSource, SHOP_TYPES, drawAccessory, drawPet, getShopItem, itemPerkHint, itemPerkText, levelSkinPerkHint, petMutationHint, petPerkLines, petRarity, petTotalsLines, shopTabHints, skinPerkText, weaponCoinBonus } from "../shop.js";
 import { drawShopItemScene, drawShopSkinScene } from "../shop_preview.js";
 import { announceAchievements } from "./achievements.js";
 import { refreshCrystalDisplays, requirementLabel } from "./coins.js";
@@ -616,6 +616,7 @@ function buildShop() {
                 const mut = document.createElement("span");
                 mut.className = "pet-mutation";
                 mut.textContent = PET_MUTATIONS[mutationKey].icon + " " + PET_MUTATIONS[mutationKey].name;
+                mut.dataset.tip = petMutationHint(mutationKey);
                 card.appendChild(mut);
             }
             if (hiddenSecret) {
