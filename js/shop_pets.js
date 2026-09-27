@@ -59,7 +59,6 @@ export const PET_PERKS = {
     pet_tapochkino: { coins: 0.1, window: 0.08, series: 0.3 },
     pet_phoenix: { shield: true, consolation: 0.75 },
     pet_klaviatoro: { coins: 0.1, words: 0.4, consolation: 0.75 },
-    pet_borshchelino: { coins: 0.12, chest: 0.1, item: 0.1, shield: true },
     pet_capybara: { consolation: 0.6 },
     pet_duck: { slow: 0.02 },
     pet_llama: { coins: 0.03 },
@@ -69,7 +68,26 @@ export const PET_PERKS = {
     pet_dolphin: { perfect: 0.1, coins: 0.04 },
     pet_kavunotto: { words: 0.3, item: 0.05 },
     pet_pelmenino: { coins: 0.06, chest: 0.06, consolation: 0.65 },
-    pet_capibaro_mandarino: { consolation: 0.7, coins: 0.08, perfect: 0.1 }
+    pet_capibaro_mandarino: { consolation: 0.7, coins: 0.08, perfect: 0.1 },
+    // Секретні: по два-три бонуси, найсильніші — із золотого сундука
+    pet_bobrani: { chest: 0.06, item: 0.06 },
+    pet_tapko_sahur: { series: 0.3, perfect: 0.1 },
+    pet_banan_gangstero: { coins: 0.06, consolation: 0.65 },
+    pet_hotdog: { words: 0.3, hearts: 0.05 },
+    pet_skibidino: { window: 0.06, slow: 0.03 },
+    pet_kartoplino: { hearts: 0.06, window: 0.04 },
+    pet_akuloni: { slow: 0.04, perfect: 0.12, coins: 0.05 },
+    pet_kavun_bomboni: { series: 0.35, words: 0.25 },
+    pet_ballerino: { perfect: 0.15, window: 0.06 },
+    pet_shimpanzini: { item: 0.1, chest: 0.06, coins: 0.04 },
+    pet_pelmen_mafiozo: { coins: 0.1, consolation: 0.7 },
+    pet_fridge: { slow: 0.05, hearts: 0.06 },
+    pet_borshchelino: { coins: 0.12, chest: 0.1, item: 0.1, shield: true },
+    pet_bombardino: { coins: 0.1, series: 0.4, perfect: 0.12 },
+    pet_traktorino: { shield: true, window: 0.08, slow: 0.04 },
+    pet_goldoni: { coins: 0.15, chest: 0.08, item: 0.08 },
+    pet_shaurmino: { words: 0.5, consolation: 0.75, hearts: 0.06 },
+    pet_borgini: { shield: true, perfect: 0.2, window: 0.1 }
 };
 
 // Межі зграї: однакові бонуси кількох улюбленців складаються, але не більше за межу.
@@ -143,8 +161,36 @@ export const PET_MUTATION_KEYS = Object.keys(PET_MUTATIONS);
 // Шанс, що новий улюбленець випаде із сундука вже мутованим
 export const PET_MUTATION_CHANCE = 0.12;
 
-// Шанс секретного улюбленця в золотому сундуку (поки його ще немає)
-export const SECRET_PET_CHANCE = 0.02;
+// ---------- Секретні улюбленці ----------
+
+// Секретний улюбленець не продається. Поле secret товару — сундук, з якого він випадає
+// ("wood" | "silver" | "gold"), або "world": тоді поле world — тема світу, і улюбленець
+// випадає з будь-якого сундука, виграного в цьому світі. Випадає лише той, кого ще немає
+export const SECRET_PET_CHANCE = { wood: 0.01, silver: 0.015, gold: 0.02 };
+export const SECRET_WORLD_CHANCE = 0.03;
+
+// М'яка гарантія: кожен сундук без секретного (коли в ньому ще є кого знайти) додає
+// до шансу SECRET_PITY_STEP, а SECRET_PITY_MAX-й такий сундук поспіль дає секретного напевно
+export const SECRET_PITY_STEP = 0.001;
+export const SECRET_PITY_MAX = 70;
+
+// Звідки секретний улюбленець (для підказки на картці)
+export const SECRET_CHEST_SOURCES = {
+    wood: { icon: "🪵", text: "Лише з дерев'яного сундука" },
+    silver: { icon: "🥈", text: "Лише зі срібного сундука" },
+    gold: { icon: "🥇", text: "Лише із золотого сундука" }
+};
+
+// Підказка, де шукати секретного улюбленця. worldName — назва світу для secret: "world"
+export function secretPetSource(item, worldName) {
+    if (!item || !item.secret) {
+        return null;
+    }
+    if (item.secret === "world") {
+        return { icon: "🌍", text: "Лише із сундука, виграного у світі «" + (worldName || item.world) + "»" };
+    }
+    return SECRET_CHEST_SOURCES[item.secret] || SECRET_CHEST_SOURCES.gold;
+}
 
 // Шанс, що сундук замість монет мутує одного з уже наявних улюбленців без мутації
 export const PET_MUTATE_OWNED_CHANCE = { wood: 0.04, silver: 0.08, gold: 0.15 };

@@ -4,8 +4,9 @@
 // ============================================================
 
 import { playSound } from "../assets.js";
+import { BackgroundRenderer } from "../backgrounds.js";
 import { ALL_LEVELS, DEFAULT_SKIN, LEVELS_CONFIG, SKIN_RENDERERS, drawAchievementFrame, levelSkinPerk, save } from "../engine.js";
-import { MAX_PET_SLOTS, PET_MUTATIONS, SHOP_ITEMS, SHOP_TYPES, drawAccessory, drawPet, getShopItem, itemPerkHint, itemPerkText, levelSkinPerkHint, petPerkLines, petRarity, petTotalsLines, shopTabHints, skinPerkText, weaponCoinBonus } from "../shop.js";
+import { MAX_PET_SLOTS, PET_MUTATIONS, SHOP_ITEMS, secretPetSource, SHOP_TYPES, drawAccessory, drawPet, getShopItem, itemPerkHint, itemPerkText, levelSkinPerkHint, petPerkLines, petRarity, petTotalsLines, shopTabHints, skinPerkText, weaponCoinBonus } from "../shop.js";
 import { drawShopItemScene, drawShopSkinScene } from "../shop_preview.js";
 import { announceAchievements } from "./achievements.js";
 import { refreshCrystalDisplays, requirementLabel } from "./coins.js";
@@ -502,6 +503,14 @@ function buildPetPanel(balance) {
         }
     }
     panel.appendChild(totals);
+    // Скільки секретних уже знайдено
+    const secrets = SHOP_ITEMS.filter(function (it) { return it.type === "pet" && !!it.secret; });
+    const found = secrets.filter(function (it) { return save.isOwned(it.id); }).length;
+    const secretLine = document.createElement("div");
+    secretLine.className = "pet-secrets";
+    secretLine.textContent = "🔮 Секретні: " + found + "/" + secrets.length;
+    secretLine.dataset.tip = "Секретних не купиш: кожен живе у своєму сундуку — 🪵 дерев'яному, 🥈 срібному чи 🥇 золотому";
+    panel.appendChild(secretLine);
     shopGridEl.appendChild(panel);
 }
 
@@ -589,9 +598,17 @@ function buildShop() {
             // Рідкість замість ліги, мутація й кожен бонус окремим рядком
             const rarity = document.createElement("span");
             rarity.className = "pet-rarity" + (petRarity(item).rainbow ? " rarity-rainbow" : "");
-            rarity.textContent = petRarity(item).name + (item.move === "swim" ? " 💧" : "");
+            const source = secretPetSource(item, BackgroundRenderer.worldName(item.world));
+            rarity.textContent = petRarity(item).name + (source ? " " + source.icon : "") + (item.move === "swim" ? " 💧" : "");
+            const tips = [];
+            if (source) {
+                tips.push(source.icon + " " + source.text);
+            }
             if (item.move === "swim") {
-                rarity.dataset.tip = "💧 Плаває: у звичайних світах — у водяній бульбашці, у водяних — просто у хвилях";
+                tips.push("💧 Плаває: у звичайних світах — у водяній бульбашці, у водяних — просто у хвилях");
+            }
+            if (tips.length > 0) {
+                rarity.dataset.tip = tips.join("\n");
             }
             card.appendChild(rarity);
             const mutationKey = owned ? save.getPetMutation(item.id) : null;
@@ -602,7 +619,7 @@ function buildShop() {
                 card.appendChild(mut);
             }
             if (hiddenSecret) {
-                addPerkLabel(card, "✨ ??? — дуже сильні бонуси", "Секретного улюбленця не купиш — він лише іноді випадає із золотого сундука");
+                addPerkLabel(card, "✨ ??? — дуже сильні бонуси", "Секретного улюбленця не купиш. " + source.text);
             } else {
                 for (const line of petPerkLines(item.id, mutationKey)) {
                     addPerkLabel(card, line.text, line.tip);

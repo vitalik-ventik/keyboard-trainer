@@ -345,7 +345,8 @@ function handleVictory() {
             chestBonus: (accessoryPerk(save.getEquipped("accessory")).chest || 0) + save.getPetPerks().chest
         });
         save.setWinsWithoutChest(drop.winsWithoutChest);
-        save.addChests(drop.chests);
+        // Світ перемоги запам'ятовується: у його сундуках живуть секретні улюбленці світу
+        save.addChests(drop.chests, wonLevel ? wonLevel.bgTheme : null);
         refreshCrystalDisplays();
         // Досягнення перевіряємо після всіх нарахувань: рамки, ліги, зібрані предмети
         announceAchievements(save.checkAchievements());

@@ -4,7 +4,8 @@
 // ============================================================
 
 import { KEYS } from "./keyboard.js";
-import { CHEST_TYPES, DEFAULT_ITEMS, FIRST_CLEAR_BONUS, GOLD_BONUS, MAX_PET_SLOTS, PET_MUTATE_OWNED_CHANCE, PET_MUTATION_CHANCE, PET_MUTATIONS, PET_SLOTS, SILVER_BONUS, accessoryPerk, getShopItem, getShopSkinByRenderType, petPerkTotals, rollChest, rollPetMutation, shopTierLeague } from "./shop.js";
+import { BackgroundRenderer } from "./backgrounds.js";
+import { CHEST_TYPES, SHOP_ITEMS, SECRET_PET_CHANCE, SECRET_PITY_MAX, rollSecretPet, secretPetSource, DEFAULT_ITEMS, FIRST_CLEAR_BONUS, GOLD_BONUS, MAX_PET_SLOTS, PET_MUTATE_OWNED_CHANCE, PET_MUTATION_CHANCE, PET_MUTATIONS, PET_SLOTS, SILVER_BONUS, accessoryPerk, getShopItem, getShopSkinByRenderType, petPerkTotals, rollChest, rollPetMutation, shopTierLeague } from "./shop.js";
 import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, localDayKey, sanitizeAchievementData } from "./achievements.js";
 import { EGG_BY_THEME } from "./easter_eggs.js";
 import { ALL_LEVELS, BOSS_LEVEL_ID, DEFAULT_SKIN, getLevelById, levelOrderIndex, nextLevelOf } from "./levels.js";
@@ -33,8 +34,10 @@ function defaultSaveData() {
             owned: [],
             equipped: { trail: DEFAULT_ITEMS.trail, explosion: DEFAULT_ITEMS.explosion, accessory: DEFAULT_ITEMS.accessory, weapon: DEFAULT_ITEMS.weapon },
             paid: {},
-            // Ще не відкриті сундуки та скільки перемог поспіль минуло без сундука
+            // Ще не відкриті сундуки, світ, у якому виграно кожен (для секретних улюбленців
+            // світу; null — сундук за досягнення), і скільки перемог поспіль минуло без сундука
             chests: [],
+            chestWorlds: [],
             winsWithoutChest: 0,
             // Сердечка — запасні життя з сундуків
             hearts: 0,
@@ -42,7 +45,9 @@ function defaultSaveData() {
             // і мутації улюбленців { id: "gold" | "diamond" | "rainbow" | "lava" | "candy" }
             petSlots: 1,
             pets: [],
-            petMutations: {}
+            petMutations: {},
+            // Скільки сундуків поспіль не дали секретного улюбленця (м'яка гарантія)
+            secretPity: 0
         },
         // Відкриті досягнення й лічильники для них
         achievements: defaultAchievementData()
@@ -137,7 +142,19 @@ function sanitizeSaveData(raw) {
             }
         }
         if (Array.isArray(raw.shop.chests)) {
-            clean.shop.chests = raw.shop.chests.filter(function (c) { return typeof c === "string" && CHEST_TYPES[c]; }).slice(0, 50);
+            const worlds = Array.isArray(raw.shop.chestWorlds) ? raw.shop.chestWorlds : [];
+            for (let i = 0; i < raw.shop.chests.length && clean.shop.chests.length < 50; i++) {
+                const c = raw.shop.chests[i];
+                if (typeof c === "string" && CHEST_TYPES[c]) {
+                    const world = worlds[i];
+                    clean.shop.chests.push(c);
+                    clean.shop.chestWorlds.push(typeof world === "string" && world.length <= 40 ? world : null);
+                }
+            }
+        }
+        const pity = Number(raw.shop.secretPity);
+        if (Number.isFinite(pity)) {
+            clean.shop.secretPity = Math.max(0, Math.min(SECRET_PITY_MAX, Math.floor(pity)));
         }
         const hearts = Number(raw.shop.hearts);
         if (Number.isFinite(hearts)) {
@@ -677,16 +694,32 @@ export const save = {
         return saveData.shop.chests.slice();
     },
 
-    addChests(types) {
+    // Додати сундуки в чергу. world — тема світу, де їх виграно (null — не зі світу)
+    addChests(types, world) {
         if (!saveData) {
             this.load();
         }
         for (const type of types) {
-            if (CHEST_TYPES[type]) {
-                saveData.shop.chests.push(type);
-            }
+            this.queueChest(type, world);
         }
         this.persist();
+    },
+
+    // Сундук у чергу разом зі світом, де його виграно (без збереження — його робить виклик)
+    queueChest(type, world) {
+        if (!CHEST_TYPES[type]) {
+            return;
+        }
+        saveData.shop.chests.push(type);
+        saveData.shop.chestWorlds.push(typeof world === "string" ? world : null);
+    },
+
+    // Світ, у якому виграно наступний сундук у черзі (або null)
+    getNextChestWorld() {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.shop.chestWorlds[0] || null;
     },
 
     getWinsWithoutChest() {
@@ -715,6 +748,7 @@ export const save = {
             return null;
         }
         const type = saveData.shop.chests.shift();
+        const world = saveData.shop.chestWorlds.shift() || null;
         saveData.achievements.stats.chestsOpened++;
         const self = this;
         // Аксесуар може підвищити шанс, що з сундука випаде річ;
@@ -732,7 +766,27 @@ export const save = {
             const it = getShopItem(id);
             return !!it && !it.legendary && !it.secret && !self.getRequirementProgress(it).met;
         };
-        let result = rollChest(type, unavailable, undefined, itemBonus, heartBonus);
+        // Спершу — секретний улюбленець сундука чи світу (з м'якою гарантією)
+        const isOwned = function (id) { return self.isOwned(id); };
+        const secret = rollSecretPet(type, world, isOwned, saveData.shop.secretPity);
+        let result = null;
+        if (secret.id) {
+            saveData.shop.secretPity = 0;
+            result = { kind: "item", id: secret.id, secret: true };
+        } else {
+            if (secret.available) {
+                saveData.shop.secretPity = Math.min(SECRET_PITY_MAX, saveData.shop.secretPity + 1);
+            } else {
+                // Усі секретні цього сундука вже знайдені: повторна знахідка стає мутацією
+                const found = this.secretMutationTarget(type, world);
+                if (found && Math.random() < (SECRET_PET_CHANCE[type] || 0)) {
+                    result = { kind: "mutation", id: found, mutation: rollPetMutation(), secret: true };
+                }
+            }
+            if (!result) {
+                result = rollChest(type, unavailable, undefined, itemBonus, heartBonus);
+            }
+        }
         // Замість монет сундук іноді мутує одного з наявних улюбленців без мутації
         if (result.kind === "crystals") {
             const plain = saveData.shop.owned.filter(function (id) {
@@ -760,6 +814,21 @@ export const save = {
         }
         this.persist();
         return { type: type, result: result };
+    },
+
+    // Знайдений секретний улюбленець цього сундука чи світу ще без мутації (або null)
+    secretMutationTarget(type, world) {
+        const candidates = saveData.shop.owned.filter(function (id) {
+            const it = getShopItem(id);
+            if (!it || it.type !== "pet" || !it.secret || saveData.shop.petMutations[id]) {
+                return false;
+            }
+            return it.secret === type || (it.secret === "world" && !!world && it.world === world);
+        });
+        if (candidates.length === 0) {
+            return null;
+        }
+        return candidates[Math.floor(Math.random() * candidates.length) % candidates.length];
     },
 
     // ---------- Сердечка (запасні життя) ----------
@@ -800,8 +869,9 @@ export const save = {
         }
         const req = item && item.requirement;
         if (item && item.secret) {
-            // Секретний улюбленець не продається — лише випадає із золотого сундука
-            return { met: false, current: 0, target: 1, text: "Лише із золотого сундука" };
+            // Секретний улюбленець не продається — лише випадає із сундука чи світу
+            const source = secretPetSource(item, BackgroundRenderer.worldName(item.world));
+            return { met: false, current: 0, target: 1, text: source.text };
         }
         if (!req) {
             // Дорожчі звичайні товари відкриваються в наступних лігах
@@ -1005,7 +1075,8 @@ export const save = {
             petsOwned: petsOwned,
             petsEquipped: saveData.shop.pets.length,
             petsMutated: petsMutated,
-            petSecret: petSecret
+            petSecret: petSecret,
+            totalSecrets: SHOP_ITEMS.filter(function (it) { return it.type === "pet" && !!it.secret; }).length
         };
     },
 
@@ -1024,9 +1095,7 @@ export const save = {
             }
             if (achievementProgress(ach, snapshot).done) {
                 done.push(ach.id);
-                if (CHEST_TYPES[ach.chest]) {
-                    saveData.shop.chests.push(ach.chest);
-                }
+                this.queueChest(ach.chest, null);
                 fresh.push(ach);
             }
         }
