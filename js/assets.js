@@ -44,6 +44,9 @@ const SOUND_FILES = {
     wind_blast: "sounds/wind_blast.wav",
     frost_orb: "sounds/frost_orb.wav",
     ice_shatter: "sounds/ice_shatter.wav",
+    // Сюрикени: черга свистів і влучання
+    shuriken_throw: "sounds/shuriken_throw.wav",
+    shuriken_hit: "sounds/shuriken_hit.wav",
     // Сундук (тимчасові синтезовані звуки — можна замінити файлами з тими самими іменами)
     chest_shake: "sounds/chest_shake.wav",
     chest_open: "sounds/chest_open.wav",

@@ -123,20 +123,21 @@ export const WEAPON_SOUNDS = {
     weapon_saber_blue: { swing: { sound: "lightsaber", duration: 1.0, volume: 0.4 }, fire: { sound: "lightsaber", volume: 0.4 } },
     weapon_saber_red: { swing: { sound: "lightsaber", duration: 1.0, volume: 0.4 }, fire: { sound: "lightsaber", volume: 0.4 } },
     weapon_plasma: { fire: { sound: "laser_gun", volume: 0.6 }, hit: { sound: "thunder", duration: 0.5, volume: 0.3 } },
-    weapon_shuriken: { fire: { sound: "bow", volume: 0.45 }, hit: { sound: "sword", volume: 0.5 } },
+    // Сюрикени: у звуці кидка — черга з трьох свистів; кожен сюрикен черги влучає зі своїм звуком
+    weapon_shuriken: { fire: { sound: "shuriken_throw", volume: 0.25 }, chunk: { sound: "shuriken_hit", volume: 0.3 }, hit: { sound: "shuriken_hit", volume: 0.43 } },
     // Сундукова зброя: власні звуки, змішані з наявних і синтезованих шарів
-    weapon_trident: { fire: { sound: "trident_throw", volume: 0.8 }, swing: { sound: "trident_throw", volume: 0.7 }, hit: { sound: "trident_splash", volume: 1.1 } },
+    weapon_trident: { fire: { sound: "trident_throw", volume: 0.58 }, swing: { sound: "trident_throw", volume: 0.51 }, hit: { sound: "trident_splash", volume: 1.28 } },
     weapon_crossbow: { fire: { sound: "crossbow", volume: 0.7 } },
     // Сніжки й пейнтбол: у звуці пострілу — черга з трьох, кожен снаряд черги ще й влучає зі своїм звуком
-    weapon_snowball: { fire: { sound: "snow_throw", volume: 0.5 }, chunk: { sound: "snow_hit", volume: 0.35 }, hit: { sound: "snow_hit", volume: 0.55 } },
+    weapon_snowball: { fire: { sound: "snow_throw", volume: 0.75 }, chunk: { sound: "snow_hit", volume: 0.55 }, hit: { sound: "snow_hit", volume: 0.86 } },
     weapon_slingshot: { fire: { sound: "slingshot", volume: 0.6 }, hit: { sound: "slingshot_hit", volume: 0.62 } },
-    weapon_mace: { hit: { sound: "mace_hit", volume: 0.46 } },
+    weapon_mace: { hit: { sound: "mace_hit", volume: 0.5 } },
     weapon_scythe: { swing: { sound: "scythe_swing", volume: 0.75 }, hit: { sound: "scythe_soul", volume: 0.45 } },
-    weapon_banhammer: { hit: { sound: "banhammer", volume: 0.64 } },
-    weapon_paintball: { fire: { sound: "paint_shot", volume: 0.55 }, chunk: { sound: "paint_splat", volume: 0.6 }, hit: { sound: "paint_splat", volume: 0.95 } },
+    weapon_banhammer: { hit: { sound: "banhammer", volume: 1.03 } },
+    weapon_paintball: { fire: { sound: "paint_shot", volume: 0.55 }, chunk: { sound: "paint_splat", volume: 0.65 }, hit: { sound: "paint_splat", volume: 1.0 } },
     weapon_chain_staff: { fire: { sound: "chain_lightning", volume: 0.8 } },
-    weapon_meteor_staff: { fire: { sound: "meteor_fall", volume: 0.45 }, hit: { sound: "meteor_boom", volume: 0.7 } },
-    weapon_wind_rod: { fire: { sound: "wind_blast", volume: 0.85 } },
+    weapon_meteor_staff: { fire: { sound: "meteor_fall", volume: 0.45 }, hit: { sound: "meteor_boom", volume: 0.8 } },
+    weapon_wind_rod: { fire: { sound: "wind_blast", volume: 0.44 } },
     weapon_frost_orb: { fire: { sound: "frost_orb", volume: 0.55 }, hit: { sound: "ice_shatter", volume: 0.75 } }
 };
 
