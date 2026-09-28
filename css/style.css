@@ -1803,7 +1803,7 @@ body {
     overflow: hidden;
     /* Постійний розмір: вікно не стрибає при перемиканні вкладок */
     box-sizing: border-box;
-    width: min(94vw, 82vmin);
+    width: min(96vw, 112vmin);
     height: min(96vh, 84vmin);
 }
 
@@ -1811,6 +1811,7 @@ body {
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1841,6 +1842,13 @@ body {
 
 .settings-panel > * {
     flex-shrink: 0;
+}
+
+/* У широкому вікні налаштувань підказки йдуть в один рядок */
+.settings-panel .diff-hint,
+.settings-panel .option-hint,
+.settings-panel .speed-hint {
+    max-width: 100%;
 }
 
 .settings-panel.hidden {
