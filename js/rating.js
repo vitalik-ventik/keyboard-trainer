@@ -130,8 +130,6 @@ export function computeRating(levels, totals) {
         levelsTotal: ALL_LEVELS.length,
         runs: t.runs || 0,
         minutes: Math.round(minutes),
-        accuracy: presses > 0 ? (t.ok || 0) / presses : null,
-        // Швидкість — правильні літери за хвилину чистого часу забігів
-        lettersPerMinute: minutes >= 0.5 ? Math.round((t.ok || 0) / minutes) : null
+        accuracy: presses > 0 ? (t.ok || 0) / presses : null
     };
 }

@@ -8,7 +8,7 @@
 
 import { audioFileCount, loadAssets, playMusic, playSound, unlockAudio } from "./assets.js";
 import { ALL_LEVELS, BOSS_LEVEL_ID, COMBO_KINDS, Engine, LEVELS_CONFIG, levelOrderIndex, nextLevelOf, save } from "./engine.js";
-import { drawKeyboard, drawTargetPulse, initKeyboardInput, setFingerScheme } from "./keyboard.js";
+import { KEYS, drawKeyboard, drawTargetPulse, initKeyboardInput, setFingerScheme } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundQuality, FrameController, KeyboardCache } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
@@ -1050,7 +1050,7 @@ function refreshRatingBlock() {
     const chips = [
         ["Рівні", r.levelsCleared + " / " + r.levelsTotal + (r.levelsHard > 0 ? " (HARD: " + r.levelsHard + ")" : "")],
         ["Точність", r.accuracy === null ? "—" : Math.round(r.accuracy * 100) + "%"],
-        ["Швидкість", r.lettersPerMinute === null ? "—" : r.lettersPerMinute + " літ/хв"],
+        ["Освоєно літер", save.countMasteredLetters() + " / " + KEYS.length],
         ["Забігів", r.runs + (r.minutes > 0 ? " · " + r.minutes + " хв" : "")],
         ["За рівні", String(r.base)],
         ["Практика", "+" + r.bonus + " (" + Math.round(r.bonusShare * 100) + "%)"]
