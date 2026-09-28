@@ -8,7 +8,7 @@
 
 import { audioFileCount, loadAssets, playMusic, playSound, unlockAudio } from "./assets.js";
 import { ALL_LEVELS, BOSS_LEVEL_ID, COMBO_KINDS, Engine, LEVELS_CONFIG, levelOrderIndex, nextLevelOf, save } from "./engine.js";
-import { drawKeyboard, drawTargetPulse, initKeyboardInput } from "./keyboard.js";
+import { drawKeyboard, drawTargetPulse, initKeyboardInput, setFingerScheme } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundQuality, FrameController, KeyboardCache } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
@@ -28,6 +28,7 @@ let H = 0;
 
 const frameCtrl = new FrameController();
 const kbCache = new KeyboardCache();
+setFingerScheme(save.getFingerScheme());
 
 function resizeCanvas() {
     const dpr = window.devicePixelRatio || 1;
@@ -78,6 +79,10 @@ const btnLevelsBack = document.getElementById("btnLevelsBack");
 const btnCamOn = document.getElementById("btnCamOn");
 const btnCamOff = document.getElementById("btnCamOff");
 const cameraHintEl = document.getElementById("cameraHint");
+const btnFingerClassic = document.getElementById("btnFingerClassic");
+const btnFingerDiagonal = document.getElementById("btnFingerDiagonal");
+const fingerHintEl = document.getElementById("fingerHint");
+const fingerPreviewEl = document.getElementById("fingerPreview");
 const btnRetry = document.getElementById("btnRetry");
 const btnGoMenu = document.getElementById("btnGoMenu");
 const btnNext = document.getElementById("btnNext");
@@ -553,6 +558,44 @@ function refreshCameraButtons() {
     cameraHintEl.textContent = on ? CAMERA_HINTS.on : CAMERA_HINTS.off;
 }
 
+const FINGER_HINTS = {
+    classic: "КЛАСИЧНА: кожен палець іде своєю колонкою — С середнім, И лівим вказівним",
+    diagonal: "КОСА: нижній ряд лівої руки по діагоналі — Я безіменним, С вказівним, И правим вказівним"
+};
+
+// Превʼю клавіатури в налаштуваннях: показує, який палець за якою клавішею
+function drawFingerPreview() {
+    if (!fingerPreviewEl) {
+        return;
+    }
+    const rect = fingerPreviewEl.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) {
+        return;
+    }
+    const dpr = window.devicePixelRatio || 1;
+    fingerPreviewEl.width = Math.round(rect.width * dpr);
+    fingerPreviewEl.height = Math.round(rect.height * dpr);
+    const previewCtx = fingerPreviewEl.getContext("2d");
+    previewCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    previewCtx.clearRect(0, 0, rect.width, rect.height);
+    // Усі літери як «літери рівня», щоб кольори пальців було видно яскраво
+    const allLetters = ["Й", "Ц", "У", "К", "Е", "Н", "Г", "Ш", "Щ", "З", "Х", "Ї",
+        "Ф", "І", "В", "А", "П", "Р", "О", "Л", "Д", "Ж", "Є",
+        "Я", "Ч", "С", "М", "И", "Т", "Ь", "Б", "Ю"];
+    drawKeyboard(previewCtx, { x: 0, y: 0, w: rect.width, h: rect.height }, allLetters, null, null, 0);
+}
+
+function refreshFingerButtons() {
+    const scheme = save.getFingerScheme();
+    btnFingerClassic.classList.toggle("active-classic", scheme === "classic");
+    btnFingerDiagonal.classList.toggle("active-diagonal", scheme === "diagonal");
+    fingerHintEl.textContent = FINGER_HINTS[scheme] || FINGER_HINTS.classic;
+    setFingerScheme(scheme);
+    kbCache.markDirty();
+    // Модалка щойно показалася — малюємо після розкладки, коли відомий розмір полотна
+    requestAnimationFrame(drawFingerPreview);
+}
+
 // ---------- Кнопки ----------
 
 btnStart.addEventListener("click", function () {
@@ -572,6 +615,7 @@ btnSettings.addEventListener("click", function () {
     refreshSpeedButtons();
     refreshCameraButtons();
     setState("SETTINGS");
+    refreshFingerButtons();
 });
 
 btnEasy.addEventListener("click", function () {
@@ -652,6 +696,16 @@ btnCamOff.addEventListener("click", function () {
     save.setCameraMotion(false);
     refreshCameraButtons();
     createDemoEngine();
+});
+
+btnFingerClassic.addEventListener("click", function () {
+    save.setFingerScheme("classic");
+    refreshFingerButtons();
+});
+
+btnFingerDiagonal.addEventListener("click", function () {
+    save.setFingerScheme("diagonal");
+    refreshFingerButtons();
 });
 
 btnLevelsBack.addEventListener("click", function () {

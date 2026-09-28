@@ -26,7 +26,7 @@ function defaultSaveData() {
     }
     return {
         version: 1,
-        settings: { difficulty: "EASY", hitWindow: "normal", speed: "normal", activeSkin: null, cameraMotion: true },
+        settings: { difficulty: "EASY", hitWindow: "normal", speed: "normal", activeSkin: null, cameraMotion: true, fingerScheme: "classic" },
         progress: { unlocked: 1, unlockedSkins: [], levels: levels, letterStats: {} },
         // Кристали, куплені товари, надіте та вже виплачені разові бонуси рівнів
         shop: {
@@ -70,6 +70,9 @@ function sanitizeSaveData(raw) {
     }
     if (raw.settings && typeof raw.settings.cameraMotion === "boolean") {
         clean.settings.cameraMotion = raw.settings.cameraMotion;
+    }
+    if (raw.settings && (raw.settings.fingerScheme === "classic" || raw.settings.fingerScheme === "diagonal")) {
+        clean.settings.fingerScheme = raw.settings.fingerScheme;
     }
     if (raw.settings && typeof raw.settings.activeSkin === "string" && raw.settings.activeSkin.length > 0) {
         clean.settings.activeSkin = raw.settings.activeSkin;
@@ -354,6 +357,25 @@ export const save = {
             this.load();
         }
         return saveData.settings.cameraMotion !== false;
+    },
+
+    // Схема пальців на клавіатурі: "classic" — кожен палець у своїй колонці,
+    // "diagonal" — коса: нижній ряд лівої руки зсунуто на палець вправо
+    setFingerScheme(scheme) {
+        if (!saveData) {
+            this.load();
+        }
+        if (scheme === "classic" || scheme === "diagonal") {
+            saveData.settings.fingerScheme = scheme;
+            this.persist();
+        }
+    },
+
+    getFingerScheme() {
+        if (!saveData) {
+            this.load();
+        }
+        return saveData.settings.fingerScheme === "diagonal" ? "diagonal" : "classic";
     },
 
     getActiveSkin() {

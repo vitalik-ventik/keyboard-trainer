@@ -406,7 +406,9 @@ body {
 .speed-btn.active-normal,
 .speed-btn.active-fast,
 .option-btn.active-on,
-.option-btn.active-off {
+.option-btn.active-off,
+.option-btn.active-classic,
+.option-btn.active-diagonal {
     color: #ffffff;
     background: linear-gradient(180deg, rgba(var(--c), 0.3), rgba(var(--c), 0.1));
     border-color: rgb(var(--c));
@@ -426,6 +428,17 @@ body {
 #btnSpeedFast { --c: 255, 46, 166; }
 #btnCamOn { --c: 57, 255, 136; }
 #btnCamOff { --c: 255, 56, 96; }
+#btnFingerClassic { --c: 0, 246, 255; }
+#btnFingerDiagonal { --c: 190, 120, 255; }
+
+/* Превʼю клавіатури з кольорами пальців у налаштуваннях */
+.finger-preview {
+    display: block;
+    width: 100%;
+    height: 14vmin;
+    min-height: 90px;
+    margin: 1vmin auto 0;
+}
 
 .option-row {
     display: flex;
