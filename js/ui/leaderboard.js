@@ -19,7 +19,7 @@ const btnRefreshLb = document.getElementById("btnRefreshLb");
 
 // Розмір живої сценки гравця в рядку (логічні пікселі): зграя ліворуч, кубик праворуч
 const AVATAR_W = 300;
-const AVATAR_H = 92;
+const AVATAR_H = 72;
 const MEDALS = ["🥇", "🥈", "🥉"];
 
 let loading = false;
@@ -105,7 +105,7 @@ function createAvatarCanvas(avatar, seed) {
         ctx: canvas.getContext("2d"),
         dpr: dpr,
         avatar: avatar || {},
-        // Зсув у часі, щоб гравці стрибали не всі разом
+        // Зсув у часі, щоб анімації гравців не йшли в ногу
         shift: (seed * 977) % 2600,
         visible: true,
         broken: false
