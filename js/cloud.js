@@ -31,6 +31,17 @@ let syncRunning = false;
 let syncAgain = false;
 const statusListeners = [];
 
+// Запит, що завис (повільна мережа), обривається, щоб надсилання не «висіло» вічно
+const REQUEST_TIMEOUT_MS = 30000;
+
+function fetchWithTimeout(url, options) {
+    const controller = new AbortController();
+    const timer = setTimeout(function () { controller.abort(); }, REQUEST_TIMEOUT_MS);
+    return fetch(url, Object.assign({}, options, { signal: controller.signal })).finally(function () {
+        clearTimeout(timer);
+    });
+}
+
 function loadCloud() {
     if (cloudData) {
         return cloudData;
@@ -122,7 +133,7 @@ export function setPlayerName(name) {
 // ---------- Анонімний вхід ----------
 
 async function postJson(url, body, headers) {
-    const response = await fetch(url, {
+    const response = await fetchWithTimeout(url, {
         method: "POST",
         headers: Object.assign({ "Content-Type": "application/json" }, headers || {}),
         body: JSON.stringify(body)
@@ -149,7 +160,7 @@ async function signUp() {
 // Оновлення короткого токена за ключем із localStorage
 async function refresh() {
     const cloud = loadCloud();
-    const response = await fetch(AUTH_REFRESH_URL, {
+    const response = await fetchWithTimeout(AUTH_REFRESH_URL, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: "grant_type=refresh_token&refresh_token=" + encodeURIComponent(cloud.refreshToken)
@@ -232,7 +243,7 @@ async function sendPlayer() {
         updatedAt: new Date()
     };
     const url = FIRESTORE_URL + "/players/" + encodeURIComponent(loadCloud().uid);
-    let response = await fetch(url, {
+    let response = await fetchWithTimeout(url, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
         body: JSON.stringify({ fields: toFirestoreFields(doc) })
@@ -241,7 +252,7 @@ async function sendPlayer() {
         // Токен відкликано чи прострочено — пробуємо ще раз зі свіжим
         idToken = null;
         const fresh = await getIdToken();
-        response = await fetch(url, {
+        response = await fetchWithTimeout(url, {
             method: "PATCH",
             headers: { "Content-Type": "application/json", "Authorization": "Bearer " + fresh },
             body: JSON.stringify({ fields: toFirestoreFields(doc) })
