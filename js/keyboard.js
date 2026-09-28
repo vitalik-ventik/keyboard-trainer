@@ -137,14 +137,14 @@ const ROW_COUNTS = [12, 11, 9];
 // Колір кожного пальця (r, g, b) — однакові пальці обох рук мають однаковий колір,
 // лише вказівні різняться, бо кожен із них відповідає за дві колонки
 const FINGERS = {
-    L_PINKY: { rgb: "255, 79, 163", name: "Мізинець" },
-    L_RING: { rgb: "255, 154, 60", name: "Безіменний" },
-    L_MIDDLE: { rgb: "255, 225, 77", name: "Середній" },
+    L_PINKY: { rgb: "255, 70, 170", name: "Мізинець" },
+    L_RING: { rgb: "255, 140, 40", name: "Безіменний" },
+    L_MIDDLE: { rgb: "60, 220, 110", name: "Середній" },
     L_INDEX: { rgb: "155, 123, 255", name: "Вказівний" },
     R_INDEX: { rgb: "77, 155, 255", name: "Вказівний" },
-    R_MIDDLE: { rgb: "255, 225, 77", name: "Середній" },
-    R_RING: { rgb: "255, 154, 60", name: "Безіменний" },
-    R_PINKY: { rgb: "255, 79, 163", name: "Мізинець" }
+    R_MIDDLE: { rgb: "60, 220, 110", name: "Середній" },
+    R_RING: { rgb: "255, 140, 40", name: "Безіменний" },
+    R_PINKY: { rgb: "255, 70, 170", name: "Мізинець" }
 };
 
 const FINGER_LETTERS = {
@@ -181,10 +181,10 @@ const COLORS = {
     DEFAULT_TEXT: "#5d6580",
 
     GROUP_FILL: "rgba(8, 32, 50, 0.9)",
-    GROUP_STROKE: "rgba(0, 246, 255, 0.5)",
-    GROUP_TEXT: "rgba(0, 246, 255, 0.8)",
+    GROUP_STROKE: "rgba(0, 246, 255, 0.95)",
+    GROUP_TEXT: "#ffffff",
     GROUP_GLOW: 6,
-    GROUP_GLOW_COLOR: "rgba(0, 246, 255, 0.3)",
+    GROUP_GLOW_COLOR: "rgba(0, 246, 255, 0.5)",
 
     TARGET_FILL: "rgba(20, 38, 10, 0.95)",
     TARGET_STROKE: "rgb(191, 255, 0)",
@@ -353,6 +353,10 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyErro
             state = "group";
         }
 
+        // Клавіші не з рівня напівпрозорі: колір пальця видно, але вони не відволікають
+        // від літер рівня
+        ctx.globalAlpha = state === "default" ? DEFAULT_KEY_ALPHA : 1;
+
         if (glow > 0) {
             var glowR = Math.round(Math.min(8, keyW * 0.16));
             var centerX = x + keyW / 2;
@@ -374,7 +378,7 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyErro
         ctx.fill();
         drawFingerTint(ctx, key.letter, x, y, keyW, keyH, keyRadius, state);
         roundRect(ctx, x, y, keyW, keyH, keyRadius);
-        ctx.lineWidth = 2;
+        ctx.lineWidth = state === "group" ? 3 : 2;
         ctx.strokeStyle = stroke;
         ctx.stroke();
 
@@ -391,11 +395,14 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyErro
     drawFingerLegend(ctx, area, layout);
 }
 
+// Прозорість клавіш, яких немає в рівні
+const DEFAULT_KEY_ALPHA = 0.45;
+
 // Відтінок і смужка кольору пальця зверху клавіші. Для недоступних клавіш — ледь
 // помітно, щоб не сплутати з пулом рівня; для пулу й цілі — яскраво
 const FINGER_TINT = {
-    default: { fill: 0.16, stripe: 0.7 },
-    group: { fill: 0.2, stripe: 1 },
+    default: { fill: 0.12, stripe: 0.8 },
+    group: { fill: 0.32, stripe: 1 },
     target: { fill: 0.0, stripe: 1 },
     error: { fill: 0.0, stripe: 0.6 }
 };
