@@ -5,7 +5,7 @@
 // ============================================================
 
 import { drawPet, drawPetAura, getShopItem, isWaterTheme } from "./shop.js";
-import { CUBE_SIZE, GRAVITY, SPIKE_H } from "./game_constants.js";
+import { CUBE_SIZE, SPIKE_H } from "./game_constants.js";
 import { save } from "./save.js";
 
 // Розмір улюбленця й відстані в зграї (у пікселях траси):
@@ -22,16 +22,13 @@ const PET_COMBO_GLOW = 5;
 // Повідці: зграя — ланцюжок, кубик тягне першого улюбленця, той — наступного.
 // Довжина повідця (для малювання) трохи більша за відстань між сусідами, тож на бігу він провисає
 const PET_LEASH_SLACK = 1.08;
-// Тяжіння улюбленців (легше за кубик, щоб вони пливли за ним у повітрі);
-// летючі майже невагомі
-const PET_GRAVITY = GRAVITY * 0.75;
-const PET_FLY_GRAVITY = GRAVITY * 0.3;
-// Пружина, що повертає улюбленця на своє місце в зграї по горизонталі, і її гасіння
-const PET_SPRING = 70;
-const PET_DAMPING = 11;
-// Провисання повідця: на скільки пікселів нижче тягнеться улюбленець за кожен піксель
-// відстані до найвищої точки шляху кубика попереду нього
-const PET_LEASH_DROOP = 0.3;
+// Повідець як пружина: улюбленець тягнеться до висоти того, хто попереду (перший — до кубика).
+// Жорсткість задає, як швидко він підтягується, гасіння — щоб не розгойдувався;
+// кожна наступна ланка відстає трохи більше, тож зграя піднімається й опускається хвилею
+const PET_LEASH_STIFFNESS = 500;
+const PET_LEASH_DAMPING = 38;
+// Летючим досить половини висоти стрибка — вони й так над шипами
+const PET_FLY_FOLLOW = 0.5;
 // Скільки кроків фізики на кадр — щоб повідці не «рвались» на повільних кадрах
 const PET_SUBSTEPS = 4;
 
@@ -57,87 +54,32 @@ class EnginePets {
                 // Положення відносно кубика: x — по горизонталі (на місці -offset), y — висота над землею
                 x: -offset,
                 y: 0,
-                vx: 0,
                 vy: 0,
                 happy: 0
             });
         }
-        // Шлях кубика: { x, y } — улюбленець у точці x не опускається нижче, ніж там був кубик,
-        // тож перелітає ті самі шипи
-        this.petPath = [];
         this.petWater = isWaterTheme(this.level.bgTheme);
     }
 
-    // Висота кубика в точці траси x (лінійно між записаними точками)
-    petPathHeight(x) {
-        const path = this.petPath;
-        if (path.length === 0 || x <= path[0].x) {
-            return 0;
-        }
-        for (let i = path.length - 1; i > 0; i--) {
-            const a = path[i - 1];
-            const b = path[i];
-            if (a.x <= x) {
-                if (b.x <= a.x) {
-                    return b.y;
-                }
-                const k = Math.min(1, (x - a.x) / (b.x - a.x));
-                return a.y + (b.y - a.y) * k;
-            }
-        }
-        return path[path.length - 1].y;
-    }
-
-    // Нижня межа для улюбленця в точці x: найвища точка шляху кубика між улюбленцем
-    // і кубиком, опущена на провисання повідця. Улюбленець рушає вгору разом із кубиком
-    // і не просідає, доки не перелетить найвищу точку, — одна плавна дуга, а не два стрибки
-    petFloor(x) {
-        let best = this.petPathHeight(x);
-        for (const point of this.petPath) {
-            if (point.x > x) {
-                const h = point.y - (point.x - x) * PET_LEASH_DROOP;
-                if (h > best) {
-                    best = h;
-                }
-            }
-        }
-        return best;
-    }
-
-    // Один крок фізики зграї: тяжіння, пружина на своє місце й нижня межа —
-    // земля, а на бігу ще й повідець (petFloor), який тягне улюбленця вгору за кубиком
+    // Один крок фізики зграї: кожен улюбленець пружиною тягнеться до висоти попередньої ланки.
+    // Після вибуху повідці відпускаються — улюбленці плавно опускаються на землю
     stepPets(h, tethered) {
+        let leadY = tethered ? this.player.y : 0;
         for (const pet of this.pets) {
-            const prevY = pet.y;
-            pet.vx += ((-pet.offset - pet.x) * PET_SPRING - pet.vx * PET_DAMPING) * h;
-            pet.vy -= (pet.flies ? PET_FLY_GRAVITY : PET_GRAVITY) * h;
-            pet.x += pet.vx * h;
+            const target = tethered ? leadY * (pet.flies ? PET_FLY_FOLLOW : 1) : 0;
+            pet.vy += ((target - pet.y) * PET_LEASH_STIFFNESS - pet.vy * PET_LEASH_DAMPING) * h;
             pet.y += pet.vy * h;
-            pet.vy = (pet.y - prevY) / h;
-            // Летючим досить половини висоти. Повідець підтягує без розгону,
-            // тож на вершині улюбленець зупиняється й плавно опускається, а не підскакує
-            const floor = tethered ? this.petFloor(this.player.x + pet.x) * (pet.flies ? 0.5 : 1) : 0;
-            if (pet.y <= floor) {
-                pet.y = floor;
+            if (pet.y <= 0) {
+                pet.y = 0;
                 pet.vy = Math.max(0, pet.vy);
             }
+            leadY = tethered ? pet.y / (pet.flies ? PET_FLY_FOLLOW : 1) : 0;
         }
     }
 
     updatePets(dt) {
         if (!this.pets || this.pets.length === 0) {
             return;
-        }
-        if (this.player.alive) {
-            this.petPath.push({ x: this.player.x, y: this.player.y });
-            const farthest = this.pets[this.pets.length - 1].offset + CUBE_SIZE * 2;
-            let drop = 0;
-            while (drop < this.petPath.length - 2 && this.petPath[drop + 1].x < this.player.x - farthest) {
-                drop++;
-            }
-            if (drop > 0) {
-                this.petPath.splice(0, drop);
-            }
         }
         if (dt > 0) {
             // Після вибуху повідці відпускаються: улюбленці опускаються на землю й сумують
