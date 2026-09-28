@@ -1634,6 +1634,135 @@ body {
     text-shadow: 0 0 0.6vmin rgba(255, 200, 80, 0.8);
 }
 
+/* ---------- Рейтинг ---------- */
+
+.lb-trigger {
+    --c: 255, 225, 77;
+}
+
+.lb-badge {
+    color: #ffe14d;
+    text-shadow: 0 0 0.6vmin rgba(255, 225, 77, 0.8);
+}
+
+.list-modal.lb-modal-box {
+    width: min(94vw, 130vmin);
+    height: 92vh;
+}
+
+.lb-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1vmin;
+    padding: 0.5vmin 1vmin;
+}
+
+.lb-row {
+    display: grid;
+    grid-template-columns: 6vmin auto 1fr auto;
+    align-items: center;
+    gap: 0.6vmin 1.6vmin;
+    padding: 0.8vmin 1.6vmin;
+    border: 0.2vmin solid rgba(0, 246, 255, 0.25);
+    border-radius: 1.2vmin;
+    background: rgba(8, 12, 30, 0.85);
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lb-row:hover,
+.lb-row.lb-open {
+    border-color: rgba(0, 246, 255, 0.7);
+    box-shadow: 0 0 1.2vmin rgba(0, 246, 255, 0.3);
+}
+
+.lb-row.lb-top {
+    border-color: rgba(255, 225, 77, 0.45);
+}
+
+/* Свій рядок — яскрава рожева рамка й підсвітка */
+.lb-row.lb-me {
+    border: 0.3vmin solid #ff2ea6;
+    background: linear-gradient(90deg, rgba(255, 46, 166, 0.22), rgba(8, 12, 30, 0.9));
+    box-shadow: 0 0 1.6vmin rgba(255, 46, 166, 0.55);
+}
+
+.lb-place {
+    font-size: 3vmin;
+    font-weight: 900;
+    color: #9fb4d8;
+    text-align: center;
+}
+
+.lb-top .lb-place {
+    font-size: 3.8vmin;
+}
+
+.lb-avatar {
+    display: block;
+}
+
+.lb-main {
+    min-width: 0;
+}
+
+.lb-name {
+    font-size: 2.6vmin;
+    font-weight: 800;
+    color: #ffffff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lb-you {
+    margin-left: 1vmin;
+    padding: 0.1vmin 0.8vmin;
+    font-size: 1.6vmin;
+    font-weight: 900;
+    color: #ffffff;
+    background: #ff2ea6;
+    border-radius: 0.6vmin;
+    vertical-align: middle;
+}
+
+.lb-sub {
+    font-size: 1.8vmin;
+    color: #9fb4d8;
+}
+
+.lb-rating {
+    font-size: 3vmin;
+    font-weight: 900;
+    color: #ffe14d;
+    text-shadow: 0 0 0.8vmin rgba(255, 225, 77, 0.7);
+    white-space: nowrap;
+}
+
+.lb-details {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+}
+
+.lb-details.hidden {
+    display: none;
+}
+
+.lb-modal-box .option-hint {
+    max-width: 100%;
+}
+
+.lb-message {
+    margin: 3vmin 0 1vmin;
+    font-size: 2.2vmin;
+    color: #c8d6f0;
+    text-align: center;
+}
+
+.lb-name-btn {
+    align-self: center;
+}
+
 .list-modal.ach-modal-box {
     width: min(94vw, 130vmin);
     height: 92vh;
