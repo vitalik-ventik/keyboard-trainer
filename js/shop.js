@@ -111,6 +111,20 @@ export const SHOP_ITEMS = [
     { id: "weapon_firesword", type: "weapon", name: "Вогняний меч", price: 8000, bonus: 1.7, legendary: true, requirement: { kind: "clears", target: 15 } },
     { id: "weapon_thunder", type: "weapon", name: "Громовий молот", price: 10000, bonus: 1.8, legendary: true, requirement: { kind: "gold_count", target: 10 } },
     { id: "weapon_gravity", type: "weapon", name: "Гравітаційна гармата", price: 12000, bonus: 1.9, legendary: true, requirement: { kind: "gold_count", target: 20 } },
+    // Сундукова зброя: не продається, випадає лише із «свого» сундука (поле chestOnly —
+    // "wood" | "silver" | "gold"; шанси — CHEST_WEAPON_CHANCE у shop_pets.js). price — лише цінність
+    { id: "weapon_trident", type: "weapon", name: "Тризуб", price: 1500, bonus: 1.35, chestOnly: "wood" },
+    { id: "weapon_crossbow", type: "weapon", name: "Арбалет", price: 1500, bonus: 1.3, chestOnly: "wood" },
+    { id: "weapon_snowball", type: "weapon", name: "Сніжки", price: 1500, bonus: 1.25, chestOnly: "wood" },
+    { id: "weapon_slingshot", type: "weapon", name: "Рогатка", price: 1500, bonus: 1.25, chestOnly: "wood" },
+    { id: "weapon_mace", type: "weapon", name: "Булава хрестоносця", price: 4000, bonus: 1.5, chestOnly: "silver" },
+    { id: "weapon_scythe", type: "weapon", name: "Коса некроманта", price: 4000, bonus: 1.55, chestOnly: "silver" },
+    { id: "weapon_banhammer", type: "weapon", name: "Банхамер", price: 4000, bonus: 1.5, chestOnly: "silver" },
+    { id: "weapon_paintball", type: "weapon", name: "Пейнтбольний автомат", price: 4000, bonus: 1.5, chestOnly: "silver" },
+    { id: "weapon_chain_staff", type: "weapon", name: "Посох блискавок", price: 10000, bonus: 1.75, chestOnly: "gold" },
+    { id: "weapon_meteor_staff", type: "weapon", name: "Посох метеорів", price: 10000, bonus: 1.8, chestOnly: "gold" },
+    { id: "weapon_wind_rod", type: "weapon", name: "Жезл вітру", price: 10000, bonus: 1.7, chestOnly: "gold" },
+    { id: "weapon_frost_orb", type: "weapon", name: "Крижана сфера", price: 10000, bonus: 1.75, chestOnly: "gold" },
 
     { id: "acc_none", type: "accessory", name: "Без аксесуара", price: 0 },
     { id: "acc_cap", type: "accessory", name: "Кепка", price: 200 },
@@ -252,6 +266,6 @@ export function getShopSkinByRenderType(renderType) {
 export { ACCESSORY_PERKS, EXPLOSION_PERKS, FIRST_CLEAR_BONUS, GOLD_BONUS, LEAGUE_COIN_MULT, SHOP_SKIN_PERK_STEPS, SILVER_BONUS, SKIN_HEART_PERKS, SKIN_PERFECT_BONUS, SKIN_PERK_TIERS, SKIN_SERIES_MULT, SKIN_WORDS_MULT, TRAIL_PERKS, accessoryPerk, accessoryPerkText, basePrice, computeReward, explosionWindowBonus, itemPerkHint, itemPerkText, levelSkinPerkHint, petMutationHint, rewardMultiplier, seriesBonus, shopSkinPerkValue, shopTabHints, skinPerk, skinPerkText, skinPerkValue, trailSlowdown, weaponCoinBonus } from "./shop_rewards.js";
 export { EXPLOSION_DURATION, coinsText, drawCoinIcon, drawExplosion, drawHeartLife, drawTrail, heartsText } from "./shop_effects.js";
 export { drawAccessory } from "./shop_accessories.js";
-export { MAX_PET_SLOTS, PET_MUTATIONS, PET_MUTATION_KEYS, SECRET_CHEST_SOURCES, SECRET_PET_CHANCE, SECRET_PITY_MAX, SECRET_PITY_STEP, SECRET_WORLD_CHANCE, secretPetSource, PET_MUTATION_CHANCE, PET_MUTATE_OWNED_CHANCE, PET_PERK_CAPS, PET_PERK_HINTS, PET_RARITIES, PET_SLOTS, isWaterTheme, petPerk, petPerkHint, petPerkLines, petPerkText, petPerkTotals, petRarity, petRarityColor, petTotalsLines, rollPetMutation } from "./shop_pets.js";
+export { CHEST_WEAPON_CHANCE, CHEST_WEAPON_PITY_MAX, CHEST_WEAPON_PITY_STEP, MAX_PET_SLOTS, PET_MUTATIONS, PET_MUTATION_KEYS, SECRET_CHEST_SOURCES, SECRET_PET_CHANCE, SECRET_PITY_MAX, SECRET_PITY_STEP, SECRET_WORLD_CHANCE, secretPetSource, PET_MUTATION_CHANCE, PET_MUTATE_OWNED_CHANCE, PET_PERK_CAPS, PET_PERK_HINTS, PET_RARITIES, PET_SLOTS, isWaterTheme, petPerk, petPerkHint, petPerkLines, petPerkText, petPerkTotals, petRarity, petRarityColor, petTotalsLines, rollPetMutation } from "./shop_pets.js";
 export { drawPet, drawPetAura } from "./pets_draw.js";
-export { CHEST_PITY_WINS, CHEST_TYPES, NON_SKIN_ITEM_KEEP, REPLAY_CHEST_CHANCE, chestItemPool, chestsForVictory, drawChest, itemRarity, rollChest, rollSecretPet, secretPetPool, shopTierLeague } from "./shop_chests.js";
+export { CHEST_PITY_WINS, CHEST_TYPES, chestWeaponPool, chestWeaponSource, rollChestWeapon, NON_SKIN_ITEM_KEEP, REPLAY_CHEST_CHANCE, chestItemPool, chestsForVictory, drawChest, itemRarity, rollChest, rollSecretPet, secretPetPool, shopTierLeague } from "./shop_chests.js";

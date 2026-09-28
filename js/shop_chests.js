@@ -4,7 +4,7 @@
 
 import { basePrice } from "./shop_rewards.js";
 import { SHOP_ITEMS } from "./shop.js";
-import { SECRET_PET_CHANCE, SECRET_PITY_MAX, SECRET_PITY_STEP, SECRET_WORLD_CHANCE, petRarity } from "./shop_pets.js";
+import { CHEST_WEAPON_CHANCE, CHEST_WEAPON_PITY_MAX, CHEST_WEAPON_PITY_STEP, SECRET_CHEST_SOURCES, SECRET_PET_CHANCE, SECRET_PITY_MAX, SECRET_PITY_STEP, SECRET_WORLD_CHANCE, petRarity } from "./shop_pets.js";
 
 // ---------- Сундуки ----------
 
@@ -32,6 +32,9 @@ export function itemRarity(item) {
     }
     if (item && item.legendary) {
         return { name: "⭐ ЛЕГЕНДАРНИЙ", color: "#ffcc33" };
+    }
+    if (item && item.chestOnly) {
+        return { name: "🎁 Сундукова", color: "#ffb347" };
     }
     if (!item || basePrice(item) < 200) {
         return { name: "Звичайний", color: "#c8d0e0" };
@@ -89,7 +92,7 @@ export function chestItemPool(type, isOwned) {
     const chest = CHEST_TYPES[type] || CHEST_TYPES.wood;
     const pool = [];
     for (const item of SHOP_ITEMS) {
-        if (item.price <= 0 || item.legendary || item.secret || basePrice(item) > chest.maxPrice || isOwned(item.id)) {
+        if (item.price <= 0 || item.legendary || item.secret || item.chestOnly || basePrice(item) > chest.maxPrice || isOwned(item.id)) {
             continue;
         }
         pool.push({ item: item, weight: 1 / Math.pow(basePrice(item), chest.rarityPower), keep: item.type === "skin" ? 1 : NON_SKIN_ITEM_KEEP });
@@ -136,6 +139,42 @@ export function rollChest(type, isOwned, random, itemBonus, heartBonus) {
     const lo = chest.crystals[0];
     const hi = chest.crystals[1];
     return { kind: "crystals", amount: Math.round(lo + rnd() * (hi - lo)) };
+}
+
+// ---------- Сундукова зброя ----------
+
+// Зброя з полем chestOnly не продається: випадає лише із «свого» сундука.
+// Шанси й м'яка гарантія — CHEST_WEAPON_CHANCE, CHEST_WEAPON_PITY_STEP, CHEST_WEAPON_PITY_MAX (shop_pets.js)
+
+// Звідки сундукова зброя (для підказки на картці): { icon, text } або null
+export function chestWeaponSource(item) {
+    if (!item || !item.chestOnly) {
+        return null;
+    }
+    return SECRET_CHEST_SOURCES[item.chestOnly] || SECRET_CHEST_SOURCES.gold;
+}
+
+// Сундукова зброя, яку ще можна знайти в сундуку type. isOwned(id) — чи вже є
+export function chestWeaponPool(type, isOwned) {
+    return SHOP_ITEMS.filter(function (item) {
+        return item.type === "weapon" && item.chestOnly === type && !isOwned(item.id);
+    });
+}
+
+// Спроба знайти сундукову зброю. pity — скільки сундуків поспіль її вже не було.
+// Повертає { available, id }: available — чи було що знайти (тоді гарантія росте)
+export function rollChestWeapon(type, isOwned, pity, random) {
+    const rnd = random || Math.random;
+    const pool = chestWeaponPool(type, isOwned);
+    if (pool.length === 0) {
+        return { available: false, id: null };
+    }
+    const misses = Math.max(0, pity || 0);
+    const sure = misses + 1 >= CHEST_WEAPON_PITY_MAX;
+    if (!sure && rnd() >= (CHEST_WEAPON_CHANCE[type] || 0) + misses * CHEST_WEAPON_PITY_STEP) {
+        return { available: true, id: null };
+    }
+    return { available: true, id: pool[Math.floor(rnd() * pool.length) % pool.length].id };
 }
 
 // Секретні улюбленці, яких ще можна знайти в сундуку type, виграному у світі world:

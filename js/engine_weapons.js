@@ -76,6 +76,28 @@ class EngineWeapons {
             }
         } else if (fx === "break") {
             this.spawnDebris(12, Object.assign(base, { angleMin: Math.PI * 0.15, angleMax: Math.PI * 0.85, speedMin: 100, speedMax: 240, sizeMin: 5, sizeMax: 9, gravity: 900, life: 0.8, spin: 6 }));
+        } else if (fx === "splash") {
+            // Тризуб: бризки води
+            this.spawnDebris(12, Object.assign(base, { colors: ["#6ad8ff", "#bff0ff", "#2a8adf"], angleMin: Math.PI * 0.15, angleMax: Math.PI * 0.85, speedMin: 120, speedMax: 280, sizeMin: 2, sizeMax: 4, gravity: 700, life: 0.7, outline: false }));
+        } else if (fx === "freeze") {
+            // Сніжки й крижана сфера: скалки льоду
+            this.spawnDebris(10, Object.assign(base, { colors: ["#dff6ff", "#9ad8ff", "#ffffff"], angleMin: Math.PI * 0.1, angleMax: Math.PI * 0.9, speedMin: 100, speedMax: 260, sizeMin: 3, sizeMax: 6, gravity: 800, life: 0.8, outline: false }));
+        } else if (fx === "smash" || fx === "ban") {
+            // Булава й банхамер: уламки розлітаються низом, екран здригається
+            const extra = fx === "ban" ? ["#ff3a3a", "#ffffff"] : ["#b8a88a", "#ffe08a"];
+            this.spawnDebris(14, Object.assign(base, { y: SPIKE_H * 0.1, colors: colors.concat(extra), angleMin: Math.PI * 0.05, angleMax: Math.PI * 0.95, speedMin: 90, speedMax: 240, sizeMin: 3, sizeMax: 6, gravity: 900, life: 0.6 }));
+            if (this.cameraMotion) {
+                this.shakeTime = Math.max(this.shakeTime, SHAKE_TIME * 0.35);
+            }
+        } else if (fx === "reap") {
+            // Коса: фіолетові іскри душі злітають угору
+            this.spawnDebris(10, Object.assign(base, { colors: ["#b58aff", "#6a3aff", "#e8dcff"], angleMin: Math.PI * 0.3, angleMax: Math.PI * 0.7, speedMin: 30, speedMax: 100, sizeMin: 2, sizeMax: 4, gravity: -80, life: 1.0, outline: false, spin: 3 }));
+        } else if (fx === "paint") {
+            // Пейнтбол: краплі фарби
+            this.spawnDebris(12, Object.assign(base, { colors: this.weaponSpec.colors || colors, angleMin: Math.PI * 0.1, angleMax: Math.PI * 0.9, speedMin: 120, speedMax: 280, sizeMin: 3, sizeMax: 5, gravity: 800, life: 0.8, outline: false }));
+        } else if (fx === "gust") {
+            // Жезл вітру: уламки здуває вперед
+            this.spawnDebris(8, Object.assign(base, { colors: ["#e8f4ff", "#bfe0ff", colors[0]], angleMin: Math.PI * 0.05, angleMax: Math.PI * 0.4, speedMin: 150, speedMax: 320, sizeMin: 2, sizeMax: 4, gravity: 200, life: 0.7, outline: false }));
         }
         if (spike.points > 0) {
             this.scorePopups.push({ x: spike.x, y: SPIKE_H + 12, text: "+" + spike.points, life: 0.9, maxLife: 0.9, points: true });
@@ -150,15 +172,15 @@ class EngineWeapons {
                 s.prev.pop();
             }
             if (!s.returning && s.t >= s.dur) {
-                if ((s.kind === "bullet" || s.kind === "shuriken") && !s.last) {
-                    // Куля черги чи сюрикен відколює шматок зверху
+                if (this.weaponSpec.mode === "burst" && !s.last) {
+                    // Куля черги, сюрикен, сніжка чи кулька фарби відколює шматок зверху
                     s.spike.chunks = Math.max(s.spike.chunks || 0, s.index + 1);
                     this.spawnDebris(4, { x: s.spike.x, y: SPIKE_H * (1 - (s.index + 1) * 0.22), spread: SPIKE_W * 0.4, angleMin: Math.PI * 0.2, angleMax: Math.PI * 0.8, speedMin: 80, speedMax: 180, sizeMin: 3, sizeMax: 5, spin: 8, colors: SPIKE_STYLE_COLORS[this.spikeStyle] || [this.level.accentColor || "#ff2ea6"], gravity: 700, life: 0.5, outline: true });
                 } else {
                     this.destroySpike(s.spike);
                 }
-                if (s.kind === "axe" || s.kind === "saber") {
-                    // Сокира-бумеранг і світловий меч повертаються в руку
+                if (s.returns) {
+                    // Сокира-бумеранг, світловий меч і тризуб повертаються в руку
                     s.returning = true;
                     s.t = 0;
                     s.dur = 0.32;
@@ -217,7 +239,7 @@ class EngineWeapons {
         }
         let away = false;
         for (const s of this.shots) {
-            if (s.kind === "axe" || s.kind === "saber") {
+            if (s.returns) {
                 away = true;
             }
         }

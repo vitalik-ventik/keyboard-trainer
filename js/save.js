@@ -5,7 +5,7 @@
 
 import { KEYS } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
-import { CHEST_TYPES, SHOP_ITEMS, SECRET_PET_CHANCE, SECRET_PITY_MAX, rollSecretPet, secretPetSource, DEFAULT_ITEMS, FIRST_CLEAR_BONUS, GOLD_BONUS, MAX_PET_SLOTS, PET_MUTATE_OWNED_CHANCE, PET_MUTATION_CHANCE, PET_MUTATIONS, PET_SLOTS, SILVER_BONUS, accessoryPerk, getShopItem, getShopSkinByRenderType, petPerkTotals, rollChest, rollPetMutation, shopTierLeague } from "./shop.js";
+import { CHEST_TYPES, CHEST_WEAPON_PITY_MAX, chestWeaponSource, rollChestWeapon, SHOP_ITEMS, SECRET_PET_CHANCE, SECRET_PITY_MAX, rollSecretPet, secretPetSource, DEFAULT_ITEMS, FIRST_CLEAR_BONUS, GOLD_BONUS, MAX_PET_SLOTS, PET_MUTATE_OWNED_CHANCE, PET_MUTATION_CHANCE, PET_MUTATIONS, PET_SLOTS, SILVER_BONUS, accessoryPerk, getShopItem, getShopSkinByRenderType, petPerkTotals, rollChest, rollPetMutation, shopTierLeague } from "./shop.js";
 import { ACHIEVEMENTS, achievementProgress, defaultAchievementData, localDayKey, sanitizeAchievementData } from "./achievements.js";
 import { EGG_BY_THEME } from "./easter_eggs.js";
 import { ALL_LEVELS, BOSS_LEVEL_ID, DEFAULT_SKIN, getLevelById, levelOrderIndex, nextLevelOf } from "./levels.js";
@@ -51,7 +51,9 @@ function defaultSaveData() {
             pets: [],
             petMutations: {},
             // Скільки сундуків поспіль не дали секретного улюбленця (м'яка гарантія)
-            secretPity: 0
+            secretPity: 0,
+            // Скільки сундуків поспіль не дали сундукової зброї (м'яка гарантія)
+            weaponPity: 0
         },
         // Відкриті досягнення й лічильники для них
         achievements: defaultAchievementData()
@@ -180,6 +182,10 @@ function sanitizeSaveData(raw) {
         const pity = Number(raw.shop.secretPity);
         if (Number.isFinite(pity)) {
             clean.shop.secretPity = Math.max(0, Math.min(SECRET_PITY_MAX, Math.floor(pity)));
+        }
+        const weaponPity = Number(raw.shop.weaponPity);
+        if (Number.isFinite(weaponPity)) {
+            clean.shop.weaponPity = Math.max(0, Math.min(CHEST_WEAPON_PITY_MAX, Math.floor(weaponPity)));
         }
         const hearts = Number(raw.shop.hearts);
         if (Number.isFinite(hearts)) {
@@ -949,6 +955,16 @@ export const save = {
                     result = { kind: "mutation", id: found, mutation: rollPetMutation(), secret: true };
                 }
             }
+            // Далі — сундукова зброя цього сундука (теж із м'якою гарантією)
+            if (!result) {
+                const weapon = rollChestWeapon(type, isOwned, saveData.shop.weaponPity);
+                if (weapon.id) {
+                    saveData.shop.weaponPity = 0;
+                    result = { kind: "item", id: weapon.id, chestWeapon: true };
+                } else if (weapon.available) {
+                    saveData.shop.weaponPity = Math.min(CHEST_WEAPON_PITY_MAX, (saveData.shop.weaponPity || 0) + 1);
+                }
+            }
             if (!result) {
                 result = rollChest(type, unavailable, undefined, itemBonus, heartBonus);
             }
@@ -1072,6 +1088,10 @@ export const save = {
             }
             const source = secretPetSource(item, BackgroundRenderer.worldName(item.world));
             return { met: false, current: 0, target: 1, text: source.text };
+        }
+        if (item && item.chestOnly) {
+            // Сундукова зброя не продається — лише випадає зі свого сундука (який — видно з позначки на картці)
+            return { met: false, current: 0, target: 1, text: "Випадає із сундука " + chestWeaponSource(item).icon };
         }
         if (!req) {
             // Дорожчі звичайні товари відкриваються в наступних лігах
@@ -1215,6 +1235,7 @@ export const save = {
         const boss = levels[String(BOSS_LEVEL_ID)];
         const mastered = this.countMasteredLetters();
         let weapons = 0;
+        let chestWeapons = 0;
         let legendary = 0;
         let shopSkins = 0;
         let petsOwned = 0;
@@ -1228,6 +1249,9 @@ export const save = {
             }
             if (item.type === "weapon") {
                 weapons++;
+                if (item.chestOnly) {
+                    chestWeapons++;
+                }
             }
             if (item.type === "skin") {
                 shopSkins++;
@@ -1264,6 +1288,8 @@ export const save = {
             totalEggs: themes.length,
             itemsOwned: saveData.shop.owned.length,
             weaponsOwned: weapons,
+            chestWeapons: chestWeapons,
+            totalChestWeapons: SHOP_ITEMS.filter(function (it) { return !!it.chestOnly; }).length,
             skins: saveData.progress.unlockedSkins.length + shopSkins,
             chestsOpened: st.chestsOpened,
             legendaryOwned: legendary,

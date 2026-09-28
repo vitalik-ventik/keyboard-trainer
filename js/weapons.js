@@ -124,22 +124,19 @@ export const WEAPON_SOUNDS = {
     weapon_saber_red: { swing: { sound: "lightsaber", duration: 1.0, volume: 0.4 }, fire: { sound: "lightsaber", volume: 0.4 } },
     weapon_plasma: { fire: { sound: "laser_gun", volume: 0.6 }, hit: { sound: "thunder", duration: 0.5, volume: 0.3 } },
     weapon_shuriken: { fire: { sound: "bow", volume: 0.45 }, hit: { sound: "sword", volume: 0.5 } },
-    // Сундукова зброя — зі звуків, що вже є в sounds/
-    weapon_trident: { fire: { sound: "bow", volume: 0.5 }, swing: { sound: "sword", volume: 0.7 } },
-    weapon_crossbow: { fire: { sound: "bow", volume: 0.7 } },
-    weapon_snowball: { fire: { sound: "bow", volume: 0.35 } },
-    weapon_slingshot: { fire: { sound: "bow", volume: 0.45 }, hit: { sound: "pickaxe", volume: 0.5 } },
-    weapon_mace: { hit: { sound: "pickaxe", volume: 0.9 } },
-    weapon_scythe: { swing: { sound: "sword", volume: 0.8 } },
-    weapon_banhammer: { hit: { sound: "bat", volume: 0.85 } },
-    weapon_paintball: { fire: { sound: "machine_gun", duration: 0.3, volume: 0.35 } },
-    weapon_chain_staff: { fire: { sound: "thunder", duration: 0.8, volume: 0.5 } },
-    weapon_meteor_staff: {
-        fire: { sound: "missile_boom", offset: 0.15, duration: 0.5, volume: 0.6 },
-        hit: { sound: "missile_boom", offset: 1.18, duration: 1.6, volume: 0.7 }
-    },
-    weapon_wind_rod: { fire: { sound: "gravi_sound", duration: 0.6, volume: 0.6 } },
-    weapon_frost_orb: { fire: { sound: "laser_gun", volume: 0.4 } }
+    // Сундукова зброя: власні звуки, змішані з наявних і синтезованих шарів
+    weapon_trident: { fire: { sound: "trident_throw", volume: 0.8 }, swing: { sound: "trident_throw", volume: 0.7 }, hit: { sound: "trident_splash", volume: 0.75 } },
+    weapon_crossbow: { fire: { sound: "crossbow", volume: 0.7 } },
+    weapon_snowball: { fire: { sound: "snow_throw", volume: 0.5 }, hit: { sound: "snow_hit", volume: 0.5 } },
+    weapon_slingshot: { fire: { sound: "slingshot", volume: 0.6 }, hit: { sound: "slingshot_hit", volume: 0.8 } },
+    weapon_mace: { hit: { sound: "mace_hit", volume: 0.9 } },
+    weapon_scythe: { swing: { sound: "scythe_swing", volume: 0.75 }, hit: { sound: "scythe_soul", volume: 0.45 } },
+    weapon_banhammer: { hit: { sound: "banhammer", volume: 0.9 } },
+    weapon_paintball: { fire: { sound: "paint_shot", volume: 0.4 }, hit: { sound: "paint_splat", volume: 0.7 } },
+    weapon_chain_staff: { fire: { sound: "chain_lightning", volume: 0.8 } },
+    weapon_meteor_staff: { fire: { sound: "meteor_fall", volume: 0.45 }, hit: { sound: "meteor_boom", volume: 0.7 } },
+    weapon_wind_rod: { fire: { sound: "wind_blast", volume: 0.85 } },
+    weapon_frost_orb: { fire: { sound: "frost_orb", volume: 0.55 }, hit: { sound: "ice_shatter", volume: 0.75 } }
 };
 
 // Звук зброї для події або null

@@ -67,6 +67,8 @@ export const ACHIEVEMENTS = [
     { id: "first_weapon", group: "collect", icon: "🗡️", name: "Озброєний", desc: "Отримай першу зброю", chest: "wood", target: 1, value: function (s) { return s.weaponsOwned; } },
     { id: "skins_10", group: "collect", icon: "🎨", name: "Модник", desc: "Збери 10 скінів", chest: "wood", target: 10, value: function (s) { return s.skins; } },
     { id: "chests_30", group: "collect", icon: "🎁", name: "Скарбошукач", desc: "Відкрий 30 сундуків", chest: "wood", target: 30, value: function (s) { return s.chestsOpened; } },
+    { id: "chest_weapon", group: "collect", icon: "🎁", name: "Скарб зі скрині", desc: "Знайди сундукову зброю — її не купиш, вона лише випадає із сундуків", chest: "silver", target: 1, value: function (s) { return s.chestWeapons; } },
+    { id: "chest_weapons_all", group: "collect", icon: "⚔️", name: "Сундуковий арсенал", desc: "Збери всю сундукову зброю", chest: "gold", target: 0, value: function (s) { return s.chestWeapons; }, targetFromSnapshot: "totalChestWeapons" },
     { id: "legendary", group: "collect", icon: "⭐", name: "Легенда", desc: "Отримай легендарний предмет", chest: "silver", target: 1, value: function (s) { return s.legendaryOwned; } },
 
     // Улюбленці
