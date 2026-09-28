@@ -119,12 +119,27 @@ BackgroundRenderer.renderJungleTemple = function (ctx, W, H, groundY, time, spee
     ctx.fillRect(fx - B * 3.4, cliffTop - B * 0.6, B * 7.8, B * 0.8);
     ctx.fillStyle = "#c8f0ff";
     ctx.fillRect(fx - B * 0.2, cliffTop, B * 2.4, gY - cliffTop);
-    const step = B * 0.8;
-    const sh = (time * B * 10) % step;
-    ctx.fillStyle = "#ffffff";
-    for (let y = cliffTop + sh; y < gY; y += step) {
-        ctx.fillRect(fx + ((y / step) % 2 < 1 ? 0 : B * 1.2), Math.round(y), Math.round(B * 0.8), Math.round(B * 0.4));
+    // Струмені води: кожна смужка тече своєю доріжкою й не перескакує вбік,
+    // доріжки мають трохи різну швидкість — вода рухається плавно, без мерехтіння
+    const lanes = [
+        { dx: B * 0.1, speedK: 7, phase: 0 },
+        { dx: B * 0.9, speedK: 6, phase: 0.45 },
+        { dx: B * 1.6, speedK: 7.5, phase: 0.75 }
+    ];
+    const step = B * 2.2;
+    const streakH = B * 0.9;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(fx - B * 0.2, cliffTop, B * 2.4, gY - cliffTop);
+    ctx.clip();
+    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    for (const lane of lanes) {
+        const offset = (time * B * lane.speedK + lane.phase * step) % step;
+        for (let y = cliffTop - step + offset; y < gY; y += step) {
+            ctx.fillRect(Math.round(fx + lane.dx), Math.round(y), Math.round(B * 0.5), Math.round(streakH));
+        }
     }
+    ctx.restore();
     for (let k = 0; k < 6; k++) {
         const q = (time * 0.8 + k / 6) % 1;
         ctx.globalAlpha = (1 - q) * 0.6;
