@@ -30,6 +30,20 @@ export function drawShopSkinScene(pctx, item, time, accessory) {
 }
 
 // Прев'ю зброї: шип під'їжджає, кубик із поточним скіном атакує
+// Чорний квадрат зі знаками питання (центр cx, cy, сторона size)
+function drawMysteryBox(pctx, cx, cy, size) {
+    pctx.fillStyle = "#000000";
+    pctx.fillRect(cx - size / 2, cy - size / 2, size, size);
+    pctx.strokeStyle = "#2a2f44";
+    pctx.lineWidth = 2;
+    pctx.strokeRect(cx - size / 2, cy - size / 2, size, size);
+    pctx.fillStyle = "#6a7088";
+    pctx.font = "bold " + Math.round(size * 0.42) + "px 'Segoe UI', Arial";
+    pctx.textAlign = "center";
+    pctx.textBaseline = "middle";
+    pctx.fillText("???", cx, cy + 1);
+}
+
 function drawWeaponScene(pctx, item, now, opts) {
     const w = 150;
     const h = 100;
@@ -40,6 +54,11 @@ function drawWeaponScene(pctx, item, now, opts) {
     pctx.fillRect(0, groundY, w, h - groundY);
     pctx.fillStyle = "#00f6ff";
     pctx.fillRect(0, groundY, w, 2);
+    if (opts.silhouette) {
+        // Сундукова зброя, ще не знайдена: лише чорний квадрат зі знаками питання
+        drawMysteryBox(pctx, w / 2, groundY - 36, 50);
+        return;
+    }
     const skinFn = SKIN_RENDERERS[opts.skinType] || SKIN_RENDERERS.neon_base;
     pctx.save();
     pctx.beginPath();
@@ -131,6 +150,7 @@ function drawPetScene(pctx, item, now, opts) {
 // Жива сценка товару 150×100 (полотно вже масштабоване під dpr).
 // opts: { skinType — скін кубика, accessory — одягнутий аксесуар, mutation — мутація улюбленця,
 //         silhouette — показати улюбленця чорним силуетом (секретний, ще не знайдений),
+//                      а сундукову зброю — чорним квадратом зі знаками питання,
 //         weapon — зброя кубика (улюбленець у спорядженні під неї) }
 export function drawShopItemScene(pctx, item, now, opts) {
     if (item.type === "pet") {

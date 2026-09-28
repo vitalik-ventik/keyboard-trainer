@@ -42,7 +42,9 @@ def save(n,a,peak=0.9):
 # ---------- Синтез (як у Web Audio: осцилятори, шум, огинальні) ----------
 rng=np.random.default_rng(7)
 def T(d): return np.arange(int(d*SR))/SR
-def noise(d): return rng.uniform(-1,1,int(d*SR)).astype(np.float32)
+def noise(d, gen=None): return (gen or rng).uniform(-1,1,int(d*SR)).astype(np.float32)
+# Окремий генератор для шарів, доданих пізніше: так звуки, яких правка не стосується, не змінюються
+rng2=np.random.default_rng(11)
 def sweep(f0,f1,d,shape='sine'):
     t=T(d); f=f0*(f1/f0)**(t/d); ph=2*np.pi*np.cumsum(f)/SR
     w=np.sin(ph) if shape=='sine' else np.sign(np.sin(ph))
@@ -59,39 +61,60 @@ def swept_band(a,f0,f1,chunk=0.02):
         f=f0*(f1/f0)**(i/steps); seg=filt(a,'bandpass',[f*0.7,f*1.4]); out[i*n:(i+1)*n]=seg[i*n:(i+1)*n]
     return out
 def metal(freqs,d,tau): return sum(tone(f,d,tau*(1-i*0.2)) for i,f in enumerate(freqs))/len(freqs)
+# М'яке насичення: звук щільніший, без різкого кліпу
+def sat(a,drive): return (np.tanh(a*drive)/np.tanh(drive)).astype(np.float32)
+# Черга однакових пострілів (count штук через gap секунд), кожен трохи інший за висотою й гучністю
+def series(one,count,gap,pitch=0.04,fall=0.15):
+    return mix(*[(speed(one,1+pitch*(i%2*2-1)*(i>0)),gap*i,1-fall*i) for i in range(count)])
 
 bow=load('bow'); sword=load('sword'); soccer=load('soccer'); pick=load('pickaxe'); bat=load('bat')
 explode=load('explode'); gun=load('gun'); mg=load('machine_gun'); thunder=load('thunder'); laser=load('laser_gun')
 flame=load('flamethrower'); grav=load('gravi_sound'); saber=load('lightsaber'); coins=load('chest_coins')
 click=load('click'); boom=load('missile_boom'); firesw=load('fire_sword'); axe=load('axe')
 
+# Глухий щільний удар замість простого «боньк»: м'яч нижче й приглушений, низький «бум»
+# (синусоїда, що падає за висотою) і тіло з приглушеного шуму. depth — наскільки нижче
+def thud(depth=1.0, bright=700):
+    body=filt(speed(soccer,0.62/depth),'lowpass',bright)
+    sub=env_decay(sweep(150/depth,60/depth,0.35),0.11)
+    thump=env_decay(filt(noise(0.2,rng2),'lowpass',380),0.045)
+    return sat(mix((body,0,1),(sub,0,1.1),(thump,0,0.7)),1.8)
+
 # Тризуб: свист кидка з низьким «вжух» і «хлюп» води з бульканням
 save('trident_throw', cut(mix((speed(bow,0.8),0,1),(filt(speed(sword,0.7),'lowpass',2500),0.02,0.5),(env_decay(attack(filt(noise(0.4),'bandpass',[300,1200]),0.1),0.12),0,0.4)),0,0.55))
-splash=mix((filt(cut(explode,0,0.6),'bandpass',[700,5000]),0,1),(filt(speed(soccer,0.7),'lowpass',1800),0,0.8),
+splash=mix((filt(cut(explode,0,0.6),'bandpass',[700,5000]),0,1),(thud(1.0,900),0,0.9),
            (env_decay(filt(noise(0.5),'bandpass',[1500,6000]),0.09),0,0.7),(env_decay(sweep(700,180,0.18),0.08),0.03,0.6),(env_decay(sweep(900,300,0.12),0.05),0.12,0.35))
 save('trident_splash', env_decay(echo(splash,0.035,0.4,4,0.5),0.25))
 # Арбалет: клацання механізму, тугіша тятива й низький «тунк»
 save('crossbow', mix((filt(cut(click,0,0.06),'highpass',1500),0,0.8),(speed(bow,0.9),0.03,1),(tone(140,0.2,0.05),0.03,0.5)))
-# Сніжки: легкий кидок і м'який хрускіт
-save('snow_throw', filt(speed(bow,1.25),'lowpass',5000))
-save('snow_hit', env_decay(mix((filt(speed(soccer,0.85),'lowpass',1200),0,1),(filt(cut(explode,0,0.25),'lowpass',900),0,0.5),(filt(crackle(0.2,900),'bandpass',[2000,6000]),0,0.8)),0.12))
+# Сніжки: черга з трьох кидків (як три сніжки в грі) і глухий хрускіт
+save('snow_throw', series(filt(speed(bow,1.25),'lowpass',4500),3,0.09))
+save('snow_hit', env_decay(mix((thud(0.9,800),0,1),(filt(cut(explode,0,0.25),'lowpass',900),0,0.5),(filt(crackle(0.2,900),'bandpass',[2000,6000]),0,0.8)),0.12))
 # Рогатка: дзвінка гумка («тьонь») і цокання камінця
 save('slingshot', mix((speed(bow,1.6),0,1),(env_decay(sweep(260,190,0.25)+0.4*sweep(520,380,0.25),0.07),0,0.6)))
-save('slingshot_hit', mix((speed(pick,1.4),0,1),(speed(pick,1.9),0.06,0.4),(metal([1800,2900],0.15,0.03),0,0.3)))
-# Булава: важкий удар, низький гул і металевий дзвін
-save('mace_hit', env_decay(mix((speed(pick,0.7),0,1),(speed(bat,0.8),0,0.6),(filt(cut(explode,0,0.5),'lowpass',400),0,0.9),
-                               (env_decay(sweep(90,45,0.5),0.15),0,1),(metal([520,1340,2210],0.6,0.18),0,0.35)),0.3))
+save('slingshot_hit', mix((thud(0.75,1100),0,0.25),(filt(speed(pick,1.1),'lowpass',4000),0,1),(filt(speed(pick,1.5),'lowpass',3000),0.06,0.25)))
+# Булава: масивний удар — глибокий «бум», хрускіт, низький важкий гул металу й відлуння
+mace=mix((filt(cut(explode,0,0.9),'lowpass',260),0,1.2),(env_decay(sweep(110,42,0.9),0.32),0,1.2),
+         (filt(speed(bat,0.55),'lowpass',2000),0,1.1),(filt(speed(pick,0.5),'lowpass',3000),0,1.2),
+         (env_decay(filt(noise(0.3,rng2),'bandpass',[300,2500]),0.06),0,1.0),(metal([160,370,650],0.9,0.35),0.01,0.45),(thud(1.4,500),0,1))
+save('mace_hit', env_decay(echo(sat(mace,2.5),0.035,0.3,3,0.4),0.45))
 # Коса: повільний свист і примарне виття душі
 scy=mix((speed(sword,0.75),0,1),(filt(speed(cut(saber,0,0.6),0.6),'lowpass',1500),0,0.35))
 save('scythe_swing', cut(echo(scy,0.09,0.5,5,0.5),0,0.9))
 wail=attack(vib(420,0.9,0.03,6)*np.linspace(1,0.4,int(0.9*SR)),0.15)*np.exp(-T(0.9)/0.5)
 save('scythe_soul', echo(mix((filt(speed(grav,0.8)[::-1],'lowpass',2500),0,0.6),(wail.astype(np.float32),0.1,0.5),(0.5*sweep(600,300,0.9)*np.exp(-T(0.9)/0.3).astype(np.float32),0.1,0.3)),0.12,0.5,4,0.6))
-# Банхамер: гучний «БУМ» і дзижчання «помилки», як у Roblox
-buzz=filt(0.6*sweep(150,150,0.14,'square'),'lowpass',2500)
-save('banhammer', mix((env_decay(mix((speed(bat,0.7),0,1),(speed(pick,0.6),0,0.7),(filt(cut(explode,0,0.8),'lowpass',600),0,1),(env_decay(sweep(80,40,0.5),0.18),0,1)),0.35),0,1),(buzz,0.35,0.35),(buzz,0.53,0.35)))
-# Пейнтбол: пневматичний «пух» і соковитий «шльоп»
-save('paint_shot', mix((filt(speed(cut(gun,0,0.18),1.5),'lowpass',2500),0,1),(env_decay(filt(noise(0.1),'bandpass',[800,3000]),0.02),0,0.6)))
-save('paint_splat', env_decay(mix((filt(speed(soccer,0.6),'lowpass',1500),0,1),(filt(cut(flame,0.2,0.4),'bandpass',[300,2000]),0,0.5),(env_decay(filt(noise(0.3),'lowpass',1400),0.06),0,0.8),(env_decay(sweep(400,120,0.1),0.04),0,0.5)),0.15))
+# Банхамер: глухий важкий «БУМ» і м'яке «бу-бу» заборони (кілька гармонік замість різкого меандру,
+# високі частоти зрізані, плавний початок і кінець)
+def soft_buzz(d):
+    t=T(d); b=(np.sin(2*np.pi*150*t)+0.35*np.sin(2*np.pi*300*t)+0.15*np.sin(2*np.pi*450*t)).astype(np.float32)
+    return fade(filt(b,'lowpass',700),0.02,0.04)
+ban=env_decay(mix((filt(speed(bat,0.65),'lowpass',1800),0,1),(filt(speed(pick,0.6),'lowpass',2000),0,0.6),(filt(cut(explode,0,0.8),'lowpass',450),0,1),(thud(1.3,550),0,1.1)),0.35)
+save('banhammer', mix((sat(ban,2.0),0,1),(soft_buzz(0.15),0.36,0.3),(soft_buzz(0.15),0.55,0.3)))
+# Пейнтбол: черга з трьох пневматичних «пух» (як три кульки в грі) і глухий соковитий «шльоп»
+paint_one=mix((filt(speed(cut(gun,0,0.14),1.4),'lowpass',2200),0,1),(env_decay(filt(noise(0.08,rng2),'bandpass',[600,2500]),0.02),0,0.6),(env_decay(sweep(160,70,0.08),0.03),0,0.5))
+save('paint_shot', series(paint_one,3,0.08))
+rng.uniform(-1,1,int(0.1*SR))  # шум, який брав старий одиночний постріл: тримає послідовність для наступних звуків
+save('paint_splat', env_decay(mix((thud(1.1,800),0,0.6),(filt(cut(flame,0.2,0.4),'bandpass',[300,2000]),0,0.5),(env_decay(filt(noise(0.3),'lowpass',1400),0.06),0,0.8),(env_decay(sweep(400,120,0.1),0.04),0,0.5)),0.15))
 # Посох блискавок: тріск розряду, дзижчання й електричне потріскування
 save('chain_lightning', env_decay(mix((speed(cut(thunder,0,1.0),1.3),0,1),(speed(laser,0.7),0,0.6),(crackle(0.6,1500),0,1.2),(0.25*filt(sweep(120,120,0.5,'square'),'lowpass',1500),0,1)),0.35))
 # Метеор: свист падіння, що знижується, з гулом полум'я (0,45 с — як політ у грі) і важкий вибух
