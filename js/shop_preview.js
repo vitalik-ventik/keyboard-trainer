@@ -250,10 +250,12 @@ export function drawPlayerScene(ctx, avatar, w, h, now) {
 
     const groundY = h - 5;
     const cube = Math.round(h * 0.55);
-    const cubeX = w - cube * 1.3;
     const petSize = Math.round(cube * 0.7);
     const petFirst = cube * 1.35;
     const petGap = petSize * 1.3;
+    // Зграя з кубиком вирівняна по лівому краю: найдальший улюбленець біля краю,
+    // тож що більша зграя, то далі праворуч стоїть кубик — видно, у кого більше улюбленців
+    const cubeX = pets.length > 0 ? 2 + petSize / 2 + petFirst + (pets.length - 1) * petGap : 2 + cube / 2;
 
     // Земля — тонка неонова лінія
     ctx.fillStyle = "rgba(0, 246, 255, 0.35)";
