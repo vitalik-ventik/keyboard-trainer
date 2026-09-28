@@ -10,6 +10,7 @@
 // mode:
 //   melee — замах одразу, удар, коли шип підʼїде майже впритул (bolt — ще й блискавка з неба)
 //   axe   — якщо шип ближче за reach, рубає впритул, як меч; інакше кидає бумеранг
+//           (thrown — вигляд кинутої зброї, типово "axe"; кинута зброя повертається в руку)
 //   shot  — снаряд летить до шипа (speed — пікселів за секунду, arc — висота дуги,
 //           launch — звідки вилітає [x, y] у частках кубика, aim — куди влучає в частках висоти шипа)
 //   burst — черга з кількох куль, кожна відколює шматок
@@ -42,8 +43,48 @@ export const WEAPON_SPECS = {
     weapon_saber_red:   { mode: "axe", reach: 64, speed: 820, arc: 18, fx: "saber_red", saber: "#ff2a2a" },
     // Ліга 4: плазмова гармата стріляє сяйною кулею плазми, сюрикени летять віялом по три
     weapon_plasma:   { mode: "shot", projectile: "plasma", speed: 1100, arc: 0, fx: "plasma" },
-    weapon_shuriken: { mode: "burst", projectile: "shuriken", speed: 1300, arc: 8, count: 3, gap: 0.08, fx: "shred" }
+    weapon_shuriken: { mode: "burst", projectile: "shuriken", speed: 1300, arc: 8, count: 3, gap: 0.08, fx: "shred" },
+    // Сундукова зброя: не продається, лише випадає із «свого» сундука (поле chestOnly у shop.js).
+    // Малювання — weapons_chest.js (у руці, снаряди, промені) і weapons_chest_fx.js (руйнування шипа).
+    // Дерев'яний сундук: тризуб (як у Minecraft — летить і повертається), арбалет, сніжки, рогатка (Roblox)
+    weapon_trident:   { mode: "axe", thrown: "trident", reach: 64, speed: 900, arc: 10, fx: "splash" },
+    weapon_crossbow:  { mode: "shot", projectile: "bolt", speed: 1300, arc: 8, fx: "shatter" },
+    weapon_snowball:  { mode: "burst", projectile: "snowball", speed: 850, arc: 24, count: 3, gap: 0.09, fx: "freeze" },
+    weapon_slingshot: { mode: "shot", projectile: "pebble", speed: 800, arc: 30, fx: "pop" },
+    // Срібний сундук: булава хрестоносця й коса некроманта (Diablo 3), банхамер і пейнтбол (Roblox)
+    weapon_mace:      { mode: "melee", fx: "smash" },
+    weapon_scythe:    { mode: "melee", fx: "reap" },
+    weapon_banhammer: { mode: "melee", fx: "ban" },
+    weapon_paintball: { mode: "burst", projectile: "paint", speed: 1500, arc: 4, count: 3, gap: 0.08, fx: "paint", colors: ["#ff3a8a", "#3ae0ff", "#ffe23a"] },
+    // Золотий сундук: посохи чарівника з Diablo 3 (ланцюгова блискавка, метеор, крижана сфера)
+    // і жезл вітру з Minecraft (вітровий заряд здуває шип)
+    weapon_chain_staff:  { mode: "beam", beam: "chain", time: 0.45, hit: 0.1, fx: "zap" },
+    weapon_meteor_staff: { mode: "beam", beam: "meteor", time: 0.7, hit: 0.42, fx: "blast" },
+    weapon_wind_rod:     { mode: "shot", projectile: "wind", speed: 1000, arc: 0, fx: "gust" },
+    weapon_frost_orb:    { mode: "shot", projectile: "frost_orb", speed: 700, arc: 0, fx: "freeze" }
 };
+
+// Вигляд кинутої зброї (режим axe): світловий меч, тризуб чи сокира
+export function thrownKind(spec) {
+    if (!spec) {
+        return "axe";
+    }
+    return spec.saber ? "saber" : spec.thrown || "axe";
+}
+
+// Колір снаряда index у черзі (світловий меч — колір леза, пейнтбол — фарби по черзі)
+export function shotColor(spec, index) {
+    if (!spec) {
+        return null;
+    }
+    if (spec.saber) {
+        return spec.saber;
+    }
+    if (spec.colors && spec.colors.length > 0) {
+        return spec.colors[(index || 0) % spec.colors.length];
+    }
+    return null;
+}
 
 // Колір леза світлового меча для анімації розрізу
 const SABER_FX_COLORS = { saber_green: "#39ff5a", saber_blue: "#3aa0ff", saber_red: "#ff2a2a" };
@@ -82,7 +123,23 @@ export const WEAPON_SOUNDS = {
     weapon_saber_blue: { swing: { sound: "lightsaber", duration: 1.0, volume: 0.4 }, fire: { sound: "lightsaber", volume: 0.4 } },
     weapon_saber_red: { swing: { sound: "lightsaber", duration: 1.0, volume: 0.4 }, fire: { sound: "lightsaber", volume: 0.4 } },
     weapon_plasma: { fire: { sound: "laser_gun", volume: 0.6 }, hit: { sound: "thunder", duration: 0.5, volume: 0.3 } },
-    weapon_shuriken: { fire: { sound: "bow", volume: 0.45 }, hit: { sound: "sword", volume: 0.5 } }
+    weapon_shuriken: { fire: { sound: "bow", volume: 0.45 }, hit: { sound: "sword", volume: 0.5 } },
+    // Сундукова зброя — зі звуків, що вже є в sounds/
+    weapon_trident: { fire: { sound: "bow", volume: 0.5 }, swing: { sound: "sword", volume: 0.7 } },
+    weapon_crossbow: { fire: { sound: "bow", volume: 0.7 } },
+    weapon_snowball: { fire: { sound: "bow", volume: 0.35 } },
+    weapon_slingshot: { fire: { sound: "bow", volume: 0.45 }, hit: { sound: "pickaxe", volume: 0.5 } },
+    weapon_mace: { hit: { sound: "pickaxe", volume: 0.9 } },
+    weapon_scythe: { swing: { sound: "sword", volume: 0.8 } },
+    weapon_banhammer: { hit: { sound: "bat", volume: 0.85 } },
+    weapon_paintball: { fire: { sound: "machine_gun", duration: 0.3, volume: 0.35 } },
+    weapon_chain_staff: { fire: { sound: "thunder", duration: 0.8, volume: 0.5 } },
+    weapon_meteor_staff: {
+        fire: { sound: "missile_boom", offset: 0.15, duration: 0.5, volume: 0.6 },
+        hit: { sound: "missile_boom", offset: 1.18, duration: 1.6, volume: 0.7 }
+    },
+    weapon_wind_rod: { fire: { sound: "gravi_sound", duration: 0.6, volume: 0.6 } },
+    weapon_frost_orb: { fire: { sound: "laser_gun", volume: 0.4 } }
 };
 
 // Звук зброї для події або null
@@ -115,7 +172,15 @@ export const DESTRUCTION_TIME = {
     zap: 0.6,
     fling: 1.7,
     plasma: 0.9,
-    shred: 0.8
+    shred: 0.8,
+    // Сундукова зброя (weapons_chest_fx.js)
+    splash: 0.9,
+    freeze: 1.0,
+    smash: 1.0,
+    reap: 1.1,
+    ban: 1.3,
+    paint: 1.2,
+    gust: 1.2
 };
 
 // Гравітаційна гармата: промінь летить до шипа зі швидкістю GRAVITY_BEAM_SPEED
