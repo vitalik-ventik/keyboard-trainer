@@ -4,8 +4,8 @@
 // клік по рядку розгортає детальну статистику гравця.
 // ============================================================
 
-import { SKIN_RENDERERS, save } from "../engine.js";
-import { drawAccessory, drawPet, getShopItem } from "../shop.js";
+import { save } from "../engine.js";
+import { drawPlayerScene } from "../shop_preview.js";
 import { fetchLeaderboard, getPlayerId, getPlayerName, requestSync } from "../cloud.js";
 import { openNamePrompt } from "./name_prompt.js";
 
@@ -17,13 +17,17 @@ const menuRatingEl = document.getElementById("menuRating");
 const btnCloseLb = document.getElementById("btnCloseLb");
 const btnRefreshLb = document.getElementById("btnRefreshLb");
 
-// Розмір аватара в рядку (логічні пікселі): кубик ліворуч, улюбленці праворуч
-const AVATAR_W = 136;
-const AVATAR_H = 52;
-const MAX_AVATAR_PETS = 3;
+// Розмір живої сценки гравця в рядку (логічні пікселі): зграя ліворуч, кубик праворуч
+const AVATAR_W = 300;
+const AVATAR_H = 92;
 const MEDALS = ["🥇", "🥈", "🥉"];
 
 let loading = false;
+
+// Живі сценки гравців: анімуються лише ті, що зараз видно у списку
+let avatarScenes = [];
+let avatarObserver = null;
+let avatarFrame = 0;
 
 export function isLeaderboardOpen() {
     return !!lbModalEl && !lbModalEl.classList.contains("hidden");
@@ -87,49 +91,84 @@ function num(value) {
     return Number.isFinite(n) ? n : null;
 }
 
-// Кубик гравця з аксесуаром і до трьох улюбленців зграї
-function drawAvatar(canvas, avatar) {
+// Полотно сценки під dpr; малюється в animateAvatars
+function createAvatarCanvas(avatar, seed) {
+    const canvas = document.createElement("canvas");
+    canvas.className = "lb-avatar";
     const dpr = window.devicePixelRatio || 1;
     canvas.width = Math.round(AVATAR_W * dpr);
     canvas.height = Math.round(AVATAR_H * dpr);
     canvas.style.width = AVATAR_W + "px";
     canvas.style.height = AVATAR_H + "px";
-    const ctx = canvas.getContext("2d");
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const scene = {
+        canvas: canvas,
+        ctx: canvas.getContext("2d"),
+        dpr: dpr,
+        avatar: avatar || {},
+        // Зсув у часі, щоб гравці стрибали не всі разом
+        shift: (seed * 977) % 2600,
+        visible: true,
+        broken: false
+    };
+    avatarScenes.push(scene);
+    if (avatarObserver) {
+        avatarObserver.observe(canvas);
+    }
+    drawAvatarScene(scene, performance.now());
+    return canvas;
+}
+
+function drawAvatarScene(scene, now) {
+    if (scene.broken) {
+        return;
+    }
+    const ctx = scene.ctx;
+    ctx.setTransform(scene.dpr, 0, 0, scene.dpr, 0, 0);
     ctx.clearRect(0, 0, AVATAR_W, AVATAR_H);
-    const skin = typeof avatar.skin === "string" ? avatar.skin : null;
-    const accessory = typeof avatar.accessory === "string" && getShopItem(avatar.accessory) ? avatar.accessory : null;
-    const withAccessory = accessory && accessory !== "acc_none";
-    const cubeSize = withAccessory ? 30 : 36;
     try {
         ctx.save();
-        ctx.translate(26, AVATAR_H / 2 + (withAccessory ? 5 : 0));
-        if (skin && SKIN_RENDERERS[skin]) {
-            SKIN_RENDERERS[skin](ctx, cubeSize, 0);
-            if (withAccessory) {
-                drawAccessory(ctx, accessory, cubeSize, 0);
-            }
-        } else {
-            ctx.fillStyle = "rgba(0, 246, 255, 0.3)";
-            ctx.fillRect(-cubeSize / 2, -cubeSize / 2, cubeSize, cubeSize);
-        }
+        drawPlayerScene(ctx, scene.avatar, AVATAR_W, AVATAR_H, now + scene.shift);
         ctx.restore();
-        const pets = Array.isArray(avatar.pets) ? avatar.pets.filter(function (id) {
-            const item = typeof id === "string" ? getShopItem(id) : null;
-            return !!item && item.type === "pet";
-        }).slice(0, MAX_AVATAR_PETS) : [];
-        const mutations = avatar.mutations && typeof avatar.mutations === "object" ? avatar.mutations : {};
-        const petSize = 24;
-        for (let i = 0; i < pets.length; i++) {
-            ctx.save();
-            ctx.translate(60 + i * 26, AVATAR_H - 6 - petSize / 2);
-            drawPet(ctx, pets[i], petSize, 0, { mutation: typeof mutations[pets[i]] === "string" ? mutations[pets[i]] : null });
-            ctx.restore();
-        }
     } catch (err) {
-        // Невідомий скін чи улюбленець із новішої версії гри не ламає таблицю
-        console.warn("Не вдалося намалювати аватар:", err);
-        ctx.restore();
+        // Предмет із новішої версії гри не ламає таблицю: сценка просто зупиняється
+        console.warn("Не вдалося намалювати гравця:", err);
+        scene.broken = true;
+    }
+}
+
+function animateAvatars(now) {
+    if (!isLeaderboardOpen()) {
+        avatarFrame = 0;
+        return;
+    }
+    for (const scene of avatarScenes) {
+        if (scene.visible) {
+            drawAvatarScene(scene, now);
+        }
+    }
+    avatarFrame = requestAnimationFrame(animateAvatars);
+}
+
+function resetAvatars() {
+    avatarScenes = [];
+    if (avatarObserver) {
+        avatarObserver.disconnect();
+    }
+    if (typeof IntersectionObserver === "function") {
+        avatarObserver = new IntersectionObserver(function (entries) {
+            for (const entry of entries) {
+                const scene = avatarScenes.find(function (sc) { return sc.canvas === entry.target; });
+                if (scene) {
+                    scene.visible = entry.isIntersecting;
+                }
+            }
+        }, { root: lbModalEl ? lbModalEl.querySelector(".list-modal-scroll") : null });
+    }
+}
+
+function startAvatarAnimation() {
+    if (!avatarFrame) {
+        avatarFrame = requestAnimationFrame(animateAvatars);
     }
 }
 
@@ -153,10 +192,7 @@ function buildRow(player, place) {
     placeEl.textContent = place <= 3 ? MEDALS[place - 1] : String(place);
     row.appendChild(placeEl);
 
-    const avatarCanvas = document.createElement("canvas");
-    avatarCanvas.className = "lb-avatar";
-    row.appendChild(avatarCanvas);
-    drawAvatar(avatarCanvas, player.avatar || {});
+    row.appendChild(createAvatarCanvas(player.avatar, place));
 
     const main = document.createElement("div");
     main.className = "lb-main";
@@ -231,6 +267,7 @@ function buildRow(player, place) {
 
 function showMessage(text, withNameButton) {
     lbListEl.textContent = "";
+    resetAvatars();
     const p = document.createElement("p");
     p.className = "lb-message";
     p.textContent = text;
@@ -257,6 +294,7 @@ function buildNameButton() {
 
 function renderList(players) {
     lbListEl.textContent = "";
+    resetAvatars();
     const list = mergeOwnRow(players);
     let myPlace = 0;
     list.forEach(function (player, i) {
@@ -265,6 +303,7 @@ function renderList(players) {
         }
         lbListEl.appendChild(buildRow(player, i + 1));
     });
+    startAvatarAnimation();
     if (!getPlayerName()) {
         const hint = document.createElement("p");
         hint.className = "lb-message";

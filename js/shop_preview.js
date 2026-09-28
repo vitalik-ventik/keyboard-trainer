@@ -3,9 +3,9 @@
 // Спільні для магазину в грі (main.js) і сторінки перегляду (preview.html).
 // ============================================================
 
-import { SKIN_RENDERERS } from "./engine.js";
-import { drawTrail, drawExplosion, drawAccessory, drawCoinIcon, drawHeartLife, drawChest, drawPet, drawPetAura, getShopItem, itemRarity, PET_MUTATIONS } from "./shop.js";
-import { drawWeaponDemo } from "./weapons.js";
+import { SKIN_RENDERERS, drawAchievementFrame } from "./engine.js";
+import { drawTrail, drawExplosion, drawAccessory, drawCoinIcon, drawHeartLife, drawChest, drawPet, drawPetAura, getShopItem, itemRarity, MAX_PET_SLOTS, PET_MUTATIONS } from "./shop.js";
+import { drawHeldWeapon, drawWeaponDemo } from "./weapons.js";
 
 // Сценка скіна: темне тло, земля й кубик (з аксесуаром, якщо його передано)
 export function drawShopSkinScene(pctx, item, time, accessory) {
@@ -215,6 +215,101 @@ export function drawShopItemScene(pctx, item, now, opts) {
         drawAccessory(pctx, accessory, size, now);
         pctx.restore();
     }
+}
+
+// ---------- Гравець у рейтингу ----------
+
+// Предмет із каталогу потрібного типу або null (id з бази могли прийти з новішої версії гри)
+function avatarItem(id, type) {
+    const item = typeof id === "string" ? getShopItem(id) : null;
+    return item && item.type === type ? id : null;
+}
+
+// Висота стрибка кубика в мить ph (мс від початку циклу): стрибок триває 520 мс
+const PLAYER_JUMP_MS = 520;
+const PLAYER_CYCLE_MS = 2600;
+
+function playerHop(ph, height) {
+    const t = ((ph % PLAYER_CYCLE_MS) + PLAYER_CYCLE_MS) % PLAYER_CYCLE_MS;
+    return t < PLAYER_JUMP_MS ? Math.sin(t / PLAYER_JUMP_MS * Math.PI) * height : 0;
+}
+
+/**
+ * Гравець, як він виглядає у своїй грі: кубик зі скіном, рамкою, аксесуаром і зброєю
+ * біжить праворуч, за ним — шлейф і зграя улюбленців, що стрибають його слідом.
+ * Тло прозоре. avatar — { skin, frame, accessory, weapon, trail, pets, mutations } із рейтингу.
+ * @param {CanvasRenderingContext2D} ctx — уже масштабований під dpr
+ * @param {Object} avatar
+ * @param {number} w
+ * @param {number} h
+ * @param {number} now — мілісекунди (0 — нерухомий кадр)
+ */
+export function drawPlayerScene(ctx, avatar, w, h, now) {
+    const a = avatar || {};
+    const skinFn = typeof a.skin === "string" && SKIN_RENDERERS[a.skin] ? SKIN_RENDERERS[a.skin] : SKIN_RENDERERS.neon_base;
+    const frame = a.frame === "easy" || a.frame === "hard" ? a.frame : null;
+    const accessory = avatarItem(a.accessory, "accessory");
+    const weapon = avatarItem(a.weapon, "weapon");
+    const trail = avatarItem(a.trail, "trail") || "trail_default";
+    const mutations = a.mutations && typeof a.mutations === "object" ? a.mutations : {};
+    const pets = (Array.isArray(a.pets) ? a.pets : []).filter(function (id) {
+        return !!avatarItem(id, "pet");
+    }).slice(0, MAX_PET_SLOTS);
+
+    const groundY = h - 5;
+    const cube = Math.round(h * 0.43);
+    const hopH = h * 0.32;
+    const cubeX = w - cube * 1.3;
+    const petSize = Math.round(cube * 0.7);
+    const petFirst = cube * 1.35;
+    const petGap = petSize * 1.3;
+
+    // Земля — тонка неонова лінія
+    ctx.fillStyle = "rgba(0, 246, 255, 0.35)";
+    ctx.fillRect(0, groundY, w, 1.5);
+
+    // Шлейф: попередні положення кубика, що «від'їжджають» ліворуч
+    const points = [];
+    for (let k = 0; k < 14; k++) {
+        const tk = now - k * 16;
+        points.push({
+            sx: cubeX - k * 4,
+            sy: groundY - cube / 2 - playerHop(tk, hopH),
+            alpha: 0.55 * (1 - k / 14),
+            i: Math.floor(tk / 16)
+        });
+    }
+    drawTrail(ctx, trail, points, cube, now);
+
+    // Улюбленці біжать позаду кубика й стрибають у тому ж місці, де стрибнув він
+    for (let i = pets.length - 1; i >= 0; i--) {
+        const id = pets[i];
+        const item = getShopItem(id);
+        const offset = petFirst + i * petGap;
+        const delay = offset / (cube * 4) * 1000 * 0.35;
+        let lift = item.move === "swim" ? petSize * 0.35 : item.move === "fly" ? petSize * 0.9 + Math.sin(now * 0.004 + i) * petSize * 0.12 : 0;
+        lift += playerHop(now - delay, hopH * 0.8);
+        const x = cubeX - offset;
+        const mutation = typeof mutations[id] === "string" && PET_MUTATIONS[mutations[id]] ? mutations[id] : null;
+        drawPetAura(ctx, id, x, groundY - 1, petSize, now);
+        ctx.save();
+        ctx.translate(x, groundY - petSize / 2 - lift);
+        drawPet(ctx, id, petSize, now, { moving: now > 0, mutation: mutation, water: false, weapon: weapon });
+        ctx.restore();
+    }
+
+    // Кубик: під час стрибка обертається на чверть оберту, як у грі
+    const t = ((now % PLAYER_CYCLE_MS) + PLAYER_CYCLE_MS) % PLAYER_CYCLE_MS;
+    ctx.save();
+    ctx.translate(cubeX, groundY - cube / 2 - playerHop(now, hopH));
+    ctx.rotate(t < PLAYER_JUMP_MS ? t / PLAYER_JUMP_MS * Math.PI / 2 : 0);
+    skinFn(ctx, cube, now, {});
+    drawAchievementFrame(ctx, cube, frame, now);
+    drawAccessory(ctx, accessory, cube, now);
+    if (weapon) {
+        drawHeldWeapon(ctx, weapon, cube, null, now);
+    }
+    ctx.restore();
 }
 
 // ---------- Сундук ----------
