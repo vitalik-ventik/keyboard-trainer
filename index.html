@@ -10,7 +10,7 @@
     <style id="bootHide">body { visibility: hidden; }</style>
     <script>
         (function () {
-            var MODULES = ["js/main.js", "js/ui/shop.js", "js/ui/achievements.js", "js/ui/coins.js", "js/ui/chests.js", "js/ui/pet_reveal.js", "js/engine.js", "js/engine_weapons.js", "js/engine_render.js", "js/engine_render_objects.js", "js/engine_pets.js", "js/levels.js", "js/skins.js", "js/skin_renderers.js", "js/skin_renderers_1.js", "js/skin_renderers_2.js", "js/game_constants.js", "js/track.js", "js/save.js", "js/rating.js", "js/cloud.js", "js/ui/name_prompt.js", "js/spike_styles.js", "js/backgrounds.js", "js/backgrounds/core.js", "js/backgrounds/helpers.js", "js/backgrounds/pixel_worlds.js", "js/backgrounds/nether.js", "js/backgrounds/neon_city.js", "js/backgrounds/village_sunset_cosmodrome.js", "js/backgrounds/jungle_forest_storm.js", "js/backgrounds/crystal_dino_base_luna.js", "js/backgrounds/fabricator_twinsun_skycity_stadium.js", "js/backgrounds/treasury_dragon_castle.js", "js/backgrounds/blackhole_citadel_pirate_orbit.js", "js/backgrounds/effects.js", "js/backgrounds/story.js", "js/backgrounds/names_finish_weather.js", "js/backgrounds/pumpkin_creeper_redstone_freighter.js", "js/backgrounds/hunter_swamp_dungeon_hive.js", "js/backgrounds/desert_forge_colony_ship_obsidian.js", "js/backgrounds/hangar_bay.js", "js/backgrounds/monsters.js", "js/backgrounds/living_worlds.js", "js/backgrounds/sponge_ninja_machines.js", "js/backgrounds/kaiju_strange_leaf.js", "js/cache.js", "js/keyboard.js", "js/assets.js", "js/version.js", "js/shop.js", "js/shop_rewards.js", "js/shop_effects.js", "js/shop_accessories.js", "js/shop_chests.js", "js/shop_pets.js", "js/pets_draw.js", "js/pet_renderers.js", "js/pet_renderers_1.js", "js/pet_renderers_2.js", "js/pet_renderers_3.js", "js/pet_renderers_4.js", "js/pet_renderers_5.js", "js/pet_renderers_6.js", "js/pet_renderers_7.js", "js/pet_renderers_8.js", "js/pet_renderers_9.js", "js/pet_renderers_10.js", "js/pet_parts.js", "js/pet_gear.js", "js/shop_skins.js", "js/shop_skins_1.js", "js/shop_skins_2.js", "js/shop_skins_3.js", "js/shop_skins_4.js", "js/weapons.js", "js/weapons_held.js", "js/weapons_projectiles.js", "js/weapons_destruction.js", "js/weapons_preview.js", "js/shop_preview.js", "js/level_skins_extra.js", "js/easter_eggs.js", "js/easter_eggs_1.js", "js/easter_eggs_2.js", "js/achievements.js"];
+            var MODULES = ["js/main.js", "js/ui/shop.js", "js/ui/achievements.js", "js/ui/coins.js", "js/ui/chests.js", "js/ui/pet_reveal.js", "js/engine.js", "js/engine_weapons.js", "js/engine_render.js", "js/engine_render_objects.js", "js/engine_pets.js", "js/levels.js", "js/skins.js", "js/skin_renderers.js", "js/skin_renderers_1.js", "js/skin_renderers_2.js", "js/game_constants.js", "js/track.js", "js/save.js", "js/rating.js", "js/cloud.js", "js/ui/name_prompt.js", "js/ui/leaderboard.js", "js/spike_styles.js", "js/backgrounds.js", "js/backgrounds/core.js", "js/backgrounds/helpers.js", "js/backgrounds/pixel_worlds.js", "js/backgrounds/nether.js", "js/backgrounds/neon_city.js", "js/backgrounds/village_sunset_cosmodrome.js", "js/backgrounds/jungle_forest_storm.js", "js/backgrounds/crystal_dino_base_luna.js", "js/backgrounds/fabricator_twinsun_skycity_stadium.js", "js/backgrounds/treasury_dragon_castle.js", "js/backgrounds/blackhole_citadel_pirate_orbit.js", "js/backgrounds/effects.js", "js/backgrounds/story.js", "js/backgrounds/names_finish_weather.js", "js/backgrounds/pumpkin_creeper_redstone_freighter.js", "js/backgrounds/hunter_swamp_dungeon_hive.js", "js/backgrounds/desert_forge_colony_ship_obsidian.js", "js/backgrounds/hangar_bay.js", "js/backgrounds/monsters.js", "js/backgrounds/living_worlds.js", "js/backgrounds/sponge_ninja_machines.js", "js/backgrounds/kaiju_strange_leaf.js", "js/cache.js", "js/keyboard.js", "js/assets.js", "js/version.js", "js/shop.js", "js/shop_rewards.js", "js/shop_effects.js", "js/shop_accessories.js", "js/shop_chests.js", "js/shop_pets.js", "js/pets_draw.js", "js/pet_renderers.js", "js/pet_renderers_1.js", "js/pet_renderers_2.js", "js/pet_renderers_3.js", "js/pet_renderers_4.js", "js/pet_renderers_5.js", "js/pet_renderers_6.js", "js/pet_renderers_7.js", "js/pet_renderers_8.js", "js/pet_renderers_9.js", "js/pet_renderers_10.js", "js/pet_parts.js", "js/pet_gear.js", "js/shop_skins.js", "js/shop_skins_1.js", "js/shop_skins_2.js", "js/shop_skins_3.js", "js/shop_skins_4.js", "js/weapons.js", "js/weapons_held.js", "js/weapons_projectiles.js", "js/weapons_destruction.js", "js/weapons_preview.js", "js/shop_preview.js", "js/level_skins_extra.js", "js/easter_eggs.js", "js/easter_eggs_1.js", "js/easter_eggs_2.js", "js/achievements.js"];
             function start(version) {
                 window.APP_VERSION = version || "";
                 var tag = version ? "?v=" + encodeURIComponent(version) : "";
@@ -75,6 +75,11 @@
                 <span class="ach-trigger-icon" aria-hidden="true">🏆</span>
                 <span class="skin-trigger-label">ДОСЯГНЕННЯ</span>
                 <span class="shop-balance-badge ach-badge" id="menuAchCount">0 / 0</span>
+            </div>
+            <div id="lb-trigger" class="skin-trigger lb-trigger">
+                <span class="ach-trigger-icon" aria-hidden="true">🥇</span>
+                <span class="skin-trigger-label">РЕЙТИНГ</span>
+                <span class="shop-balance-badge lb-badge" id="menuRating">🏆 0</span>
             </div>
         </div>
         <div id="retroNotice" class="retro-notice hidden" role="status"></div>
@@ -199,6 +204,22 @@
                 <div id="achList"></div>
             </div>
             <button id="btnCloseAch" class="text-btn" type="button">ЗАКРИТИ</button>
+        </div>
+    </div>
+
+    <!-- Загальний рейтинг гравців (Firebase) -->
+    <div id="lb-modal" class="overlay modal-backdrop hidden">
+        <div class="modal list-modal lb-modal-box">
+            <h2 class="neon-title">РЕЙТИНГ</h2>
+            <p class="ach-summary" id="lbSummary"></p>
+            <div class="list-modal-scroll">
+                <div id="lbList" class="lb-list"></div>
+            </div>
+            <p class="option-hint">Рахується найкращий забіг на кожному рівні: складність, швидкість і точність. Монети не рахуються</p>
+            <div class="result-buttons">
+                <button id="btnRefreshLb" class="text-btn" type="button">ОНОВИТИ</button>
+                <button id="btnCloseLb" class="text-btn" type="button">ЗАКРИТИ</button>
+            </div>
         </div>
     </div>
 

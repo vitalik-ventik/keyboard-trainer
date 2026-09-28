@@ -291,3 +291,86 @@ export function requestSync() {
         }
     });
 }
+
+// ---------- Загальна таблиця ----------
+
+// Скільки найкращих гравців показувати
+export const LEADERBOARD_LIMIT = 100;
+
+function fromFirestoreValue(value) {
+    if (!value || typeof value !== "object") {
+        return null;
+    }
+    if ("integerValue" in value) {
+        return Number(value.integerValue);
+    }
+    if ("doubleValue" in value) {
+        return Number(value.doubleValue);
+    }
+    if ("stringValue" in value) {
+        return value.stringValue;
+    }
+    if ("booleanValue" in value) {
+        return value.booleanValue === true;
+    }
+    if ("timestampValue" in value) {
+        return new Date(value.timestampValue);
+    }
+    if ("arrayValue" in value) {
+        return (value.arrayValue.values || []).map(fromFirestoreValue);
+    }
+    if ("mapValue" in value) {
+        return fromFirestoreFields(value.mapValue.fields || {});
+    }
+    return null;
+}
+
+function fromFirestoreFields(fields) {
+    const obj = {};
+    for (const key of Object.keys(fields)) {
+        obj[key] = fromFirestoreValue(fields[key]);
+    }
+    return obj;
+}
+
+/**
+ * Найкращі гравці за рейтингом. Читати таблицю можна без входу.
+ * @returns {Promise<Array<{id:string, name:string, rating:number, stats:Object, avatar:Object, updatedAt:Date|null}>>}
+ */
+export async function fetchLeaderboard() {
+    const response = await fetchWithTimeout(FIRESTORE_URL + ":runQuery", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            structuredQuery: {
+                from: [{ collectionId: "players" }],
+                orderBy: [{ field: { fieldPath: "rating" }, direction: "DESCENDING" }],
+                limit: LEADERBOARD_LIMIT
+            }
+        })
+    });
+    const data = await response.json().catch(function () { return null; });
+    if (!response.ok || !Array.isArray(data)) {
+        throw new Error("Firestore: " + (data && data.error ? data.error.message : response.status));
+    }
+    const players = [];
+    for (const row of data) {
+        if (!row || !row.document) {
+            continue;
+        }
+        const doc = fromFirestoreFields(row.document.fields || {});
+        const name = cleanPlayerName(doc.name);
+        if (!name) {
+            continue;
+        }
+        players.push({
+            id: row.document.name.split("/").pop(),
+            name: name,
+            rating: Math.max(0, Math.floor(Number(doc.rating) || 0)),
+            stats: doc.stats && typeof doc.stats === "object" ? doc.stats : {},
+            avatar: doc.avatar && typeof doc.avatar === "object" ? doc.avatar : {},
+            updatedAt: doc.updatedAt instanceof Date && !isNaN(doc.updatedAt) ? doc.updatedAt : null
+        });
+    }
+    return players;
+}

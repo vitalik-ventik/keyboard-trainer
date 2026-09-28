@@ -15,6 +15,7 @@ import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
 import { runAccuracy } from "./rating.js";
 import { getPlayerName, getSyncStatus, onSyncStatus, requestSync } from "./cloud.js";
 import { closeNamePrompt, isNamePromptOpen, openNamePrompt } from "./ui/name_prompt.js";
+import { closeLeaderboard, isLeaderboardOpen, refreshLeaderboardBadge } from "./ui/leaderboard.js";
 import { SHOP_ITEMS, accessoryPerk, chestsForVictory, computeReward, drawHeartLife, heartsText } from "./shop.js";
 import { closeShop, renderCurrentSkinIcon, shopModalEl, skinsModalEl } from "./ui/shop.js";
 import { achModalEl, announceAchievements, closeAchievements, noteRunForAchievements, refreshAchievementBadge } from "./ui/achievements.js";
@@ -159,6 +160,7 @@ function setState(next) {
         refreshPlayerNameBlock();
     }
     if (next === "MENU") {
+        refreshLeaderboardBadge();
         maybeAskPlayerName();
     }
     if (next === "MENU") {
@@ -963,6 +965,10 @@ function handleEscape() {
     }
     if (achModalEl && !achModalEl.classList.contains("hidden")) {
         closeAchievements();
+        return;
+    }
+    if (isLeaderboardOpen()) {
+        closeLeaderboard();
         return;
     }
     if (!skinsModalEl.classList.contains("hidden")) {
