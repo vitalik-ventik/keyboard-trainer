@@ -383,6 +383,7 @@ if (shopSectionsEl) {
             meta.textContent = (item.price > 0 ? "🪙 " + item.price : "безкоштовно") + " · " + item.id +
                 (item.type === "weapon" && weaponCoinBonus(item.id) > 1 ? " · монети ×" + weaponCoinBonus(item.id) : "") +
                 (itemPerkText(item.id) ? " · " + itemPerkText(item.id) : "") +
+                (item.chestOnly ? " · 🎁 лише із сундука (" + item.chestOnly + ")" : "") +
                 (item.type === "pet" ? " · " + petRarity(item).name + (item.secret ? " (" + secretPetSource(item, BackgroundRenderer.worldName(item.world)).text + ")" : "") : "");
             card.appendChild(canvas);
             card.appendChild(name);
@@ -646,7 +647,8 @@ const ACH_VIEW_MODES = [
 // Цілі, що залежать від гри (усі рівні, усі пасхалки)
 const ACH_PREVIEW_TARGETS = {
     totalLevels: ALL_LEVELS.length,
-    totalEggs: new Set(ALL_LEVELS.map(function (l) { return l.bgTheme; })).size
+    totalEggs: new Set(ALL_LEVELS.map(function (l) { return l.bgTheme; })).size,
+    totalChestWeapons: SHOP_ITEMS.filter(function (it) { return !!it.chestOnly; }).length
 };
 let achViewMode = "mixed";
 

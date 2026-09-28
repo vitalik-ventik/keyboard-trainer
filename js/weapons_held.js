@@ -4,6 +4,7 @@
 // ============================================================
 
 import { WEAPON_SPECS, saberColor } from "./weapons.js";
+import { CHEST_MELEE_SHAPES, CHEST_RANGED_SHAPES, CHEST_SWING_TRAILS } from "./weapons_chest.js";
 
 // ---------- Зброя в руці кубика ----------
 
@@ -462,7 +463,7 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
     const recoil = pose ? pose.recoil || 0 : 0;
     ctx.save();
     const saber = saberColor(id);
-    if (id === "weapon_sword" || id === "weapon_axe" || id === "weapon_pickaxe" || id === "weapon_firesword" || id === "weapon_thunder" || saber) {
+    if (id === "weapon_sword" || id === "weapon_axe" || id === "weapon_pickaxe" || id === "weapon_firesword" || id === "weapon_thunder" || saber || CHEST_MELEE_SHAPES[id]) {
         if (pose && pose.away) {
             ctx.restore();
             return;
@@ -476,6 +477,8 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
             if (saber) {
                 ctx.strokeStyle = saber;
                 ctx.globalAlpha = 0.85 * (1 - swing);
+            } else if (CHEST_SWING_TRAILS[id]) {
+                ctx.strokeStyle = "rgba(" + CHEST_SWING_TRAILS[id] + ", " + (0.85 * (1 - swing)).toFixed(2) + ")";
             } else {
                 ctx.strokeStyle = id === "weapon_firesword"
                     ? "rgba(255, 150, 40, " + (0.85 * (1 - swing)).toFixed(2) + ")"
@@ -491,6 +494,8 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
         ctx.rotate(angle);
         if (saber) {
             drawSaberShape(ctx, s, time, saber);
+        } else if (CHEST_MELEE_SHAPES[id]) {
+            CHEST_MELEE_SHAPES[id](ctx, s, time);
         } else if (id === "weapon_sword") {
             drawSwordShape(ctx, s);
         } else if (id === "weapon_firesword") {
@@ -535,6 +540,9 @@ export function drawHeldWeapon(ctx, id, s, pose, time) {
         } else if (id === "weapon_shuriken") {
             // Сюрикен у руці повільно крутиться; після кидка в руці одразу з'являється наступний
             drawShurikenShape(ctx, s * 0.26, time * 0.004 + recoil * 3);
+        } else if (CHEST_RANGED_SHAPES[id]) {
+            // Сундукова зброя на відстані — weapons_chest.js
+            CHEST_RANGED_SHAPES[id](ctx, s, time, recoil);
         }
     }
     ctx.restore();

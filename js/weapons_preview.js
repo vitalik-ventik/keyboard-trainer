@@ -5,7 +5,7 @@
 import { drawHeldWeapon } from "./weapons_held.js";
 import { drawBeam, drawProjectile } from "./weapons_projectiles.js";
 import { drawSpikeDestruction } from "./weapons_destruction.js";
-import { BOLT_TIME, GRAVITY_LIFT, SWING_HIT, SWING_TIME, WEAPON_SPECS, beamTiming, gravityGrabTime, gravityHoldOffset, meleeTriggerGap } from "./weapons.js";
+import { BOLT_TIME, GRAVITY_LIFT, SWING_HIT, SWING_TIME, WEAPON_SPECS, beamTiming, gravityGrabTime, gravityHoldOffset, meleeTriggerGap, shotColor, thrownKind } from "./weapons.js";
 
 // ---------- Прев'ю зброї в магазині ----------
 
@@ -143,24 +143,25 @@ export function drawWeaponDemo(ctx, id, w, h, time, drawCube) {
             if (ft < 0) {
                 continue;
             }
-            const kind = spec.mode === "axe" ? (spec.saber ? "saber" : "axe") : spec.projectile;
+            const kind = spec.mode === "axe" ? thrownKind(spec) : spec.projectile;
+            const returns = spec.mode === "axe";
             let px;
             let py;
             if (ft <= flight.dur) {
                 const k = ft / flight.dur;
                 px = muzzleX + (flight.tx - muzzleX) * k;
                 py = muzzleY + (aimY - muzzleY) * k - Math.sin(Math.PI * k) * (spec.arc || 0) * scale;
-            } else if ((kind === "axe" || kind === "saber") && ft <= flight.dur + 0.32) {
+            } else if (returns && ft <= flight.dur + 0.32) {
                 const k = (ft - flight.dur) / 0.32;
                 px = flight.tx + (muzzleX - flight.tx) * k;
                 py = groundY - sh * 0.4 + (muzzleY - (groundY - sh * 0.4)) * k - Math.sin(Math.PI * k) * 20;
             } else {
                 continue;
             }
-            if (kind === "axe" || kind === "saber") {
+            if (returns) {
                 away = true;
             }
-            drawProjectile(ctx, kind, px, py, 0, ft, s, null, spec.saber);
+            drawProjectile(ctx, kind, px, py, 0, ft, s, null, shotColor(spec, i));
         }
     }
     if (spec && spec.bolt && u >= hitAt && u < hitAt + BOLT_TIME) {

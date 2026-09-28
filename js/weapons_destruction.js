@@ -3,13 +3,14 @@
 // ============================================================
 
 import { drawFlameTongue, drawFootball } from "./weapons_held.js";
+import { CHEST_FX_KINDS, drawChestDestruction } from "./weapons_chest_fx.js";
 import { DESTRUCTION_TIME, GRAVITY_LIFT, GRAVITY_LIFT_RATIO, SABER_FX_COLORS, clamp01, gravityHoldOffset, hashRand } from "./weapons.js";
 
 // ---------- Руйнування шипа ----------
 
 // Півплощина для відсікання: усе з одного боку прямої (x1,y1)-(x2,y2).
 // Для прямої, що йде зліва направо, side = 1 — половина під нею, side = -1 — над нею
-function clipHalfPlane(ctx, x1, y1, x2, y2, side) {
+export function clipHalfPlane(ctx, x1, y1, x2, y2, side) {
     const dx = x2 - x1;
     const dy = y2 - y1;
     const len = Math.hypot(dx, dy) || 1;
@@ -33,7 +34,10 @@ export function drawSpikeDestruction(ctx, kind, t, x, groundY, hw, h, drawShape,
     const dur = DESTRUCTION_TIME[kind] || 0.5;
     const k = clamp01(t / dur);
     ctx.save();
-    if (kind === "slice") {
+    if (CHEST_FX_KINDS[kind]) {
+        // Сундукова зброя — weapons_chest_fx.js
+        drawChestDestruction(ctx, kind, t, x, groundY, hw, h, drawShape);
+    } else if (kind === "slice") {
         // Меч розрізає шип навскіс: верх з'їжджає й падає, низ осідає
         const x1 = x - hw * 1.2;
         const y1 = groundY - h * 0.25;

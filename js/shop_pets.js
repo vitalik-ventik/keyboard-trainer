@@ -209,7 +209,15 @@ export const SECRET_WORLD_CHANCE = 0.05;
 export const SECRET_PITY_STEP = 0.001;
 export const SECRET_PITY_MAX = 70;
 
-// Звідки секретний улюбленець (для підказки на картці)
+// Сундукова зброя (товари з полем chestOnly) не продається й випадає лише зі свого сундука:
+// шанс на сундук, поки там ще є що знайти; м'яка гарантія — кожен сундук без зброї додає
+// CHEST_WEAPON_PITY_STEP, а CHEST_WEAPON_PITY_MAX-й такий сундук поспіль дає її напевно.
+// Випадання — rollChestWeapon у shop_chests.js
+export const CHEST_WEAPON_CHANCE = { wood: 0.05, silver: 0.07, gold: 0.1 };
+export const CHEST_WEAPON_PITY_STEP = 0.004;
+export const CHEST_WEAPON_PITY_MAX = 25;
+
+// Звідки секретний улюбленець чи сундукова зброя (для підказки на картці)
 export const SECRET_CHEST_SOURCES = {
     wood: { icon: "🪵", text: "Лише з дерев'яного сундука" },
     silver: { icon: "🥈", text: "Лише зі срібного сундука" },

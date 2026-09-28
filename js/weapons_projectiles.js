@@ -4,6 +4,7 @@
 // ============================================================
 
 import { drawAxeShape, drawFootball, drawSaberShape, drawShurikenShape } from "./weapons_held.js";
+import { drawChestBeam, drawChestProjectile } from "./weapons_chest.js";
 import { GRAVITY_GRAB, GRAVITY_LIFT, clamp01, hashRand } from "./weapons.js";
 
 // ---------- Снаряди ----------
@@ -11,6 +12,10 @@ import { GRAVITY_GRAB, GRAVITY_LIFT, clamp01, hashRand } from "./weapons.js";
 // kind: arrow / bullet / rocket / axe / ball. angle — напрям польоту, age — секунди польоту.
 // prev — попередні точки польоту (для диму ракети).
 export function drawProjectile(ctx, kind, x, y, angle, age, s, prev, color) {
+    // Снаряди сундукової зброї — weapons_chest.js
+    if (drawChestProjectile(ctx, kind, x, y, angle, age, s, prev, color)) {
+        return;
+    }
     ctx.save();
     if (kind === "rocket" && prev) {
         for (let i = 0; i < prev.length; i++) {
@@ -278,6 +283,9 @@ function drawGravityTether(ctx, x1, y1, x2, y2, t, time, grabFrac) {
 // Дія зброї на відстані: вигляд залежить від зброї
 // grabFrac — для гравітаційної гармати: частка часу, за яку промінь дотягується до шипа
 export function drawBeam(ctx, kind, x1, y1, x2, y2, t, time, grabFrac) {
+    if (drawChestBeam(ctx, kind, x1, y1, x2, y2, t, time)) {
+        return;
+    }
     if (kind === "flame") {
         drawFlameStream(ctx, x1, y1, x2, y2, t, time);
     } else if (kind === "thunder") {

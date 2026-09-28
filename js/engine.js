@@ -9,7 +9,7 @@
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundCache } from "./cache.js";
 import { EXPLOSION_DURATION, explosionWindowBonus, petPerkTotals, seriesBonus, trailSlowdown } from "./shop.js";
-import { GRAVITY_LIFT, getWeaponSpec, gravityGrabTime } from "./weapons.js";
+import { GRAVITY_LIFT, getWeaponSpec, gravityGrabTime, shotColor, thrownKind } from "./weapons.js";
 import { COMBO_KINDS, getLevelById } from "./levels.js";
 import { activeSkinPerk, sampleSkinColors } from "./skins.js";
 import { SKIN_RENDERERS } from "./skin_renderers.js";
@@ -658,8 +658,10 @@ export class Engine {
             const count = spec.mode === "burst" ? spec.count : 1;
             for (let i = 0; i < count; i++) {
                 this.shots.push({
-                    kind: spec.mode === "axe" ? (spec.saber ? "saber" : "axe") : spec.projectile,
-                    color: spec.saber || null,
+                    kind: spec.mode === "axe" ? thrownKind(spec) : spec.projectile,
+                    color: shotColor(spec, i),
+                    // Кинута зброя (сокира, світловий меч, тризуб) повертається в руку
+                    returns: spec.mode === "axe",
                     spike: spike,
                     t: -(spec.gap || 0) * i,
                     index: i,

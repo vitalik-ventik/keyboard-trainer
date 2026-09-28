@@ -170,6 +170,8 @@ function showChestResult() {
             }
         } else if (item.type === "pet") {
             text = "Новий улюбленець: " + item.name + "!";
+        } else if (item.chestOnly) {
+            text = "🎁 СУНДУКОВА ЗБРОЯ: " + item.name + "!";
         }
         chestResultEl.appendChild(document.createTextNode(text));
         const r = document.createElement("span");

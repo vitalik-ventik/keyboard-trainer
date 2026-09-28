@@ -111,7 +111,20 @@ export const WEAPON_GEAR = {
     weapon_rocket: "jetpack",
     weapon_shuriken: "ninja",
     weapon_thunder: "thunder",
-    weapon_gravity: "gravity"
+    weapon_gravity: "gravity",
+    // Сундукова зброя — у спорядженні найближчої за духом групи
+    weapon_trident: "knight",
+    weapon_crossbow: "archer",
+    weapon_snowball: "ball",
+    weapon_slingshot: "archer",
+    weapon_mace: "knight",
+    weapon_scythe: "plasma",
+    weapon_banhammer: "baseball",
+    weapon_paintball: "soldier",
+    weapon_chain_staff: "thunder",
+    weapon_meteor_staff: "fire_knight",
+    weapon_wind_rod: "gravity",
+    weapon_frost_orb: "laser"
 };
 
 const GLOW_COLORS = {

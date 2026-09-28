@@ -6,7 +6,7 @@
 import { playSound } from "../assets.js";
 import { BackgroundRenderer } from "../backgrounds.js";
 import { ALL_LEVELS, DEFAULT_SKIN, LEVELS_CONFIG, SKIN_RENDERERS, drawAchievementFrame, levelSkinPerk, save } from "../engine.js";
-import { MAX_PET_SLOTS, PET_MUTATIONS, SHOP_ITEMS, secretPetSource, SHOP_TYPES, drawAccessory, drawPet, getShopItem, itemPerkHint, itemPerkText, levelSkinPerkHint, petMutationHint, petPerkLines, petRarity, petTotalsLines, shopTabHints, skinPerkText, weaponCoinBonus } from "../shop.js";
+import { MAX_PET_SLOTS, PET_MUTATIONS, SHOP_ITEMS, chestWeaponSource, itemRarity, secretPetSource, SHOP_TYPES, drawAccessory, drawPet, getShopItem, itemPerkHint, itemPerkText, levelSkinPerkHint, petMutationHint, petPerkLines, petRarity, petTotalsLines, shopTabHints, skinPerkText, weaponCoinBonus } from "../shop.js";
 import { drawShopItemScene, drawShopSkinScene } from "../shop_preview.js";
 import { announceAchievements } from "./achievements.js";
 import { refreshCrystalDisplays, requirementLabel } from "./coins.js";
@@ -566,7 +566,7 @@ function buildShop() {
         const isPet = item.type === "pet";
         const isEquipped = item.type === "skin" ? activeSkin === item.renderType : isPet ? save.isPetEquipped(item.id) : equipped === item.id;
         const card = document.createElement("div");
-        card.className = "skin-card shop-card" + (isEquipped ? " active" : "") + (item.legendary ? " legendary" : "") + (isPet ? " pet-card" : "");
+        card.className = "skin-card shop-card" + (isEquipped ? " active" : "") + (item.legendary ? " legendary" : "") + (isPet ? " pet-card" : "") + (item.chestOnly ? " chest-weapon-card" : "");
         // Секретного улюбленця до знахідки не видно: чорний силует і «???»
         const hiddenSecret = isPet && item.secret && !owned;
         if (isPet) {
@@ -626,6 +626,16 @@ function buildShop() {
                     addPerkLabel(card, line.text, line.tip);
                 }
             }
+        }
+        // Сундукова зброя: позначка, з якого сундука вона випадає
+        const chestSource = chestWeaponSource(item);
+        if (chestSource) {
+            card.style.setProperty("--rarity", itemRarity(item).color);
+            const from = document.createElement("span");
+            from.className = "pet-rarity";
+            from.textContent = "🎁 Із сундука " + chestSource.icon;
+            from.dataset.tip = "Сундукову зброю не купиш. " + chestSource.text + " — випадає зрідка, але що довше не щастить, то більший шанс";
+            card.appendChild(from);
         }
         // Зброя дає бонус до монет — видно одразу на картці
         if (item.type === "weapon" && weaponCoinBonus(item.id) > 1) {
