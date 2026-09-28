@@ -138,7 +138,7 @@ export const WEAPON_SOUNDS = {
     weapon_chain_staff: { fire: { sound: "chain_lightning", volume: 1.38 } },
     weapon_meteor_staff: { fire: { sound: "meteor_fall", volume: 0.63 }, hit: { sound: "meteor_boom", volume: 0.62 } },
     weapon_wind_rod: { fire: { sound: "wind_blast", volume: 0.44 } },
-    weapon_frost_orb: { fire: { sound: "frost_orb", volume: 0.81 }, hit: { sound: "ice_shatter", volume: 1.39 } }
+    weapon_frost_orb: { fire: { sound: "frost_orb", volume: 1.51 }, hit: { sound: "ice_shatter", volume: 1.43 } }
 };
 
 // Звук зброї для події або null
