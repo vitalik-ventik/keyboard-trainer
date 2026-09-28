@@ -860,6 +860,16 @@ body {
     padding: 1.5vmin;
 }
 
+/* Вибір рівня: постійна висота, щоб вікно не стрибало між лігами з різною кількістю
+   рівнів; смуга прокрутки завжди має місце, тож картки не зсуваються */
+.list-modal.level-modal-box {
+    height: 92vh;
+}
+
+.level-modal-box .list-modal-scroll {
+    scrollbar-gutter: stable;
+}
+
 .list-modal .level-grid {
     width: 100%;
     max-height: none;
