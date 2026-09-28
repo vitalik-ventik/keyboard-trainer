@@ -585,6 +585,40 @@ function drawFingerPreview() {
     drawKeyboard(previewCtx, { x: 0, y: 0, w: rect.width, h: rect.height }, allLetters, null, null, 0);
 }
 
+// ---------- Вкладки налаштувань ----------
+
+const settingsTabButtons = document.querySelectorAll("#settingsTabs [data-tab]");
+const settingsPanels = document.querySelectorAll(".settings-panel");
+// Остання відкрита вкладка — вікно відкривається там, де гравець його закрив
+let activeSettingsTab = "game";
+
+function showSettingsTab(tab) {
+    activeSettingsTab = tab;
+    settingsTabButtons.forEach(function (btn) {
+        btn.classList.toggle("active", btn.dataset.tab === tab);
+    });
+    settingsPanels.forEach(function (panel) {
+        panel.classList.toggle("hidden", panel.dataset.tab !== tab);
+    });
+    // Прихована панель мала нульовий розмір — превʼю клавіатури малюємо, коли її видно
+    if (tab === "view") {
+        requestAnimationFrame(drawFingerPreview);
+    }
+}
+
+settingsTabButtons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+        showSettingsTab(btn.dataset.tab);
+    });
+});
+
+// Після зміни розміру вікна полотно превʼю змінює розмір — перемальовуємо його
+window.addEventListener("resize", function () {
+    if (state === "SETTINGS" && activeSettingsTab === "view") {
+        drawFingerPreview();
+    }
+});
+
 function refreshFingerButtons() {
     const scheme = save.getFingerScheme();
     btnFingerClassic.classList.toggle("active-classic", scheme === "classic");
@@ -616,6 +650,7 @@ btnSettings.addEventListener("click", function () {
     refreshCameraButtons();
     setState("SETTINGS");
     refreshFingerButtons();
+    showSettingsTab(activeSettingsTab);
 });
 
 btnEasy.addEventListener("click", function () {
