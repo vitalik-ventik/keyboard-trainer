@@ -13,6 +13,8 @@ import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundQuality, FrameController, KeyboardCache } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
 import { runAccuracy } from "./rating.js";
+import { getPlayerName, getSyncStatus, onSyncStatus, requestSync } from "./cloud.js";
+import { closeNamePrompt, isNamePromptOpen, openNamePrompt } from "./ui/name_prompt.js";
 import { SHOP_ITEMS, accessoryPerk, chestsForVictory, computeReward, drawHeartLife, heartsText } from "./shop.js";
 import { closeShop, renderCurrentSkinIcon, shopModalEl, skinsModalEl } from "./ui/shop.js";
 import { achModalEl, announceAchievements, closeAchievements, noteRunForAchievements, refreshAchievementBadge } from "./ui/achievements.js";
@@ -154,6 +156,10 @@ function setState(next) {
     if (next === "SETTINGS") {
         refreshWeakLetters();
         refreshRatingBlock();
+        refreshPlayerNameBlock();
+    }
+    if (next === "MENU") {
+        maybeAskPlayerName();
     }
     if (next === "MENU") {
         renderCurrentSkinIcon();
@@ -270,6 +276,8 @@ function handleGameOver() {
         });
         save.recordLetterStats(gameEngine.getLetterStats());
         save.recordRunTotals(gameEngine.getLetterStats(), gameEngine.elapsed);
+        // Рейтинг у загальну таблицю — у фоні (без імені чи інтернету тихо пропускається)
+        requestSync();
         noteRunForAchievements(runState, false);
         // Вибух: зберігається половина монет, зібраних у забігу
         const balanceBefore = save.getCrystals();
@@ -318,6 +326,8 @@ function handleVictory() {
         });
         save.recordLetterStats(gameEngine.getLetterStats());
         save.recordRunTotals(gameEngine.getLetterStats(), gameEngine.elapsed);
+        // Рейтинг у загальну таблицю — у фоні (без імені чи інтернету тихо пропускається)
+        requestSync();
         noteRunForAchievements(runState, true);
         // Монети: стрибки, серії, фініш і разові бонуси рівня
         const wonLevel = ALL_LEVELS.find(function (l) { return l.id === currentLevelId; });
@@ -841,6 +851,9 @@ initKeyboardInput(
 );
 
 function confirmResultScreen() {
+    if (isNamePromptOpen()) {
+        return;
+    }
     if (isPetRevealOpen()) {
         closePetReveal();
         return;
@@ -928,6 +941,10 @@ document.getElementById("btnReviveNo").addEventListener("click", declineRevive);
 
 // Esc: закриває відкрите вікно або повертає до головного меню (зокрема з рівня — без запису результату)
 function handleEscape() {
+    if (isNamePromptOpen()) {
+        closeNamePrompt();
+        return;
+    }
     if (isReviveOpen()) {
         declineRevive();
         return;
@@ -968,6 +985,49 @@ function handleEscape() {
 }
 
 // ---------- Автоматичне оновлення гри ----------
+
+// ---------- Ім'я для загального рейтингу ----------
+
+// Перед першим надсиланням (після першого забігу) питаємо ім'я — раз за запуск гри,
+// щоб «Пізніше» не набридало
+let playerNameAsked = false;
+
+function maybeAskPlayerName() {
+    if (playerNameAsked || getPlayerName() || save.getRating().runs < 1) {
+        return;
+    }
+    playerNameAsked = true;
+    openNamePrompt();
+}
+
+const SYNC_STATUS_TEXT = {
+    idle: "",
+    sending: "Надсилаю рейтинг…",
+    ok: "✓ Рейтинг надіслано",
+    error: "Не вдалося надіслати рейтинг — перевір інтернет. Спробую після наступного забігу"
+};
+
+function refreshPlayerNameBlock() {
+    const nameEl = document.getElementById("playerNameLine");
+    const statusEl = document.getElementById("syncStatusLine");
+    if (!nameEl || !statusEl) {
+        return;
+    }
+    const name = getPlayerName();
+    nameEl.textContent = name || "ще не вказано";
+    document.getElementById("btnChangeName").textContent = name ? "ЗМІНИТИ" : "ВКАЗАТИ";
+    statusEl.textContent = name ? SYNC_STATUS_TEXT[getSyncStatus()] : "Вкажи ім'я, щоб потрапити в загальний рейтинг";
+}
+
+onSyncStatus(function () {
+    if (state === "SETTINGS") {
+        refreshPlayerNameBlock();
+    }
+});
+
+document.getElementById("btnChangeName").addEventListener("click", function () {
+    openNamePrompt(refreshPlayerNameBlock);
+});
 
 // Рейтинг гравця з розбивкою — на вкладці «ПРОГРЕС» у налаштуваннях
 function refreshRatingBlock() {
@@ -1175,6 +1235,8 @@ loadAssets(function (loaded, total) {
     announceAchievements(save.checkAchievements());
     refreshChestButtons();
     refreshAchievementBadge();
+    // Свіжий рейтинг у загальну таблицю при запуску (якщо ім'я вже є)
+    requestSync();
 });
 
 export { gameEngine };

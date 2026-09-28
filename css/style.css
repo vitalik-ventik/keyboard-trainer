@@ -2084,6 +2084,62 @@ body {
     100% { background-position: 200% 50%; }
 }
 
+/* ---------- Вікно «Як тебе звати?» ---------- */
+
+.name-modal {
+    z-index: 45;
+}
+
+.name-box {
+    align-items: center;
+    gap: 1.4vmin;
+    width: min(92vw, 70vmin);
+    box-sizing: border-box;
+}
+
+.name-text {
+    margin: 0;
+    font-size: 2.2vmin;
+    color: #c8d6f0;
+    text-align: center;
+}
+
+.name-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1.4vmin 2vmin;
+    font-size: 3.4vmin;
+    font-weight: 700;
+    text-align: center;
+    color: #ffffff;
+    background: rgba(8, 10, 26, 0.95);
+    border: 0.3vmin solid rgba(0, 246, 255, 0.7);
+    border-radius: 1.2vmin;
+    outline: none;
+    box-shadow: 0 0 1.4vmin rgba(0, 246, 255, 0.35);
+}
+
+.name-input:focus {
+    border-color: #00f6ff;
+    box-shadow: 0 0 2vmin rgba(0, 246, 255, 0.7);
+}
+
+.name-error {
+    margin: 0;
+    min-height: 2.6vmin;
+    font-size: 2vmin;
+    color: #ff6a84;
+}
+
+/* Ім'я гравця на вкладці «ПРОГРЕС» */
+.player-name {
+    align-self: center;
+    font-size: 2.8vmin;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 0 0.8vmin rgba(0, 246, 255, 0.8);
+}
+
 /* ---------- Вікно «Отримано!» ---------- */
 
 .pet-reveal {

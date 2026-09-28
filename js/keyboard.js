@@ -73,6 +73,12 @@ export function initKeyboardInput(onLetter, onConfirm, onEscape, onEnter) {
         if (event.ctrlKey || event.altKey || event.metaKey) {
             return;
         }
+        // Поле введення (ім'я для рейтингу) обробляє клавіші саме: літери й пробіл
+        // мають друкуватися, а не керувати грою
+        const target = event.target;
+        if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) {
+            return;
+        }
         if (event.code === "Escape") {
             if (!event.repeat && typeof onEscape === "function") {
                 onEscape();

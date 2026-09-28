@@ -514,6 +514,60 @@ export const save = {
         return computeRating(saveData.progress.levels, saveData.progress.totals);
     },
 
+    // Знімок для онлайн-рейтингу (cloud.js): рейтинг, детальна статистика й аватар.
+    // Лише числа, рядки й id предметів — картинки малюються локально в кожного гравця
+    getCloudSnapshot() {
+        if (!saveData) {
+            this.load();
+        }
+        const r = this.getRating();
+        const st = saveData.achievements.stats;
+        let silver = 0;
+        let gold = 0;
+        for (const level of ALL_LEVELS) {
+            const entry = saveData.progress.levels[String(level.id)];
+            if (entry && entry.perfect) {
+                silver++;
+            }
+            if (entry && entry.perfect === "hard") {
+                gold++;
+            }
+        }
+        const mutations = {};
+        for (const pet of this.getEquippedPets()) {
+            if (pet.mutation) {
+                mutations[pet.id] = pet.mutation;
+            }
+        }
+        return {
+            rating: r.rating,
+            stats: {
+                levelsCleared: r.levelsCleared,
+                levelsHard: r.levelsHard,
+                levelsTotal: r.levelsTotal,
+                silver: silver,
+                gold: gold,
+                base: r.base,
+                bonus: r.bonus,
+                runs: r.runs,
+                minutes: r.minutes,
+                accuracy: r.accuracy === null ? null : Math.round(r.accuracy * 100),
+                lettersPerMinute: r.lettersPerMinute,
+                weakLetters: this.getLetterReport(3).map(function (w) { return w.letter; }),
+                days: st.days,
+                achievements: saveData.achievements.done.length,
+                achievementsTotal: ACHIEVEMENTS.length,
+                bestCombo: st.bestCombo
+            },
+            avatar: {
+                skin: this.getActiveSkin(),
+                accessory: saveData.shop.equipped.accessory || null,
+                pets: saveData.shop.pets.slice(),
+                mutations: mutations
+            }
+        };
+    },
+
     // Частка помилок на літері (зі згладжуванням, щоб одна помилка не робила літеру «найгіршою»)
     letterErrorRate(letter) {
         if (!saveData) {
