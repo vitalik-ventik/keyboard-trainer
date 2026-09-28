@@ -99,8 +99,15 @@
     <div id="settingsModal" class="overlay modal-backdrop hidden">
         <div class="modal settings-modal">
             <h2 class="neon-title">НАЛАШТУВАННЯ</h2>
-            <!-- Налаштування прокручуються, а заголовок і кнопка «Закрити» лишаються на місці -->
+            <!-- Вкладки налаштувань: кнопка data-tab відкриває панель з тим самим data-tab -->
+            <div id="settingsTabs" class="league-tabs settings-tabs">
+                <button class="league-tab active" type="button" data-tab="game">🎮 ГРА</button>
+                <button class="league-tab" type="button" data-tab="view">🎨 ВИГЛЯД</button>
+                <button class="league-tab" type="button" data-tab="progress">📊 ПРОГРЕС</button>
+            </div>
+            <!-- Налаштування прокручуються, а заголовок, вкладки й кнопка «Закрити» лишаються на місці -->
             <div class="settings-scroll">
+            <div class="settings-panel" data-tab="game">
             <p class="modal-caption">Складність</p>
             <div class="difficulty-row">
                 <button id="btnEasy" class="diff-btn" type="button">EASY</button>
@@ -120,17 +127,30 @@
                 <button id="btnSpeedFast" class="speed-btn" type="button">FAST</button>
             </div>
             <p class="speed-hint" id="speedHint">NORMAL: стандартна швидкість</p>
+            </div>
+            <div class="settings-panel hidden" data-tab="view">
+            <p class="modal-caption">Пальці на клавіатурі</p>
+            <div class="option-row">
+                <button id="btnFingerClassic" class="option-btn" type="button">КЛАСИЧНА</button>
+                <button id="btnFingerDiagonal" class="option-btn" type="button">КОСА</button>
+            </div>
+            <canvas id="fingerPreview" class="finger-preview"></canvas>
+            <p class="option-hint" id="fingerHint">КЛАСИЧНА: кожен палець іде своєю колонкою</p>
             <p class="modal-caption">Рух камери</p>
             <div class="option-row">
                 <button id="btnCamOn" class="option-btn" type="button">УВІМК</button>
                 <button id="btnCamOff" class="option-btn" type="button">ВИМК</button>
             </div>
             <p class="option-hint" id="cameraHint">Камера стежить за стрибком, екран струшується при вибуху</p>
+            </div>
+            <div class="settings-panel hidden" data-tab="progress">
+            <p class="modal-caption">Статистика</p>
             <p class="option-hint weak-letters" id="weakLettersLine"></p>
-            <p class="modal-caption">Прогрес</p>
+            <p class="modal-caption">Скидання прогресу</p>
             <button id="btnResetProgress" class="text-btn danger-btn" type="button">🗑 ПОЧАТИ ЗАНОВО</button>
             <p class="option-hint" id="resetHint">Стирає рівні, монети, покупки, сундуки й досягнення. Налаштування лишаються</p>
             <p class="version-line" id="versionLine"></p>
+            </div>
             </div>
             <button id="btnCloseSettings" class="text-btn" type="button">ЗАКРИТИ</button>
         </div>

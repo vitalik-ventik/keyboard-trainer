@@ -147,23 +147,58 @@ const FINGERS = {
     R_PINKY: { rgb: "255, 70, 170", name: "Мізинець" }
 };
 
-const FINGER_LETTERS = {
-    L_PINKY: ["Й", "Ф", "Я"],
-    L_RING: ["Ц", "І", "Ч"],
-    L_MIDDLE: ["У", "В", "С"],
-    L_INDEX: ["К", "Е", "А", "П", "М", "И"],
-    R_INDEX: ["Н", "Г", "Р", "О", "Т", "Ь"],
-    R_MIDDLE: ["Ш", "Л", "Б"],
-    R_RING: ["Щ", "Д", "Ю"],
-    R_PINKY: ["З", "Х", "Ї", "Ж", "Є"]
+// Дві схеми пальців. Верхній і середній ряди в них однакові, різниться нижній ряд
+// лівої руки: у класичній кожен палець іде своєю колонкою (С — середнім),
+// у косій пальці йдуть по діагоналі за зсувом ряду (С — вказівним, И — правим вказівним)
+const FINGER_SCHEMES = {
+    classic: {
+        L_PINKY: ["Й", "Ф", "Я"],
+        L_RING: ["Ц", "І", "Ч"],
+        L_MIDDLE: ["У", "В", "С"],
+        L_INDEX: ["К", "Е", "А", "П", "М", "И"],
+        R_INDEX: ["Н", "Г", "Р", "О", "Т", "Ь"],
+        R_MIDDLE: ["Ш", "Л", "Б"],
+        R_RING: ["Щ", "Д", "Ю"],
+        R_PINKY: ["З", "Х", "Ї", "Ж", "Є"]
+    },
+    diagonal: {
+        L_PINKY: ["Й", "Ф"],
+        L_RING: ["Ц", "І", "Я"],
+        L_MIDDLE: ["У", "В", "Ч"],
+        L_INDEX: ["К", "Е", "А", "П", "С", "М"],
+        R_INDEX: ["Н", "Г", "Р", "О", "И", "Т", "Ь"],
+        R_MIDDLE: ["Ш", "Л", "Б"],
+        R_RING: ["Щ", "Д", "Ю"],
+        R_PINKY: ["З", "Х", "Ї", "Ж", "Є"]
+    }
 };
 
 export const FINGER_BY_LETTER = {};
-for (const finger in FINGER_LETTERS) {
-    for (const letter of FINGER_LETTERS[finger]) {
-        FINGER_BY_LETTER[letter] = finger;
+let activeFingerScheme = "";
+
+/**
+ * Вибирає схему пальців ("classic" або "diagonal"). Після зміни клавіатуру
+ * треба перемалювати (кеш клавіатури позначити застарілим).
+ * @param {string} scheme
+ */
+export function setFingerScheme(scheme) {
+    const name = FINGER_SCHEMES[scheme] ? scheme : "classic";
+    if (name === activeFingerScheme) {
+        return;
+    }
+    activeFingerScheme = name;
+    const fingers = FINGER_SCHEMES[name];
+    for (const letter in FINGER_BY_LETTER) {
+        delete FINGER_BY_LETTER[letter];
+    }
+    for (const finger in fingers) {
+        for (const letter of fingers[finger]) {
+            FINGER_BY_LETTER[letter] = finger;
+        }
     }
 }
+
+setFingerScheme("classic");
 
 function fingerColor(letter, alpha) {
     const finger = FINGERS[FINGER_BY_LETTER[letter]];
