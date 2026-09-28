@@ -12,6 +12,7 @@ import { drawKeyboard, drawTargetPulse, initKeyboardInput, setFingerScheme } fro
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundQuality, FrameController, KeyboardCache } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
+import { runAccuracy } from "./rating.js";
 import { SHOP_ITEMS, accessoryPerk, chestsForVictory, computeReward, drawHeartLife, heartsText } from "./shop.js";
 import { closeShop, renderCurrentSkinIcon, shopModalEl, skinsModalEl } from "./ui/shop.js";
 import { achModalEl, announceAchievements, closeAchievements, noteRunForAchievements, refreshAchievementBadge } from "./ui/achievements.js";
@@ -152,6 +153,7 @@ function setState(next) {
 
     if (next === "SETTINGS") {
         refreshWeakLetters();
+        refreshRatingBlock();
     }
     if (next === "MENU") {
         renderCurrentSkinIcon();
@@ -261,9 +263,13 @@ function handleGameOver() {
         save.recordResult(currentLevelId, Math.floor(runState.progressPct), runState.score, {
             maxEasy: runState.maxEasy,
             maxHard: runState.maxHard,
-            difficulty: runState.difficulty
+            difficulty: runState.difficulty,
+            accuracy: runAccuracy(gameEngine.getLetterStats()),
+            speed: save.getSpeed(),
+            hitWindow: save.getHitWindow()
         });
         save.recordLetterStats(gameEngine.getLetterStats());
+        save.recordRunTotals(gameEngine.getLetterStats(), gameEngine.elapsed);
         noteRunForAchievements(runState, false);
         // Вибух: зберігається половина монет, зібраних у забігу
         const balanceBefore = save.getCrystals();
@@ -305,9 +311,13 @@ function handleVictory() {
         victorySkinResult = save.recordResult(currentLevelId, 100, runState.score, {
             maxEasy: runState.maxEasy,
             maxHard: runState.maxHard,
-            difficulty: runState.difficulty
+            difficulty: runState.difficulty,
+            accuracy: runAccuracy(gameEngine.getLetterStats()),
+            speed: save.getSpeed(),
+            hitWindow: save.getHitWindow()
         });
         save.recordLetterStats(gameEngine.getLetterStats());
+        save.recordRunTotals(gameEngine.getLetterStats(), gameEngine.elapsed);
         noteRunForAchievements(runState, true);
         // Монети: стрибки, серії, фініш і разові бонуси рівня
         const wonLevel = ALL_LEVELS.find(function (l) { return l.id === currentLevelId; });
@@ -958,6 +968,40 @@ function handleEscape() {
 }
 
 // ---------- Автоматичне оновлення гри ----------
+
+// Рейтинг гравця з розбивкою — на вкладці «ПРОГРЕС» у налаштуваннях
+function refreshRatingBlock() {
+    const el = document.getElementById("ratingBlock");
+    if (!el) {
+        return;
+    }
+    const r = save.getRating();
+    el.textContent = "";
+    const value = document.createElement("div");
+    value.className = "rating-value";
+    value.textContent = "🏆 " + r.rating;
+    el.appendChild(value);
+    const chips = [
+        ["Рівні", r.levelsCleared + " / " + r.levelsTotal + (r.levelsHard > 0 ? " (HARD: " + r.levelsHard + ")" : "")],
+        ["Точність", r.accuracy === null ? "—" : Math.round(r.accuracy * 100) + "%"],
+        ["Швидкість", r.lettersPerMinute === null ? "—" : r.lettersPerMinute + " літ/хв"],
+        ["Забігів", r.runs + (r.minutes > 0 ? " · " + r.minutes + " хв" : "")],
+        ["За рівні", String(r.base)],
+        ["Практика", "+" + r.bonus + " (" + Math.round(r.bonusShare * 100) + "%)"]
+    ];
+    const row = document.createElement("div");
+    row.className = "rating-chips";
+    for (const chip of chips) {
+        const span = document.createElement("span");
+        span.className = "rating-chip";
+        span.appendChild(document.createTextNode(chip[0] + ": "));
+        const b = document.createElement("b");
+        b.textContent = chip[1];
+        span.appendChild(b);
+        row.appendChild(span);
+    }
+    el.appendChild(row);
+}
 
 // Найскладніші літери гравця (за статистикою помилок) — у налаштуваннях
 function refreshWeakLetters() {

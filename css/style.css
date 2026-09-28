@@ -1486,6 +1486,43 @@ body {
     font-size: 2.2vmin;
 }
 
+/* Рейтинг гравця у налаштуваннях: велике число й плашки з розбивкою */
+.rating-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1vmin;
+}
+
+.rating-value {
+    font-size: 5.2vmin;
+    font-weight: 800;
+    color: #ffe14d;
+    text-shadow: 0 0 0.8vmin rgba(255, 225, 77, 0.8), 0 0 2vmin rgba(255, 180, 40, 0.5);
+    letter-spacing: 0.2vmin;
+}
+
+.rating-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8vmin 1.2vmin;
+    font-size: 1.9vmin;
+    color: #9fb4d8;
+}
+
+.rating-chip {
+    padding: 0.4vmin 1.2vmin;
+    border: 0.2vmin solid rgba(0, 246, 255, 0.4);
+    border-radius: 0.8vmin;
+    background: rgba(0, 246, 255, 0.06);
+    white-space: nowrap;
+}
+
+.rating-chip b {
+    color: #ffffff;
+}
+
 /* ---------- Спливаючі плашки досягнень ---------- */
 
 .ach-toasts {

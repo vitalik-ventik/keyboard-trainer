@@ -11,6 +11,7 @@ import { EGG_BY_THEME } from "./easter_eggs.js";
 import { ALL_LEVELS, BOSS_LEVEL_ID, DEFAULT_SKIN, getLevelById, levelOrderIndex, nextLevelOf } from "./levels.js";
 import { activeSkinPerk } from "./skins.js";
 import { SKIN_RENDERERS } from "./skin_renderers.js";
+import { computeRating, legacyLevelPoints, maxLevelPoints, runPoints } from "./rating.js";
 
 // Літери екранної клавіатури (без Ґ — її розташування різниться між виробниками)
 const KEY_LETTERS = new Set(KEYS.map(function (k) { return k.letter; }));
@@ -22,12 +23,15 @@ const SAVE_KEY = "dfp_save_v1";
 function defaultSaveData() {
     const levels = {};
     for (const level of ALL_LEVELS) {
-        levels[String(level.id)] = { bestPct: 0, highScore: 0, perfect: null };
+        // bestPoints — найкращі очки рейтингу на рівні, clearedHard — рівень пройдено на HARD
+        levels[String(level.id)] = { bestPct: 0, highScore: 0, perfect: null, bestPoints: 0, clearedHard: false };
     }
     return {
         version: 1,
         settings: { difficulty: "EASY", hitWindow: "normal", speed: "normal", activeSkin: null, cameraMotion: true, fingerScheme: "classic" },
-        progress: { unlocked: 1, unlockedSkins: [], levels: levels, letterStats: {} },
+        // totals — підсумки всіх забігів для рейтингу: кількість, секунди гри,
+        // правильні й помилкові натискання
+        progress: { unlocked: 1, unlockedSkins: [], levels: levels, letterStats: {}, totals: { runs: 0, seconds: 0, ok: 0, miss: 0 } },
         // Кристали, куплені товари, надіте та вже виплачені разові бонуси рівнів
         shop: {
             crystals: 0,
@@ -112,6 +116,24 @@ function sanitizeSaveData(raw) {
                     if (entry.perfect === "easy" || entry.perfect === "hard") {
                         clean.progress.levels[key].perfect = entry.perfect;
                     }
+                    const cleanEntry = clean.progress.levels[key];
+                    cleanEntry.clearedHard = entry.clearedHard === true || cleanEntry.perfect === "hard";
+                    const points = Number(entry.bestPoints);
+                    if (Number.isFinite(points) && points >= 0) {
+                        cleanEntry.bestPoints = Math.min(points, maxLevelPoints(level.id));
+                    } else {
+                        // Збереження до появи рейтингу: оцінюємо очки за відсотком і рамкою
+                        cleanEntry.bestPoints = legacyLevelPoints(level.id, cleanEntry.bestPct, cleanEntry.perfect);
+                    }
+                }
+            }
+        }
+        const totals = raw.progress.totals;
+        if (totals && typeof totals === "object") {
+            for (const field of ["runs", "seconds", "ok", "miss"]) {
+                const n = Number(totals[field]);
+                if (Number.isFinite(n) && n >= 0) {
+                    clean.progress.totals[field] = Math.min(Math.floor(n), 100000000);
                 }
             }
         }
@@ -255,6 +277,23 @@ export const save = {
         }
         if (cleanScore > entry.highScore) {
             entry.highScore = cleanScore;
+        }
+        if (options) {
+            // Очки рейтингу: зберігаємо лише найкращий забіг на рівні
+            const points = runPoints({
+                levelId: levelId,
+                pct: cleanPct,
+                accuracy: options.accuracy,
+                difficulty: options.difficulty,
+                speed: options.speed,
+                hitWindow: options.hitWindow
+            });
+            if (points > entry.bestPoints) {
+                entry.bestPoints = points;
+            }
+            if (cleanPct === 100 && options.difficulty === "HARD") {
+                entry.clearedHard = true;
+            }
         }
         if (cleanPct === 100 && options) {
             const currentPerfect = entry.perfect || null;
@@ -450,6 +489,29 @@ export const save = {
             all[letter] = cur;
         }
         this.persist();
+    },
+
+    // Підсумки забігу для рейтингу: кількість забігів, чистий час гри й натискання
+    recordRunTotals(letterStats, seconds) {
+        if (!saveData) {
+            this.load();
+        }
+        const t = saveData.progress.totals;
+        t.runs++;
+        t.seconds += Math.max(0, Math.min(3600, Math.round(Number(seconds) || 0)));
+        for (const letter of Object.keys(letterStats || {})) {
+            t.ok += Math.max(0, Math.floor(Number(letterStats[letter].ok) || 0));
+            t.miss += Math.max(0, Math.floor(Number(letterStats[letter].miss) || 0));
+        }
+        this.persist();
+    },
+
+    // Рейтинг гравця з розбивкою (див. rating.js)
+    getRating() {
+        if (!saveData) {
+            this.load();
+        }
+        return computeRating(saveData.progress.levels, saveData.progress.totals);
     },
 
     // Частка помилок на літері (зі згладжуванням, щоб одна помилка не робила літеру «найгіршою»)
