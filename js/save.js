@@ -529,7 +529,15 @@ export const save = {
         return mastered;
     },
 
-    // Знімок для онлайн-рейтингу (cloud.js): рейтинг, детальна статистика й аватар.
+    // Рамка поточного скіна ("easy" — срібна, "hard" — золота, null — немає),
+    // як її малює гра навколо кубика
+    getActiveSkinFrame() {
+        const skinId = this.getActiveSkin();
+        const skinLevel = ALL_LEVELS.find(function (l) { return l.skin && l.skin.renderType === skinId; });
+        return skinLevel ? this.getLevelAchievement(skinLevel.id) : null;
+    },
+
+        // Знімок для онлайн-рейтингу (cloud.js): рейтинг, детальна статистика й аватар.
     // Лише числа, рядки й id предметів — картинки малюються локально в кожного гравця
     getCloudSnapshot() {
         if (!saveData) {
@@ -577,7 +585,11 @@ export const save = {
             },
             avatar: {
                 skin: this.getActiveSkin(),
+                // Рамка скіна: срібна чи золота за рівень, на якому його відкрито
+                frame: this.getActiveSkinFrame(),
                 accessory: saveData.shop.equipped.accessory || null,
+                weapon: saveData.shop.equipped.weapon || null,
+                trail: saveData.shop.equipped.trail || null,
                 pets: saveData.shop.pets.slice(),
                 mutations: mutations
             }
