@@ -439,7 +439,7 @@ function renderShopCard(c, nowMs) {
 
 // ---------- Перевірка звуків ----------
 
-const EVENT_LABELS = { fire: "постріл", swing: "мах", hit: "удар" };
+const EVENT_LABELS = { fire: "постріл", swing: "мах", hit: "удар", chunk: "влучання черги" };
 const soundPanel = document.getElementById("soundPanel");
 let audioReady = false;
 let audioLoading = null;

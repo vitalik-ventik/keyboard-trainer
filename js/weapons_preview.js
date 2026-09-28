@@ -82,7 +82,7 @@ function planWeaponDemo(id, w, h, time) {
 }
 
 // Події сценки для звуку в preview: «fire» — постріл/кидок/промінь, «swing» — мах,
-// «hit» — шип знищено. at — секунди від початку циклу, cycleIndex — номер циклу.
+// «hit» — шип знищено, «chunk» — снаряд черги відколов шматок. at — секунди від початку циклу, cycleIndex — номер циклу.
 export function weaponDemoEvents(id, time) {
     const plan = planWeaponDemo(id, 150, 100, time);
     const events = [];
@@ -91,6 +91,11 @@ export function weaponDemoEvents(id, time) {
             events.push({ at: plan.swingAt, event: "swing" });
         } else {
             events.push({ at: plan.press, event: "fire" });
+        }
+        if (plan.flight && plan.flight.count > 1) {
+            for (let i = 0; i < plan.flight.count - 1; i++) {
+                events.push({ at: plan.press + plan.flight.dur + i * plan.flight.gap, event: "chunk" });
+            }
         }
         if (plan.hitAt < Infinity) {
             events.push({ at: plan.hitAt, event: "hit" });

@@ -9,7 +9,7 @@ import { SPIKE_STYLE_COLORS } from "./spike_styles.js";
 
 // Зброя кубика: звуки, руйнування шипів, постріли й удари, поза й малювання зброї
 class EngineWeapons {
-    // Звук зброї для події «fire» / «swing» / «hit»
+    // Звук зброї для події «fire» / «swing» / «hit» / «chunk»
     emitWeaponSound(event) {
         if (typeof this.onSound !== "function" || !this.weaponSpec) {
             return;
@@ -175,6 +175,7 @@ class EngineWeapons {
                 if (this.weaponSpec.mode === "burst" && !s.last) {
                     // Куля черги, сюрикен, сніжка чи кулька фарби відколює шматок зверху
                     s.spike.chunks = Math.max(s.spike.chunks || 0, s.index + 1);
+                    this.emitWeaponSound("chunk");
                     this.spawnDebris(4, { x: s.spike.x, y: SPIKE_H * (1 - (s.index + 1) * 0.22), spread: SPIKE_W * 0.4, angleMin: Math.PI * 0.2, angleMax: Math.PI * 0.8, speedMin: 80, speedMax: 180, sizeMin: 3, sizeMax: 5, spin: 8, colors: SPIKE_STYLE_COLORS[this.spikeStyle] || [this.level.accentColor || "#ff2ea6"], gravity: 700, life: 0.5, outline: true });
                 } else {
                     this.destroySpike(s.spike);

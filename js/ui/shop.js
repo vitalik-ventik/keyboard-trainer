@@ -569,6 +569,8 @@ function buildShop() {
         card.className = "skin-card shop-card" + (isEquipped ? " active" : "") + (item.legendary ? " legendary" : "") + (isPet ? " pet-card" : "") + (item.chestOnly ? " chest-weapon-card" : "");
         // Секретного улюбленця до знахідки не видно: чорний силует і «???»
         const hiddenSecret = isPet && item.secret && !owned;
+        // Сундукова зброя до знахідки теж схована: чорний квадрат і «???»
+        const hiddenChest = !!item.chestOnly && !owned;
         if (isPet) {
             card.style.setProperty("--rarity", petRarity(item).color);
             card.classList.toggle("rarity-rainbow", !!petRarity(item).rainbow);
@@ -592,7 +594,7 @@ function buildShop() {
 
         const name = document.createElement("span");
         name.className = "skin-card-name";
-        name.textContent = hiddenSecret ? "???" : (item.legendary ? "⭐ " : "") + item.name;
+        name.textContent = hiddenSecret || hiddenChest ? "???" : (item.legendary ? "⭐ " : "") + item.name;
         card.appendChild(name);
         if (isPet) {
             // Рідкість замість ліги, мутація й кожен бонус окремим рядком
@@ -641,7 +643,7 @@ function buildShop() {
         if (item.type === "weapon" && weaponCoinBonus(item.id) > 1) {
             const bonus = document.createElement("span");
             bonus.className = "weapon-coin-bonus";
-            bonus.textContent = "🪙 Монети ×" + weaponCoinBonus(item.id);
+            bonus.textContent = "🪙 Монети ×" + (hiddenChest ? "???" : weaponCoinBonus(item.id));
             bonus.dataset.tip = itemPerkHint(item.id);
             card.appendChild(bonus);
         }
@@ -813,7 +815,7 @@ function drawShopItemLive(entry, now) {
         skinType: save.getActiveSkin(),
         accessory: save.getEquipped("accessory"),
         mutation: entry.item.type === "pet" && entry.owned ? save.getPetMutation(entry.item.id) : null,
-        silhouette: !!entry.item.secret && !entry.owned,
+        silhouette: (!!entry.item.secret || !!entry.item.chestOnly) && !entry.owned,
         weapon: save.getEquipped("weapon")
     });
 }
