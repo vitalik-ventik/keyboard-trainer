@@ -221,6 +221,20 @@ function sanitizeSaveData(raw) {
     return clean;
 }
 
+// Збереження з першої версії гри (до перебудови рівнів, магазину й досягнень).
+// У ньому той самий ключ і version: 1, але немає ні магазину, ні налаштування
+// камери — обидва з'являються в кожному новішому збереженні. Номери рівнів у
+// старій версії означали інші траси, тож такий прогрес відкрив би гравцеві
+// одразу купу непройдених рівнів
+function isLegacySave(raw) {
+    if (!raw || typeof raw !== "object" || raw.version !== 1) {
+        return false;
+    }
+    const hasShop = !!raw.shop && typeof raw.shop === "object";
+    const hasCameraSetting = !!raw.settings && typeof raw.settings === "object" && typeof raw.settings.cameraMotion === "boolean";
+    return !hasShop && !hasCameraSetting;
+}
+
 let saveData = null;
 
 export const save = {
@@ -235,7 +249,15 @@ export const save = {
             console.warn("Локальне сховище недоступне або пошкоджене — прогрес житиме лише в цьому сеансі.", err);
             raw = null;
         }
-        saveData = sanitizeSaveData(raw);
+        if (isLegacySave(raw)) {
+            // Стара версія: прогрес стираємо, лишаємо тільки складність, зону й швидкість
+            console.info("Знайдено збереження зі старої версії гри — прогрес почнеться заново.");
+            saveData = sanitizeSaveData({ version: 1, settings: raw.settings });
+            saveData.settings.activeSkin = null;
+            this.persist();
+        } else {
+            saveData = sanitizeSaveData(raw);
+        }
         return {
             progress: saveData.progress,
             settings: saveData.settings
