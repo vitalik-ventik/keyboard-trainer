@@ -3,7 +3,7 @@
 # Основа — семпли з sounds/source_sounds/ (удари, розряд, свисти ніндзя, сніжка, камінь) і наявні
 # sounds/*.wav: змінює висоту, ріже, фільтрує, додає луну й синтезовані шари (осцилятори, шум —
 # як у Web Audio) і записує нові sounds/*.wav (моно, 44,1 кГц, 16 біт).
-# Запуск із кореня проекту: pip install numpy scipy && python3 tools/chest_sounds.py
+# Запуск із кореня проекту: pip install numpy scipy miniaudio && python3 tools/chest_sounds.py
 # ============================================================
 import numpy as np, wave, sys
 from scipy.signal import butter, sosfilt, resample, resample_poly
@@ -15,8 +15,14 @@ def load(n):
     if ch==2: a=a.reshape(-1,2).mean(1)
     return a
 # Семпл із sounds/source_sounds/ будь-якої частоти дискретизації — у моно 44,1 кГц
+# (MP3 декодує miniaudio: pip install miniaudio)
 def source(n):
-    w=wave.open(D+'source_sounds'+os.sep+n+'.wav'); ch=w.getnchannels(); sr=w.getframerate()
+    path=D+'source_sounds'+os.sep+n
+    if os.path.exists(path+'.mp3'):
+        import miniaudio
+        d=miniaudio.decode_file(path+'.mp3', output_format=miniaudio.SampleFormat.SIGNED16, nchannels=1, sample_rate=SR)
+        return (np.frombuffer(d.samples,dtype=np.int16).astype(np.float32)/32768).copy()
+    w=wave.open(path+'.wav'); ch=w.getnchannels(); sr=w.getframerate()
     a=np.frombuffer(w.readframes(w.getnframes()),dtype=np.int16).astype(np.float32)/32768
     a=a.reshape(-1,ch).mean(1)
     if sr!=SR:
@@ -91,6 +97,11 @@ ELECTRIC=source('electric-impact')                                          # т
 NINJA=source('ninja-action-sound')                                          # свисти й удари ніндзя
 SNOWBALL=source('snowball-throw')                                           # кидок сніжки й шльоп
 STONE=onset(source('stone-sound'))                                          # стук камінця
+BRAAM=source('cinematic-braam-impact')                                      # наростання (0,49–0,935 с) і кінематографічний удар
+BRAAM_HIT=0.935
+CINE_BOOM=onset(source('impact-cinematic-boom'))                            # глибокий кінематографічний «бум»
+TRIDENT=onset(source('trident'))                                            # кидок тризуба
+SLIME=onset(source('slime-impact'))                                         # мокрий шльоп
 # Свисти ніндзя: короткі яскраві «ш-ших» (початок трохи до піку)
 def swish(t,d=0.14): return fade(cut(NINJA,t-0.03,t-0.03+d),0.004,0.05)
 SWISHES=[swish(5.068),swish(5.348),swish(6.999),swish(6.356)]
@@ -102,11 +113,13 @@ def thud(depth=1.0, bright=700, length=0.6):
     sub=env_decay(sweep(150/depth,60/depth,0.35),0.11)
     return sat(mix((body,0,1.2),(sub,0,0.6)),1.6)
 
-# Тризуб: свист ніндзя нижче + гул кидка; «хлюп» води на глухому ударі
-save('trident_throw', mix((speed(SWISHES[0],0.8),0,1),(speed(SWISHES[2],0.7),0.05,0.6),(env_decay(attack(filt(noise(0.4),'bandpass',[300,1200]),0.1),0.12),0,0.35)))
-splash=mix((filt(cut(explode,0,0.6),'bandpass',[700,5000]),0,0.8),(thud(1.0,1100),0,1),
-           (env_decay(filt(noise(0.5),'bandpass',[1500,6000]),0.09),0,0.6),(env_decay(sweep(700,180,0.18),0.08),0.03,0.5),(env_decay(sweep(900,300,0.12),0.05),0.12,0.3))
-save('trident_splash', env_decay(echo(splash,0.035,0.4,4,0.5),0.25))
+# Тризуб: кидок — семпл тризуба; влучання — мокрий шльоп, бризки й глухий удар
+# (кидок — справжній звук тризуба, коротший; для удару зблизька звучить той самий)
+save('trident_throw', mix((fade(cut(TRIDENT,0,0.6),0.002,0.25),0,1),(speed(SWISHES[0],0.8),0,0.35)))
+splash=mix((fade(cut(SLIME,0,0.6),0.002,0.2),0,1),(filt(fade(cut(TRIDENT,0.25,0.8),0.05,0.2),'highpass',1500),0.02,0.35),(thud(1.0,1100,0.45),0,0.7),
+           (env_decay(sweep(700,180,0.18),0.08),0.04,0.3))
+save('trident_splash', echo(splash,0.035,0.3,3,0.4))
+noise(0.4); noise(0.5)  # тримає послідовність випадкових чисел для наступних звуків (шар, який тут був раніше)
 # Арбалет: клацання механізму, тугіша тятива, свист болта й низький «тунк»
 save('crossbow', mix((filt(cut(click,0,0.06),'highpass',1500),0,0.8),(speed(bow,0.9),0.03,1),(speed(SWISHES[1],1.2),0.05,0.5),(tone(140,0.2,0.05),0.03,0.5)))
 # Сніжки: справжній кидок сніжки — черга з трьох (як три сніжки в грі); влучання — шльоп сніжки на глухому ударі
@@ -114,9 +127,9 @@ snow_whoosh=fade(cut(SNOWBALL,0.2,0.5),0.01,0.12)   # свист і клацан
 snow_splat=cut(SNOWBALL,0.28,0.75)
 save('snow_throw', series(snow_whoosh,3,0.09))
 save('snow_hit', mix((snow_splat,0,1),(thud(1.1,900,0.4),0,0.7),(filt(crackle(0.2,700),'bandpass',[2000,6000]),0,0.4)))
-# Рогатка: гумка «тьонь»; влучання — стук камінця й легкий удар
+# Рогатка: гумка «тьонь»; влучання — лише стук камінця
 save('slingshot', mix((speed(bow,1.6),0,1),(env_decay(sweep(260,190,0.25)+0.4*sweep(520,380,0.25),0.07),0,0.6)))
-save('slingshot_hit', mix((STONE,0,1),(thud(0.8,1200,0.35),0,0.35)))
+save('slingshot_hit', STONE)
 # Булава: важкий удар із металевим дзвоном (семпл нижче), глухий удар і низький гул, насичення
 mace=mix((filt(fade(cut(speed(HORROR,0.85),0,1.4),0.002,0.5),'lowpass',5000),0,1),(thud(1.3,600,0.9),0,1),
          (env_decay(sweep(110,42,0.9),0.32),0,0.7),(filt(speed(pick,0.5),'lowpass',3000),0,0.4))
@@ -132,25 +145,31 @@ def soft_buzz(d):
     return fade(filt(b,'lowpass',700),0.02,0.04)
 ban=mix((thud(1.2,900,0.7),0,1.2),(filt(fade(cut(HORROR,0,0.6),0.002,0.3),'lowpass',2500),0,0.6),(filt(speed(bat,0.65),'lowpass',1800),0,0.5))
 save('banhammer', mix((sat(ban,1.8),0,1),(soft_buzz(0.15),0.36,0.3),(soft_buzz(0.15),0.55,0.3)))
-# Пейнтбол: черга з трьох пневматичних «пух»; влучання — глухий соковитий «шльоп»
+# Пейнтбол: черга з трьох пневматичних «пух»; влучання — мокрий шльоп (семпл слизу) на глухому ударі
 paint_one=mix((filt(speed(cut(gun,0,0.14),1.4),'lowpass',2200),0,1),(env_decay(filt(noise(0.08),'bandpass',[600,2500]),0.02),0,0.6),(env_decay(sweep(160,70,0.08),0.03),0,0.5))
 save('paint_shot', series(paint_one,3,0.08))
-save('paint_splat', mix((thud(1.0,1000,0.45),0,0.8),(cut(snow_splat,0,0.3),0,0.5),(env_decay(filt(noise(0.3),'lowpass',1400),0.06),0,0.6),(env_decay(sweep(400,120,0.1),0.04),0,0.4)))
-# Посох блискавок: справжній тріск розряду, дзижчання й потріскування
-save('chain_lightning', mix((fade(cut(ELECTRIC,0,1.1),0.002,0.3),0,1),(speed(laser,0.7),0,0.3),(crackle(0.6,1200),0,0.6)))
-# Метеор: свист падіння (0,45 с — як політ у грі); вибух — важкий удар, глухий «бум» і вибух ракети
-fall=mix((filt(cut(flame,0,0.5),'lowpass',1800),0,0.8),(sweep(1400,350,0.45)*np.linspace(0.2,1,int(0.45*SR)).astype(np.float32),0,0.45),(filt(noise(0.45),'lowpass',600)*np.linspace(0.1,1,int(0.45*SR)).astype(np.float32),0,0.8))
-save('meteor_fall', fall)
-save('meteor_boom', fade(cut(mix((speed(explode,0.8),0,0.9),(filt(speed(HORROR,0.7),'lowpass',1500),0,0.8),(thud(1.5,500,1.0),0,1),(filt(cut(boom,1.18,3.2),'lowpass',1200),0.05,0.6)),0,2.3),0.002,0.8))
+save('paint_splat', mix((fade(cut(SLIME,0,0.5),0.002,0.2),0,1),(thud(1.0,1000,0.4),0,0.5)))
+noise(0.3)  # тримає послідовність випадкових чисел для наступних звуків (шар, який тут був раніше)
+# Посох блискавок: тріск розряду, під ним глибокий кінематографічний «бум» грому й нижчий відгомін розряду
+save('chain_lightning', mix((fade(cut(ELECTRIC,0,1.1),0.002,0.3),0,1),(filt(fade(cut(CINE_BOOM,0,1.2),0.002,0.5),'lowpass',900),0,0.8),(filt(fade(cut(speed(ELECTRIC,0.6),0.05,0.8),0.01,0.3),'lowpass',2500),0.03,0.35)))
+crackle(0.6,1200)  # тримає послідовність випадкових чисел для наступних звуків (шар, який тут був раніше)
+# Падіння: наростання braam (0,49–0,935 с — майже рівно політ у грі, 0,42 с), свист ракети й гул полум'я,
+# що гучнішають до удару. Вибух: удар braam, вибух ракетниці й глибокий «бум»
+swell=cut(BRAAM,BRAAM_HIT-0.45,BRAAM_HIT)
+roar=filt(cut(flame,0,0.45),'lowpass',1800)*np.linspace(0.3,1,int(0.45*SR)).astype(np.float32)
+save('meteor_fall', sat(mix((swell,0,1.2),(filt(cut(boom,0.15,0.6),'lowpass',4000),0,0.9),(roar,0,0.6)),1.5))
+noise(0.45)  # тримає послідовність випадкових чисел для наступних звуків (шар, який тут був раніше)
+save('meteor_boom', fade(cut(mix((cut(BRAAM,BRAAM_HIT-0.005,BRAAM_HIT+2.0),0,1),(cut(boom,1.18,3.2),0,0.9),(CINE_BOOM,0,0.8),(speed(explode,0.8),0,0.4)),0,2.3),0.002,0.8))
 # Жезл вітру: довгий свист ніндзя як порив, вихор, що злітає вгору
 gust=swept_band(noise(0.8),300,2500)*np.exp(-T(0.8)/0.35).astype(np.float32)
 wind_body=fade(cut(NINJA,7.23,7.7),0.03,0.15)
 save('wind_blast', mix((wind_body,0,1),(speed(wind_body,0.8),0.12,0.5),(attack(gust,0.05),0,0.7),(speed(grav,1.2),0,0.25)))
-# Крижана сфера: холодний дзвін із мерехтінням; тріск льоду — камінець вище й кришталеві дзвіночки
-shimmer=sum(np.sin(2*np.pi*f*T(1.0))*(0.5+0.5*np.sin(2*np.pi*r*T(1.0))) for f,r in [(2093,7),(2637,9),(3136,11)]).astype(np.float32)/3
-save('frost_orb', echo(mix((speed(laser,0.6),0,1),(filt(speed(coins,1.4),'highpass',2500),0.03,0.5),(attack(shimmer*np.exp(-T(1.0)/0.4).astype(np.float32),0.05),0,0.4)),0.08,0.45,4,0.5))
-tink=mix(*[(tone(float(f),0.25,0.05),o,0.4) for f,o in zip(rng.uniform(2500,6000,8),rng.uniform(0,0.2,8))])
-save('ice_shatter', mix((speed(STONE,1.7),0,1),(filt(speed(coins,1.6),'highpass',3000),0,0.6),(tink,0.02,0.8),(thud(0.8,1500,0.25),0,0.3)))
+# Крижана сфера — зі справжніх звуків замість синтезу
+# Запуск: свист ніндзя нижче, холодний тріск (розряд без низу, вище — як лід, що тріщить) і дзвін монет угорі
+ice_crackle=filt(fade(cut(speed(ELECTRIC,1.5),0,0.6),0.005,0.3),'highpass',3000)
+save('frost_orb', echo(mix((speed(SWISHES[1],0.7),0,1),(ice_crackle,0.02,0.6),(filt(speed(coins,1.3),'highpass',2500),0.05,0.35)),0.07,0.35,3,0.4))
+# Розкол: камінці вище як скалки льоду, сніжний шльоп без низу й дзвін монет
+save('ice_shatter', mix((speed(STONE,1.7),0,1),(speed(STONE,2.3),0.04,0.6),(speed(STONE,2.0),0.09,0.4),(filt(snow_splat,'highpass',1500),0,0.5),(filt(speed(coins,1.6),'highpass',3000),0.02,0.35)))
 # Сюрикени: черга з трьох свистів ніндзя (як три сюрикени в грі); влучання — удар клинка й металевий дзень
 save('shuriken_throw', mix((SWISHES[0],0,1),(speed(SWISHES[1],1.05),0.08,0.9),(speed(SWISHES[2],0.95),0.16,0.85)))
 save('shuriken_hit', mix((fade(cut(NINJA,2.615,2.9),0.003,0.1),0,1),(metal([2400,3900,5300],0.3,0.06),0,0.35),(thud(0.8,1500,0.25),0,0.3)))
