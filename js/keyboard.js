@@ -3,6 +3,8 @@
 // Матриця літер, обробка keydown за event.code (незалежно від
 // системної розкладки та регістру), рендер клавіатури на Canvas
 // Розумна індикація: cyan (пул), lime/yellow (ціль), red (помилка)
+// Кольори пальців: кожна клавіша має смужку та відтінок кольору пальця,
+// яким її натискають за десятипальцевим методом
 // ============================================================
 
 export const KEYS = [
@@ -129,6 +131,47 @@ function roundRect(ctx, x, y, w, h, r) {
 // Ґ свідомо не показуємо й не використовуємо: вона рідкісна, а її клавіша
 // в різних виробників стоїть у різних місцях
 const ROW_COUNTS = [12, 11, 9];
+
+// ---------- Пальці десятипальцевого методу ----------
+
+// Колір кожного пальця (r, g, b) — однакові пальці обох рук мають однаковий колір,
+// лише вказівні різняться, бо кожен із них відповідає за дві колонки
+const FINGERS = {
+    L_PINKY: { rgb: "255, 79, 163", name: "Мізинець" },
+    L_RING: { rgb: "255, 154, 60", name: "Безіменний" },
+    L_MIDDLE: { rgb: "255, 225, 77", name: "Середній" },
+    L_INDEX: { rgb: "155, 123, 255", name: "Вказівний" },
+    R_INDEX: { rgb: "77, 155, 255", name: "Вказівний" },
+    R_MIDDLE: { rgb: "255, 225, 77", name: "Середній" },
+    R_RING: { rgb: "255, 154, 60", name: "Безіменний" },
+    R_PINKY: { rgb: "255, 79, 163", name: "Мізинець" }
+};
+
+const FINGER_LETTERS = {
+    L_PINKY: ["Й", "Ф", "Я"],
+    L_RING: ["Ц", "І", "Ч"],
+    L_MIDDLE: ["У", "В", "С"],
+    L_INDEX: ["К", "Е", "А", "П", "М", "И"],
+    R_INDEX: ["Н", "Г", "Р", "О", "Т", "Ь"],
+    R_MIDDLE: ["Ш", "Л", "Б"],
+    R_RING: ["Щ", "Д", "Ю"],
+    R_PINKY: ["З", "Х", "Ї", "Ж", "Є"]
+};
+
+export const FINGER_BY_LETTER = {};
+for (const finger in FINGER_LETTERS) {
+    for (const letter of FINGER_LETTERS[finger]) {
+        FINGER_BY_LETTER[letter] = finger;
+    }
+}
+
+function fingerColor(letter, alpha) {
+    const finger = FINGERS[FINGER_BY_LETTER[letter]];
+    if (!finger) {
+        return null;
+    }
+    return "rgba(" + finger.rgb + ", " + alpha + ")";
+}
 
 // ---------- Константи кольорів для розумної індикації ----------
 
@@ -285,6 +328,7 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyErro
         let textColor = COLORS.DEFAULT_TEXT;
         let glow = 0;
         let glowColor = "rgba(0,0,0,0)";
+        let state = "default";
 
         if (errLetter !== null && key.letter === errLetter.toUpperCase()) {
             fill = COLORS.ERROR_FILL;
@@ -292,18 +336,21 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyErro
             textColor = COLORS.ERROR_TEXT;
             glow = COLORS.ERROR_GLOW;
             glowColor = COLORS.ERROR_GLOW_COLOR;
+            state = "error";
         } else if (key.letter === targetUpper) {
             fill = COLORS.TARGET_FILL;
             stroke = COLORS.TARGET_STROKE;
             textColor = COLORS.TARGET_TEXT;
             glow = COLORS.TARGET_GLOW;
             glowColor = COLORS.TARGET_GLOW_COLOR;
+            state = "target";
         } else if (group.has(key.letter)) {
             fill = COLORS.GROUP_FILL;
             stroke = COLORS.GROUP_STROKE;
             textColor = COLORS.GROUP_TEXT;
             glow = COLORS.GROUP_GLOW;
             glowColor = COLORS.GROUP_GLOW_COLOR;
+            state = "group";
         }
 
         if (glow > 0) {
@@ -321,9 +368,12 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyErro
             ctx.fill();
             ctx.restore();
         }
-        roundRect(ctx, x, y, keyW, keyH, Math.min(8, keyW * 0.16));
+        const keyRadius = Math.min(8, keyW * 0.16);
+        roundRect(ctx, x, y, keyW, keyH, keyRadius);
         ctx.fillStyle = fill;
         ctx.fill();
+        drawFingerTint(ctx, key.letter, x, y, keyW, keyH, keyRadius, state);
+        roundRect(ctx, x, y, keyW, keyH, keyRadius);
         ctx.lineWidth = 2;
         ctx.strokeStyle = stroke;
         ctx.stroke();
@@ -336,6 +386,82 @@ export function drawKeyboard(ctx, area, groupLetters, targetLetter, wrongKeyErro
         }
     }
 
+    ctx.restore();
+
+    drawFingerLegend(ctx, area, layout);
+}
+
+// Відтінок і смужка кольору пальця зверху клавіші. Для недоступних клавіш — ледь
+// помітно, щоб не сплутати з пулом рівня; для пулу й цілі — яскраво
+const FINGER_TINT = {
+    default: { fill: 0.16, stripe: 0.7 },
+    group: { fill: 0.2, stripe: 1 },
+    target: { fill: 0.0, stripe: 1 },
+    error: { fill: 0.0, stripe: 0.6 }
+};
+
+function drawFingerTint(ctx, letter, x, y, keyW, keyH, radius, state) {
+    const tint = FINGER_TINT[state] || FINGER_TINT.default;
+    const fillColor = fingerColor(letter, tint.fill);
+    const stripeColor = fingerColor(letter, tint.stripe);
+    if (!fillColor) {
+        return;
+    }
+    ctx.save();
+    roundRect(ctx, x, y, keyW, keyH, radius);
+    ctx.clip();
+    if (tint.fill > 0) {
+        ctx.fillStyle = fillColor;
+        ctx.fillRect(x, y, keyW, keyH);
+    }
+    ctx.fillStyle = stripeColor;
+    ctx.fillRect(x, y, keyW, Math.max(3, keyH * 0.13));
+    ctx.restore();
+}
+
+// Легенда пальців обабіч клавіатури: ліва рука зліва, права — справа.
+// Малюється, лише якщо збоку вистачає місця
+const LEGEND_LEFT = ["L_PINKY", "L_RING", "L_MIDDLE", "L_INDEX"];
+const LEGEND_RIGHT = ["R_INDEX", "R_MIDDLE", "R_RING", "R_PINKY"];
+
+function drawFingerLegend(ctx, area, layout) {
+    const unit = layout.keyW + layout.gap;
+    const blockWidth = layoutUnits() * unit - layout.gap;
+    const sideSpace = (area.w - blockWidth) / 2;
+    const fontSize = Math.max(10, Math.min(16, Math.floor(layout.keyH * 0.2)));
+    const legendW = fontSize * 7.5;
+    if (sideSpace < legendW + layout.gap * 2) {
+        return;
+    }
+    const totalH = layout.keyH * 3 + layout.gap * 2;
+    const lineH = totalH / 5;
+    const dot = fontSize * 0.8;
+    ctx.save();
+    ctx.textBaseline = "middle";
+    const sides = [
+        { title: "Ліва рука", fingers: LEGEND_LEFT, right: false },
+        { title: "Права рука", fingers: LEGEND_RIGHT, right: true }
+    ];
+    for (const side of sides) {
+        // Легенда притискається до клавіатури: зліва — правим краєм, справа — лівим
+        const x0 = side.right
+            ? area.x + area.w - sideSpace + layout.gap * 2
+            : area.x + sideSpace - layout.gap * 2 - legendW;
+        ctx.font = "bold " + fontSize + "px 'Segoe UI', Arial, sans-serif";
+        ctx.textAlign = "left";
+        ctx.fillStyle = "rgba(200, 210, 240, 0.85)";
+        ctx.fillText(side.title, x0, layout.startY + lineH * 0.5);
+        ctx.font = fontSize + "px 'Segoe UI', Arial, sans-serif";
+        for (let i = 0; i < side.fingers.length; i++) {
+            const finger = FINGERS[side.fingers[i]];
+            const cy = layout.startY + lineH * (i + 1.5);
+            ctx.fillStyle = "rgba(" + finger.rgb + ", 0.95)";
+            roundRect(ctx, x0, cy - dot / 2, dot * 1.6, dot, dot * 0.3);
+            ctx.fill();
+            ctx.fillStyle = "rgba(" + finger.rgb + ", 0.9)";
+            ctx.fillText(finger.name, x0 + dot * 2.1, cy);
+        }
+    }
     ctx.restore();
 }
 
