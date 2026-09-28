@@ -514,6 +514,21 @@ export const save = {
         return computeRating(saveData.progress.levels, saveData.progress.totals);
     },
 
+    // Освоєні літери: натиснуто щонайменше 10 разів і помилок менше 10%
+    countMasteredLetters() {
+        if (!saveData) {
+            this.load();
+        }
+        let mastered = 0;
+        for (const key of KEYS) {
+            const s = saveData.progress.letterStats[key.letter];
+            if (s && s.ok + s.miss >= 10 && s.miss / (s.ok + s.miss) < 0.1) {
+                mastered++;
+            }
+        }
+        return mastered;
+    },
+
     // Знімок для онлайн-рейтингу (cloud.js): рейтинг, детальна статистика й аватар.
     // Лише числа, рядки й id предметів — картинки малюються локально в кожного гравця
     getCloudSnapshot() {
@@ -552,7 +567,8 @@ export const save = {
                 runs: r.runs,
                 minutes: r.minutes,
                 accuracy: r.accuracy === null ? null : Math.round(r.accuracy * 100),
-                lettersPerMinute: r.lettersPerMinute,
+                masteredLetters: this.countMasteredLetters(),
+                lettersTotal: KEYS.length,
                 weakLetters: this.getLetterReport(3).map(function (w) { return w.letter; }),
                 days: st.days,
                 achievements: saveData.achievements.done.length,
@@ -1185,13 +1201,7 @@ export const save = {
             leagueDone[id] = leagueLeft[id] === 0;
         }
         const boss = levels[String(BOSS_LEVEL_ID)];
-        let mastered = 0;
-        for (const key of KEYS) {
-            const s = saveData.progress.letterStats[key.letter];
-            if (s && s.ok + s.miss >= 10 && s.miss / (s.ok + s.miss) < 0.1) {
-                mastered++;
-            }
-        }
+        const mastered = this.countMasteredLetters();
         let weapons = 0;
         let legendary = 0;
         let shopSkins = 0;

@@ -179,8 +179,8 @@ function buildRow(player, place) {
     if (num(s.accuracy) !== null) {
         sub.push("точність " + num(s.accuracy) + "%");
     }
-    if (num(s.lettersPerMinute) !== null) {
-        sub.push(num(s.lettersPerMinute) + " літ/хв");
+    if (num(s.masteredLetters) !== null) {
+        sub.push("освоєно літер " + num(s.masteredLetters) + (num(s.lettersTotal) ? " / " + num(s.lettersTotal) : ""));
     }
     const seen = player.me ? "" : lastSeenText(player.updatedAt);
     if (seen) {
