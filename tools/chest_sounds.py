@@ -102,6 +102,7 @@ BRAAM_HIT=0.935
 CINE_BOOM=onset(source('impact-cinematic-boom'))                            # глибокий кінематографічний «бум»
 TRIDENT=onset(source('trident'))                                            # кидок тризуба
 SLIME=onset(source('slime-impact'))                                         # мокрий шльоп
+FREEZE=onset(source('freeze-spell'))                                        # заклинання заморожування
 # Свисти ніндзя: короткі яскраві «ш-ших» (початок трохи до піку)
 def swish(t,d=0.14): return fade(cut(NINJA,t-0.03,t-0.03+d),0.004,0.05)
 SWISHES=[swish(5.068),swish(5.348),swish(6.999),swish(6.356)]
@@ -164,12 +165,13 @@ save('meteor_boom', fade(cut(mix((cut(BRAAM,BRAAM_HIT-0.005,BRAAM_HIT+2.0),0,1),
 gust=swept_band(noise(0.8),300,2500)*np.exp(-T(0.8)/0.35).astype(np.float32)
 wind_body=fade(cut(NINJA,7.23,7.7),0.03,0.15)
 save('wind_blast', mix((wind_body,0,1),(speed(wind_body,0.8),0.12,0.5),(attack(gust,0.05),0,0.7),(speed(grav,1.2),0,0.25)))
-# Крижана сфера — зі справжніх звуків замість синтезу
-# Запуск: свист ніндзя нижче, холодний тріск (розряд без низу, вище — як лід, що тріщить) і дзвін монет угорі
-ice_crackle=filt(fade(cut(speed(ELECTRIC,1.5),0,0.6),0.005,0.3),'highpass',3000)
-save('frost_orb', echo(mix((speed(SWISHES[1],0.7),0,1),(ice_crackle,0.02,0.6),(filt(speed(coins,1.3),'highpass',2500),0.05,0.35)),0.07,0.35,3,0.4))
-# Розкол: камінці вище як скалки льоду, сніжний шльоп без низу й дзвін монет
-save('ice_shatter', mix((speed(STONE,1.7),0,1),(speed(STONE,2.3),0.04,0.6),(speed(STONE,2.0),0.09,0.4),(filt(snow_splat,'highpass',1500),0,0.5),(filt(speed(coins,1.6),'highpass',3000),0.02,0.35)))
+# Крижана сфера — на заклинанні заморожування (freeze-spell: атака ~0,1 с, хрусткий лід до 2,1 с, акцент-тріск на 1,27 с)
+# Запуск: початок заклинання, під ним свист ніндзя нижче
+save('frost_orb', mix((fade(cut(FREEZE,0,0.85),0.003,0.3),0,1),(speed(SWISHES[1],0.7),0,0.45)))
+# Розкол у такт анімації: 0,35 с шип вкривається кригою (хрусткий лід), потім тріск-акцент і скалки-камінці
+freeze_part=fade(cut(FREEZE,0.02,0.4),0.003,0.05)
+crack=fade(cut(FREEZE,1.16,1.95),0.004,0.35)
+save('ice_shatter', mix((freeze_part,0,0.8),(crack,0.30,1),(speed(STONE,1.7),0.35,0.6),(speed(STONE,2.3),0.39,0.35),(filt(snow_splat,'highpass',1500),0.35,0.3)))
 # Сюрикени: черга з трьох свистів ніндзя (як три сюрикени в грі); влучання — удар клинка й металевий дзень
 save('shuriken_throw', mix((SWISHES[0],0,1),(speed(SWISHES[1],1.05),0.08,0.9),(speed(SWISHES[2],0.95),0.16,0.85)))
 save('shuriken_hit', mix((fade(cut(NINJA,2.615,2.9),0.003,0.1),0,1),(metal([2400,3900,5300],0.3,0.06),0,0.35),(thud(0.8,1500,0.25),0,0.3)))
