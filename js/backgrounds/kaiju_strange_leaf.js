@@ -288,45 +288,110 @@ function buildStrangeTown(W, H, groundY, B) {
     return { W: W, H: H, sky: sky, wall: wall };
 }
 
-// ---------- Літери-лампочки: власний векторний шрифт ----------
-// Кожна літера — набір ліній у сітці 4×6 (висота великої літери — від 0 до 6,
-// хвостики Д, Ц, Щ спускаються до 7, точки й дужки над Ї та Й — до -1.2).
-// Масив з однієї точки — крапка. Лінії малюються товстою трубкою з кольоровим
-// контуром і темною серединою, як у заставці «Дивних див».
+// ---------- Літери-лампочки: шрифт у дусі заставки «Дивних див» ----------
+// Кожна літера складена з примітивів у сітці, де велика літера займає висоту від 0 до 6
+// (хвостики Д, Ц, Щ спускаються до 7, точки й дужка над Ї та Й — вище 0).
+// Як у шрифті заставки: вертикальні штрихи товсті, горизонтальні тонкі, на кінцях —
+// засічки, «чаші» круглі й тоншають угорі та внизу. Літера полая: тонкий світний
+// контур навколо темної середини.
+
+// Товщина штрихів у клітинках сітки
+const SG_THICK = 1;
+const SG_THIN = 0.4;
+
+// Ламана сталої товщини w
+function sgLine(w) {
+    return { k: "l", w: w, p: Array.prototype.slice.call(arguments, 1) };
+}
+
+// Дуга еліпса з контрастом: товста на боках, тонка вгорі й унизу (кути в градусах, 90 — униз)
+function sgArc(cx, cy, rx, ry, a0, a1) {
+    return { k: "a", cx: cx, cy: cy, rx: rx, ry: ry, a0: a0, a1: a1 };
+}
+
+// Дуга сталої товщини w (ламаною з дрібних відрізків), наприклад дужка над Й
+function sgCurve(w, cx, cy, rx, ry, a0, a1) {
+    const pts = [];
+    for (let k = 0; k <= 10; k++) {
+        const t = (a0 + (a1 - a0) * k / 10) * Math.PI / 180;
+        pts.push([cx + Math.cos(t) * rx, cy + Math.sin(t) * ry]);
+    }
+    return { k: "l", w: w, p: pts };
+}
+
+// Засічка — коротка тонка риска по горизонталі з центром у (x, y)
+function sgSerif(x, y, len) {
+    const half = (len || 1.3) / 2;
+    return { k: "l", w: SG_THIN, p: [[x - half, y], [x + half, y]] };
+}
+
+// Крапка (над Ї)
+function sgDot(x, y) {
+    return { k: "d", x: x, y: y, r: 0.42 };
+}
+
+// Товста вертикальна основа з засічками на обох кінцях
+function sgStem(x, y0, y1) {
+    const a = y0 === undefined ? 0 : y0;
+    const b = y1 === undefined ? 6 : y1;
+    return [sgLine(SG_THICK, [x, a], [x, b]), sgSerif(x, a), sgSerif(x, b)];
+}
+
+// Збирає літеру з примітивів і масивів примітивів
+function sgGlyph() {
+    const out = [];
+    for (let i = 0; i < arguments.length; i++) {
+        const part = arguments[i];
+        if (Array.isArray(part)) {
+            for (let k = 0; k < part.length; k++) {
+                out.push(part[k]);
+            }
+        } else {
+            out.push(part);
+        }
+    }
+    return out;
+}
+
+// Спільні деталі: нижня «чаша» Б, В, Ь і верхня Р
+function sgLowerBowl(x) {
+    return [sgLine(SG_THIN, [x, 2.8], [2.3, 2.8]), sgArc(2.3, 4.4, 1.55, 1.6, -90, 90), sgLine(SG_THIN, [2.3, 6], [x, 6])];
+}
+
 const STRANGE_GLYPHS = {
-    "А": [[[0, 6], [2, 0], [4, 6]], [[0.8, 4], [3.2, 4]]],
-    "Б": [[[3.6, 0], [0, 0], [0, 6], [2.7, 6], [3.7, 5.1], [3.7, 3.9], [2.7, 3], [0, 3]]],
-    "В": [[[0, 3], [0, 0], [2.4, 0], [3.3, 0.8], [3.3, 2.2], [2.4, 3], [0, 3], [0, 6], [2.8, 6], [3.8, 5.1], [3.8, 3.9], [2.8, 3], [2.4, 3]]],
-    "Г": [[[3.6, 0], [0, 0], [0, 6]]],
-    "Ґ": [[[0, 6], [0, 0.6], [3.2, 0.6], [3.2, -0.8]]],
-    "Д": [[[-0.2, 7], [-0.2, 6], [4.2, 6], [4.2, 7]], [[0.3, 6], [1.1, 1.2], [1.4, 0], [3.4, 0], [3.4, 6]]],
-    "Е": [[[3.6, 0], [0, 0], [0, 6], [3.6, 6]], [[0, 3], [2.8, 3]]],
-    "Є": [[[3.8, 0.9], [2.9, 0], [1.1, 0], [0, 1.1], [0, 4.9], [1.1, 6], [2.9, 6], [3.8, 5.1]], [[0, 3], [2.6, 3]]],
-    "Ж": [[[2.6, 0], [2.6, 6]], [[0, 0], [2.6, 3], [0, 6]], [[5.2, 0], [2.6, 3], [5.2, 6]]],
-    "З": [[[0, 0.9], [0.9, 0], [2.8, 0], [3.6, 0.8], [3.6, 2.2], [2.8, 3], [1.2, 3]], [[2.8, 3], [3.8, 3.9], [3.8, 5.1], [2.9, 6], [0.9, 6], [0, 5.1]]],
-    "И": [[[0, 0], [0, 6], [3.8, 0], [3.8, 6]]],
-    "І": [[[0, 0], [2, 0]], [[1, 0], [1, 6]], [[0, 6], [2, 6]]],
-    "Ї": [[[0, 0], [2, 0]], [[1, 0], [1, 6]], [[0, 6], [2, 6]], [[0.1, -1.2]], [[1.9, -1.2]]],
-    "Й": [[[0, 0], [0, 6], [3.8, 0], [3.8, 6]], [[1, -1.4], [1.4, -0.7], [2.4, -0.7], [2.8, -1.4]]],
-    "К": [[[0, 0], [0, 6]], [[3.6, 0], [0, 3.3]], [[1.3, 2.1], [3.8, 6]]],
-    "Л": [[[0, 6], [0.8, 5.5], [1.4, 0], [3.6, 0], [3.6, 6]]],
-    "М": [[[0, 6], [0, 0], [2.6, 4.2], [5.2, 0], [5.2, 6]]],
-    "Н": [[[0, 0], [0, 6]], [[3.6, 0], [3.6, 6]], [[0, 3], [3.6, 3]]],
-    "О": [[[1.1, 0], [2.8, 0], [3.9, 1.1], [3.9, 4.9], [2.8, 6], [1.1, 6], [0, 4.9], [0, 1.1], [1.1, 0]]],
-    "П": [[[0, 6], [0, 0], [3.6, 0], [3.6, 6]]],
-    "Р": [[[0, 6], [0, 0], [2.8, 0], [3.7, 0.9], [3.7, 2.4], [2.8, 3.3], [0, 3.3]]],
-    "С": [[[3.8, 0.9], [2.9, 0], [1.1, 0], [0, 1.1], [0, 4.9], [1.1, 6], [2.9, 6], [3.8, 5.1]]],
-    "Т": [[[0, 0], [4, 0]], [[2, 0], [2, 6]]],
-    "У": [[[0, 0], [2, 4]], [[4, 0], [2.1, 5.2], [1.5, 6], [0.5, 6]]],
-    "Ф": [[[2.6, 0], [2.6, 6]], [[2.6, 1], [1, 1], [0, 1.9], [0, 3.6], [1, 4.5], [4.2, 4.5], [5.2, 3.6], [5.2, 1.9], [4.2, 1], [2.6, 1]]],
-    "Х": [[[0, 0], [4, 6]], [[4, 0], [0, 6]]],
-    "Ц": [[[0, 0], [0, 6], [3.6, 6], [3.6, 0]], [[3.6, 6], [4.4, 6], [4.4, 7]]],
-    "Ч": [[[0, 0], [0, 2.2], [1, 3.2], [3.6, 3.2]], [[3.6, 0], [3.6, 6]]],
-    "Ш": [[[0, 0], [0, 6], [5.2, 6], [5.2, 0]], [[2.6, 0], [2.6, 6]]],
-    "Щ": [[[0, 0], [0, 6], [5.2, 6], [5.2, 0]], [[2.6, 0], [2.6, 6]], [[5.2, 6], [6, 6], [6, 7]]],
-    "Ь": [[[0, 0], [0, 6], [2.8, 6], [3.7, 5.1], [3.7, 3.9], [2.8, 3], [0, 3]]],
-    "Ю": [[[0, 0], [0, 6]], [[0, 3], [1.6, 3]], [[2.6, 0], [4.1, 0], [5.2, 1.1], [5.2, 4.9], [4.1, 6], [2.6, 6], [1.6, 4.9], [1.6, 1.1], [2.6, 0]]],
-    "Я": [[[3.7, 6], [3.7, 0], [0.9, 0], [0, 0.9], [0, 2.4], [0.9, 3.3], [3.7, 3.3]], [[1.8, 3.3], [0, 6]]]
+    "А": sgGlyph(sgLine(SG_THIN, [0.3, 6], [2.05, 0]), sgLine(SG_THICK, [1.95, 0], [3.9, 6]), sgLine(SG_THIN, [0.95, 4], [3.2, 4]), sgLine(SG_THIN, [1.5, 0], [2.3, 0]), sgSerif(0.3, 6, 1.2), sgSerif(3.9, 6, 1.5)),
+    "Б": sgGlyph(sgStem(0.5), sgLine(SG_THIN, [0.5, 0], [3.5, 0], [3.5, 1.2]), sgLowerBowl(0.5)),
+    "В": sgGlyph(sgStem(0.5), sgLine(SG_THIN, [0.5, 0], [2.05, 0]), sgArc(2.05, 1.4, 1.3, 1.4, -90, 90), sgLowerBowl(0.5)),
+    "Г": sgGlyph(sgStem(0.5), sgLine(SG_THIN, [0.5, 0], [3.5, 0], [3.5, 1.2])),
+    "Ґ": sgGlyph(sgStem(0.5, 0.8, 6), sgLine(SG_THIN, [0.5, 0.8], [3.3, 0.8], [3.3, -0.6])),
+    "Д": sgGlyph(sgLine(SG_THIN, [-0.2, 7], [-0.2, 6], [4.4, 6], [4.4, 7]), sgLine(0.7, [1.5, 0], [1.3, 4], [0.9, 5.5], [0.4, 6]), sgLine(SG_THICK, [3.6, 0], [3.6, 6]), sgLine(SG_THIN, [0.9, 0], [4.2, 0])),
+    "Е": sgGlyph(sgStem(0.5), sgLine(SG_THIN, [0.5, 0], [3.5, 0], [3.5, 1.1]), sgLine(SG_THIN, [0.5, 3], [2.6, 3]), sgLine(SG_THIN, [2.6, 2.5], [2.6, 3.5]), sgLine(SG_THIN, [0.5, 6], [3.8, 6], [3.8, 4.8])),
+    "Є": sgGlyph(sgArc(2.3, 3, 2.1, 3, 40, 318), sgLine(SG_THIN, [3.9, 0.2], [3.9, 1.8]), sgLine(SG_THIN, [0.2, 3], [2.9, 3])),
+    "Ж": sgGlyph(sgStem(2.6), sgLine(SG_THIN, [0.3, 0], [2.6, 3]), sgLine(SG_THICK, [2.6, 3], [0.2, 6]), sgLine(SG_THIN, [4.9, 0], [2.6, 3]), sgLine(SG_THICK, [2.6, 3], [5, 6]), sgSerif(0.3, 0, 1.1), sgSerif(4.9, 0, 1.1), sgSerif(0.2, 6, 1.2), sgSerif(5, 6, 1.2)),
+    "З": sgGlyph(sgArc(1.9, 1.5, 1.5, 1.5, -160, 90), sgLine(SG_THIN, [1.2, 2.9], [1.9, 2.9]), sgArc(1.9, 4.4, 1.9, 1.6, -90, 160)),
+    "И": sgGlyph(sgStem(0.5), sgStem(3.7), sgLine(SG_THICK, [0.5, 6], [3.7, 0])),
+    "І": sgGlyph(sgStem(1)),
+    "Ї": sgGlyph(sgStem(1), sgDot(0.3, -1.1), sgDot(1.7, -1.1)),
+    "Й": sgGlyph(sgStem(0.5), sgStem(3.7), sgLine(SG_THICK, [0.5, 6], [3.7, 0]), sgCurve(0.34, 2.1, -1.8, 0.85, 0.75, 10, 170)),
+    "К": sgGlyph(sgStem(0.5), sgLine(SG_THIN, [0.5, 3.3], [3.5, 0]), sgLine(SG_THICK, [1.7, 2], [3.8, 6]), sgSerif(3.5, 0, 1.2), sgSerif(3.8, 6, 1.4)),
+    "Л": sgGlyph(sgStem(3.7), sgLine(SG_THIN, [0.9, 0], [3.7, 0]), sgLine(0.7, [1.5, 0], [1.3, 4.2], [0.8, 5.6], [0, 6])),
+    "М": sgGlyph(sgLine(SG_THIN, [0.3, 6], [0.3, 0]), sgSerif(0.3, 0, 1.1), sgSerif(0.3, 6, 1.1), sgLine(SG_THICK, [0.3, 0], [2.7, 5.6]), sgLine(SG_THIN, [2.7, 5.6], [5.1, 0]), sgStem(5.1)),
+    "Н": sgGlyph(sgStem(0.5), sgStem(3.8), sgLine(SG_THIN, [0.5, 3], [3.8, 3])),
+    "О": sgGlyph(sgArc(2.2, 3, 2.1, 3, 0, 360)),
+    "П": sgGlyph(sgStem(0.5), sgStem(3.8), sgLine(SG_THIN, [0.5, 0], [3.8, 0])),
+    "Р": sgGlyph(sgStem(0.5), sgLine(SG_THIN, [0.5, 0], [2.2, 0]), sgArc(2.2, 1.65, 1.6, 1.65, -90, 90), sgLine(SG_THIN, [2.2, 3.3], [0.5, 3.3])),
+    "С": sgGlyph(sgArc(2.3, 3, 2.1, 3, 40, 318), sgLine(SG_THIN, [3.9, 0.2], [3.9, 1.8])),
+    "Т": sgGlyph(sgStem(2), sgLine(SG_THIN, [0, 1.2], [0, 0], [4, 0], [4, 1.2])),
+    "У": sgGlyph(sgLine(SG_THIN, [0.2, 0], [2.2, 4.1]), sgLine(SG_THICK, [3.9, 0], [2.3, 4.8], [1.7, 5.7], [0.8, 6]), sgSerif(0.2, 0, 1.2), sgSerif(3.9, 0, 1.3)),
+    "Ф": sgGlyph(sgStem(2.6), sgArc(2.6, 3, 2.4, 1.8, 0, 360)),
+    "Х": sgGlyph(sgLine(SG_THICK, [0.2, 0], [3.9, 6]), sgLine(SG_THIN, [3.9, 0], [0.2, 6]), sgSerif(0.2, 0, 1.3), sgSerif(3.9, 0, 1.3), sgSerif(0.2, 6, 1.3), sgSerif(3.9, 6, 1.3)),
+    "Ц": sgGlyph(sgStem(0.5), sgStem(3.6), sgLine(SG_THIN, [0.5, 6], [4.4, 6], [4.4, 7])),
+    "Ч": sgGlyph(sgStem(3.7), sgLine(SG_THICK, [0.5, 0], [0.5, 2]), sgSerif(0.5, 0), sgArc(2, 2, 1.5, 1.3, 90, 180), sgLine(SG_THIN, [2, 3.3], [3.7, 3.3])),
+    "Ш": sgGlyph(sgStem(0.5), sgStem(2.75), sgStem(5), sgLine(SG_THIN, [0.5, 6], [5, 6])),
+    "Щ": sgGlyph(sgStem(0.5), sgStem(2.75), sgStem(5), sgLine(SG_THIN, [0.5, 6], [5.8, 6], [5.8, 7])),
+    "Ь": sgGlyph(sgStem(0.5), sgLowerBowl(0.5)),
+    "Ю": sgGlyph(sgStem(0.5), sgLine(SG_THIN, [0.5, 3], [1.6, 3]), sgArc(3.5, 3, 1.9, 3, 0, 360)),
+    "Я": sgGlyph(sgStem(3.6), sgLine(SG_THIN, [3.6, 0], [1.9, 0]), sgArc(1.9, 1.65, 1.6, 1.65, 90, 270), sgLine(SG_THIN, [1.9, 3.3], [3.6, 3.3]), sgLine(SG_THICK, [2.1, 3.3], [0.3, 6]), sgSerif(0.3, 6, 1.3))
 };
 
 // Колір "#rrggbb", притемнений до частки k (0 — чорний, 1 — як є)
@@ -347,79 +412,119 @@ function strangeTint(hex, k) {
     return "rgb(" + r + ", " + g + ", " + b + ")";
 }
 
-// Обводить усі лінії літери поточним пензлем (u — розмір клітинки сітки в пікселях)
-function strokeStrangeGlyph(g, glyph, u, ox, oy) {
+// Малює всі примітиви літери; extra — наскільки розширити штрих (у пікселях) для контуру
+function strokeStrangeGlyph(g, glyph, u, ox, oy, extra) {
     for (let i = 0; i < glyph.length; i++) {
-        const line = glyph[i];
-        g.beginPath();
-        if (line.length === 1) {
-            g.moveTo(ox + line[0][0] * u, oy + line[0][1] * u);
-            g.lineTo(ox + line[0][0] * u + 0.01, oy + line[0][1] * u);
-        } else {
-            g.moveTo(ox + line[0][0] * u, oy + line[0][1] * u);
-            for (let k = 1; k < line.length; k++) {
-                g.lineTo(ox + line[k][0] * u, oy + line[k][1] * u);
+        const part = glyph[i];
+        if (part.k === "l") {
+            g.lineCap = "butt";
+            g.lineJoin = "miter";
+            g.lineWidth = part.w * u + extra;
+            g.beginPath();
+            g.moveTo(ox + part.p[0][0] * u, oy + part.p[0][1] * u);
+            for (let k = 1; k < part.p.length; k++) {
+                g.lineTo(ox + part.p[k][0] * u, oy + part.p[k][1] * u);
             }
+            g.stroke();
+        } else if (part.k === "a") {
+            // Дуга — дрібними відрізками, товщина залежить від кута
+            g.lineCap = "round";
+            const steps = Math.max(8, Math.round(Math.abs(part.a1 - part.a0) / 8));
+            for (let k = 0; k < steps; k++) {
+                const t0 = (part.a0 + (part.a1 - part.a0) * k / steps) * Math.PI / 180;
+                const t1 = (part.a0 + (part.a1 - part.a0) * (k + 1) / steps) * Math.PI / 180;
+                const side = Math.pow(Math.abs(Math.cos((t0 + t1) / 2)), 1.4);
+                g.lineWidth = (SG_THIN + (SG_THICK * 1.05 - SG_THIN) * side) * u + extra;
+                g.beginPath();
+                g.moveTo(ox + (part.cx + Math.cos(t0) * part.rx) * u, oy + (part.cy + Math.sin(t0) * part.ry) * u);
+                g.lineTo(ox + (part.cx + Math.cos(t1) * part.rx) * u, oy + (part.cy + Math.sin(t1) * part.ry) * u);
+                g.stroke();
+            }
+        } else {
+            g.beginPath();
+            g.arc(ox + part.x * u, oy + part.y * u, part.r * u + extra / 2, 0, Math.PI * 2);
+            g.fill();
         }
-        g.stroke();
     }
 }
 
-// Малює одну літеру-трубку на окремому полотні: вимкнену (тьмяний контур) чи ввімкнену (яскравий контур і сяйво)
-function renderStrangeGlyph(glyph, u, color, lit) {
-    let minX = 0;
-    let maxX = 0;
+// Горизонтальні межі літери в клітинках сітки
+function strangeGlyphBounds(glyph) {
+    let minX = Infinity;
+    let maxX = -Infinity;
     for (let i = 0; i < glyph.length; i++) {
-        for (let k = 0; k < glyph[i].length; k++) {
-            minX = Math.min(minX, glyph[i][k][0]);
-            maxX = Math.max(maxX, glyph[i][k][0]);
+        const part = glyph[i];
+        if (part.k === "l") {
+            for (let k = 0; k < part.p.length; k++) {
+                minX = Math.min(minX, part.p[k][0]);
+                maxX = Math.max(maxX, part.p[k][0]);
+            }
+        } else if (part.k === "a") {
+            minX = Math.min(minX, part.cx - part.rx);
+            maxX = Math.max(maxX, part.cx + part.rx);
+        } else {
+            minX = Math.min(minX, part.x - part.r);
+            maxX = Math.max(maxX, part.x + part.r);
         }
     }
+    return { minX: minX, maxX: maxX };
+}
+
+// Малює одну полу літеру на окремому полотні: вимкнену (тьмяний контур) чи ввімкнену (яскравий контур і сяйво)
+function renderStrangeGlyph(glyph, u, color, lit) {
+    const bounds = strangeGlyphBounds(glyph);
     const pad = u * 4;
-    const w = Math.ceil((maxX - minX) * u + pad * 2);
-    const h = Math.ceil(8.4 * u + pad * 2);
+    const w = Math.ceil((bounds.maxX - bounds.minX) * u + pad * 2);
+    const h = Math.ceil(9.2 * u + pad * 2);
     const cv = makeCanvas(w, h);
     const g = cv.getContext("2d");
-    // Центр висоти великої літери (y = 3) — у точці (w/2, pad + 4.2u)
-    const ox = w / 2 - ((minX + maxX) / 2) * u;
-    const oy = pad + 1.2 * u;
-    const tube = u * 0.7;
-    const edge = Math.max(1.5, u * 0.22);
-    g.lineCap = "round";
-    g.lineJoin = "round";
+    const ox = w / 2 - ((bounds.minX + bounds.maxX) / 2) * u;
+    const oy = pad + 2 * u;
+    // Товщина світного контуру навколо штриха (з обох боків)
+    const edge = Math.max(3, u * 0.36);
     if (lit) {
-        // Широке сяйво навколо літери: кілька проходів тіні дають густий ореол
+        // Сяйво: кілька проходів тіні дають густий ореол
         g.shadowColor = color;
         g.strokeStyle = color;
-        g.lineWidth = tube + edge * 2;
+        g.fillStyle = color;
         g.shadowBlur = u * 2.2;
-        strokeStrangeGlyph(g, glyph, u, ox, oy);
-        strokeStrangeGlyph(g, glyph, u, ox, oy);
-        g.shadowBlur = u * 1.1;
-        strokeStrangeGlyph(g, glyph, u, ox, oy);
+        strokeStrangeGlyph(g, glyph, u, ox, oy, edge);
+        strokeStrangeGlyph(g, glyph, u, ox, oy, edge);
+        g.shadowBlur = u * 0.8;
+        strokeStrangeGlyph(g, glyph, u, ox, oy, edge);
         g.shadowBlur = 0;
-        // Розпечений контур — майже білий з відтінком кольору
-        g.strokeStyle = strangeTint(color, 0.45);
-        strokeStrangeGlyph(g, glyph, u, ox, oy);
-        // Середина трубки — темна з відтінком кольору, тож лишається світний контур
-        g.strokeStyle = strangeShade(color, 0.35);
-        g.lineWidth = tube;
-        strokeStrangeGlyph(g, glyph, u, ox, oy);
-        // Внутрішній відблиск кольору вздовж трубки
-        g.strokeStyle = color;
-        g.globalAlpha = 0.35;
-        g.lineWidth = tube * 0.4;
-        strokeStrangeGlyph(g, glyph, u, ox, oy);
-        g.globalAlpha = 1;
+        // Розпечений контур — світліший за колір лампи
+        g.strokeStyle = strangeTint(color, 0.35);
+        g.fillStyle = g.strokeStyle;
+        strokeStrangeGlyph(g, glyph, u, ox, oy, edge);
+        // Середина — майже чорна з відтінком кольору, тож лишається тонкий світний контур
+        g.strokeStyle = strangeShade(color, 0.16);
+        g.fillStyle = g.strokeStyle;
+        strokeStrangeGlyph(g, glyph, u, ox, oy, 0);
     } else {
-        g.strokeStyle = strangeShade(color, 0.45);
-        g.lineWidth = tube + edge * 2;
-        strokeStrangeGlyph(g, glyph, u, ox, oy);
+        g.strokeStyle = strangeShade(color, 0.5);
+        g.fillStyle = g.strokeStyle;
+        strokeStrangeGlyph(g, glyph, u, ox, oy, edge);
         g.strokeStyle = "#1a1208";
-        g.lineWidth = tube;
-        strokeStrangeGlyph(g, glyph, u, ox, oy);
+        g.fillStyle = g.strokeStyle;
+        strokeStrangeGlyph(g, glyph, u, ox, oy, 0);
     }
-    return { cv: cv, cx: w / 2, cy: oy + 3 * u, top: oy };
+    return { cv: cv, cx: w / 2, cy: oy + 3 * u };
+}
+
+// Мерехтіння лампи, що горить: ледь помітне тремтіння яскравості, а часом —
+// м'який збій, коли літера кілька разів плавно притухає (без різких спалахів,
+// щоб не було стробоскопа, і не гасне зовсім, щоб її завжди було видно)
+function strangeFlicker(time, seed) {
+    let v = 0.95 + 0.05 * Math.sin(time * 6.3 + seed) * Math.sin(time * 3.7 + seed * 2);
+    const burst = Math.sin(time * 0.9 + seed * 5.1) + Math.sin(time * 1.6 + seed);
+    if (burst > 1.6) {
+        // Глибина збою плавно наростає й спадає разом з вікном збою
+        const depth = Math.min(1, (burst - 1.6) / 0.25);
+        const dip = Math.pow(Math.abs(Math.sin(time * 5.5 + seed)), 3);
+        v -= 0.4 * depth * dip;
+    }
+    return Math.max(0.5, Math.min(1, v));
 }
 
 // Кеш літер-трубок під поточний розмір (перемальовується лише при зміні розміру екрана)
@@ -450,7 +555,7 @@ function drawAlphabetGarland(ctx, W, gY, B, time, letter, flicker) {
     const x0 = W * 0.1;
     const dx = (W * 0.8) / (perRow - 1);
     // Висота літери — трохи менша за відстань між рядами, ширина — за відстань між літерами
-    const u = Math.max(3, Math.round(Math.min(gY * 0.15 / 11, dx / 7.5, B * 0.55)));
+    const u = Math.max(3, Math.round(Math.min(gY * 0.15 / 11, dx / 8, B * 0.55)));
     const cache = strangeGlyphs(u);
     for (let r = 0; r < rows; r++) {
         // Нижче за панель очок і табличку слова вгорі екрана
@@ -479,18 +584,25 @@ function drawAlphabetGarland(ctx, W, gY, B, time, letter, flicker) {
             const target = ch === letter;
             let on = target ? 1 : 0;
             // Сторонні літери лише зрідка спалахують слабко, щоб не заважати знайти потрібну
-            if (!on && flicker > 0 && Math.sin(time * 13 + c * 3.1 + r * 7.7) > 0.985) {
-                on = 0.4 * flicker;
+            if (!on && flicker > 0) {
+                // Плавний слабкий відблиск, а не різке мигання
+                const glow = Math.sin(time * 1.9 + c * 3.1 + r * 7.7);
+                if (glow > 0.96) {
+                    on = 0.3 * flicker * (glow - 0.96) / 0.04;
+                }
             }
             const off = item.off;
             const lx = Math.round(bx + sway - off.cx);
             const lyTop = Math.round(ly - off.cy);
             // Патрончик на дроті
             ctx.fillStyle = "#2a2418";
-            ctx.fillRect(Math.round(bx + sway - u * 0.35), Math.round(wireY(c)), Math.round(u * 0.7), Math.round(ly - u * 3 - wireY(c)));
+            ctx.fillRect(Math.round(bx + sway - u * 0.35), Math.round(wireY(c)), Math.round(u * 0.7), Math.round(ly - u * 3.2 - wireY(c)));
             if (target) {
-                // М'яке кольорове сяйво на шпалерах за літерою, що пульсує
-                const pulse = 0.55 + 0.15 * Math.sin(time * 8);
+                on = strangeFlicker(time, r * perRow + c);
+            }
+            if (target) {
+                // М'яке кольорове сяйво на шпалерах за літерою, що пульсує й мерехтить разом з нею
+                const pulse = (0.55 + 0.15 * Math.sin(time * 8)) * on;
                 const rad = u * 7;
                 const grad = ctx.createRadialGradient(bx, ly, 0, bx, ly, rad);
                 grad.addColorStop(0, item.color);
@@ -509,7 +621,7 @@ function drawAlphabetGarland(ctx, W, gY, B, time, letter, flicker) {
                 if (target) {
                     // Додаткове світло поверх — літера «горить», пульсуючи
                     ctx.globalCompositeOperation = "lighter";
-                    ctx.globalAlpha = 0.2 + 0.15 * Math.sin(time * 8);
+                    ctx.globalAlpha = (0.2 + 0.15 * Math.sin(time * 8)) * on;
                     ctx.drawImage(item.on.cv, lx, lyTop);
                     ctx.globalCompositeOperation = "source-over";
                 }
@@ -550,11 +662,10 @@ WORLD_NAMES.strange_town = "Дивне містечко";
 // Сюжет: лампочки мерехтять самі собою — кімната «перевертається» в Ізнанку: синя темрява, спори, ліани
 STORY_BY_THEME.strange_town = function (ctx, W, H, gY, time, B, p, s1, s2, oops) {
     if (s1 > 0) {
-        // Торшер і світло в кімнаті мигтять
-        if (Math.sin(time * 17) > 0.8 || Math.sin(time * 5.3) > 0.95) {
-            ctx.fillStyle = "rgba(0, 0, 0, " + (0.25 * s1).toFixed(3) + ")";
-            ctx.fillRect(0, 0, W, gY);
-        }
+        // Світло в кімнаті повільно й плавно пригасає, наче напруга просідає
+        const dim = Math.pow(0.5 + 0.5 * Math.sin(time * 0.8), 2);
+        ctx.fillStyle = "rgba(0, 0, 0, " + (0.18 * s1 * dim).toFixed(3) + ")";
+        ctx.fillRect(0, 0, W, gY);
         let letter = _fx.letter;
         if (!letter) {
             letter = "БІЖИ"[Math.floor(time * 1.2) % 4];
