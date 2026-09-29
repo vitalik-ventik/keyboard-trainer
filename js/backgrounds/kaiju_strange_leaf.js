@@ -288,57 +288,233 @@ function buildStrangeTown(W, H, groundY, B) {
     return { W: W, H: H, sky: sky, wall: wall };
 }
 
-// Гірлянда на весь екран: три ряди літер, над кожною — лампочка; світиться потрібна літера
+// ---------- Літери-лампочки: власний векторний шрифт ----------
+// Кожна літера — набір ліній у сітці 4×6 (висота великої літери — від 0 до 6,
+// хвостики Д, Ц, Щ спускаються до 7, точки й дужки над Ї та Й — до -1.2).
+// Масив з однієї точки — крапка. Лінії малюються товстою трубкою з кольоровим
+// контуром і темною серединою, як у заставці «Дивних див».
+const STRANGE_GLYPHS = {
+    "А": [[[0, 6], [2, 0], [4, 6]], [[0.8, 4], [3.2, 4]]],
+    "Б": [[[3.6, 0], [0, 0], [0, 6], [2.7, 6], [3.7, 5.1], [3.7, 3.9], [2.7, 3], [0, 3]]],
+    "В": [[[0, 3], [0, 0], [2.4, 0], [3.3, 0.8], [3.3, 2.2], [2.4, 3], [0, 3], [0, 6], [2.8, 6], [3.8, 5.1], [3.8, 3.9], [2.8, 3], [2.4, 3]]],
+    "Г": [[[3.6, 0], [0, 0], [0, 6]]],
+    "Ґ": [[[0, 6], [0, 0.6], [3.2, 0.6], [3.2, -0.8]]],
+    "Д": [[[-0.2, 7], [-0.2, 6], [4.2, 6], [4.2, 7]], [[0.3, 6], [1.1, 1.2], [1.4, 0], [3.4, 0], [3.4, 6]]],
+    "Е": [[[3.6, 0], [0, 0], [0, 6], [3.6, 6]], [[0, 3], [2.8, 3]]],
+    "Є": [[[3.8, 0.9], [2.9, 0], [1.1, 0], [0, 1.1], [0, 4.9], [1.1, 6], [2.9, 6], [3.8, 5.1]], [[0, 3], [2.6, 3]]],
+    "Ж": [[[2.6, 0], [2.6, 6]], [[0, 0], [2.6, 3], [0, 6]], [[5.2, 0], [2.6, 3], [5.2, 6]]],
+    "З": [[[0, 0.9], [0.9, 0], [2.8, 0], [3.6, 0.8], [3.6, 2.2], [2.8, 3], [1.2, 3]], [[2.8, 3], [3.8, 3.9], [3.8, 5.1], [2.9, 6], [0.9, 6], [0, 5.1]]],
+    "И": [[[0, 0], [0, 6], [3.8, 0], [3.8, 6]]],
+    "І": [[[0, 0], [2, 0]], [[1, 0], [1, 6]], [[0, 6], [2, 6]]],
+    "Ї": [[[0, 0], [2, 0]], [[1, 0], [1, 6]], [[0, 6], [2, 6]], [[0.1, -1.2]], [[1.9, -1.2]]],
+    "Й": [[[0, 0], [0, 6], [3.8, 0], [3.8, 6]], [[1, -1.4], [1.4, -0.7], [2.4, -0.7], [2.8, -1.4]]],
+    "К": [[[0, 0], [0, 6]], [[3.6, 0], [0, 3.3]], [[1.3, 2.1], [3.8, 6]]],
+    "Л": [[[0, 6], [0.8, 5.5], [1.4, 0], [3.6, 0], [3.6, 6]]],
+    "М": [[[0, 6], [0, 0], [2.6, 4.2], [5.2, 0], [5.2, 6]]],
+    "Н": [[[0, 0], [0, 6]], [[3.6, 0], [3.6, 6]], [[0, 3], [3.6, 3]]],
+    "О": [[[1.1, 0], [2.8, 0], [3.9, 1.1], [3.9, 4.9], [2.8, 6], [1.1, 6], [0, 4.9], [0, 1.1], [1.1, 0]]],
+    "П": [[[0, 6], [0, 0], [3.6, 0], [3.6, 6]]],
+    "Р": [[[0, 6], [0, 0], [2.8, 0], [3.7, 0.9], [3.7, 2.4], [2.8, 3.3], [0, 3.3]]],
+    "С": [[[3.8, 0.9], [2.9, 0], [1.1, 0], [0, 1.1], [0, 4.9], [1.1, 6], [2.9, 6], [3.8, 5.1]]],
+    "Т": [[[0, 0], [4, 0]], [[2, 0], [2, 6]]],
+    "У": [[[0, 0], [2, 4]], [[4, 0], [2.1, 5.2], [1.5, 6], [0.5, 6]]],
+    "Ф": [[[2.6, 0], [2.6, 6]], [[2.6, 1], [1, 1], [0, 1.9], [0, 3.6], [1, 4.5], [4.2, 4.5], [5.2, 3.6], [5.2, 1.9], [4.2, 1], [2.6, 1]]],
+    "Х": [[[0, 0], [4, 6]], [[4, 0], [0, 6]]],
+    "Ц": [[[0, 0], [0, 6], [3.6, 6], [3.6, 0]], [[3.6, 6], [4.4, 6], [4.4, 7]]],
+    "Ч": [[[0, 0], [0, 2.2], [1, 3.2], [3.6, 3.2]], [[3.6, 0], [3.6, 6]]],
+    "Ш": [[[0, 0], [0, 6], [5.2, 6], [5.2, 0]], [[2.6, 0], [2.6, 6]]],
+    "Щ": [[[0, 0], [0, 6], [5.2, 6], [5.2, 0]], [[2.6, 0], [2.6, 6]], [[5.2, 6], [6, 6], [6, 7]]],
+    "Ь": [[[0, 0], [0, 6], [2.8, 6], [3.7, 5.1], [3.7, 3.9], [2.8, 3], [0, 3]]],
+    "Ю": [[[0, 0], [0, 6]], [[0, 3], [1.6, 3]], [[2.6, 0], [4.1, 0], [5.2, 1.1], [5.2, 4.9], [4.1, 6], [2.6, 6], [1.6, 4.9], [1.6, 1.1], [2.6, 0]]],
+    "Я": [[[3.7, 6], [3.7, 0], [0.9, 0], [0, 0.9], [0, 2.4], [0.9, 3.3], [3.7, 3.3]], [[1.8, 3.3], [0, 6]]]
+};
+
+// Колір "#rrggbb", притемнений до частки k (0 — чорний, 1 — як є)
+function strangeShade(hex, k) {
+    const n = parseInt(hex.slice(1), 16);
+    const r = Math.round(((n >> 16) & 255) * k);
+    const g = Math.round(((n >> 8) & 255) * k);
+    const b = Math.round((n & 255) * k);
+    return "rgb(" + r + ", " + g + ", " + b + ")";
+}
+
+// Колір "#rrggbb", висвітлений до білого на частку k (0 — як є, 1 — білий)
+function strangeTint(hex, k) {
+    const n = parseInt(hex.slice(1), 16);
+    const r = Math.round(((n >> 16) & 255) + (255 - ((n >> 16) & 255)) * k);
+    const g = Math.round(((n >> 8) & 255) + (255 - ((n >> 8) & 255)) * k);
+    const b = Math.round((n & 255) + (255 - (n & 255)) * k);
+    return "rgb(" + r + ", " + g + ", " + b + ")";
+}
+
+// Обводить усі лінії літери поточним пензлем (u — розмір клітинки сітки в пікселях)
+function strokeStrangeGlyph(g, glyph, u, ox, oy) {
+    for (let i = 0; i < glyph.length; i++) {
+        const line = glyph[i];
+        g.beginPath();
+        if (line.length === 1) {
+            g.moveTo(ox + line[0][0] * u, oy + line[0][1] * u);
+            g.lineTo(ox + line[0][0] * u + 0.01, oy + line[0][1] * u);
+        } else {
+            g.moveTo(ox + line[0][0] * u, oy + line[0][1] * u);
+            for (let k = 1; k < line.length; k++) {
+                g.lineTo(ox + line[k][0] * u, oy + line[k][1] * u);
+            }
+        }
+        g.stroke();
+    }
+}
+
+// Малює одну літеру-трубку на окремому полотні: вимкнену (тьмяний контур) чи ввімкнену (яскравий контур і сяйво)
+function renderStrangeGlyph(glyph, u, color, lit) {
+    let minX = 0;
+    let maxX = 0;
+    for (let i = 0; i < glyph.length; i++) {
+        for (let k = 0; k < glyph[i].length; k++) {
+            minX = Math.min(minX, glyph[i][k][0]);
+            maxX = Math.max(maxX, glyph[i][k][0]);
+        }
+    }
+    const pad = u * 4;
+    const w = Math.ceil((maxX - minX) * u + pad * 2);
+    const h = Math.ceil(8.4 * u + pad * 2);
+    const cv = makeCanvas(w, h);
+    const g = cv.getContext("2d");
+    // Центр висоти великої літери (y = 3) — у точці (w/2, pad + 4.2u)
+    const ox = w / 2 - ((minX + maxX) / 2) * u;
+    const oy = pad + 1.2 * u;
+    const tube = u * 0.7;
+    const edge = Math.max(1.5, u * 0.22);
+    g.lineCap = "round";
+    g.lineJoin = "round";
+    if (lit) {
+        // Широке сяйво навколо літери: кілька проходів тіні дають густий ореол
+        g.shadowColor = color;
+        g.strokeStyle = color;
+        g.lineWidth = tube + edge * 2;
+        g.shadowBlur = u * 2.2;
+        strokeStrangeGlyph(g, glyph, u, ox, oy);
+        strokeStrangeGlyph(g, glyph, u, ox, oy);
+        g.shadowBlur = u * 1.1;
+        strokeStrangeGlyph(g, glyph, u, ox, oy);
+        g.shadowBlur = 0;
+        // Розпечений контур — майже білий з відтінком кольору
+        g.strokeStyle = strangeTint(color, 0.45);
+        strokeStrangeGlyph(g, glyph, u, ox, oy);
+        // Середина трубки — темна з відтінком кольору, тож лишається світний контур
+        g.strokeStyle = strangeShade(color, 0.35);
+        g.lineWidth = tube;
+        strokeStrangeGlyph(g, glyph, u, ox, oy);
+        // Внутрішній відблиск кольору вздовж трубки
+        g.strokeStyle = color;
+        g.globalAlpha = 0.35;
+        g.lineWidth = tube * 0.4;
+        strokeStrangeGlyph(g, glyph, u, ox, oy);
+        g.globalAlpha = 1;
+    } else {
+        g.strokeStyle = strangeShade(color, 0.45);
+        g.lineWidth = tube + edge * 2;
+        strokeStrangeGlyph(g, glyph, u, ox, oy);
+        g.strokeStyle = "#1a1208";
+        g.lineWidth = tube;
+        strokeStrangeGlyph(g, glyph, u, ox, oy);
+    }
+    return { cv: cv, cx: w / 2, cy: oy + 3 * u, top: oy };
+}
+
+// Кеш літер-трубок під поточний розмір (перемальовується лише при зміні розміру екрана)
+let strangeGlyphCache = null;
+
+function strangeGlyphs(u) {
+    if (strangeGlyphCache && strangeGlyphCache.u === u) {
+        return strangeGlyphCache;
+    }
+    const items = {};
+    for (let i = 0; i < STRANGE_ALPHABET.length; i++) {
+        const ch = STRANGE_ALPHABET[i];
+        const color = STRANGE_BULBS[i % STRANGE_BULBS.length];
+        items[ch] = {
+            color: color,
+            off: renderStrangeGlyph(STRANGE_GLYPHS[ch], u, color, false),
+            on: renderStrangeGlyph(STRANGE_GLYPHS[ch], u, color, true)
+        };
+    }
+    strangeGlyphCache = { u: u, items: items };
+    return strangeGlyphCache;
+}
+
+// Гірлянда на весь екран: три ряди літер-лампочок на дроті; світиться потрібна літера
 function drawAlphabetGarland(ctx, W, gY, B, time, letter, flicker) {
     const rows = 3;
     const perRow = 11;
     const x0 = W * 0.1;
     const dx = (W * 0.8) / (perRow - 1);
-    ctx.font = "bold " + Math.round(B * 1.6) + "px Georgia, serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+    // Висота літери — трохи менша за відстань між рядами, ширина — за відстань між літерами
+    const u = Math.max(3, Math.round(Math.min(gY * 0.15 / 11, dx / 7.5, B * 0.55)));
+    const cache = strangeGlyphs(u);
     for (let r = 0; r < rows; r++) {
         // Нижче за панель очок і табличку слова вгорі екрана
         const y = gY * (0.3 + r * 0.15);
+        const wireY = (c) => y - u * 5.4 + Math.sin(c * 1.3 + r) * u * 0.5;
         // Дріт
         ctx.strokeStyle = "#1a2a14";
         ctx.lineWidth = 2;
         ctx.beginPath();
         for (let c = 0; c < perRow; c++) {
             const bx = x0 + c * dx;
-            const by = y - B * 1.6 + Math.sin(c * 1.3 + r) * B * 0.3;
             if (c === 0) {
-                ctx.moveTo(bx - dx / 2, by - B * 0.3);
+                ctx.moveTo(bx - dx / 2, wireY(c) - u * 0.4);
             }
-            ctx.lineTo(bx, by);
+            ctx.lineTo(bx, wireY(c));
         }
+        ctx.lineTo(x0 + (perRow - 0.5) * dx, wireY(perRow - 1) - u * 0.4);
         ctx.stroke();
         for (let c = 0; c < perRow; c++) {
             const ch = STRANGE_ALPHABET[r * perRow + c];
+            const item = cache.items[ch];
             const bx = x0 + c * dx;
-            const by = y - B * 1.6 + Math.sin(c * 1.3 + r) * B * 0.3;
-            const color = STRANGE_BULBS[(r * perRow + c) % STRANGE_BULBS.length];
+            // Літера висить на дроті й ледь похитується
+            const sway = Math.sin(time * 1.3 + c * 2.1 + r * 1.7) * u * 0.15;
+            const ly = y + Math.sin(c * 1.3 + r) * u * 0.5;
             const target = ch === letter;
             let on = target ? 1 : 0;
-            // Сторонні лампочки лише зрідка спалахують слабко, щоб не заважати знайти потрібну
+            // Сторонні літери лише зрідка спалахують слабко, щоб не заважати знайти потрібну
             if (!on && flicker > 0 && Math.sin(time * 13 + c * 3.1 + r * 7.7) > 0.985) {
                 on = 0.4 * flicker;
             }
-            if (on > 0) {
-                const pulse = target ? 0.45 + 0.15 * Math.sin(time * 8) : 0.2;
-                const halo = target ? 1.8 : 1.2;
-                ctx.globalAlpha = on * pulse;
-                ctx.fillStyle = color;
-                ctx.fillRect(Math.round(bx - B * halo), Math.round(by - B * halo * 0.8), Math.round(B * halo * 2), Math.round(B * halo * 2.2));
+            const off = item.off;
+            const lx = Math.round(bx + sway - off.cx);
+            const lyTop = Math.round(ly - off.cy);
+            // Патрончик на дроті
+            ctx.fillStyle = "#2a2418";
+            ctx.fillRect(Math.round(bx + sway - u * 0.35), Math.round(wireY(c)), Math.round(u * 0.7), Math.round(ly - u * 3 - wireY(c)));
+            if (target) {
+                // М'яке кольорове сяйво на шпалерах за літерою, що пульсує
+                const pulse = 0.55 + 0.15 * Math.sin(time * 8);
+                const rad = u * 7;
+                const grad = ctx.createRadialGradient(bx, ly, 0, bx, ly, rad);
+                grad.addColorStop(0, item.color);
+                grad.addColorStop(1, "rgba(0, 0, 0, 0)");
+                ctx.globalAlpha = pulse;
+                ctx.fillStyle = grad;
+                ctx.fillRect(Math.round(bx - rad), Math.round(ly - rad), Math.round(rad * 2), Math.round(rad * 2));
                 ctx.globalAlpha = 1;
             }
-            ctx.fillStyle = on > 0 ? "#ffffff" : color;
-            ctx.globalAlpha = on > 0 ? 1 : 0.45;
-            ctx.fillRect(Math.round(bx - B * 0.3), Math.round(by), Math.round(B * 0.6), Math.round(B * 0.8));
-            ctx.globalAlpha = 1;
-            // Кольоровою стає лише потрібна літера — випадкові спалахи не збивають
-            ctx.fillStyle = target ? color : "#1a1208";
-            ctx.fillText(ch, Math.round(bx), Math.round(y + B * 0.6));
+            if (on < 1) {
+                ctx.drawImage(off.cv, lx, lyTop);
+            }
+            if (on > 0) {
+                ctx.globalAlpha = on;
+                ctx.drawImage(item.on.cv, lx, lyTop);
+                if (target) {
+                    // Додаткове світло поверх — літера «горить», пульсуючи
+                    ctx.globalCompositeOperation = "lighter";
+                    ctx.globalAlpha = 0.2 + 0.15 * Math.sin(time * 8);
+                    ctx.drawImage(item.on.cv, lx, lyTop);
+                    ctx.globalCompositeOperation = "source-over";
+                }
+                ctx.globalAlpha = 1;
+            }
         }
     }
 }
