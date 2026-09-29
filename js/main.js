@@ -838,7 +838,7 @@ canvas.addEventListener("pointerdown", function (event) {
         return;
     }
     const area = getKeyboardArea();
-    const letter = hitTestKey(area, event.clientX - area.x, event.clientY - area.y);
+    const letter = hitTestKey(area, event.clientX, event.clientY);
     if (letter) {
         event.preventDefault();
         pressLetter(letter);
