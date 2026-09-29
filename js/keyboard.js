@@ -297,6 +297,29 @@ function keyPosition(area, layout, key) {
 }
 
 /**
+ * Яка літера під точкою дотику (координати в тих самих одиницях, що й area).
+ * Дозволяє грати на сенсорному екрані, торкаючись клавіш на полотні.
+ *
+ * @param {{x:number, y:number, w:number, h:number}} area
+ * @param {number} px
+ * @param {number} py
+ * @returns {string|null} велика літера або null, якщо дотик повз клавіші
+ */
+export function hitTestKey(area, px, py) {
+    const layout = computeLayout(area);
+    // Невеликий запас навколо клавіші, щоб дотик пальцем у проміжок теж рахувався
+    const slop = layout.gap / 2;
+    for (let i = 0; i < KEYS.length; i++) {
+        const pos = keyPosition(area, layout, KEYS[i]);
+        if (px >= pos.x - slop && px <= pos.x + layout.keyW + slop &&
+            py >= pos.y - slop && py <= pos.y + layout.keyH + slop) {
+            return KEYS[i].letter;
+        }
+    }
+    return null;
+}
+
+/**
  * Пульсуюче світіння навколо цільової клавіші. Малюється щокадру поверх кешованої
  * клавіатури, тому анімація не вимагає перемальовувати всю клавіатуру.
  *
