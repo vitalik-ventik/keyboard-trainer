@@ -8,7 +8,7 @@
 
 import { audioFileCount, loadAssets, playMusic, playSound, unlockAudio } from "./assets.js";
 import { ALL_LEVELS, BOSS_LEVEL_ID, COMBO_KINDS, Engine, LEVELS_CONFIG, levelOrderIndex, nextLevelOf, save } from "./engine.js";
-import { KEYS, drawKeyboard, drawTargetPulse, initKeyboardInput, setFingerScheme } from "./keyboard.js";
+import { KEYS, drawKeyboard, drawTargetPulse, hitTestKey, initKeyboardInput, setFingerScheme } from "./keyboard.js";
 import { BackgroundRenderer } from "./backgrounds.js";
 import { BackgroundQuality, FrameController, KeyboardCache } from "./cache.js";
 import { APP_VERSION, formatVersion, startUpdateWatcher } from "./version.js";
@@ -816,16 +816,37 @@ window.addEventListener("keydown", firstGestureUnlock);
 
 // ---------- Введення з клавіатури (з wrongKeyError) ----------
 
-initKeyboardInput(
-    function (letter) {
-        if (state === "PLAYING" && gameEngine) {
-            wrongKeyError.letter = null;
-            const outcome = gameEngine.handleLetter(letter);
-            if (outcome.result === "wrong") {
-                wrongKeyError = { letter: letter, timestamp: performance.now() };
-            }
+// Область візуальної клавіатури на полотні (у CSS-пікселях)
+function getKeyboardArea() {
+    return { x: W * 0.04, y: H * 0.70, w: W * 0.92, h: H * 0.28 };
+}
+
+// Літера з клавіатури або дотику: перевіряє відповідь і підсвічує помилку
+function pressLetter(letter) {
+    if (state === "PLAYING" && gameEngine) {
+        wrongKeyError.letter = null;
+        const outcome = gameEngine.handleLetter(letter);
+        if (outcome.result === "wrong") {
+            wrongKeyError = { letter: letter, timestamp: performance.now() };
         }
-    },
+    }
+}
+
+// Сенсорний режим: дотик до клавіші на полотні = натискання літери
+canvas.addEventListener("pointerdown", function (event) {
+    if (state !== "PLAYING" || !gameEngine || gameEngine.paused) {
+        return;
+    }
+    const area = getKeyboardArea();
+    const letter = hitTestKey(area, event.clientX - area.x, event.clientY - area.y);
+    if (letter) {
+        event.preventDefault();
+        pressLetter(letter);
+    }
+});
+
+initKeyboardInput(
+    pressLetter,
     // Пробіл: у грі — пауза / продовження; на екранах результату й сундука — «далі»
     function () {
         if (isReviveOpen()) {
@@ -1178,12 +1199,7 @@ function frame(now) {
                 wrongKeyError.letter = null;
             }
 
-            const keyboardArea = {
-                x: W * 0.04,
-                y: H * 0.70,
-                w: W * 0.92,
-                h: H * 0.28
-            };
+            const keyboardArea = getKeyboardArea();
             // На паузі ціль не підсвічується: видно всі літери рівня, щоб роздивитися їх
             var tarLetter = gameEngine.paused ? null : gameEngine.getTargetLetter();
             var grpLetters = gameEngine.level.letters;
