@@ -802,7 +802,8 @@ btnWinMenu.addEventListener("click", function () {
 });
 
 document.addEventListener("click", function (event) {
-    if (event.target && event.target.closest("button")) {
+    // Плашки головного меню (СКІН, МАГАЗИН, ДОСЯГНЕННЯ, РЕЙТИНГ) — div, а не button
+    if (event.target && event.target.closest("button, .skin-trigger")) {
         playSound("click");
     }
 });
